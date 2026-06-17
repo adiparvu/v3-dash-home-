@@ -2,40 +2,128 @@
 @tailwind components;
 @tailwind utilities;
 
-:root {
-  --bg: #0B111E;
-  --card: #131C2E;
-  --card2: #1A2438;
-  --accent: #4ADE80;
-  --purple: #7C3AED;
-  --text-white: #FFFFFF;
-  --text-gray: #9CA3AF;
-  --orange: #F97316;
+@layer base {
+  :root {
+    --bg: #050A14;
+    --bg-secondary: #0B111E;
+    --bg-card: #111827;
+    --glass: rgba(255, 255, 255, 0.06);
+    --glass-border: rgba(255, 255, 255, 0.10);
+    --accent: #4ADE80;
+    --text-primary: #FFFFFF;
+    --text-secondary: #9CA3AF;
+  }
+
+  * {
+    -webkit-tap-highlight-color: transparent;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    box-sizing: border-box;
+  }
+
+  html, body {
+    background: var(--bg);
+    color: var(--text-primary);
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Segoe UI', sans-serif;
+    margin: 0;
+    padding: 0;
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+
+  ::-webkit-scrollbar { display: none; }
+  * { scrollbar-width: none; }
 }
 
-* {
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-  box-sizing: border-box;
-}
+@layer components {
+  /* Liquid Glass Cards */
+  .glass-card {
+    background: rgba(255, 255, 255, 0.06);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    border: 1px solid rgba(255, 255, 255, 0.10);
+    border-radius: 1rem;
+    box-shadow: 0 4px 24px rgba(0,0,0,0.4), inset 0 1px 0 rgba(255,255,255,0.08);
+  }
 
-html, body {
-  background: #050A14;
-  color: #fff;
-  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Segoe UI', sans-serif;
-  margin: 0;
-  padding: 0;
-  min-height: 100vh;
-}
+  .glass-card-hover {
+    background: rgba(255, 255, 255, 0.06);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    border: 1px solid rgba(255, 255, 255, 0.10);
+    border-radius: 1rem;
+    box-shadow: 0 4px 24px rgba(0,0,0,0.4), inset 0 1px 0 rgba(255,255,255,0.08);
+    transition: all 0.2s ease;
+    cursor: pointer;
+  }
 
-::-webkit-scrollbar {
-  width: 0px;
-  height: 0px;
+  .glass-card-hover:hover {
+    background: rgba(255, 255, 255, 0.09);
+  }
+
+  .glass-card-hover:active {
+    transform: scale(0.98);
+  }
+
+  .glass-strong {
+    background: rgba(255, 255, 255, 0.10);
+    backdrop-filter: blur(40px);
+    -webkit-backdrop-filter: blur(40px);
+    border: 1px solid rgba(255, 255, 255, 0.15);
+    border-radius: 1.25rem;
+    box-shadow: 0 8px 40px rgba(0,0,0,0.5), inset 0 1px 0 rgba(255,255,255,0.12);
+  }
+
+  .btn-primary {
+    background: #4ADE80;
+    color: #050A14;
+    font-weight: 600;
+    border-radius: 1rem;
+    padding: 0.75rem 1.25rem;
+    font-size: 0.875rem;
+    transition: all 0.15s ease;
+    border: none;
+    cursor: pointer;
+  }
+
+  .btn-primary:active { transform: scale(0.97); }
+
+  .btn-glass {
+    background: rgba(255, 255, 255, 0.06);
+    backdrop-filter: blur(20px);
+    color: white;
+    font-weight: 500;
+    border-radius: 1rem;
+    padding: 0.75rem 1.25rem;
+    font-size: 0.875rem;
+    border: 1px solid rgba(255,255,255,0.10);
+    transition: all 0.15s ease;
+    cursor: pointer;
+  }
+
+  .btn-glass:hover { background: rgba(255,255,255,0.09); }
+  .btn-glass:active { transform: scale(0.97); }
+
+  .status-dot { @apply w-2 h-2 rounded-full inline-block; }
+  .label-xs { @apply text-text-secondary text-xs font-medium tracking-wide; }
+
+  .safe-top { padding-top: env(safe-area-inset-top, 44px); }
+  .safe-bottom { padding-bottom: env(safe-area-inset-bottom, 34px); }
 }
 
 @layer utilities {
-  .text-balance {
-    text-wrap: balance;
+  .text-gradient-green {
+    background: linear-gradient(135deg, #4ADE80, #22D3EE);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+
+  .text-gradient-purple {
+    background: linear-gradient(135deg, #7C3AED, #22D3EE);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
   }
 
   .scrollbar-hide {
@@ -43,7 +131,7 @@ html, body {
     scrollbar-width: none;
   }
 
-  .scrollbar-hide::-webkit-scrollbar {
-    display: none;
-  }
+  .scrollbar-hide::-webkit-scrollbar { display: none; }
+
+  .text-balance { text-wrap: balance; }
 }
