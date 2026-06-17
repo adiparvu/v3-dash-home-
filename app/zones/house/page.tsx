@@ -7,7 +7,7 @@ export default function HousePage() {
       <div className="h-96 relative overflow-hidden">
         {/* Real aerial house photo */}
         <img
-          src="https://images.unsplash.com/photo-1656646549863-fdea73acf3df?w=800&q=80&fit=crop&auto=format"
+          src="/images/zone-house-bg.jpg"
           alt=""
           draggable={false}
           style={{ position: "absolute", inset: 0, width: "100%", height: "100%", objectFit: "cover" }}

@@ -6,7 +6,7 @@ export default function GreenhousePage() {
       {/* Header image area */}
       <div className="relative h-40 overflow-hidden">
         <img
-          src="https://images.unsplash.com/photo-1623241899289-7dc4d71f0abf?w=800&q=80&fit=crop&auto=format"
+          src="/images/zone-greenhouse-bg.jpg"
           alt=""
           draggable={false}
           style={{ position: "absolute", inset: 0, width: "100%", height: "100%", objectFit: "cover" }}

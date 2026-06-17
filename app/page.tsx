@@ -39,7 +39,7 @@ export default function Home() {
         {/* Hero Property Image */}
         <div className="w-full h-56 mt-3 relative overflow-hidden">
           <img
-            src="https://images.unsplash.com/photo-1632883224191-76bbbd6d6025?w=800&q=80&fit=crop&auto=format"
+            src="/images/hero-overview.jpg"
             alt=""
             draggable={false}
             style={{ position: "absolute", inset: 0, width: "100%", height: "100%", objectFit: "cover" }}

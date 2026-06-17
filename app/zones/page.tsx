@@ -10,7 +10,7 @@ const filterTabs = ["All", "Outdoor", "Buildings", "Utilities"];
 const zones = [
   {
     href: "/zones/lake",
-    image: "https://images.unsplash.com/photo-1536663094815-aa7e99627504?w=200&h=200&fit=crop&q=80&auto=format",
+    image: "/images/zone-lake-thumb.jpg",
     name: "Lake",
     status: "Excellent",
     temp: "18.4 °C",
@@ -19,7 +19,7 @@ const zones = [
   },
   {
     href: "/zones/house",
-    image: "https://images.unsplash.com/photo-1656646549863-fdea73acf3df?w=200&h=200&fit=crop&q=80&auto=format",
+    image: "/images/zone-house-thumb.jpg",
     name: "House",
     status: "Good",
     temp: "22 °C",
@@ -28,7 +28,7 @@ const zones = [
   },
   {
     href: "/zones/garden",
-    image: "https://images.unsplash.com/photo-1656646549794-17ce57191582?w=200&h=200&fit=crop&q=80&auto=format",
+    image: "/images/zone-garden-thumb.jpg",
     name: "Garden",
     status: "Good",
     temp: "",
@@ -37,7 +37,7 @@ const zones = [
   },
   {
     href: "/zones/orchard",
-    image: "https://images.unsplash.com/photo-1508694437592-68d3e04f2518?w=200&h=200&fit=crop&q=80&auto=format",
+    image: "/images/zone-orchard-thumb.jpg",
     name: "Orchard",
     status: "Excellent",
     temp: "—",
@@ -46,7 +46,7 @@ const zones = [
   },
   {
     href: "/zones/driveway",
-    image: "https://images.unsplash.com/photo-1510525992883-3a19ed13fbb2?w=200&h=200&fit=crop&q=80&auto=format",
+    image: "/images/zone-driveway-thumb.jpg",
     name: "Driveway",
     status: "Good",
     temp: "—",

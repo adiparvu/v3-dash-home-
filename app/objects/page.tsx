@@ -10,7 +10,7 @@ const filterTabs = ["All", "Devices", "Plants", "Equipment"];
 const objects = [
   {
     href: "/objects/water-pump",
-    image: "https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=200&h=200&fit=crop&q=80&auto=format",
+    image: "/images/obj-water-pump.jpg",
     name: "Water Pump",
     location: "Lake",
     statusDot: "#4ADE80",
@@ -19,7 +19,7 @@ const objects = [
   },
   {
     href: "/objects/ficus-tree",
-    image: "https://images.unsplash.com/photo-1583597029917-c1fe61e58938?w=200&h=200&fit=crop&q=80&auto=format",
+    image: "/images/obj-ficus-tree.jpg",
     name: "Ficus Tree",
     location: "Living Room",
     statusDot: "#4ADE80",
@@ -28,7 +28,7 @@ const objects = [
   },
   {
     href: "/objects/air-conditioner",
-    image: "https://images.unsplash.com/photo-1585771724684-38269d6639fd?w=200&h=200&fit=crop&q=80&auto=format",
+    image: "/images/obj-air-conditioner.jpg",
     name: "Air Conditioner",
     location: "House",
     statusDot: "#4ADE80",
@@ -37,7 +37,7 @@ const objects = [
   },
   {
     href: "/objects/lawn-mower",
-    image: "https://images.unsplash.com/photo-1589923188651-268a9765e432?w=200&h=200&fit=crop&q=80&auto=format",
+    image: "/images/obj-lawn-mower.jpg",
     name: "Lawn Mower",
     location: "Garden",
     statusDot: "#9CA3AF",
@@ -46,7 +46,7 @@ const objects = [
   },
   {
     href: "/objects/security-camera",
-    image: "https://images.unsplash.com/photo-1534972195531-d756b9bfa9f2?w=200&h=200&fit=crop&q=80&auto=format",
+    image: "/images/obj-security-camera.jpg",
     name: "Security Camera",
     location: "Driveway",
     statusDot: null,

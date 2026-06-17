@@ -58,7 +58,7 @@ export default function SmartPondPage() {
       {/* Hero pond image */}
       <div className="h-64 relative overflow-hidden">
         <img
-          src="https://images.unsplash.com/photo-1692555073611-002b040ea5f4?w=800&q=80&fit=crop&auto=format"
+          src="/images/obj-smart-pond-bg.jpg"
           alt=""
           draggable={false}
           style={{ position: "absolute", inset: 0, width: "100%", height: "100%", objectFit: "cover" }}

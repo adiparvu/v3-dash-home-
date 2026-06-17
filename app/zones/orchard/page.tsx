@@ -24,7 +24,7 @@ export default function OrchardPage() {
       {/* Background image area */}
       <div className="h-72 relative overflow-hidden">
         <img
-          src="https://images.unsplash.com/photo-1508694437592-68d3e04f2518?w=800&q=80&fit=crop&auto=format"
+          src="/images/zone-orchard-bg.jpg"
           alt=""
           draggable={false}
           style={{ position: "absolute", inset: 0, width: "100%", height: "100%", objectFit: "cover" }}

@@ -24,7 +24,7 @@ export default function ForestPage() {
       {/* Background area */}
       <div className="h-64 relative overflow-hidden">
         <img
-          src="https://images.unsplash.com/photo-1510694853838-e4a8c978f518?w=800&q=80&fit=crop&auto=format"
+          src="/images/zone-forest-bg.jpg"
           alt=""
           draggable={false}
           style={{ position: "absolute", inset: 0, width: "100%", height: "100%", objectFit: "cover" }}

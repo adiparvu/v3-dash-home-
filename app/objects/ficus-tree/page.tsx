@@ -93,7 +93,7 @@ export default function FicusTreePage() {
         style={{ background: "#0A1A0A" }}
       >
         <img
-          src="https://images.unsplash.com/photo-1583597029917-c1fe61e58938?w=600&q=80&fit=crop&auto=format"
+          src="/images/obj-ficus-detail.jpg"
           alt=""
           draggable={false}
           style={{
