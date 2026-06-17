@@ -5,77 +5,20 @@ export default function LakePage() {
     <div className="min-h-screen relative overflow-hidden bg-[#0B111E]">
       {/* Top Image Section */}
       <div className="h-96 relative overflow-hidden">
-        {/* Gradient background */}
+        {/* Real lake aerial photo */}
+        <img
+          src="https://images.unsplash.com/photo-1536663094815-aa7e99627504?w=800&q=80&fit=crop&auto=format"
+          alt=""
+          draggable={false}
+          style={{ position: "absolute", inset: 0, width: "100%", height: "100%", objectFit: "cover" }}
+        />
         <div
-          className="absolute inset-0"
           style={{
-            background:
-              "linear-gradient(180deg, #051520 0%, #072030 30%, #0A3040 60%, #0D3550 80%, #082540 100%)",
+            position: "absolute",
+            inset: 0,
+            background: "linear-gradient(to bottom, rgba(0,0,0,0.4) 0%, rgba(0,0,0,0.1) 50%, rgba(11,17,30,0.9) 100%)",
           }}
         />
-
-        {/* SVG Landscape */}
-        <svg
-          className="absolute inset-0 w-full h-full"
-          viewBox="0 0 390 384"
-          preserveAspectRatio="xMidYMid slice"
-          xmlns="http://www.w3.org/2000/svg"
-        >
-          {/* Far background mountains */}
-          <polygon points="0,240 60,160 130,220 200,140 270,200 340,150 390,200 390,384 0,384" fill="#061825" />
-
-          {/* Mid mountains */}
-          <polygon points="0,270 80,200 160,250 240,190 320,240 390,210 390,384 0,384" fill="#081F2E" />
-
-          {/* Foreground hills */}
-          <polygon points="0,300 100,250 200,280 300,255 390,270 390,384 0,384" fill="#0A2535" />
-
-          {/* Lake ellipse */}
-          <ellipse cx="195" cy="310" rx="130" ry="50" fill="#0D4A5A" opacity="0.85" />
-
-          {/* Lake inner glow */}
-          <ellipse cx="195" cy="308" rx="110" ry="40" fill="#0F5A6E" opacity="0.5" />
-
-          {/* Lake highlight shimmer */}
-          <ellipse cx="185" cy="300" rx="50" ry="12" fill="#1A8FA8" opacity="0.18" />
-
-          {/* Water reflection lines */}
-          <line x1="120" y1="310" x2="270" y2="310" stroke="#1ABDD4" strokeWidth="0.5" opacity="0.25" />
-          <line x1="135" y1="318" x2="255" y2="318" stroke="#1ABDD4" strokeWidth="0.5" opacity="0.15" />
-          <line x1="150" y1="325" x2="240" y2="325" stroke="#1ABDD4" strokeWidth="0.5" opacity="0.1" />
-
-          {/* Trees - left cluster */}
-          <circle cx="68" cy="278" r="18" fill="#061E14" />
-          <circle cx="88" cy="270" r="22" fill="#072418" />
-          <circle cx="54" cy="285" r="14" fill="#061E14" />
-          <circle cx="108" cy="275" r="16" fill="#082A1C" />
-          <rect x="84" y="292" width="6" height="18" fill="#04120C" />
-          <rect x="65" y="296" width="5" height="14" fill="#04120C" />
-
-          {/* Trees - right cluster */}
-          <circle cx="322" cy="275" r="20" fill="#061E14" />
-          <circle cx="302" cy="270" r="16" fill="#072418" />
-          <circle cx="340" cy="280" r="18" fill="#082A1C" />
-          <circle cx="358" cy="272" r="15" fill="#061E14" />
-          <rect x="319" y="294" width="6" height="18" fill="#04120C" />
-          <rect x="338" y="297" width="5" height="14" fill="#04120C" />
-
-          {/* Small trees near lake */}
-          <circle cx="140" cy="290" r="12" fill="#061E14" />
-          <circle cx="250" cy="288" r="14" fill="#072418" />
-          <circle cx="158" cy="294" r="9" fill="#082A1C" />
-          <circle cx="234" cy="292" r="10" fill="#061E14" />
-
-          {/* Stars */}
-          <circle cx="50" cy="40" r="1" fill="#FFFFFF" opacity="0.6" />
-          <circle cx="120" cy="25" r="1.2" fill="#FFFFFF" opacity="0.5" />
-          <circle cx="200" cy="50" r="0.8" fill="#FFFFFF" opacity="0.7" />
-          <circle cx="280" cy="30" r="1" fill="#FFFFFF" opacity="0.55" />
-          <circle cx="350" cy="45" r="1.2" fill="#FFFFFF" opacity="0.6" />
-          <circle cx="170" cy="70" r="0.8" fill="#FFFFFF" opacity="0.4" />
-          <circle cx="310" cy="65" r="1" fill="#FFFFFF" opacity="0.5" />
-          <circle cx="80" cy="80" r="0.8" fill="#FFFFFF" opacity="0.45" />
-        </svg>
 
         {/* Neon glow over lake */}
         <div

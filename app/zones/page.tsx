@@ -10,7 +10,7 @@ const filterTabs = ["All", "Outdoor", "Buildings", "Utilities"];
 const zones = [
   {
     href: "/zones/lake",
-    gradient: "linear-gradient(135deg, #0E3028 0%, #0D4A3A 50%, #0A5540 100%)",
+    image: "https://images.unsplash.com/photo-1536663094815-aa7e99627504?w=200&h=200&fit=crop&q=80&auto=format",
     name: "Lake",
     status: "Excellent",
     temp: "18.4 °C",
@@ -19,7 +19,7 @@ const zones = [
   },
   {
     href: "/zones/house",
-    gradient: "linear-gradient(135deg, #2A1A0E 0%, #3D2510 50%, #2E1C0A 100%)",
+    image: "https://images.unsplash.com/photo-1656646549863-fdea73acf3df?w=200&h=200&fit=crop&q=80&auto=format",
     name: "House",
     status: "Good",
     temp: "22 °C",
@@ -28,7 +28,7 @@ const zones = [
   },
   {
     href: "/zones/garden",
-    gradient: "linear-gradient(135deg, #0A2E10 0%, #123D18 50%, #0E3515 100%)",
+    image: "https://images.unsplash.com/photo-1656646549794-17ce57191582?w=200&h=200&fit=crop&q=80&auto=format",
     name: "Garden",
     status: "Good",
     temp: "",
@@ -37,7 +37,7 @@ const zones = [
   },
   {
     href: "/zones/orchard",
-    gradient: "linear-gradient(135deg, #0A1E08 0%, #152D10 50%, #0E2A0C 100%)",
+    image: "https://images.unsplash.com/photo-1508694437592-68d3e04f2518?w=200&h=200&fit=crop&q=80&auto=format",
     name: "Orchard",
     status: "Excellent",
     temp: "—",
@@ -46,7 +46,7 @@ const zones = [
   },
   {
     href: "/zones/driveway",
-    gradient: "linear-gradient(135deg, #1A1A1A 0%, #252525 50%, #1C1C1C 100%)",
+    image: "https://images.unsplash.com/photo-1510525992883-3a19ed13fbb2?w=200&h=200&fit=crop&q=80&auto=format",
     name: "Driveway",
     status: "Good",
     temp: "—",
@@ -97,13 +97,16 @@ export default function ZonesPage() {
         {zones.map((zone) => (
           <Link key={zone.href} href={zone.href}>
             <div className="bg-[#131C2E] rounded-2xl p-3 flex items-center gap-3">
-              {/* Gradient thumbnail */}
-              <div
+              {/* Zone thumbnail */}
+              <img
+                src={zone.image}
+                alt=""
+                draggable={false}
                 style={{
                   width: 100,
                   height: 100,
                   borderRadius: 12,
-                  background: zone.gradient,
+                  objectFit: "cover",
                   flexShrink: 0,
                 }}
               />
