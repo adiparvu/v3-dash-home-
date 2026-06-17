@@ -22,53 +22,20 @@ export default function ForestPage() {
       </div>
 
       {/* Background area */}
-      <div
-        className="h-64 relative overflow-hidden"
-        style={{
-          background: "linear-gradient(180deg, #020802 0%, #051008 40%, #030A04 100%)",
-        }}
-      >
-        <svg
-          width="100%"
-          height="100%"
-          viewBox="0 0 360 256"
-          preserveAspectRatio="xMidYMid slice"
-          xmlns="http://www.w3.org/2000/svg"
-        >
-          {/* Dense canopy layer — large overlapping blobs */}
-          <ellipse cx="50" cy="60" rx="45" ry="38" fill="#071A05" />
-          <ellipse cx="110" cy="45" rx="55" ry="42" fill="#0A2108" />
-          <ellipse cx="180" cy="55" rx="50" ry="40" fill="#071A05" />
-          <ellipse cx="250" cy="48" rx="52" ry="38" fill="#091F07" />
-          <ellipse cx="320" cy="60" rx="44" ry="36" fill="#071A05" />
-
-          <ellipse cx="30" cy="110" rx="40" ry="32" fill="#0C2609" />
-          <ellipse cx="90" cy="100" rx="50" ry="40" fill="#0E2A0A" />
-          <ellipse cx="165" cy="108" rx="55" ry="42" fill="#0A2208" />
-          <ellipse cx="235" cy="100" rx="48" ry="38" fill="#0D280A" />
-          <ellipse cx="300" cy="110" rx="46" ry="36" fill="#0B2408" />
-          <ellipse cx="355" cy="105" rx="38" ry="32" fill="#0A2208" />
-
-          {/* Mid layer lighter canopy spots */}
-          <ellipse cx="70" cy="148" rx="38" ry="28" fill="#122E0E" />
-          <ellipse cx="150" cy="155" rx="44" ry="30" fill="#14320F" />
-          <ellipse cx="230" cy="148" rx="40" ry="28" fill="#122E0E" />
-          <ellipse cx="310" cy="152" rx="36" ry="26" fill="#133010" />
-
-          {/* Lower layer ground cover */}
-          <ellipse cx="40" cy="195" rx="35" ry="22" fill="#0C2609" />
-          <ellipse cx="120" cy="200" rx="42" ry="24" fill="#0E2A0A" />
-          <ellipse cx="200" cy="195" rx="40" ry="22" fill="#0B2408" />
-          <ellipse cx="280" cy="200" rx="38" ry="24" fill="#0D280A" />
-          <ellipse cx="350" cy="195" rx="32" ry="20" fill="#0C2609" />
-
-          {/* Lighter canopy highlight spots */}
-          <circle cx="100" cy="72" r="18" fill="#1A4512" opacity="0.6" />
-          <circle cx="200" cy="65" r="15" fill="#1C4A13" opacity="0.5" />
-          <circle cx="280" cy="78" r="16" fill="#194011" opacity="0.55" />
-          <circle cx="155" cy="130" r="14" fill="#1A4212" opacity="0.5" />
-          <circle cx="255" cy="125" r="12" fill="#193E11" opacity="0.45" />
-        </svg>
+      <div className="h-64 relative overflow-hidden">
+        <img
+          src="https://images.unsplash.com/photo-1510694853838-e4a8c978f518?w=800&q=80&fit=crop&auto=format"
+          alt=""
+          draggable={false}
+          style={{ position: "absolute", inset: 0, width: "100%", height: "100%", objectFit: "cover" }}
+        />
+        <div
+          style={{
+            position: "absolute",
+            inset: 0,
+            background: "linear-gradient(to bottom, rgba(0,0,0,0.3) 0%, rgba(0,0,0,0.1) 50%, rgba(11,17,30,0.85) 100%)",
+          }}
+        />
       </div>
 
       {/* Content below background */}

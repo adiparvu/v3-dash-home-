@@ -3,17 +3,33 @@ import Link from "next/link";
 export default function GreenhousePage() {
   return (
     <div className="bg-[#0B111E] min-h-screen">
-      {/* Header */}
-      <div className="px-5 pt-4 flex items-center justify-between">
-        <Link href="/zones" className="flex items-center gap-2">
-          <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
-            <path d="M12.5 15L7.5 10L12.5 5" stroke="#9CA3AF" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
-          </svg>
-          <span className="text-white text-sm font-medium">Greenhouse / Main Greenhouse</span>
-        </Link>
-        <button className="w-8 h-8 rounded-full bg-[#1C2A40] flex items-center justify-center">
-          <span className="text-[#9CA3AF] text-lg leading-none pb-0.5">···</span>
-        </button>
+      {/* Header image area */}
+      <div className="relative h-40 overflow-hidden">
+        <img
+          src="https://images.unsplash.com/photo-1623241899289-7dc4d71f0abf?w=800&q=80&fit=crop&auto=format"
+          alt=""
+          draggable={false}
+          style={{ position: "absolute", inset: 0, width: "100%", height: "100%", objectFit: "cover" }}
+        />
+        <div
+          style={{
+            position: "absolute",
+            inset: 0,
+            background: "linear-gradient(to bottom, rgba(11,17,30,0.6) 0%, rgba(11,17,30,0.5) 60%, rgba(11,17,30,0.95) 100%)",
+          }}
+        />
+        {/* Header */}
+        <div className="relative z-10 px-5 pt-4 flex items-center justify-between">
+          <Link href="/zones" className="flex items-center gap-2">
+            <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
+              <path d="M12.5 15L7.5 10L12.5 5" stroke="#9CA3AF" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+            </svg>
+            <span className="text-white text-sm font-medium">Greenhouse / Main Greenhouse</span>
+          </Link>
+          <button className="w-8 h-8 rounded-full bg-[#1C2A40] flex items-center justify-center">
+            <span className="text-[#9CA3AF] text-lg leading-none pb-0.5">···</span>
+          </button>
+        </div>
       </div>
 
       {/* Scrollable content */}

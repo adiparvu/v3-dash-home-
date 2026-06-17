@@ -90,123 +90,27 @@ export default function FicusTreePage() {
       {/* Plant image area */}
       <div
         className="h-64 relative mx-4 mt-2 rounded-2xl overflow-hidden"
-        style={{
-          background:
-            "linear-gradient(180deg, #0A1A0A 0%, #0E2510 30%, #081808 100%)",
-        }}
+        style={{ background: "#0A1A0A" }}
       >
-        <svg
-          viewBox="0 0 360 256"
-          preserveAspectRatio="xMidYMid slice"
-          width="100%"
-          height="100%"
-          xmlns="http://www.w3.org/2000/svg"
-        >
-          {/* Soil / pot base */}
-          <ellipse cx="180" cy="238" rx="38" ry="8" fill="#1A0F05" />
-          <rect x="158" y="220" width="44" height="22" rx="4" fill="#2A1A08" />
-          <rect x="153" y="215" width="54" height="10" rx="3" fill="#3A2410" />
-
-          {/* Main trunk */}
-          <path
-            d="M176 215 Q178 180 180 140 Q182 100 180 70"
-            stroke="#3D2510"
-            strokeWidth="10"
-            strokeLinecap="round"
-            fill="none"
-          />
-          {/* Branch left 1 */}
-          <path
-            d="M179 155 Q155 145 135 130"
-            stroke="#3D2510"
-            strokeWidth="6"
-            strokeLinecap="round"
-            fill="none"
-          />
-          {/* Branch right 1 */}
-          <path
-            d="M180 140 Q205 128 225 118"
-            stroke="#3D2510"
-            strokeWidth="6"
-            strokeLinecap="round"
-            fill="none"
-          />
-          {/* Branch left 2 */}
-          <path
-            d="M180 110 Q155 95 132 88"
-            stroke="#3D2510"
-            strokeWidth="5"
-            strokeLinecap="round"
-            fill="none"
-          />
-          {/* Branch right 2 */}
-          <path
-            d="M180 100 Q208 88 228 80"
-            stroke="#3D2510"
-            strokeWidth="5"
-            strokeLinecap="round"
-            fill="none"
-          />
-          {/* Branch up-left */}
-          <path
-            d="M180 80 Q162 62 148 50"
-            stroke="#3D2510"
-            strokeWidth="4"
-            strokeLinecap="round"
-            fill="none"
-          />
-          {/* Branch up-right */}
-          <path
-            d="M180 72 Q198 56 212 46"
-            stroke="#3D2510"
-            strokeWidth="4"
-            strokeLinecap="round"
-            fill="none"
-          />
-
-          {/* Large leaf clusters - dark green */}
-          <ellipse cx="118" cy="118" rx="38" ry="30" fill="#0D3010" />
-          <ellipse cx="108" cy="110" rx="28" ry="22" fill="#0F3A12" />
-          <ellipse cx="135" cy="105" rx="32" ry="24" fill="#0E3511" />
-
-          <ellipse cx="238" cy="108" rx="36" ry="28" fill="#0D3010" />
-          <ellipse cx="248" cy="100" rx="26" ry="20" fill="#0F3A12" />
-          <ellipse cx="225" cy="96" rx="30" ry="22" fill="#0E3511" />
-
-          <ellipse cx="130" cy="76" rx="32" ry="26" fill="#0E3511" />
-          <ellipse cx="115" cy="68" rx="24" ry="18" fill="#0F3A12" />
-
-          <ellipse cx="220" cy="68" rx="30" ry="24" fill="#0E3511" />
-          <ellipse cx="235" cy="60" rx="22" ry="18" fill="#0F3A12" />
-
-          {/* Top center cluster */}
-          <ellipse cx="178" cy="48" rx="36" ry="28" fill="#0D3010" />
-          <ellipse cx="165" cy="38" rx="24" ry="20" fill="#0F3A12" />
-          <ellipse cx="192" cy="36" rx="26" ry="20" fill="#112E14" />
-          <ellipse cx="178" cy="30" rx="20" ry="16" fill="#143318" />
-
-          {/* Accent lighter leaves */}
-          <ellipse cx="145" cy="92" rx="14" ry="10" fill="#1A5220" opacity="0.9" />
-          <ellipse cx="215" cy="82" rx="12" ry="9" fill="#1A5220" opacity="0.9" />
-          <ellipse cx="162" cy="52" rx="10" ry="8" fill="#1C5C22" opacity="0.85" />
-          <ellipse cx="198" cy="44" rx="10" ry="8" fill="#1C5C22" opacity="0.85" />
-          <ellipse cx="125" cy="56" rx="9" ry="7" fill="#1A5220" opacity="0.8" />
-          <ellipse cx="235" cy="50" rx="9" ry="7" fill="#1A5220" opacity="0.8" />
-
-          {/* Small bright leaf highlights */}
-          <ellipse cx="138" cy="86" rx="6" ry="4" fill="#2A7032" opacity="0.7" />
-          <ellipse cx="224" cy="75" rx="6" ry="4" fill="#2A7032" opacity="0.7" />
-          <ellipse cx="175" cy="22" rx="8" ry="5" fill="#2A7032" opacity="0.6" />
-
-          {/* Drooping small leaves */}
-          <path d="M130 135 Q118 148 112 155" stroke="#0F3A12" strokeWidth="3" strokeLinecap="round" fill="none" />
-          <ellipse cx="109" cy="158" rx="9" ry="6" fill="#0F3A12" transform="rotate(-20 109 158)" />
-          <path d="M232 122 Q243 134 248 142" stroke="#0F3A12" strokeWidth="3" strokeLinecap="round" fill="none" />
-          <ellipse cx="251" cy="145" rx="9" ry="6" fill="#0F3A12" transform="rotate(20 251 145)" />
-
-          {/* Ground shadow */}
-          <ellipse cx="180" cy="240" rx="60" ry="6" fill="#060E06" opacity="0.6" />
-        </svg>
+        <img
+          src="https://images.unsplash.com/photo-1583597029917-c1fe61e58938?w=600&q=80&fit=crop&auto=format"
+          alt=""
+          draggable={false}
+          style={{
+            position: "absolute",
+            inset: 0,
+            width: "100%",
+            height: "100%",
+            objectFit: "cover",
+          }}
+        />
+        <div
+          style={{
+            position: "absolute",
+            inset: 0,
+            background: "linear-gradient(to bottom, rgba(10,26,10,0.1) 0%, rgba(10,26,10,0.3) 100%)",
+          }}
+        />
       </div>
 
       {/* Detail card */}

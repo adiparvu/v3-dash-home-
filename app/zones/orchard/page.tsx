@@ -22,40 +22,20 @@ export default function OrchardPage() {
       </div>
 
       {/* Background image area */}
-      <div
-        className="h-72 relative overflow-hidden"
-        style={{
-          background: "linear-gradient(180deg, #051008 0%, #0A1E08 30%, #122A0A 60%, #0E2208 100%)",
-        }}
-      >
-        <svg
-          width="100%"
-          height="100%"
-          viewBox="0 0 360 288"
-          preserveAspectRatio="xMidYMid slice"
-          xmlns="http://www.w3.org/2000/svg"
-        >
-          {/* Row 1 */}
-          {[30, 90, 150, 210, 270, 330].map((x, i) => (
-            <circle key={`r1-${i}`} cx={x} cy={40} r={i % 3 === 1 ? 14 : 10} fill={i % 4 === 2 ? "#1A4A10" : "#0F2D09"} />
-          ))}
-          {/* Row 2 */}
-          {[60, 120, 180, 240, 300].map((x, i) => (
-            <circle key={`r2-${i}`} cx={x} cy={90} r={i % 2 === 0 ? 13 : 11} fill={i % 3 === 0 ? "#1B5012" : "#0D2807"} />
-          ))}
-          {/* Row 3 */}
-          {[30, 90, 150, 210, 270, 330].map((x, i) => (
-            <circle key={`r3-${i}`} cx={x} cy={140} r={i % 4 === 1 ? 15 : 10} fill={i % 3 === 1 ? "#164010" : "#0B2106"} />
-          ))}
-          {/* Row 4 */}
-          {[60, 120, 180, 240, 300].map((x, i) => (
-            <circle key={`r4-${i}`} cx={x} cy={190} r={i % 2 === 1 ? 12 : 10} fill={i % 4 === 0 ? "#193D0E" : "#0E2508"} />
-          ))}
-          {/* Row 5 */}
-          {[30, 90, 150, 210, 270, 330].map((x, i) => (
-            <circle key={`r5-${i}`} cx={x} cy={240} r={i % 3 === 2 ? 14 : 10} fill={i % 3 === 0 ? "#1A4511" : "#0C230A"} />
-          ))}
-        </svg>
+      <div className="h-72 relative overflow-hidden">
+        <img
+          src="https://images.unsplash.com/photo-1508694437592-68d3e04f2518?w=800&q=80&fit=crop&auto=format"
+          alt=""
+          draggable={false}
+          style={{ position: "absolute", inset: 0, width: "100%", height: "100%", objectFit: "cover" }}
+        />
+        <div
+          style={{
+            position: "absolute",
+            inset: 0,
+            background: "linear-gradient(to bottom, rgba(0,0,0,0.3) 0%, rgba(0,0,0,0.1) 50%, rgba(11,17,30,0.85) 100%)",
+          }}
+        />
       </div>
 
       {/* Two side-by-side cards */}

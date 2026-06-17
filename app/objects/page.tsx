@@ -10,8 +10,7 @@ const filterTabs = ["All", "Devices", "Plants", "Equipment"];
 const objects = [
   {
     href: "/objects/water-pump",
-    gradient: "linear-gradient(135deg, #0A1E3A 0%, #0E2D52 100%)",
-    icon: "💧",
+    image: "https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=200&h=200&fit=crop&q=80&auto=format",
     name: "Water Pump",
     location: "Lake",
     statusDot: "#4ADE80",
@@ -20,8 +19,7 @@ const objects = [
   },
   {
     href: "/objects/ficus-tree",
-    gradient: "linear-gradient(135deg, #0A2510 0%, #12380A 100%)",
-    icon: "🌿",
+    image: "https://images.unsplash.com/photo-1583597029917-c1fe61e58938?w=200&h=200&fit=crop&q=80&auto=format",
     name: "Ficus Tree",
     location: "Living Room",
     statusDot: "#4ADE80",
@@ -30,8 +28,7 @@ const objects = [
   },
   {
     href: "/objects/air-conditioner",
-    gradient: "linear-gradient(135deg, #1A1A2E 0%, #252545 100%)",
-    icon: "❄️",
+    image: "https://images.unsplash.com/photo-1585771724684-38269d6639fd?w=200&h=200&fit=crop&q=80&auto=format",
     name: "Air Conditioner",
     location: "House",
     statusDot: "#4ADE80",
@@ -40,8 +37,7 @@ const objects = [
   },
   {
     href: "/objects/lawn-mower",
-    gradient: "linear-gradient(135deg, #2E1A0A 0%, #452510 100%)",
-    icon: "⚙️",
+    image: "https://images.unsplash.com/photo-1589923188651-268a9765e432?w=200&h=200&fit=crop&q=80&auto=format",
     name: "Lawn Mower",
     location: "Garden",
     statusDot: "#9CA3AF",
@@ -50,8 +46,7 @@ const objects = [
   },
   {
     href: "/objects/security-camera",
-    gradient: "linear-gradient(135deg, #0A0A0A 0%, #1A1A1A 100%)",
-    icon: "📷",
+    image: "https://images.unsplash.com/photo-1534972195531-d756b9bfa9f2?w=200&h=200&fit=crop&q=80&auto=format",
     name: "Security Camera",
     location: "Driveway",
     statusDot: null,
@@ -158,22 +153,19 @@ export default function ObjectsPage() {
         {objects.map((obj) => (
           <Link key={obj.href} href={obj.href}>
             <div className="bg-[#131C2E] rounded-2xl p-3 flex items-center gap-3">
-              {/* Gradient icon square */}
-              <div
+              {/* Object thumbnail */}
+              <img
+                src={obj.image}
+                alt=""
+                draggable={false}
                 style={{
                   width: 80,
                   height: 80,
                   borderRadius: 12,
-                  background: obj.gradient,
+                  objectFit: "cover",
                   flexShrink: 0,
-                  display: "flex",
-                  alignItems: "center",
-                  justifyContent: "center",
-                  fontSize: 28,
                 }}
-              >
-                {obj.icon}
-              </div>
+              />
 
               {/* Center info */}
               <div className="flex-1 min-w-0">
