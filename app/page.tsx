@@ -3,6 +3,9 @@
 import StatusBar from "./components/layout/StatusBar";
 import BottomNav from "./components/layout/BottomNav";
 import { useTheme } from "./components/ThemeProvider";
+import { useStore } from "./lib/store";
+import { useRouter } from "next/navigation";
+import { useEffect } from "react";
 import Link from "next/link";
 
 const healthScore = 87;
@@ -55,6 +58,13 @@ function MoonIcon() {
 
 export default function OverviewPage() {
   const { theme, toggle } = useTheme();
+  const { ready, onboarded, estateName, addedZones } = useStore();
+  const router = useRouter();
+
+  // First-launch: send the user through onboarding once.
+  useEffect(() => {
+    if (ready && !onboarded) router.replace("/onboarding");
+  }, [ready, onboarded, router]);
 
   return (
     <div className="min-h-screen pb-32 prvio-bg" style={{ color: "var(--text-1)" }}>
@@ -64,7 +74,7 @@ export default function OverviewPage() {
       <div className="px-5 pt-1 pb-3 flex justify-between items-center">
         <div>
           <p className="text-xs font-medium" style={{ color: "var(--text-2)" }}>Good morning</p>
-          <h1 className="font-bold text-2xl leading-tight" style={{ color: "var(--text-1)" }}>My Property</h1>
+          <h1 className="font-bold text-2xl leading-tight" style={{ color: "var(--text-1)" }}>{estateName}</h1>
         </div>
         <div className="flex items-center gap-2">
           {/* Theme toggle */}
@@ -198,15 +208,18 @@ export default function OverviewPage() {
 
         {/* Stats grid */}
         <div className="flex-1 grid grid-cols-2 gap-2">
-          {stats.map((s) => (
-            <div
-              key={s.label}
-              className="rounded-2xl p-3 flex flex-col justify-center liquid-glass"
-            >
-              <span className="font-bold text-xl leading-tight" style={{ color: s.alert ? "#F97316" : "var(--text-1)" }}>{s.value}</span>
-              <span className="text-xs mt-0.5" style={{ color: "var(--text-2)" }}>{s.label}</span>
-            </div>
-          ))}
+          {stats.map((s) => {
+            const value = s.label === "Zones" ? String(26 + addedZones.length) : s.value;
+            return (
+              <div
+                key={s.label}
+                className="rounded-2xl p-3 flex flex-col justify-center liquid-glass"
+              >
+                <span className="font-bold text-xl leading-tight" style={{ color: s.alert ? "#F97316" : "var(--text-1)" }}>{value}</span>
+                <span className="text-xs mt-0.5" style={{ color: "var(--text-2)" }}>{s.label}</span>
+              </div>
+            );
+          })}
         </div>
       </div>
 

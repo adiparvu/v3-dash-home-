@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { useTheme } from "../components/ThemeProvider";
+import { useStore } from "../lib/store";
 
 const zoneOptions = [
   { id: "lake", label: "Lake", icon: "💧" },
@@ -20,12 +21,23 @@ const TOTAL = 4;
 export default function OnboardingPage() {
   const router = useRouter();
   const { theme, setTheme } = useTheme();
+  const { setEstateName, setOnboarded } = useStore();
   const [step, setStep] = useState(0);
   const [estate, setEstate] = useState("");
   const [zones, setZones] = useState<string[]>(["lake", "forest", "greenhouse"]);
   const [focused, setFocused] = useState(false);
 
-  const next = () => (step < TOTAL - 1 ? setStep((s) => s + 1) : router.push("/"));
+  const finish = () => {
+    setEstateName(estate.trim() || "My Property");
+    setOnboarded(true);
+    router.push("/");
+  };
+  const skip = () => {
+    setOnboarded(true);
+    router.push("/");
+  };
+
+  const next = () => (step < TOTAL - 1 ? setStep((s) => s + 1) : finish());
   const back = () => step > 0 && setStep((s) => s - 1);
   const toggleZone = (id: string) =>
     setZones((z) => (z.includes(id) ? z.filter((x) => x !== id) : [...z, id]));
@@ -52,7 +64,7 @@ export default function OnboardingPage() {
             />
           ))}
         </div>
-        <button onClick={() => router.push("/")} className="text-xs font-medium px-2" style={{ color: "var(--text-2)" }}>
+        <button onClick={skip} className="text-xs font-medium px-2" style={{ color: "var(--text-2)" }}>
           Skip
         </button>
       </div>
