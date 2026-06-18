@@ -215,6 +215,35 @@ export type PrivacyRequest = {
   note?: string;
 };
 
+/** A recorded AI authorization decision — part of the AI audit trail. */
+export type AiAuditEntry = {
+  id: string;
+  at: string;
+  /** Truncated prompt text. */
+  prompt: string;
+  classification: string;
+  risk: string;
+  allowed: boolean;
+  /** Scopes that were retrieved to answer (provenance). */
+  scopes: string[];
+};
+
+/** An ownership-transfer record (spec: Property & Estate Management → Property Transfer). */
+export type PropertyTransfer = {
+  id: string;
+  property: string;
+  recipientName: string;
+  recipientEmail: string;
+  jurisdiction: string;
+  effectiveDate: string;
+  assetsIncluded: boolean;
+  documentsIncluded: boolean;
+  /** Audit history is always preserved across a transfer. */
+  auditPreserved: boolean;
+  status: "pending" | "completed";
+  createdAt: string;
+};
+
 interface StoreCtx {
   ready: boolean;
   estateName: string;
@@ -246,6 +275,10 @@ interface StoreCtx {
   privacyRequests: PrivacyRequest[];
   addPrivacyRequest: (type: PrivacyRequestType, regulation: PrivacyRequest["regulation"]) => void;
   removePrivacyRequest: (id: string) => void;
+  aiAuditLog: AiAuditEntry[];
+  logAiDecision: (entry: Omit<AiAuditEntry, "id" | "at">) => void;
+  propertyTransfers: PropertyTransfer[];
+  addPropertyTransfer: (t: Omit<PropertyTransfer, "id" | "createdAt" | "status">) => void;
 }
 
 const STORAGE_KEY = "prvio-store-v1";
@@ -281,6 +314,10 @@ const defaultCtx: StoreCtx = {
   privacyRequests: [],
   addPrivacyRequest: () => {},
   removePrivacyRequest: () => {},
+  aiAuditLog: [],
+  logAiDecision: () => {},
+  propertyTransfers: [],
+  addPropertyTransfer: () => {},
 };
 
 const StoreContext = createContext<StoreCtx>(defaultCtx);
@@ -295,6 +332,8 @@ type Persisted = {
   security: SecurityPrefs;
   consents: ConsentState;
   privacyRequests: PrivacyRequest[];
+  aiAuditLog: AiAuditEntry[];
+  propertyTransfers: PropertyTransfer[];
 };
 
 export function StoreProvider({ children }: { children: React.ReactNode }) {
@@ -308,6 +347,8 @@ export function StoreProvider({ children }: { children: React.ReactNode }) {
   const [security, setSecurityState] = useState<SecurityPrefs>(defaultSecurity);
   const [consents, setConsentsState] = useState<ConsentState>(defaultConsents);
   const [privacyRequests, setPrivacyRequests] = useState<PrivacyRequest[]>([]);
+  const [aiAuditLog, setAiAuditLog] = useState<AiAuditEntry[]>([]);
+  const [propertyTransfers, setPropertyTransfers] = useState<PropertyTransfer[]>([]);
 
   // Load
   useEffect(() => {
@@ -334,6 +375,8 @@ export function StoreProvider({ children }: { children: React.ReactNode }) {
           setConsentsState({ ...defaultConsents, ...p.consents });
         }
         if (Array.isArray(p.privacyRequests)) setPrivacyRequests(p.privacyRequests);
+        if (Array.isArray(p.aiAuditLog)) setAiAuditLog(p.aiAuditLog);
+        if (Array.isArray(p.propertyTransfers)) setPropertyTransfers(p.propertyTransfers);
       } else {
         // No store yet → treat as first launch
         setOnboardedState(false);
@@ -347,13 +390,13 @@ export function StoreProvider({ children }: { children: React.ReactNode }) {
   // Persist
   useEffect(() => {
     if (!ready) return;
-    const data: Persisted = { estateName, onboarded, addedZones, addedAssets, profile, assistant, security, consents, privacyRequests };
+    const data: Persisted = { estateName, onboarded, addedZones, addedAssets, profile, assistant, security, consents, privacyRequests, aiAuditLog, propertyTransfers };
     try {
       localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
     } catch {
       /* quota / private mode — ignore */
     }
-  }, [ready, estateName, onboarded, addedZones, addedAssets, profile, assistant, security, consents, privacyRequests]);
+  }, [ready, estateName, onboarded, addedZones, addedAssets, profile, assistant, security, consents, privacyRequests, aiAuditLog, propertyTransfers]);
 
   const setEstateName = useCallback((s: string) => setEstateNameState(s), []);
   const setOnboarded = useCallback((b: boolean) => setOnboardedState(b), []);
@@ -425,10 +468,26 @@ export function StoreProvider({ children }: { children: React.ReactNode }) {
     (id: string) => setPrivacyRequests((prev) => prev.filter((r) => r.id !== id)),
     []
   );
+  const logAiDecision = useCallback(
+    (entry: Omit<AiAuditEntry, "id" | "at">) =>
+      setAiAuditLog((prev) => [
+        { ...entry, id: `ai-${Date.now()}-${Math.random().toString(36).slice(2, 6)}`, at: new Date().toISOString() },
+        ...prev,
+      ].slice(0, 50)),
+    []
+  );
+  const addPropertyTransfer = useCallback(
+    (t: Omit<PropertyTransfer, "id" | "createdAt" | "status">) =>
+      setPropertyTransfers((prev) => [
+        { ...t, id: `xfer-${Date.now()}`, createdAt: new Date().toISOString(), status: "pending" },
+        ...prev,
+      ]),
+    []
+  );
 
   return (
     <StoreContext.Provider
-      value={{ ready, estateName, setEstateName, onboarded, setOnboarded, addedZones, addedAssets, addZone, addAsset, updateAsset, updateZone, removeAsset, removeZone, findAsset, findZone, profile, setProfile, addSocialLink, removeSocialLink, addTrustedPerson, removeTrustedPerson, assistant, setAssistant, security, setSecurity, consents, setConsent, privacyRequests, addPrivacyRequest, removePrivacyRequest }}
+      value={{ ready, estateName, setEstateName, onboarded, setOnboarded, addedZones, addedAssets, addZone, addAsset, updateAsset, updateZone, removeAsset, removeZone, findAsset, findZone, profile, setProfile, addSocialLink, removeSocialLink, addTrustedPerson, removeTrustedPerson, assistant, setAssistant, security, setSecurity, consents, setConsent, privacyRequests, addPrivacyRequest, removePrivacyRequest, aiAuditLog, logAiDecision, propertyTransfers, addPropertyTransfer }}
     >
       {children}
     </StoreContext.Provider>

@@ -312,6 +312,24 @@ export default function PropertyDetailPage() {
               </div>
             </div>
 
+            {/* Ownership & Continuity */}
+            <div>
+              <p className="text-[#9CA3AF] text-xs font-medium uppercase tracking-wider mb-2">Ownership & Continuity</p>
+              <Link href="/properties/transfer">
+                <div
+                  className="rounded-2xl p-3.5 flex items-center gap-3 active:scale-[0.98] transition-transform"
+                  style={{ background: "rgba(255,255,255,0.05)", border: "1px solid rgba(255,255,255,0.08)" }}
+                >
+                  <div className="w-9 h-9 rounded-xl flex items-center justify-center text-base flex-shrink-0" style={{ background: "rgba(245,158,11,0.12)", border: "1px solid rgba(245,158,11,0.25)" }}>📜</div>
+                  <div className="flex-1 min-w-0">
+                    <p className="text-white text-sm font-medium leading-tight">Transfer Ownership</p>
+                    <p className="text-[#9CA3AF] text-xs">Verified, legally-recorded estate transfer</p>
+                  </div>
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none"><path d="M9 6L15 12L9 18" stroke="#6B7280" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round" /></svg>
+                </div>
+              </Link>
+            </div>
+
             {/* Recent Activity */}
             <div>
               <p className="text-[#9CA3AF] text-xs font-medium uppercase tracking-wider mb-2">Recent Activity</p>

@@ -9,6 +9,22 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 ### Added
+- **Ownership Transfer workflow** — a high-risk, multi-step wizard at
+  `/properties/transfer` covering ownership verification, recipient + legal
+  confirmation records, asset/zone reassignment, document transfer, a
+  type-to-confirm (`TRANSFER`) final step, and preserved audit history. Transfer
+  records persist in the store and are listed back; entry points added from the
+  property detail Overview and Settings → Estate.
+- **AI guardrails & retrieval layer** — new `app/lib/ai/guardrails.ts` (treats
+  every prompt as untrusted: prompt-injection/policy-probe/high-risk
+  classification, deny-by-default allowlisted tools, output moderation, AI
+  Must/Must-Never policy) and `app/lib/ai/retrieval.ts` (scope-controlled,
+  deny-by-default retrieval over estate knowledge with provenance). The AI
+  assistant now classifies each message, refuses injection/policy probes,
+  routes high-risk actions to a human-approval workflow, grounds answers in
+  retrieved sources (shown inline), and logs every decision. A new
+  **AI Guardrails** screen (`/settings/ai-guardrails`) surfaces the policy,
+  allowlisted tools and the AI decision audit log.
 - **Auto-Lock configuration** — the Security screen now exposes the full mandated
   option set (Immediately, 30s, 1m, 5m, 15m, 30m, 1h, Custom minutes) via a picker
   sheet, plus Touch ID, Passcode Lock and Suspicious Activity toggles. All device

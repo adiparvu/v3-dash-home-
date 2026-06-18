@@ -1,10 +1,9 @@
 "use client";
 
-import { useState } from "react";
 import Link from "next/link";
 import StatusBar from "../components/layout/StatusBar";
 import BottomNav from "../components/layout/BottomNav";
-import { useStore, RING_COLORS, memberSince, initials } from "../lib/store";
+import { useStore, RING_COLORS, memberSince, initials, AUTO_LOCK_OPTIONS, autoLockLabel } from "../lib/store";
 
 const settingsSections = [
   {
@@ -15,12 +14,14 @@ const settingsSections = [
       { href: "/settings/privacy", label: "Privacy & Data", icon: "🛡️", desc: "GDPR, data exports & deletion" },
       { href: "/settings/notifications", label: "Notifications", icon: "🔔", desc: "Alerts & push preferences" },
       { href: "/settings/assistant", label: "AI Assistant", icon: "✨", desc: "Name, avatar, personality & model" },
+      { href: "/settings/ai-guardrails", label: "AI Guardrails", icon: "🛡️", desc: "Policy, allowlisted tools & AI audit" },
     ],
   },
   {
     title: "Estate",
     items: [
       { href: "/properties", label: "Properties", icon: "🏠", desc: "Manage properties & parcels" },
+      { href: "/properties/transfer", label: "Transfer Ownership", icon: "📜", desc: "Verified, legally-recorded transfer" },
       { href: "/settings/units", label: "Units & Currency", icon: "📏", desc: "Metric/Imperial, EUR/USD" },
       { href: "/settings/integrations", label: "Integrations", icon: "🔗", desc: "Home Assistant, sensors, APIs" },
     ],
@@ -35,9 +36,8 @@ const settingsSections = [
 ];
 
 export default function SettingsPage() {
-  const { profile } = useStore();
+  const { profile, security, setSecurity } = useStore();
   const ring = RING_COLORS[profile.ringColor] ?? RING_COLORS[0];
-  const [autoLock, setAutoLock] = useState("5 minutes");
 
   return (
     <div className="min-h-screen pb-28" style={{ background: "var(--bg-1)" }}>
@@ -106,21 +106,21 @@ export default function SettingsPage() {
                 <p className="text-sm font-medium" style={{ color: "var(--text-1)" }}>Auto Lock</p>
                 <p className="text-text-secondary text-xs">Lock app after inactivity</p>
               </div>
-              <span className="text-accent-green text-sm font-medium">{autoLock}</span>
+              <span className="text-accent-green text-sm font-medium">{autoLockLabel(security)}</span>
             </div>
             <div className="px-4 py-3 flex gap-2 overflow-x-auto scrollbar-hide">
-              {["1 min", "5 minutes", "15 minutes", "1 hour"].map((opt) => (
+              {AUTO_LOCK_OPTIONS.map((opt) => (
                 <button
-                  key={opt}
-                  onClick={() => setAutoLock(opt)}
+                  key={opt.id}
+                  onClick={() => setSecurity({ autoLock: opt.id })}
                   className="px-3 py-1 rounded-full text-xs font-medium whitespace-nowrap flex-shrink-0 transition-all"
                   style={
-                    autoLock === opt
+                    security.autoLock === opt.id
                       ? { background: "rgba(74,222,128,0.15)", border: "1px solid rgba(74,222,128,0.35)", color: "var(--accent)" }
                       : { background: "var(--glass-bg)", border: "0.5px solid var(--glass-border)", color: "var(--text-2)" }
                   }
                 >
-                  {opt}
+                  {opt.label}
                 </button>
               ))}
             </div>
