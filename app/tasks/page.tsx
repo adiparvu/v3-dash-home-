@@ -1,12 +1,14 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import StatusBar from "../components/layout/StatusBar";
 import BottomNav from "../components/layout/BottomNav";
 
 const filters = ["All", "Pending", "In Progress", "Completed"];
 
-const tasks = [
+const TASKS_KEY = "prvio-tasks-done-v1";
+
+const seedTasks = [
   {
     id: 1,
     title: "Irrigation System Maintenance",
@@ -94,6 +96,49 @@ const priorityConfig = {
 
 export default function TasksPage() {
   const [activeFilter, setActiveFilter] = useState("All");
+  const [overrides, setOverrides] = useState<Record<number, boolean>>({});
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    setMounted(true);
+    try {
+      const raw = localStorage.getItem(TASKS_KEY);
+      if (raw) setOverrides(JSON.parse(raw));
+    } catch {
+      /* ignore */
+    }
+  }, []);
+
+  useEffect(() => {
+    if (!mounted) return;
+    try {
+      localStorage.setItem(TASKS_KEY, JSON.stringify(overrides));
+    } catch {
+      /* ignore */
+    }
+  }, [overrides, mounted]);
+
+  const statusOf = (t: (typeof seedTasks)[number]): string => {
+    if (t.id in overrides) {
+      if (overrides[t.id]) return "completed";
+      return t.status === "completed" ? "pending" : t.status;
+    }
+    return t.status;
+  };
+
+  const toggle = (id: number, isDone: boolean) =>
+    setOverrides((o) => ({ ...o, [id]: !isDone }));
+
+  const tasks = seedTasks.map((t) => {
+    const status = statusOf(t);
+    const done = status === "completed";
+    return {
+      ...t,
+      status,
+      due: done ? "Done" : t.due,
+      dueColor: done ? "#4ADE80" : t.dueColor,
+    };
+  });
 
   const filtered = tasks.filter((t) => {
     if (activeFilter === "All") return true;
@@ -169,17 +214,19 @@ export default function TasksPage() {
             >
               <div className="flex items-start gap-3">
                 {/* Checkbox */}
-                <div
-                  className="w-5 h-5 rounded-full flex-shrink-0 mt-0.5 flex items-center justify-center"
+                <button
+                  onClick={() => toggle(task.id, task.status === "completed")}
+                  aria-label={task.status === "completed" ? "Mark as not done" : "Mark as done"}
+                  className="w-5 h-5 rounded-full flex-shrink-0 mt-0.5 flex items-center justify-center active:scale-90 transition-transform"
                   style={{
-                    border: task.status === "completed" ? "none" : "1.5px solid rgba(255,255,255,0.25)",
+                    border: task.status === "completed" ? "none" : "1.5px solid var(--text-3)",
                     background: task.status === "completed" ? "#4ADE80" : "transparent",
                   }}
                 >
                   {task.status === "completed" && (
                     <svg width="10" height="10" viewBox="0 0 24 24" fill="none"><path d="M5 13l4 4L19 7" stroke="#050A14" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" /></svg>
                   )}
-                </div>
+                </button>
 
                 {/* Content */}
                 <div className="flex-1 min-w-0">
