@@ -12,9 +12,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **Energy module (Tesla-style)** — a new `/twin/energy` surface modelled on the
   Tesla app's energy section, with four sub-tabs: **Live** (a photoreal 3D render
   of the estate energy system — solar roof, Powerwall, Porsche EV under carport
-  and grid — with **live readings** (Solar, Home, Powerwall %, vehicle charge,
-  grid) overlaid as labels with leader lines, plus a **drag-to-edit mode** to
-  reposition every label (positions persist locally) and a Reset), **Energie** (monthly usage
+  and grid — an **exact clone of the estate render** (clean plate) with only the
+  readings live (Solar, Home, Powerwall %, Porsche charge + car battery, grid),
+  overlaid as plain labels with leader lines matching the reference's text,
+  colours and positions), **Energie** (monthly usage
   bar chart + "Utilizat din" source breakdown), **Impact** (autonomy donut,
   time-of-use split, solar value, solar offset, backup-outage history) and
   **Powerwall** (backup-reserve slider, operational mode, Tibber tariff graph,

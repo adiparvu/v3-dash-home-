@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect } from "react";
 import Link from "next/link";
 import StatusBar from "../../components/layout/StatusBar";
 import BottomNav from "../../components/layout/BottomNav";
@@ -19,14 +19,15 @@ type Tab = (typeof TABS)[number];
 // Starts at the render's values, then drifts live.
 const START: EnergyState = { solar: 6.5, home: 0.8, vehicle: 2.2, battery: 4.9, grid: 0, batteryPct: 89 };
 
-// Image is 853×1235; labels sit at lx/ly (%), leader lines run to anchors (px).
-const IMG_W = 853, IMG_H = 1235;
+// Full render is 853×1844; labels sit at lx/ly (% of image), leader lines run to
+// anchors (px) — positions measured directly off the reference image.
+const IMG_W = 853, IMG_H = 1844;
 const NODES = [
-  { id: "solar", title: "SOLAR", lx: 47, ly: 15, ax: 401, ay: 430, align: "center" as const },
-  { id: "home", title: "ACASĂ", lx: 82, ly: 24, ax: 700, ay: 470, align: "center" as const },
-  { id: "vehicle", title: "PORSCHE 911 GT3 RS", lx: 9, ly: 52, ax: 250, ay: 760, align: "left" as const },
-  { id: "battery", title: "POWERWALL", lx: 50, ly: 93, ax: 455, ay: 800, align: "center" as const },
-  { id: "grid", title: "GRILĂ", lx: 84, ly: 93, ax: 800, ay: 770, align: "center" as const },
+  { id: "solar", title: "SOLAR", lx: 48, ly: 22, ax: 409, ay: 627, align: "center" as const },
+  { id: "home", title: "ACASĂ", lx: 84, ly: 26.5, ax: 682, ay: 608, align: "center" as const },
+  { id: "vehicle", title: "PORSCHE 911 GT3 RS", lx: 9, ly: 48, ax: 235, ay: 1045, align: "left" as const },
+  { id: "battery", title: "POWERWALL", lx: 52, ly: 71, ax: 443, ay: 1106, align: "center" as const },
+  { id: "grid", title: "GRILĂ", lx: 83, ly: 71, ax: 734, ay: 1100, align: "center" as const },
 ];
 
 export default function EnergyPage() {
@@ -67,14 +68,6 @@ export default function EnergyPage() {
 function LiveTab({ onGoTab }: { onGoTab: (t: Tab) => void }) {
   const [s, setS] = useState<EnergyState>(START);
   const [carPct, setCarPct] = useState(69);
-  const [pos, setPos] = useState<Record<string, { lx: number; ly: number }>>(
-    () => Object.fromEntries(NODES.map((n) => [n.id, { lx: n.lx, ly: n.ly }]))
-  );
-  const [edit, setEdit] = useState(false);
-  const wrapRef = useRef<HTMLDivElement>(null);
-  const dragId = useRef<string | null>(null);
-  const loaded = useRef(false);
-  const LS_KEY = "prvio-energy-labels-v1";
 
   useEffect(() => {
     const id = setInterval(() => {
@@ -84,28 +77,10 @@ function LiveTab({ onGoTab }: { onGoTab: (t: Tab) => void }) {
     return () => clearInterval(id);
   }, []);
 
-  // Load / persist user-edited label positions.
-  useEffect(() => {
-    try { const raw = localStorage.getItem(LS_KEY); if (raw) setPos((p) => ({ ...p, ...JSON.parse(raw) })); } catch { /* ignore */ }
-    loaded.current = true;
-  }, []);
-  useEffect(() => {
-    if (!loaded.current) return;
-    try { localStorage.setItem(LS_KEY, JSON.stringify(pos)); } catch { /* ignore */ }
-  }, [pos]);
-
-  const clamp = (v: number) => Math.max(3, Math.min(97, v));
-  const onMove = (e: React.PointerEvent) => {
-    if (!dragId.current || !wrapRef.current) return;
-    const r = wrapRef.current.getBoundingClientRect();
-    setPos((p) => ({ ...p, [dragId.current!]: { lx: clamp(((e.clientX - r.left) / r.width) * 100), ly: clamp(((e.clientY - r.top) / r.height) * 100) } }));
-  };
-  const endDrag = () => { dragId.current = null; };
-  const resetPos = () => setPos(Object.fromEntries(NODES.map((n) => [n.id, { lx: n.lx, ly: n.ly }])));
-
-  const title: React.CSSProperties = { fontSize: 10, letterSpacing: 0.6, color: "#8d99a6", fontWeight: 400, textShadow: "0 1px 3px rgba(0,0,0,0.8)", lineHeight: 1.45 };
-  const val: React.CSSProperties = { fontSize: 17, fontWeight: 600, color: "#fff", textShadow: "0 1px 3px rgba(0,0,0,0.8)", lineHeight: 1.3 };
-  const name: React.CSSProperties = { ...val, fontSize: 14 };
+  const sh = "0 1px 1px rgba(0,0,0,0.55)";
+  const title: React.CSSProperties = { fontSize: 9, letterSpacing: 0.5, color: "#9aa6b2", fontWeight: 400, textShadow: sh, lineHeight: 1.4 };
+  const val: React.CSSProperties = { fontSize: 16, fontWeight: 600, color: "#fff", textShadow: sh, lineHeight: 1.3 };
+  const name: React.CSSProperties = { ...val, fontSize: 13 };
   const green = "#4ADE80";
 
   const content = (id: string) => {
@@ -128,64 +103,25 @@ function LiveTab({ onGoTab }: { onGoTab: (t: Tab) => void }) {
 
   return (
     <div>
-      {/* Estate clean render + live labels (drag to reposition in edit mode) */}
+      {/* Exact clone of the estate render — only the readings are live */}
       <div className="px-4 mb-3">
-        <div
-          ref={wrapRef}
-          onPointerMove={onMove}
-          onPointerUp={endDrag}
-          onPointerLeave={endDrag}
-          className="relative w-full rounded-3xl overflow-hidden"
-          style={{ aspectRatio: "853 / 1235", border: "1px solid rgba(255,255,255,0.08)", background: "#0a0e16", touchAction: edit ? "none" : "auto" }}
-        >
+        <div className="relative w-full rounded-3xl overflow-hidden" style={{ aspectRatio: "853 / 1844", border: "1px solid rgba(255,255,255,0.08)", background: "#0a0e16" }}>
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img src="/estate-live.png" alt="PRVIO Estate — energy" className="absolute inset-0 w-full h-full" style={{ objectFit: "cover", objectPosition: "center" }} draggable={false} />
 
           {/* leader lines */}
           <svg viewBox={`0 0 ${IMG_W} ${IMG_H}`} className="absolute inset-0 w-full h-full" preserveAspectRatio="none">
-            {NODES.map((n) => {
-              const pp = pos[n.id];
-              return <line key={n.id} x1={(pp.lx / 100) * IMG_W} y1={(pp.ly / 100) * IMG_H} x2={n.ax} y2={n.ay} stroke="rgba(255,255,255,0.28)" strokeWidth={1} />;
-            })}
+            {NODES.map((n) => (
+              <line key={n.id} x1={(n.lx / 100) * IMG_W} y1={(n.ly / 100) * IMG_H} x2={n.ax} y2={n.ay} stroke="rgba(255,255,255,0.28)" strokeWidth={1.2} />
+            ))}
           </svg>
 
-          {/* labels */}
-          {NODES.map((n) => {
-            const pp = pos[n.id];
-            return (
-              <div
-                key={n.id}
-                onPointerDown={(e) => { if (!edit) return; e.preventDefault(); dragId.current = n.id; }}
-                className="absolute"
-                style={{
-                  left: `${pp.lx}%`, top: `${pp.ly}%`,
-                  transform: `translate(${n.align === "left" ? "0" : "-50%"}, -50%)`,
-                  textAlign: n.align === "left" ? "left" : "center", whiteSpace: "nowrap", zIndex: 2,
-                  cursor: edit ? "grab" : "default", userSelect: "none", touchAction: edit ? "none" : "auto",
-                  padding: edit ? 6 : 0, borderRadius: 10,
-                  outline: edit ? "1px dashed rgba(255,255,255,0.45)" : "none",
-                  background: edit ? "rgba(8,15,26,0.4)" : "transparent",
-                }}
-              >
-                {content(n.id)}
-              </div>
-            );
-          })}
-
-          {/* edit toolbar */}
-          <div className="absolute top-3 right-3 flex items-center gap-2" style={{ zIndex: 4 }}>
-            {edit && (
-              <button onClick={resetPos} className="text-[11px] font-medium px-2.5 py-1 rounded-full" style={{ background: "rgba(8,15,26,0.85)", border: "0.5px solid var(--glass-border)", color: "var(--text-2)" }}>Reset</button>
-            )}
-            <button onClick={() => setEdit((v) => !v)} className="text-[11px] font-semibold px-3 py-1 rounded-full" style={edit ? { background: "var(--accent)", color: "#08111E" } : { background: "rgba(8,15,26,0.85)", border: "1px solid rgba(74,222,128,0.4)", color: "var(--accent)" }}>
-              {edit ? "✓ Gata" : "✎ Editează"}
-            </button>
-          </div>
-          {edit && (
-            <div className="absolute bottom-3 left-1/2 -translate-x-1/2 text-[10px] px-3 py-1 rounded-full" style={{ background: "rgba(8,15,26,0.85)", color: "var(--text-2)", whiteSpace: "nowrap", zIndex: 4 }}>
-              Trage etichetele în poziția dorită
+          {/* live labels — exact positions from the reference */}
+          {NODES.map((n) => (
+            <div key={n.id} className="absolute" style={{ left: `${n.lx}%`, top: `${n.ly}%`, transform: `translate(${n.align === "left" ? "0" : "-50%"}, -50%)`, textAlign: n.align === "left" ? "left" : "center", whiteSpace: "nowrap", zIndex: 2 }}>
+              {content(n.id)}
             </div>
-          )}
+          ))}
         </div>
       </div>
 
