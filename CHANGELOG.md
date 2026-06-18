@@ -10,10 +10,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 - **Energy module (Tesla-style)** — a new `/twin/energy` surface modelled on the
-  Tesla app's energy section, with four sub-tabs: **Live** (a photoreal estate
-  render as the hero with live energy "pins" — Solar · Powerwall · Home · Grid ·
-  Vehicle showing live kW / battery %, scenario colour wash and a Storm Watch
-  banner), **Energie** (monthly usage
+  Tesla app's energy section, with four sub-tabs: **Live** (a photoreal 3D render
+  of the estate energy system — solar roof, Powerwall, EV under carport and grid
+  with their readings — as the hero visualization), **Energie** (monthly usage
   bar chart + "Utilizat din" source breakdown), **Impact** (autonomy donut,
   time-of-use split, solar value, solar offset, backup-outage history) and
   **Powerwall** (backup-reserve slider, operational mode, Tibber tariff graph,
