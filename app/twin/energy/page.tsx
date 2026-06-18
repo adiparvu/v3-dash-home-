@@ -81,8 +81,8 @@ function LiveTab({ onGoTab }: { onGoTab: (t: Tab) => void }) {
     { id: "home", rect: [77.2, 28.3, 13, 2.1], c: [83.65, 29.26], align: "center", fs: 3.6, node: <>{kw(s.home)}</> },
     { id: "battery", rect: [40.5, 71.7, 23.5, 3.2], c: [52.34, 73.3], align: "center", fs: 3.6, node: <>{kw(s.battery)} <span style={{ color: GREEN }}>▲</span> {Math.round(s.batteryPct)}%</> },
     { id: "grid", rect: [78.5, 72.9, 10, 2.1], c: [83.47, 73.83], align: "center", fs: 3.6, node: <>{Math.round(Math.abs(s.grid))} kW</> },
-    { id: "vch", rect: [0.5, 47.8, 14, 2.3], c: [1.8, 48.9], align: "left", fs: 3.4, node: <span style={{ color: GREEN }}>{kw(s.vehicle)}</span> },
-    { id: "vb", rect: [0.5, 54, 10, 2.3], c: [1.8, 55.1], align: "left", fs: 3.4, node: <>{Math.round(carPct)}%</> },
+    { id: "vch", rect: [6.8, 48.05, 17.2, 2.35], c: [7.2, 49.2], align: "left", fs: 3.6, node: <span style={{ color: GREEN }}>{kw(s.vehicle)}</span> },
+    { id: "vb", rect: [6.8, 51.55, 11.2, 1.85], c: [7.2, 52.3], align: "left", fs: 3.4, node: <>{Math.round(carPct)}%</> },
   ];
 
   return (
