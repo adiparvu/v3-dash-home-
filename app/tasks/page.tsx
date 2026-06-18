@@ -94,16 +94,33 @@ const priorityConfig = {
   low: { label: "Low", color: "#6B7280", bg: "rgba(107,114,128,0.10)" },
 };
 
+const CUSTOM_KEY = "prvio-tasks-custom-v1";
+const zoneChoices = ["Lake", "Forest", "Greenhouse", "Orchard", "Garden", "House", "Driveway"];
+const zoneIcons: Record<string, string> = {
+  Lake: "💧", Forest: "🌲", Greenhouse: "🏡", Orchard: "🍎", Garden: "🌿", House: "🏠", Driveway: "📷",
+};
+
+type Task = typeof seedTasks[number];
+
 export default function TasksPage() {
   const [activeFilter, setActiveFilter] = useState("All");
   const [overrides, setOverrides] = useState<Record<number, boolean>>({});
+  const [customTasks, setCustomTasks] = useState<Task[]>([]);
   const [mounted, setMounted] = useState(false);
+
+  // Composer state
+  const [composerOpen, setComposerOpen] = useState(false);
+  const [newTitle, setNewTitle] = useState("");
+  const [newZone, setNewZone] = useState("Lake");
+  const [newPriority, setNewPriority] = useState<"high" | "normal" | "low">("normal");
 
   useEffect(() => {
     setMounted(true);
     try {
       const raw = localStorage.getItem(TASKS_KEY);
       if (raw) setOverrides(JSON.parse(raw));
+      const rawC = localStorage.getItem(CUSTOM_KEY);
+      if (rawC) setCustomTasks(JSON.parse(rawC));
     } catch {
       /* ignore */
     }
@@ -118,6 +135,34 @@ export default function TasksPage() {
     }
   }, [overrides, mounted]);
 
+  useEffect(() => {
+    if (!mounted) return;
+    try {
+      localStorage.setItem(CUSTOM_KEY, JSON.stringify(customTasks));
+    } catch {
+      /* ignore */
+    }
+  }, [customTasks, mounted]);
+
+  const addTask = () => {
+    if (!newTitle.trim()) return;
+    const task: Task = {
+      id: Date.now(),
+      title: newTitle.trim(),
+      zone: newZone,
+      priority: newPriority,
+      status: "pending",
+      due: "Today",
+      dueColor: "#F59E0B",
+      category: "Custom",
+      icon: zoneIcons[newZone] ?? "📋",
+    };
+    setCustomTasks((c) => [task, ...c]);
+    setNewTitle("");
+    setNewPriority("normal");
+    setComposerOpen(false);
+  };
+
   const statusOf = (t: (typeof seedTasks)[number]): string => {
     if (t.id in overrides) {
       if (overrides[t.id]) return "completed";
@@ -129,7 +174,7 @@ export default function TasksPage() {
   const toggle = (id: number, isDone: boolean) =>
     setOverrides((o) => ({ ...o, [id]: !isDone }));
 
-  const tasks = seedTasks.map((t) => {
+  const tasks = [...customTasks, ...seedTasks].map((t) => {
     const status = statusOf(t);
     const done = status === "completed";
     return {
@@ -162,10 +207,12 @@ export default function TasksPage() {
           <p className="text-text-secondary text-xs">{pending} pending · {inProgress} in progress</p>
         </div>
         <button
-          className="w-9 h-9 rounded-2xl flex items-center justify-center"
-          style={{ background: "rgba(74,222,128,0.15)", border: "1px solid rgba(74,222,128,0.30)" }}
+          onClick={() => setComposerOpen(true)}
+          aria-label="Add task"
+          className="w-9 h-9 rounded-2xl flex items-center justify-center active:scale-90 transition-transform"
+          style={{ background: "rgba(74,222,128,0.15)", border: "1px solid rgba(74,222,128,0.30)", color: "var(--accent)" }}
         >
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none"><path d="M12 5v14M5 12h14" stroke="#4ADE80" strokeWidth="2" strokeLinecap="round" /></svg>
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none"><path d="M12 5v14M5 12h14" stroke="currentColor" strokeWidth="2" strokeLinecap="round" /></svg>
         </button>
       </div>
 
@@ -263,6 +310,69 @@ export default function TasksPage() {
           );
         })}
       </div>
+
+      {/* Composer sheet */}
+      {composerOpen && (
+        <div className="fixed inset-0 z-[60] flex items-end justify-center" style={{ background: "rgba(0,0,0,0.45)" }} onClick={() => setComposerOpen(false)}>
+          <div
+            className="w-full md:w-[390px] rounded-t-[28px] p-5 pb-8 animate-slide-up liquid-glass-strong"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className="w-10 h-1 rounded-full mx-auto mb-4" style={{ background: "var(--glass-border)" }} />
+            <h2 className="font-bold text-lg mb-4" style={{ color: "var(--text-1)" }}>New Task</h2>
+
+            <label className="text-xs font-medium block mb-1.5 px-1" style={{ color: "var(--text-2)" }}>Title</label>
+            <div className="rounded-2xl overflow-hidden mb-4" style={{ background: "var(--glass-bg)", border: "0.5px solid var(--glass-border)" }}>
+              <input
+                autoFocus
+                value={newTitle}
+                onChange={(e) => setNewTitle(e.target.value)}
+                placeholder="e.g. Check irrigation valves"
+                className="w-full bg-transparent px-4 py-3.5 text-sm outline-none"
+                style={{ color: "var(--text-1)", caretColor: "var(--accent)" }}
+              />
+            </div>
+
+            <label className="text-xs font-medium block mb-2 px-1" style={{ color: "var(--text-2)" }}>Zone</label>
+            <div className="flex flex-wrap gap-2 mb-4">
+              {zoneChoices.map((z) => {
+                const active = newZone === z;
+                return (
+                  <button key={z} onClick={() => setNewZone(z)} className="px-3 py-1.5 rounded-xl text-xs font-medium transition-all active:scale-95" style={active ? { background: "var(--accent)", color: "var(--bg-1)" } : { background: "var(--glass-bg)", color: "var(--text-2)", border: "0.5px solid var(--glass-border)" }}>
+                    {z}
+                  </button>
+                );
+              })}
+            </div>
+
+            <label className="text-xs font-medium block mb-2 px-1" style={{ color: "var(--text-2)" }}>Priority</label>
+            <div className="flex gap-2 mb-6">
+              {(["high", "normal", "low"] as const).map((pr) => {
+                const cfg = priorityConfig[pr];
+                const active = newPriority === pr;
+                return (
+                  <button key={pr} onClick={() => setNewPriority(pr)} className="flex-1 py-2.5 rounded-xl text-sm font-medium capitalize transition-all active:scale-95" style={active ? { background: cfg.bg, color: cfg.color, border: `1px solid ${cfg.color}55` } : { background: "var(--glass-bg)", color: "var(--text-3)", border: "0.5px solid var(--glass-border)" }}>
+                    {cfg.label}
+                  </button>
+                );
+              })}
+            </div>
+
+            <button
+              onClick={addTask}
+              disabled={!newTitle.trim()}
+              className="w-full py-3.5 rounded-2xl font-semibold text-base transition-all active:scale-[0.97]"
+              style={{
+                background: newTitle.trim() ? "linear-gradient(135deg, #4ADE80 0%, #22C55E 100%)" : "var(--glass-bg)",
+                color: newTitle.trim() ? "#08111E" : "var(--text-3)",
+                border: newTitle.trim() ? "none" : "0.5px solid var(--glass-border)",
+              }}
+            >
+              Add Task
+            </button>
+          </div>
+        </div>
+      )}
 
       <BottomNav />
     </div>
