@@ -27,14 +27,14 @@ export default function ProfilePage() {
   }
 
   return (
-    <div className="min-h-screen pb-10" style={{ background: "#050A14" }}>
+    <div className="min-h-screen pb-10" style={{ background: "var(--bg-1)" }}>
       <StatusBar />
 
       <div className="px-5 pt-1 pb-4 flex items-center gap-3">
-        <Link href="/settings" className="w-9 h-9 rounded-2xl flex items-center justify-center flex-shrink-0" style={{ background: "rgba(255,255,255,0.07)", border: "1px solid rgba(255,255,255,0.09)" }}>
+        <Link href="/settings" className="w-9 h-9 rounded-2xl flex items-center justify-center flex-shrink-0 liquid-glass">
           <svg width="18" height="18" viewBox="0 0 24 24" fill="none"><path d="M19 12H5M12 5l-7 7 7 7" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" /></svg>
         </Link>
-        <h1 className="text-white font-bold text-xl">Edit Profile</h1>
+        <h1 className="font-bold text-xl" style={{ color: "var(--text-1)" }}>Edit Profile</h1>
       </div>
 
       <div className="px-4 space-y-5">
@@ -42,13 +42,13 @@ export default function ProfilePage() {
         <div className="flex flex-col items-center py-4 gap-3">
           <div className="relative">
             <div className="w-20 h-20 rounded-full flex items-center justify-center p-0.5" style={{ background: ringColors[ringColor].value }}>
-              <div className="w-full h-full rounded-full flex items-center justify-center" style={{ background: "#050A14" }}>
-                <span className="text-white font-bold text-3xl">A</span>
+              <div className="w-full h-full rounded-full flex items-center justify-center" style={{ background: "var(--bg-1)" }}>
+                <span className="font-bold text-3xl" style={{ color: "var(--text-1)" }}>A</span>
               </div>
             </div>
             <button
               className="absolute -bottom-1 -right-1 w-7 h-7 rounded-full flex items-center justify-center"
-              style={{ background: "#4ADE80" }}
+              style={{ background: "var(--accent)" }}
             >
               <svg width="12" height="12" viewBox="0 0 24 24" fill="none">
                 <path d="M12 20h9M16.5 3.5a2.121 2.121 0 013 3L7 19l-4 1 1-4L16.5 3.5z" stroke="#050A14" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
@@ -86,27 +86,27 @@ export default function ProfilePage() {
               { label: "Email", value: email, onChange: setEmail, placeholder: "Email address", type: "email" },
               { label: "Phone", value: phone, onChange: setPhone, placeholder: "Phone number", type: "tel" },
             ].map((field) => (
-              <div key={field.label} className="rounded-2xl px-4 py-3" style={{ background: "rgba(255,255,255,0.05)", border: "1px solid rgba(255,255,255,0.08)" }}>
+              <div key={field.label} className="rounded-2xl px-4 py-3 liquid-glass">
                 <p className="text-text-secondary text-[10px] mb-1 uppercase tracking-wide">{field.label}</p>
                 <input
                   type={field.type || "text"}
                   value={field.value}
                   onChange={(e) => field.onChange(e.target.value)}
                   placeholder={field.placeholder}
-                  className="w-full bg-transparent text-white text-sm outline-none"
-                  style={{ caretColor: "#4ADE80" }}
+                  className="w-full bg-transparent text-sm outline-none"
+                  style={{ caretColor: "var(--accent)", color: "var(--text-1)" }}
                 />
               </div>
             ))}
-            <div className="rounded-2xl px-4 py-3" style={{ background: "rgba(255,255,255,0.05)", border: "1px solid rgba(255,255,255,0.08)" }}>
+            <div className="rounded-2xl px-4 py-3 liquid-glass">
               <p className="text-text-secondary text-[10px] mb-1 uppercase tracking-wide">Bio</p>
               <textarea
                 value={bio}
                 onChange={(e) => setBio(e.target.value)}
                 rows={2}
                 placeholder="Short bio…"
-                className="w-full bg-transparent text-white text-sm outline-none resize-none"
-                style={{ caretColor: "#4ADE80" }}
+                className="w-full bg-transparent text-sm outline-none resize-none"
+                style={{ caretColor: "var(--accent)", color: "var(--text-1)" }}
               />
             </div>
           </div>
@@ -115,7 +115,7 @@ export default function ProfilePage() {
         {/* Role / plan */}
         <div>
           <p className="text-text-secondary text-xs font-medium uppercase tracking-wide mb-2 px-1">Account</p>
-          <div className="rounded-2xl overflow-hidden" style={{ background: "rgba(255,255,255,0.04)", border: "1px solid rgba(255,255,255,0.07)" }}>
+          <div className="rounded-2xl overflow-hidden" style={{ background: "rgba(255,255,255,0.04)", border: "0.5px solid var(--glass-border)" }}>
             {[
               { label: "Role", value: "Owner" },
               { label: "Plan", value: "Pro · since Jan 2024" },
@@ -123,7 +123,7 @@ export default function ProfilePage() {
             ].map((row, i, arr) => (
               <div key={row.label} className="flex items-center justify-between px-4 py-3" style={{ borderBottom: i < arr.length - 1 ? "1px solid rgba(255,255,255,0.06)" : undefined }}>
                 <p className="text-text-secondary text-sm">{row.label}</p>
-                <p className="text-white text-sm font-medium">{row.value}</p>
+                <p className="text-sm font-medium" style={{ color: "var(--text-1)" }}>{row.value}</p>
               </div>
             ))}
           </div>

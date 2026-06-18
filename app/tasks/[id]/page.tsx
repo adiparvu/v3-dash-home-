@@ -51,7 +51,7 @@ const NoteEmptyIcon = () => (
   </svg>
 );
 
-export default function TaskDetailPage({ params }: { params: { id: string } }) {
+export default function TaskDetailPage() {
   const task = taskData; // In a real app, look up by params.id
   const [status, setStatus] = useState<"pending" | "in_progress" | "completed">(
     task.status as "pending" | "in_progress" | "completed"
@@ -89,11 +89,11 @@ export default function TaskDetailPage({ params }: { params: { id: string } }) {
     { label: "Due Date", value: task.dueDate, color: "#F59E0B" },
     { label: "Assigned to", value: task.assignedTo },
     { label: "Created by", value: task.createdBy },
-    { label: "Created at", value: task.createdAt, color: "#6B7280" },
+    { label: "Created at", value: task.createdAt, color: "var(--text-3)" },
   ];
 
   return (
-    <div className="min-h-screen pb-10" style={{ background: "#050A14" }}>
+    <div className="min-h-screen pb-10" style={{ background: "var(--bg-1)" }}>
       <StatusBar />
 
       {/* Header */}
@@ -101,14 +101,14 @@ export default function TaskDetailPage({ params }: { params: { id: string } }) {
         <Link
           href="/tasks"
           className="w-9 h-9 rounded-2xl flex items-center justify-center flex-shrink-0 active:scale-95 transition-transform"
-          style={{ background: "rgba(255,255,255,0.06)", border: "1px solid rgba(255,255,255,0.10)" }}
+          style={{ background: "rgba(255,255,255,0.06)", border: "0.5px solid var(--glass-border)" }}
         >
           <BackIcon />
         </Link>
-        <h1 className="text-white font-bold text-lg truncate flex-1">{task.title}</h1>
+        <h1 className="font-bold text-lg truncate flex-1" style={{ color: "var(--text-1)" }}>{task.title}</h1>
         <button
           className="w-9 h-9 rounded-2xl flex items-center justify-center flex-shrink-0"
-          style={{ background: "rgba(255,255,255,0.06)", border: "1px solid rgba(255,255,255,0.10)" }}
+          style={{ background: "rgba(255,255,255,0.06)", border: "0.5px solid var(--glass-border)" }}
         >
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
             <circle cx="12" cy="5" r="1.5" fill="white" />
@@ -137,12 +137,10 @@ export default function TaskDetailPage({ params }: { params: { id: string } }) {
       <div className="px-4 space-y-3">
         {/* Main task card */}
         <div
-          className="rounded-2xl p-5"
+          className="liquid-glass rounded-2xl p-5"
           style={{
-            background: "rgba(255,255,255,0.06)",
             backdropFilter: "blur(20px)",
             WebkitBackdropFilter: "blur(20px)",
-            border: "1px solid rgba(255,255,255,0.10)",
           }}
         >
           <div className="flex items-center gap-3 mb-3">
@@ -152,25 +150,23 @@ export default function TaskDetailPage({ params }: { params: { id: string } }) {
             >
               💧
             </div>
-            <h2 className="text-white font-bold text-base leading-snug">{task.title}</h2>
+            <h2 className="font-bold text-base leading-snug" style={{ color: "var(--text-1)" }}>{task.title}</h2>
           </div>
-          <p className="text-sm leading-relaxed" style={{ color: "#9CA3AF" }}>
+          <p className="text-sm leading-relaxed" style={{ color: "var(--text-2)" }}>
             {task.description}
           </p>
         </div>
 
         {/* Details card */}
         <div
-          className="rounded-2xl overflow-hidden"
+          className="liquid-glass rounded-2xl overflow-hidden"
           style={{
-            background: "rgba(255,255,255,0.06)",
             backdropFilter: "blur(20px)",
             WebkitBackdropFilter: "blur(20px)",
-            border: "1px solid rgba(255,255,255,0.10)",
           }}
         >
           <div className="px-4 pt-4 pb-1">
-            <p className="text-xs font-semibold uppercase tracking-widest" style={{ color: "#6B7280" }}>
+            <p className="text-xs font-semibold uppercase tracking-widest" style={{ color: "var(--text-3)" }}>
               Details
             </p>
           </div>
@@ -180,17 +176,17 @@ export default function TaskDetailPage({ params }: { params: { id: string } }) {
               className="flex items-center justify-between px-4 py-3"
               style={{ borderTop: i === 0 ? "none" : "1px solid rgba(255,255,255,0.06)" }}
             >
-              <span className="text-sm" style={{ color: "#9CA3AF" }}>{row.label}</span>
+              <span className="text-sm" style={{ color: "var(--text-2)" }}>{row.label}</span>
               {row.isLink ? (
                 <Link
                   href={row.href!}
                   className="text-sm font-medium"
-                  style={{ color: "#22D3EE" }}
+                  style={{ color: "var(--accent-cyan)" }}
                 >
                   {row.value} →
                 </Link>
               ) : (
-                <span className="text-sm font-medium" style={{ color: row.color ?? "white" }}>
+                <span className="text-sm font-medium" style={{ color: row.color ?? "var(--text-1)" }}>
                   {row.value}
                 </span>
               )}
@@ -200,16 +196,14 @@ export default function TaskDetailPage({ params }: { params: { id: string } }) {
 
         {/* Progress section */}
         <div
-          className="rounded-2xl p-5"
+          className="liquid-glass rounded-2xl p-5"
           style={{
-            background: "rgba(255,255,255,0.06)",
             backdropFilter: "blur(20px)",
             WebkitBackdropFilter: "blur(20px)",
-            border: "1px solid rgba(255,255,255,0.10)",
           }}
         >
           <div className="flex items-center justify-between mb-3">
-            <p className="text-xs font-semibold uppercase tracking-widest" style={{ color: "#6B7280" }}>
+            <p className="text-xs font-semibold uppercase tracking-widest" style={{ color: "var(--text-3)" }}>
               Progress
             </p>
             <span className="text-sm font-bold" style={{ color: progress === 100 ? "#4ADE80" : "#F59E0B" }}>
@@ -260,21 +254,19 @@ export default function TaskDetailPage({ params }: { params: { id: string } }) {
 
         {/* Notes section */}
         <div
-          className="rounded-2xl p-5"
+          className="liquid-glass rounded-2xl p-5"
           style={{
-            background: "rgba(255,255,255,0.06)",
             backdropFilter: "blur(20px)",
             WebkitBackdropFilter: "blur(20px)",
-            border: "1px solid rgba(255,255,255,0.10)",
           }}
         >
           <div className="flex items-center justify-between mb-4">
-            <p className="text-xs font-semibold uppercase tracking-widest" style={{ color: "#6B7280" }}>
+            <p className="text-xs font-semibold uppercase tracking-widest" style={{ color: "var(--text-3)" }}>
               Notes
             </p>
             <button
               className="flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-medium active:scale-95 transition-transform"
-              style={{ background: "rgba(255,255,255,0.07)", color: "#9CA3AF", border: "1px solid rgba(255,255,255,0.10)" }}
+              style={{ background: "rgba(255,255,255,0.07)", color: "var(--text-2)", border: "0.5px solid var(--glass-border)" }}
             >
               <PlusIcon />
               Add note
@@ -283,8 +275,8 @@ export default function TaskDetailPage({ params }: { params: { id: string } }) {
           {/* Empty state */}
           <div className="flex flex-col items-center py-4 gap-2">
             <NoteEmptyIcon />
-            <p className="text-sm" style={{ color: "#6B7280" }}>No notes yet</p>
-            <p className="text-xs text-center" style={{ color: "#4B5563" }}>
+            <p className="text-sm" style={{ color: "var(--text-3)" }}>No notes yet</p>
+            <p className="text-xs text-center" style={{ color: "var(--text-3)" }}>
               Add notes to track progress or leave instructions
             </p>
           </div>
@@ -292,15 +284,13 @@ export default function TaskDetailPage({ params }: { params: { id: string } }) {
 
         {/* Related section */}
         <div
-          className="rounded-2xl p-5"
+          className="liquid-glass rounded-2xl p-5"
           style={{
-            background: "rgba(255,255,255,0.06)",
             backdropFilter: "blur(20px)",
             WebkitBackdropFilter: "blur(20px)",
-            border: "1px solid rgba(255,255,255,0.10)",
           }}
         >
-          <p className="text-xs font-semibold uppercase tracking-widest mb-3" style={{ color: "#6B7280" }}>
+          <p className="text-xs font-semibold uppercase tracking-widest mb-3" style={{ color: "var(--text-3)" }}>
             Related
           </p>
           <div className="space-y-2">
@@ -311,8 +301,8 @@ export default function TaskDetailPage({ params }: { params: { id: string } }) {
             >
               <span className="text-lg">🍎</span>
               <div className="flex-1">
-                <p className="text-white text-sm font-medium">Orchard Zone</p>
-                <p className="text-xs" style={{ color: "#6B7280" }}>View zone details</p>
+                <p className="text-sm font-medium" style={{ color: "var(--text-1)" }}>Orchard Zone</p>
+                <p className="text-xs" style={{ color: "var(--text-3)" }}>View zone details</p>
               </div>
               <svg width="14" height="14" viewBox="0 0 24 24" fill="none">
                 <path d="M9 18l6-6-6-6" stroke="#6B7280" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
@@ -324,8 +314,8 @@ export default function TaskDetailPage({ params }: { params: { id: string } }) {
             >
               <span className="text-lg">🔧</span>
               <div className="flex-1">
-                <p className="text-white text-sm font-medium">Drip Irrigation Kit</p>
-                <p className="text-xs" style={{ color: "#6B7280" }}>Asset · Inventory</p>
+                <p className="text-sm font-medium" style={{ color: "var(--text-1)" }}>Drip Irrigation Kit</p>
+                <p className="text-xs" style={{ color: "var(--text-3)" }}>Asset · Inventory</p>
               </div>
               <svg width="14" height="14" viewBox="0 0 24 24" fill="none">
                 <path d="M9 18l6-6-6-6" stroke="#6B7280" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />

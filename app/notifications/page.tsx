@@ -1,7 +1,6 @@
 "use client";
 
 import { useState } from "react";
-import Link from "next/link";
 import StatusBar from "../components/layout/StatusBar";
 import BottomNav from "../components/layout/BottomNav";
 
@@ -47,12 +46,12 @@ export default function NotificationsPage() {
   const markRead = (id: number) => setItems((prev) => prev.map((n) => n.id === id ? { ...n, read: true } : n));
 
   return (
-    <div className="min-h-screen pb-28" style={{ background: "#050A14" }}>
+    <div className="min-h-screen pb-28" style={{ background: "var(--bg-1)" }}>
       <StatusBar />
 
       <div className="px-5 pt-1 pb-3 flex items-center justify-between">
         <div>
-          <h1 className="text-white font-bold text-2xl">Notifications</h1>
+          <h1 className="font-bold text-2xl" style={{ color: "var(--text-1)" }}>Notifications</h1>
           {unreadCount > 0 && <p className="text-text-secondary text-xs">{unreadCount} unread</p>}
         </div>
         {unreadCount > 0 && (
@@ -70,7 +69,7 @@ export default function NotificationsPage() {
             className="w-full rounded-2xl p-3.5 flex items-start gap-3 text-left active:scale-[0.98] transition-transform"
             style={{
               background: notif.read ? "rgba(255,255,255,0.04)" : "rgba(255,255,255,0.07)",
-              border: `1px solid ${notif.read ? "rgba(255,255,255,0.06)" : "rgba(255,255,255,0.11)"}`,
+              border: `0.5px solid var(--glass-border)`,
             }}
           >
             <div
@@ -81,7 +80,7 @@ export default function NotificationsPage() {
             </div>
             <div className="flex-1 min-w-0">
               <div className="flex items-center gap-2">
-                <p className={`text-sm font-medium leading-tight ${notif.read ? "text-text-secondary" : "text-white"}`}>
+                <p className={`text-sm font-medium leading-tight`} style={{ color: notif.read ? "var(--text-2)" : "var(--text-1)" }}>
                   {notif.title}
                 </p>
                 {!notif.read && (

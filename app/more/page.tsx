@@ -33,17 +33,17 @@ const sections = [
 
 export default function MorePage() {
   return (
-    <div className="min-h-screen pb-28" style={{ background: "#050A14" }}>
+    <div className="min-h-screen pb-28" style={{ background: "var(--bg-1)" }}>
       <StatusBar />
 
       {/* Header + Profile */}
       <div className="px-5 pt-1 pb-4">
-        <h1 className="text-white font-bold text-2xl mb-4">More</h1>
+        <h1 className="font-bold text-2xl mb-4" style={{ color: "var(--text-1)" }}>More</h1>
 
         {/* Profile card */}
         <div
           className="rounded-3xl p-4 flex items-center gap-4"
-          style={{ background: "rgba(255,255,255,0.06)", border: "1px solid rgba(255,255,255,0.10)" }}
+          style={{ background: "rgba(255,255,255,0.06)", border: "0.5px solid var(--glass-border)" }}
         >
           <div
             className="w-14 h-14 rounded-full flex items-center justify-center flex-shrink-0"
@@ -52,7 +52,7 @@ export default function MorePage() {
             <span className="text-bg font-bold text-xl">A</span>
           </div>
           <div className="flex-1">
-            <p className="text-white font-semibold text-base">Alex Owner</p>
+            <p className="font-semibold text-base" style={{ color: "var(--text-1)" }}>Alex Owner</p>
             <p className="text-text-secondary text-xs">alex@prvio.earth</p>
             <div className="flex items-center gap-1.5 mt-1">
               <span className="w-1.5 h-1.5 rounded-full bg-accent-green" />
@@ -74,7 +74,7 @@ export default function MorePage() {
             </p>
             <div
               className="rounded-2xl overflow-hidden"
-              style={{ background: "rgba(255,255,255,0.04)", border: "1px solid rgba(255,255,255,0.07)" }}
+              style={{ background: "rgba(255,255,255,0.04)", border: "0.5px solid var(--glass-border)" }}
             >
               {section.items.map((item, i) => (
                 <Link key={item.href} href={item.href}>
@@ -84,13 +84,13 @@ export default function MorePage() {
                   >
                     <span className="text-xl w-8 text-center flex-shrink-0">{item.icon}</span>
                     <div className="flex-1 min-w-0">
-                      <p className="text-white text-sm font-medium">{item.label}</p>
+                      <p className="text-sm font-medium" style={{ color: "var(--text-1)" }}>{item.label}</p>
                       <p className="text-text-secondary text-xs">{item.desc}</p>
                     </div>
                     {item.badge && (
                       <span
                         className="text-[10px] font-medium px-2 py-0.5 rounded-full flex-shrink-0"
-                        style={{ background: "rgba(74,222,128,0.15)", color: "#4ADE80" }}
+                        style={{ background: "rgba(74,222,128,0.15)", color: "var(--accent)" }}
                       >
                         {item.badge}
                       </span>

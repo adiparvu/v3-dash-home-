@@ -134,7 +134,7 @@ export default function DrivewayZonePage() {
 
       {/* Access log */}
       <div className="px-4 mb-4">
-        <p className="text-text-secondary text-xs font-medium uppercase tracking-wide mb-2 px-1">Today's Access Log</p>
+        <p className="text-text-secondary text-xs font-medium uppercase tracking-wide mb-2 px-1">Today&apos;s Access Log</p>
         <div className="rounded-2xl overflow-hidden" style={{ background: "rgba(255,255,255,0.04)", border: "1px solid rgba(255,255,255,0.07)" }}>
           {events.map((ev, i) => (
             <div key={ev.id} className="flex items-center gap-3 px-4 py-3" style={{ borderBottom: i < events.length - 1 ? "1px solid rgba(255,255,255,0.06)" : undefined }}>

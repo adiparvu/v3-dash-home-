@@ -42,14 +42,14 @@ export default function SensorsPage() {
   const errCount = sensors.filter((s) => s.status === "error").length;
 
   return (
-    <div className="min-h-screen pb-28" style={{ background: "#050A14" }}>
+    <div className="min-h-screen pb-28" style={{ background: "var(--bg-1)" }}>
       <StatusBar />
 
       <div className="px-5 pt-1 pb-3 flex items-center gap-3">
-        <Link href="/more" className="w-9 h-9 rounded-2xl flex items-center justify-center flex-shrink-0" style={{ background: "rgba(255,255,255,0.07)", border: "1px solid rgba(255,255,255,0.09)" }}>
+        <Link href="/more" className="w-9 h-9 rounded-2xl flex items-center justify-center flex-shrink-0" style={{ background: "rgba(255,255,255,0.07)", border: "0.5px solid var(--glass-border)" }}>
           <svg width="18" height="18" viewBox="0 0 24 24" fill="none"><path d="M19 12H5M12 5l-7 7 7 7" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" /></svg>
         </Link>
-        <h1 className="text-white font-bold text-2xl">Sensors</h1>
+        <h1 className="font-bold text-2xl" style={{ color: "var(--text-1)" }}>Sensors</h1>
         <div className="ml-auto flex items-center gap-1.5">
           <span className="w-2 h-2 rounded-full animate-pulse" style={{ background: "#4ADE80" }} />
           <span className="text-accent-green text-xs font-medium">Live</span>
@@ -74,9 +74,9 @@ export default function SensorsPage() {
 
       {/* Search */}
       <div className="px-4 mb-3">
-        <div className="flex items-center gap-2 rounded-2xl px-3 py-2.5" style={{ background: "rgba(255,255,255,0.05)", border: "1px solid rgba(255,255,255,0.08)" }}>
+        <div className="flex items-center gap-2 rounded-2xl px-3 py-2.5 liquid-glass">
           <svg width="14" height="14" viewBox="0 0 24 24" fill="none"><circle cx="11" cy="11" r="7" stroke="#6B7280" strokeWidth="1.75" /><path d="M16.5 16.5L21 21" stroke="#6B7280" strokeWidth="1.75" strokeLinecap="round" /></svg>
-          <input value={search} onChange={(e) => setSearch(e.target.value)} placeholder="Search sensors…" className="flex-1 bg-transparent text-white text-sm placeholder-text-tertiary outline-none" />
+          <input value={search} onChange={(e) => setSearch(e.target.value)} placeholder="Search sensors…" className="flex-1 bg-transparent text-sm placeholder-text-tertiary outline-none" style={{ color: "var(--text-1)" }} />
         </div>
       </div>
 
@@ -93,19 +93,19 @@ export default function SensorsPage() {
       {/* Sensor list */}
       <div className="px-4 space-y-2">
         {filtered.map((sensor) => (
-          <div key={sensor.id} className="rounded-2xl p-3.5 flex items-center gap-3" style={{ background: "rgba(255,255,255,0.05)", border: "1px solid rgba(255,255,255,0.08)" }}>
+          <div key={sensor.id} className="rounded-2xl p-3.5 flex items-center gap-3 liquid-glass">
             <div className="w-10 h-10 rounded-xl flex items-center justify-center text-lg flex-shrink-0" style={{ background: `${sensor.color}15`, border: `1px solid ${sensor.color}25` }}>
               {sensor.icon}
             </div>
             <div className="flex-1 min-w-0">
               <div className="flex items-center gap-2">
-                <p className="text-white text-sm font-medium truncate">{sensor.name}</p>
+                <p className="text-sm font-medium truncate" style={{ color: "var(--text-1)" }}>{sensor.name}</p>
                 <span className="w-1.5 h-1.5 rounded-full flex-shrink-0" style={{ background: statusColors[sensor.status] }} />
               </div>
               <p className="text-text-secondary text-xs">{sensor.zone} · {sensor.sub}</p>
             </div>
             <div className="flex flex-col items-end gap-1 flex-shrink-0">
-              <p className="text-white font-bold text-sm">{sensor.value}</p>
+              <p className="font-bold text-sm" style={{ color: "var(--text-1)" }}>{sensor.value}</p>
               <p className="text-text-tertiary text-[10px]">{sensor.lastSeen}</p>
               {sensor.battery !== null && (
                 <div className="flex items-center gap-1">

@@ -9,35 +9,36 @@ const config: Config = {
   theme: {
     extend: {
       colors: {
-        // Base
+        // Base — CSS vars for theme adaptation
         bg: {
-          DEFAULT: "#050A14",
-          secondary: "#0B111E",
-          card: "#111827",
+          DEFAULT: "var(--bg-1)",
+          secondary: "var(--bg-2)",
+          card: "var(--glass-bg)",
         },
-        // Glass
+        // Glass — CSS vars for theme adaptation
         glass: {
-          DEFAULT: "rgba(255,255,255,0.06)",
-          hover: "rgba(255,255,255,0.09)",
-          border: "rgba(255,255,255,0.10)",
-          strong: "rgba(255,255,255,0.12)",
+          DEFAULT: "var(--glass-bg)",
+          hover: "var(--glass-bg-hover)",
+          border: "var(--glass-border)",
+          strong: "var(--glass-bg-strong)",
         },
-        // Accent
+        // Accent — CSS vars for theme adaptation
         accent: {
-          green: "#4ADE80",
-          cyan: "#22D3EE",
+          DEFAULT: "var(--accent)",
+          green: "var(--accent)",
+          cyan: "var(--accent-cyan)",
           blue: "#3B82F6",
-          purple: "#7C3AED",
+          purple: "var(--accent-purple)",
           orange: "#F97316",
           amber: "#F59E0B",
           red: "#EF4444",
         },
-        // Text
+        // Text — CSS vars so light/dark mode works automatically
         text: {
-          primary: "#FFFFFF",
-          secondary: "#9CA3AF",
-          tertiary: "#6B7280",
-          accent: "#4ADE80",
+          primary: "var(--text-1)",
+          secondary: "var(--text-2)",
+          tertiary: "var(--text-3)",
+          accent: "var(--accent)",
         },
       },
       fontFamily: {

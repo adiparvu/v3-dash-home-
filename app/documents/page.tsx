@@ -47,12 +47,12 @@ export default function DocumentsPage() {
   };
 
   const DocCard = ({ doc }: { doc: typeof documents[0] }) => (
-    <div className="rounded-2xl p-3.5 flex items-center gap-3 active:scale-[0.98] transition-transform" style={{ background: "rgba(255,255,255,0.05)", border: "1px solid rgba(255,255,255,0.08)" }}>
+    <div className="rounded-2xl p-3.5 flex items-center gap-3 active:scale-[0.98] transition-transform liquid-glass">
       <div className="w-10 h-10 rounded-xl flex items-center justify-center text-lg flex-shrink-0" style={{ background: `${doc.color}15`, border: `1px solid ${doc.color}25` }}>
         {doc.icon}
       </div>
       <div className="flex-1 min-w-0">
-        <p className="text-white text-sm font-medium truncate">{doc.name}</p>
+        <p className="text-sm font-medium truncate" style={{ color: "var(--text-1)" }}>{doc.name}</p>
         <p className="text-text-secondary text-xs">{doc.zone} · {doc.date}</p>
       </div>
       <div className="flex flex-col items-end gap-1.5 flex-shrink-0">
@@ -65,14 +65,14 @@ export default function DocumentsPage() {
   );
 
   return (
-    <div className="min-h-screen pb-28" style={{ background: "#050A14" }}>
+    <div className="min-h-screen pb-28" style={{ background: "var(--bg-1)" }}>
       <StatusBar />
 
       <div className="px-5 pt-1 pb-3 flex items-center gap-3">
-        <Link href="/more" className="w-9 h-9 rounded-2xl flex items-center justify-center flex-shrink-0" style={{ background: "rgba(255,255,255,0.07)", border: "1px solid rgba(255,255,255,0.09)" }}>
+        <Link href="/more" className="w-9 h-9 rounded-2xl flex items-center justify-center flex-shrink-0" style={{ background: "rgba(255,255,255,0.07)", border: "0.5px solid var(--glass-border)" }}>
           <svg width="18" height="18" viewBox="0 0 24 24" fill="none"><path d="M19 12H5M12 5l-7 7 7 7" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" /></svg>
         </Link>
-        <h1 className="text-white font-bold text-2xl">Documents</h1>
+        <h1 className="font-bold text-2xl" style={{ color: "var(--text-1)" }}>Documents</h1>
         <span className="text-text-secondary text-sm ml-1">{documents.length}</span>
       </div>
 
@@ -85,8 +85,8 @@ export default function DocumentsPage() {
             { label: "Technical", value: documents.filter((d) => d.category === "Technical").length },
             { label: "Financial", value: documents.filter((d) => d.category === "Financial").length },
           ].map((s) => (
-            <div key={s.label} className="rounded-2xl p-2.5 text-center" style={{ background: "rgba(255,255,255,0.05)", border: "1px solid rgba(255,255,255,0.08)" }}>
-              <p className="text-white font-bold text-lg">{s.value}</p>
+            <div key={s.label} className="rounded-2xl p-2.5 text-center liquid-glass">
+              <p className="font-bold text-lg" style={{ color: "var(--text-1)" }}>{s.value}</p>
               <p className="text-text-secondary text-[10px]">{s.label}</p>
             </div>
           ))}
@@ -95,9 +95,9 @@ export default function DocumentsPage() {
 
       {/* Search */}
       <div className="px-4 mb-3">
-        <div className="flex items-center gap-2 rounded-2xl px-3 py-2.5" style={{ background: "rgba(255,255,255,0.05)", border: "1px solid rgba(255,255,255,0.08)" }}>
+        <div className="flex items-center gap-2 rounded-2xl px-3 py-2.5 liquid-glass">
           <svg width="14" height="14" viewBox="0 0 24 24" fill="none"><circle cx="11" cy="11" r="7" stroke="#6B7280" strokeWidth="1.75" /><path d="M16.5 16.5L21 21" stroke="#6B7280" strokeWidth="1.75" strokeLinecap="round" /></svg>
-          <input value={search} onChange={(e) => setSearch(e.target.value)} placeholder="Search documents…" className="flex-1 bg-transparent text-white text-sm placeholder-text-tertiary outline-none" />
+          <input value={search} onChange={(e) => setSearch(e.target.value)} placeholder="Search documents…" className="flex-1 bg-transparent text-sm placeholder-text-tertiary outline-none" style={{ color: "var(--text-1)" }} />
         </div>
       </div>
 

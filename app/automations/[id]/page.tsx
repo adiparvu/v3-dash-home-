@@ -271,7 +271,6 @@ export default function AutomationDetailPage() {
   const [logsOpen, setLogsOpen] = useState(false);
 
   const hasError = data.actions.some((a) => a.status === "error");
-  const hasWarning = !hasError && data.actions.some((a) => a.status === "warning");
 
   // Determine the status to use for connectors after trigger
   const triggerConnectorStatus = hasError ? "error" : data.trigger.status;

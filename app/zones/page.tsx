@@ -124,15 +124,15 @@ export default function ZonesPage() {
   const filtered = zones.filter((z) => activeType === "All" || z.type === activeType);
 
   return (
-    <div className="min-h-screen pb-28" style={{ background: "#050A14" }}>
+    <div className="min-h-screen pb-28" style={{ background: "var(--bg-1)" }}>
       <StatusBar />
 
       {/* Header */}
       <div className="px-5 pt-1 pb-3 flex items-center justify-between">
-        <h1 className="text-white font-bold text-2xl">Zones</h1>
+        <h1 className="font-bold text-2xl" style={{ color: "var(--text-1)" }}>Zones</h1>
         <div className="flex items-center gap-2">
-          <button className="w-9 h-9 rounded-2xl flex items-center justify-center" style={{ background: "rgba(255,255,255,0.08)", border: "1px solid rgba(255,255,255,0.10)" }}>
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none"><circle cx="11" cy="11" r="7" stroke="white" strokeWidth="1.75" /><path d="M16.5 16.5L21 21" stroke="white" strokeWidth="1.75" strokeLinecap="round" /></svg>
+          <button className="w-9 h-9 rounded-2xl flex items-center justify-center" style={{ background: "rgba(255,255,255,0.08)", border: "0.5px solid var(--glass-border)" }}>
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none"><circle cx="11" cy="11" r="7" stroke="var(--text-1)" strokeWidth="1.75" /><path d="M16.5 16.5L21 21" stroke="var(--text-1)" strokeWidth="1.75" strokeLinecap="round" /></svg>
           </button>
         </div>
       </div>
@@ -142,16 +142,16 @@ export default function ZonesPage() {
         <div className="rounded-3xl p-4 flex items-center justify-between" style={{ background: "rgba(74,222,128,0.07)", border: "1px solid rgba(74,222,128,0.18)" }}>
           <div>
             <p className="text-text-secondary text-xs">Estate Health</p>
-            <p className="text-white font-bold text-2xl">87 <span className="text-sm font-normal text-text-secondary">/ 100</span></p>
+            <p className="font-bold text-2xl" style={{ color: "var(--text-1)" }}>87 <span className="text-sm font-normal text-text-secondary">/ 100</span></p>
             <p className="text-accent-green text-xs font-medium">Very Good</p>
           </div>
           <div className="flex gap-5">
             <div className="text-center">
-              <p className="text-white font-bold text-lg">{zones.length}</p>
+              <p className="font-bold text-lg" style={{ color: "var(--text-1)" }}>{zones.length}</p>
               <p className="text-text-secondary text-[10px]">Zones</p>
             </div>
             <div className="text-center">
-              <p className="text-white font-bold text-lg">26</p>
+              <p className="font-bold text-lg" style={{ color: "var(--text-1)" }}>26</p>
               <p className="text-text-secondary text-[10px]">Sensors</p>
             </div>
             <div className="text-center">
@@ -172,7 +172,7 @@ export default function ZonesPage() {
             style={
               activeType === type
                 ? { background: "#4ADE80", color: "#050A14" }
-                : { background: "rgba(255,255,255,0.07)", color: "#9CA3AF", border: "1px solid rgba(255,255,255,0.09)" }
+                : { background: "rgba(255,255,255,0.07)", color: "var(--text-2)", border: "0.5px solid var(--glass-border)" }
             }
           >
             {type}
@@ -190,8 +190,7 @@ export default function ZonesPage() {
           return (
             <Link key={zone.href} href={zone.href}>
               <div
-                className="rounded-3xl p-4 flex items-center gap-4 active:scale-[0.98] transition-transform"
-                style={{ background: "rgba(255,255,255,0.05)", border: "1px solid rgba(255,255,255,0.08)" }}
+                className="liquid-glass rounded-3xl p-4 flex items-center gap-4 active:scale-[0.98] transition-transform"
               >
                 <div
                   className="w-14 h-14 rounded-2xl flex items-center justify-center text-2xl flex-shrink-0"
@@ -201,7 +200,7 @@ export default function ZonesPage() {
                 </div>
                 <div className="flex-1 min-w-0">
                   <div className="flex items-center gap-2 mb-0.5">
-                    <h3 className="text-white font-semibold text-base leading-tight">{zone.name}</h3>
+                    <h3 className="font-semibold text-base leading-tight" style={{ color: "var(--text-1)" }}>{zone.name}</h3>
                     <span className="text-[10px] font-medium px-1.5 py-0.5 rounded-full" style={{ background: `${zone.statusColor}18`, color: zone.statusColor }}>
                       {zone.status}
                     </span>
@@ -211,7 +210,7 @@ export default function ZonesPage() {
                     {zone.metrics.map((m) => (
                       <div key={m.label}>
                         <span className="text-text-tertiary text-[10px]">{m.label}: </span>
-                        <span className="text-white text-[10px] font-medium">{m.value}</span>
+                        <span className="text-[10px] font-medium" style={{ color: "var(--text-1)" }}>{m.value}</span>
                       </div>
                     ))}
                   </div>
@@ -221,7 +220,7 @@ export default function ZonesPage() {
                     <circle cx="24" cy="24" r={r} fill="none" stroke="rgba(255,255,255,0.08)" strokeWidth="3.5" />
                     <circle cx="24" cy="24" r={r} fill="none" stroke={zone.accentColor} strokeWidth="3.5"
                       strokeDasharray={circ} strokeDashoffset={zOffset} strokeLinecap="round" transform="rotate(-90 24 24)" />
-                    <text x="24" y="28" textAnchor="middle" fill="white" fontSize="10" fontWeight="bold">{zone.health}</text>
+                    <text x="24" y="28" textAnchor="middle" fill="var(--text-1)" fontSize="10" fontWeight="bold">{zone.health}</text>
                   </svg>
                 </div>
               </div>

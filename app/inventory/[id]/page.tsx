@@ -146,7 +146,7 @@ export default function InventoryDetailPage({ params }: { params: { id: string }
   const asset = assetData[params.id] ?? defaultAsset;
 
   return (
-    <div className="min-h-screen" style={{ background: "#050A14" }}>
+    <div className="min-h-screen" style={{ background: "var(--bg-1)" }}>
       {/* Hero Section */}
       <div
         className="relative h-64 flex items-center justify-center overflow-hidden"
@@ -213,15 +213,15 @@ export default function InventoryDetailPage({ params }: { params: { id: string }
       <div
         className="rounded-t-[32px] px-5 pt-5 pb-10 -mt-6 relative z-10"
         style={{
-          background: "rgba(10,16,28,0.98)",
-          border: "1px solid rgba(255,255,255,0.08)",
+          background: "var(--glass-bg)",
+          border: "0.5px solid var(--glass-border)",
           backdropFilter: "blur(20px)",
           minHeight: "calc(100vh - 232px)",
         }}
       >
         {/* Asset name + status */}
         <div className="flex items-start justify-between mb-1">
-          <h1 className="text-white font-bold text-2xl leading-tight">{asset.name}</h1>
+          <h1 className="font-bold text-2xl leading-tight" style={{ color: "var(--text-1)" }}>{asset.name}</h1>
           <span
             className="mt-1 px-3 py-1 rounded-full text-xs font-semibold flex-shrink-0"
             style={{
@@ -235,7 +235,7 @@ export default function InventoryDetailPage({ params }: { params: { id: string }
         </div>
 
         {/* Category · Location */}
-        <p className="text-sm mb-4" style={{ color: "#9CA3AF" }}>
+        <p className="text-sm mb-4" style={{ color: "var(--text-2)" }}>
           {asset.category}
           <span className="mx-1.5 opacity-40">·</span>
           {asset.location}
@@ -244,7 +244,7 @@ export default function InventoryDetailPage({ params }: { params: { id: string }
         {/* Tabs */}
         <div
           className="flex rounded-2xl p-1 mb-5"
-          style={{ background: "rgba(255,255,255,0.05)", border: "1px solid rgba(255,255,255,0.07)" }}
+          style={{ background: "rgba(255,255,255,0.05)", border: "0.5px solid var(--glass-border)" }}
         >
           {tabs.map((tab) => (
             <button
@@ -253,8 +253,8 @@ export default function InventoryDetailPage({ params }: { params: { id: string }
               className="flex-1 py-2 text-xs font-medium rounded-xl transition-all"
               style={
                 activeTab === tab
-                  ? { background: "rgba(255,255,255,0.12)", color: "#FFFFFF" }
-                  : { color: "#6B7280" }
+                  ? { background: "rgba(255,255,255,0.12)", color: "var(--text-1)" }
+                  : { color: "var(--text-3)" }
               }
             >
               {tab}
@@ -268,7 +268,7 @@ export default function InventoryDetailPage({ params }: { params: { id: string }
             {/* Info rows */}
             <div
               className="rounded-2xl overflow-hidden mb-4"
-              style={{ background: "rgba(255,255,255,0.06)", border: "1px solid rgba(255,255,255,0.10)" }}
+              style={{ background: "rgba(255,255,255,0.06)", border: "0.5px solid var(--glass-border)" }}
             >
               {[
                 { label: "Brand", value: asset.brand },
@@ -283,14 +283,14 @@ export default function InventoryDetailPage({ params }: { params: { id: string }
                   className="flex items-center justify-between px-4 py-3.5"
                   style={i < arr.length - 1 ? { borderBottom: "1px solid rgba(255,255,255,0.06)" } : {}}
                 >
-                  <span className="text-sm" style={{ color: "#6B7280" }}>{row.label}</span>
-                  <span className="text-sm font-medium text-white">{row.value}</span>
+                  <span className="text-sm" style={{ color: "var(--text-3)" }}>{row.label}</span>
+                  <span className="text-sm font-medium" style={{ color: "var(--text-1)" }}>{row.value}</span>
                 </div>
               ))}
             </div>
 
             {/* Quick Actions */}
-            <p className="text-xs font-semibold uppercase tracking-widest mb-3" style={{ color: "#6B7280" }}>
+            <p className="text-xs font-semibold uppercase tracking-widest mb-3" style={{ color: "var(--text-3)" }}>
               Quick Actions
             </p>
             <div className="grid grid-cols-4 gap-3">

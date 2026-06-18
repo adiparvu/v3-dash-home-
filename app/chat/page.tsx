@@ -1,7 +1,6 @@
 "use client";
 
 import { useState, useRef, useEffect } from "react";
-import Link from "next/link";
 import StatusBar from "../components/layout/StatusBar";
 import BottomNav from "../components/layout/BottomNav";
 
@@ -116,15 +115,15 @@ export default function ChatPage() {
   }
 
   return (
-    <div className="min-h-screen flex flex-col" style={{ background: "#050A14" }}>
+    <div className="min-h-screen flex flex-col" style={{ background: "var(--bg-1)" }}>
       <StatusBar />
 
       {/* Header */}
-      <div className="px-4 pt-1 pb-3 flex items-center gap-3 flex-shrink-0" style={{ borderBottom: "1px solid rgba(255,255,255,0.07)" }}>
+      <div className="px-4 pt-1 pb-3 flex items-center gap-3 flex-shrink-0" style={{ borderBottom: "0.5px solid var(--glass-border)" }}>
         <button
           onClick={() => setShowRooms(!showRooms)}
           className="w-9 h-9 rounded-2xl flex items-center justify-center relative flex-shrink-0"
-          style={{ background: "rgba(255,255,255,0.07)", border: "1px solid rgba(255,255,255,0.09)" }}
+          style={{ background: "rgba(255,255,255,0.07)", border: "0.5px solid var(--glass-border)" }}
         >
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
             <path d="M4 6h16M4 12h16M4 18h16" stroke="white" strokeWidth="1.75" strokeLinecap="round" />
@@ -139,7 +138,7 @@ export default function ChatPage() {
         <div className="flex-1 min-w-0">
           <div className="flex items-center gap-2">
             <span className="text-base">{room.icon}</span>
-            <h1 className="text-white font-semibold text-base truncate">{room.name}</h1>
+            <h1 className="font-semibold text-base truncate" style={{ color: "var(--text-1)" }}>{room.name}</h1>
             <span className="text-[10px] px-1.5 py-0.5 rounded-full flex-shrink-0" style={{
               background: room.type === "dm" ? "rgba(124,58,237,0.15)" : room.type === "zone" ? "rgba(34,211,238,0.12)" : "rgba(74,222,128,0.12)",
               color: room.type === "dm" ? "#7C3AED" : room.type === "zone" ? "#22D3EE" : "#4ADE80",
@@ -149,7 +148,7 @@ export default function ChatPage() {
           </div>
         </div>
 
-        <button className="w-9 h-9 rounded-2xl flex items-center justify-center flex-shrink-0" style={{ background: "rgba(255,255,255,0.07)", border: "1px solid rgba(255,255,255,0.09)" }}>
+        <button className="w-9 h-9 rounded-2xl flex items-center justify-center flex-shrink-0" style={{ background: "rgba(255,255,255,0.07)", border: "0.5px solid var(--glass-border)" }}>
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
             <circle cx="12" cy="12" r="1.5" fill="white" />
             <circle cx="6" cy="12" r="1.5" fill="white" />
@@ -161,9 +160,9 @@ export default function ChatPage() {
       {/* Room drawer overlay */}
       {showRooms && (
         <div className="absolute inset-0 z-40 flex" style={{ top: 0 }} onClick={() => setShowRooms(false)}>
-          <div className="w-72 h-full flex flex-col pt-16 pb-4" style={{ background: "rgba(5,10,20,0.98)", borderRight: "1px solid rgba(255,255,255,0.08)" }} onClick={(e) => e.stopPropagation()}>
+          <div className="w-72 h-full flex flex-col pt-16 pb-4" style={{ background: "var(--glass-bg)", borderRight: "0.5px solid var(--glass-border)" }} onClick={(e) => e.stopPropagation()}>
             <div className="px-4 mb-3">
-              <p className="text-white font-bold text-lg">Messages</p>
+              <p className="font-bold text-lg" style={{ color: "var(--text-1)" }}>Messages</p>
             </div>
 
             {[
@@ -181,7 +180,7 @@ export default function ChatPage() {
                     style={{ background: activeRoom === r.id ? "rgba(74,222,128,0.08)" : "transparent" }}
                   >
                     <span className="text-lg w-7 text-center">{r.icon}</span>
-                    <span className="flex-1 text-sm font-medium text-left" style={{ color: activeRoom === r.id ? "#4ADE80" : "white" }}>{r.name}</span>
+                    <span className="flex-1 text-sm font-medium text-left" style={{ color: activeRoom === r.id ? "var(--accent)" : "var(--text-1)" }}>{r.name}</span>
                     {r.unread > 0 && (
                       <span className="w-5 h-5 rounded-full text-[10px] font-bold flex items-center justify-center" style={{ background: "#4ADE80", color: "#050A14" }}>
                         {r.unread}
@@ -205,7 +204,7 @@ export default function ChatPage() {
             return (
               <div key={msg.id} className="flex items-center gap-2 py-2 justify-center">
                 <div className="h-px flex-1" style={{ background: "rgba(255,255,255,0.06)" }} />
-                <div className="flex items-center gap-1.5 px-3 py-1 rounded-full" style={{ background: "rgba(255,255,255,0.05)", border: "1px solid rgba(255,255,255,0.08)" }}>
+                <div className="flex items-center gap-1.5 px-3 py-1 rounded-full liquid-glass">
                   <span className="text-xs">{msg.avatar}</span>
                   <span className="text-text-secondary text-[11px]">{msg.text}</span>
                   <span className="text-text-tertiary text-[10px]">{msg.time}</span>
@@ -246,14 +245,14 @@ export default function ChatPage() {
               <div className="flex flex-col items-start max-w-[75%]">
                 {showMeta && (
                   <div className="flex items-center gap-1.5 mb-1 ml-1">
-                    <span className="text-white text-xs font-semibold">{msg.author}</span>
+                    <span className="text-xs font-semibold" style={{ color: "var(--text-1)" }}>{msg.author}</span>
                     <span className="text-text-tertiary text-[10px]">{msg.role}</span>
                     <span className="text-text-tertiary text-[10px]">· {msg.time}</span>
                   </div>
                 )}
                 <div
-                  className="px-3.5 py-2.5 rounded-[18px] rounded-tl-md text-sm text-white leading-relaxed"
-                  style={{ background: "rgba(255,255,255,0.07)", border: "1px solid rgba(255,255,255,0.09)" }}
+                  className="px-3.5 py-2.5 rounded-[18px] rounded-tl-md text-sm leading-relaxed liquid-glass"
+                  style={{ color: "var(--text-1)" }}
                 >
                   {msg.text}
                 </div>
@@ -265,10 +264,10 @@ export default function ChatPage() {
       </div>
 
       {/* Input bar */}
-      <div className="flex-shrink-0 px-4 pb-28 pt-2" style={{ borderTop: "1px solid rgba(255,255,255,0.07)", background: "rgba(5,10,20,0.95)" }}>
+      <div className="flex-shrink-0 px-4 pb-28 pt-2" style={{ borderTop: "0.5px solid var(--glass-border)", background: "var(--glass-bg)" }}>
         <div
           className="flex items-end gap-2 rounded-2xl px-3 py-2"
-          style={{ background: "rgba(255,255,255,0.05)", border: "1px solid rgba(255,255,255,0.10)" }}
+          style={{ background: "rgba(255,255,255,0.05)", border: "0.5px solid var(--glass-border)" }}
         >
           <button className="w-8 h-8 rounded-xl flex items-center justify-center flex-shrink-0 mb-0.5" style={{ background: "rgba(255,255,255,0.07)" }}>
             <svg width="14" height="14" viewBox="0 0 24 24" fill="none">
@@ -282,8 +281,8 @@ export default function ChatPage() {
             onKeyDown={handleKey}
             placeholder={`Message ${room.name}…`}
             rows={1}
-            className="flex-1 bg-transparent text-white text-sm placeholder-text-tertiary resize-none outline-none leading-relaxed py-1"
-            style={{ maxHeight: "100px" }}
+            className="flex-1 bg-transparent text-sm placeholder-text-tertiary resize-none outline-none leading-relaxed py-1"
+            style={{ color: "var(--text-1)", maxHeight: "100px" }}
           />
           <button
             onClick={sendMessage}

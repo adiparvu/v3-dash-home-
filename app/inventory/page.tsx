@@ -81,12 +81,12 @@ export default function InventoryPage() {
   });
 
   return (
-    <div className="min-h-screen pb-28" style={{ background: "#050A14" }}>
+    <div className="min-h-screen pb-28" style={{ background: "var(--bg-1)" }}>
       <StatusBar />
 
       {/* Header */}
       <div className="px-5 pt-1 pb-3 flex items-center justify-between">
-        <h1 className="text-white font-bold text-2xl">Inventory</h1>
+        <h1 className="font-bold text-2xl" style={{ color: "var(--text-1)" }}>Inventory</h1>
         <div className="flex items-center gap-2">
           <button
             className="w-9 h-9 rounded-2xl flex items-center justify-center"
@@ -101,18 +101,19 @@ export default function InventoryPage() {
       <div className="px-4 mb-3">
         <div
           className="rounded-2xl flex items-center gap-2 px-3.5 py-2.5"
-          style={{ background: "rgba(255,255,255,0.06)", border: "1px solid rgba(255,255,255,0.09)" }}
+          style={{ background: "rgba(255,255,255,0.06)", border: "0.5px solid var(--glass-border)" }}
         >
-          <svg width="15" height="15" viewBox="0 0 24 24" fill="none">
-            <circle cx="11" cy="11" r="7" stroke="#9CA3AF" strokeWidth="1.75" />
-            <path d="M16.5 16.5L21 21" stroke="#9CA3AF" strokeWidth="1.75" strokeLinecap="round" />
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" style={{ color: "var(--text-3)", flexShrink: 0 }}>
+            <circle cx="11" cy="11" r="7" stroke="currentColor" strokeWidth="1.75" />
+            <path d="M16.5 16.5L21 21" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" />
           </svg>
           <input
             type="text"
             placeholder="Search assets..."
             value={search}
             onChange={(e) => setSearch(e.target.value)}
-            className="flex-1 bg-transparent text-white text-sm placeholder-text-secondary outline-none"
+            className="flex-1 bg-transparent text-sm outline-none"
+            style={{ color: "var(--text-1)" }}
           />
         </div>
       </div>
@@ -120,16 +121,12 @@ export default function InventoryPage() {
       {/* Stats strip */}
       <div className="px-4 mb-4 flex gap-2">
         {[
-          { label: "Total Assets", value: "142", color: "#FFFFFF" },
+          { label: "Total Assets", value: "142", color: "var(--text-1)" },
           { label: "Active", value: "118", color: "#4ADE80" },
           { label: "Maintenance", value: "7", color: "#F59E0B" },
           { label: "Offline", value: "3", color: "#EF4444" },
         ].map((s) => (
-          <div
-            key={s.label}
-            className="flex-1 rounded-2xl p-2.5 text-center"
-            style={{ background: "rgba(255,255,255,0.05)", border: "1px solid rgba(255,255,255,0.07)" }}
-          >
+          <div key={s.label} className="liquid-glass flex-1 rounded-2xl p-2.5 text-center">
             <p className="font-bold text-base leading-tight" style={{ color: s.color }}>{s.value}</p>
             <p className="text-text-tertiary text-[9px] leading-tight mt-0.5">{s.label}</p>
           </div>
@@ -146,7 +143,7 @@ export default function InventoryPage() {
             style={
               activeCategory === cat
                 ? { background: "#4ADE80", color: "#050A14" }
-                : { background: "rgba(255,255,255,0.07)", color: "#9CA3AF", border: "1px solid rgba(255,255,255,0.09)" }
+                : { background: "rgba(255,255,255,0.07)", color: "var(--text-2)", border: "0.5px solid var(--glass-border)" }
             }
           >
             {cat}
@@ -158,10 +155,7 @@ export default function InventoryPage() {
       <div className="px-4 space-y-2.5">
         {filtered.map((asset) => (
           <Link key={asset.href} href={asset.href}>
-            <div
-              className="rounded-2xl p-3.5 flex items-center gap-3.5 active:scale-[0.98] transition-transform"
-              style={{ background: "rgba(255,255,255,0.05)", border: "1px solid rgba(255,255,255,0.08)" }}
-            >
+            <div className="liquid-glass rounded-2xl p-3.5 flex items-center gap-3.5 active:scale-[0.98] transition-transform">
               {/* Icon */}
               <div
                 className="w-14 h-14 rounded-2xl flex items-center justify-center text-2xl flex-shrink-0"
@@ -172,7 +166,7 @@ export default function InventoryPage() {
 
               {/* Info */}
               <div className="flex-1 min-w-0">
-                <p className="text-white font-semibold text-sm leading-tight">{asset.name}</p>
+                <p className="font-semibold text-sm leading-tight" style={{ color: "var(--text-1)" }}>{asset.name}</p>
                 <p className="text-text-secondary text-xs mt-0.5">{asset.category} · {asset.location}</p>
               </div>
 
@@ -180,8 +174,8 @@ export default function InventoryPage() {
               <div className="flex items-center gap-1.5 flex-shrink-0">
                 <span className="w-1.5 h-1.5 rounded-full" style={{ background: asset.statusColor }} />
                 <span className="text-xs font-medium" style={{ color: asset.statusColor }}>{asset.status}</span>
-                <svg width="14" height="14" viewBox="0 0 24 24" fill="none">
-                  <path d="M9 18l6-6-6-6" stroke="#6B7280" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round" />
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" style={{ opacity: 0.4 }}>
+                  <path d="M9 18l6-6-6-6" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round" />
                 </svg>
               </div>
             </div>

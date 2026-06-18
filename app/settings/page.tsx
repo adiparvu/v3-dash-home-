@@ -36,20 +36,17 @@ export default function SettingsPage() {
   const [autoLock, setAutoLock] = useState("5 minutes");
 
   return (
-    <div className="min-h-screen pb-28" style={{ background: "#050A14" }}>
+    <div className="min-h-screen pb-28" style={{ background: "var(--bg-1)" }}>
       <StatusBar />
 
       <div className="px-5 pt-1 pb-4">
-        <h1 className="text-white font-bold text-2xl">Settings</h1>
+        <h1 className="font-bold text-2xl" style={{ color: "var(--text-1)" }}>Settings</h1>
       </div>
 
       {/* Profile card */}
       <div className="px-4 mb-5">
         <Link href="/settings/profile">
-          <div
-            className="rounded-3xl p-4 flex items-center gap-4 active:scale-[0.98] transition-transform"
-            style={{ background: "rgba(255,255,255,0.06)", border: "1px solid rgba(255,255,255,0.10)" }}
-          >
+          <div className="liquid-glass rounded-3xl p-4 flex items-center gap-4 active:scale-[0.98] transition-transform">
             <div
               className="w-14 h-14 rounded-full flex items-center justify-center flex-shrink-0"
               style={{ background: "linear-gradient(135deg, #4ADE80, #22D3EE)", boxShadow: "0 0 16px rgba(74,222,128,0.3)", border: "2px solid #4ADE80" }}
@@ -57,14 +54,14 @@ export default function SettingsPage() {
               <span className="text-bg font-bold text-xl">A</span>
             </div>
             <div className="flex-1">
-              <p className="text-white font-semibold">Alex Owner</p>
+              <p className="font-semibold" style={{ color: "var(--text-1)" }}>Alex Owner</p>
               <p className="text-text-secondary text-xs">alex@prvio.earth</p>
               <div className="flex items-center gap-1.5 mt-1">
                 <span className="w-1.5 h-1.5 rounded-full bg-accent-green" />
                 <span className="text-accent-green text-[10px] font-medium">Pro · Member since 2024</span>
               </div>
             </div>
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none"><path d="M9 18l6-6-6-6" stroke="#9CA3AF" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round" /></svg>
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" style={{ color: "var(--text-3)" }}><path d="M9 18l6-6-6-6" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round" /></svg>
           </div>
         </Link>
       </div>
@@ -74,19 +71,19 @@ export default function SettingsPage() {
         {settingsSections.map((section) => (
           <div key={section.title}>
             <p className="text-text-secondary text-xs font-medium tracking-wide uppercase mb-2 px-1">{section.title}</p>
-            <div className="rounded-2xl overflow-hidden" style={{ background: "rgba(255,255,255,0.04)", border: "1px solid rgba(255,255,255,0.07)" }}>
+            <div className="liquid-glass rounded-2xl overflow-hidden">
               {section.items.map((item, i) => (
                 <Link key={item.href} href={item.href}>
                   <div
-                    className="flex items-center gap-3.5 px-4 py-3.5 active:bg-white/[0.06] transition-colors"
-                    style={{ borderBottom: i < section.items.length - 1 ? "1px solid rgba(255,255,255,0.06)" : undefined }}
+                    className="flex items-center gap-3.5 px-4 py-3.5 transition-colors"
+                    style={{ borderBottom: i < section.items.length - 1 ? "0.5px solid var(--glass-border)" : undefined }}
                   >
                     <span className="text-xl w-8 text-center flex-shrink-0">{item.icon}</span>
                     <div className="flex-1">
-                      <p className="text-white text-sm font-medium">{item.label}</p>
+                      <p className="text-sm font-medium" style={{ color: "var(--text-1)" }}>{item.label}</p>
                       <p className="text-text-secondary text-xs">{item.desc}</p>
                     </div>
-                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none"><path d="M9 18l6-6-6-6" stroke="#6B7280" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round" /></svg>
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" style={{ opacity: 0.45 }}><path d="M9 18l6-6-6-6" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round" /></svg>
                   </div>
                 </Link>
               ))}
@@ -97,10 +94,10 @@ export default function SettingsPage() {
         {/* Auto lock */}
         <div>
           <p className="text-text-secondary text-xs font-medium tracking-wide uppercase mb-2 px-1">Security</p>
-          <div className="rounded-2xl overflow-hidden" style={{ background: "rgba(255,255,255,0.04)", border: "1px solid rgba(255,255,255,0.07)" }}>
-            <div className="flex items-center justify-between px-4 py-3.5" style={{ borderBottom: "1px solid rgba(255,255,255,0.06)" }}>
+          <div className="liquid-glass rounded-2xl overflow-hidden">
+            <div className="flex items-center justify-between px-4 py-3.5" style={{ borderBottom: "0.5px solid var(--glass-border)" }}>
               <div>
-                <p className="text-white text-sm font-medium">Auto Lock</p>
+                <p className="text-sm font-medium" style={{ color: "var(--text-1)" }}>Auto Lock</p>
                 <p className="text-text-secondary text-xs">Lock app after inactivity</p>
               </div>
               <span className="text-accent-green text-sm font-medium">{autoLock}</span>
@@ -113,8 +110,8 @@ export default function SettingsPage() {
                   className="px-3 py-1 rounded-full text-xs font-medium whitespace-nowrap flex-shrink-0 transition-all"
                   style={
                     autoLock === opt
-                      ? { background: "rgba(74,222,128,0.15)", border: "1px solid rgba(74,222,128,0.35)", color: "#4ADE80" }
-                      : { background: "rgba(255,255,255,0.06)", border: "1px solid rgba(255,255,255,0.08)", color: "#9CA3AF" }
+                      ? { background: "rgba(74,222,128,0.15)", border: "1px solid rgba(74,222,128,0.35)", color: "var(--accent)" }
+                      : { background: "var(--glass-bg)", border: "0.5px solid var(--glass-border)", color: "var(--text-2)" }
                   }
                 >
                   {opt}

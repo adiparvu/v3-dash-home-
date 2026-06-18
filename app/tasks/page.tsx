@@ -92,12 +92,6 @@ const priorityConfig = {
   low: { label: "Low", color: "#6B7280", bg: "rgba(107,114,128,0.10)" },
 };
 
-const statusConfig = {
-  pending: { label: "Pending", color: "#9CA3AF" },
-  in_progress: { label: "In Progress", color: "#F59E0B" },
-  completed: { label: "Done", color: "#4ADE80" },
-};
-
 export default function TasksPage() {
   const [activeFilter, setActiveFilter] = useState("All");
 
@@ -113,13 +107,13 @@ export default function TasksPage() {
   const inProgress = tasks.filter((t) => t.status === "in_progress").length;
 
   return (
-    <div className="min-h-screen pb-28" style={{ background: "#050A14" }}>
+    <div className="min-h-screen pb-28" style={{ background: "var(--bg-1)" }}>
       <StatusBar />
 
       {/* Header */}
       <div className="px-5 pt-1 pb-3 flex items-center justify-between">
         <div>
-          <h1 className="text-white font-bold text-2xl">Tasks</h1>
+          <h1 className="font-bold text-2xl" style={{ color: "var(--text-1)" }}>Tasks</h1>
           <p className="text-text-secondary text-xs">{pending} pending · {inProgress} in progress</p>
         </div>
         <button
@@ -133,12 +127,12 @@ export default function TasksPage() {
       {/* Summary strip */}
       <div className="px-4 mb-4 flex gap-2">
         {[
-          { label: "Total", value: tasks.length.toString(), color: "#FFFFFF" },
+          { label: "Total", value: tasks.length.toString(), color: "var(--text-1)" },
           { label: "Pending", value: pending.toString(), color: "#F59E0B" },
           { label: "In Progress", value: inProgress.toString(), color: "#22D3EE" },
           { label: "Done", value: tasks.filter((t) => t.status === "completed").length.toString(), color: "#4ADE80" },
         ].map((s) => (
-          <div key={s.label} className="flex-1 rounded-2xl p-2.5 text-center" style={{ background: "rgba(255,255,255,0.05)", border: "1px solid rgba(255,255,255,0.07)" }}>
+          <div key={s.label} className="flex-1 rounded-2xl p-2.5 text-center" style={{ background: "rgba(255,255,255,0.05)", border: "0.5px solid var(--glass-border)" }}>
             <p className="font-bold text-base" style={{ color: s.color }}>{s.value}</p>
             <p className="text-text-tertiary text-[9px] mt-0.5">{s.label}</p>
           </div>
@@ -155,7 +149,7 @@ export default function TasksPage() {
             style={
               activeFilter === f
                 ? { background: "#4ADE80", color: "#050A14" }
-                : { background: "rgba(255,255,255,0.07)", color: "#9CA3AF", border: "1px solid rgba(255,255,255,0.09)" }
+                : { background: "rgba(255,255,255,0.07)", color: "var(--text-2)", border: "0.5px solid var(--glass-border)" }
             }
           >
             {f}
@@ -167,13 +161,11 @@ export default function TasksPage() {
       <div className="px-4 space-y-2.5">
         {filtered.map((task) => {
           const pConfig = priorityConfig[task.priority as keyof typeof priorityConfig];
-          const sConfig = statusConfig[task.status as keyof typeof statusConfig];
 
           return (
             <div
               key={task.id}
-              className="rounded-2xl p-4 active:scale-[0.98] transition-transform"
-              style={{ background: "rgba(255,255,255,0.05)", border: "1px solid rgba(255,255,255,0.08)" }}
+              className="liquid-glass rounded-2xl p-4 active:scale-[0.98] transition-transform"
             >
               <div className="flex items-start gap-3">
                 {/* Checkbox */}
@@ -191,7 +183,7 @@ export default function TasksPage() {
 
                 {/* Content */}
                 <div className="flex-1 min-w-0">
-                  <p className={`text-sm font-medium leading-tight ${task.status === "completed" ? "line-through text-text-tertiary" : "text-white"}`}>
+                  <p className={`text-sm font-medium leading-tight ${task.status === "completed" ? "line-through text-text-tertiary" : ""}`} style={task.status !== "completed" ? { color: "var(--text-1)" } : undefined}>
                     {task.title}
                   </p>
                   <div className="flex items-center gap-2 mt-1.5">

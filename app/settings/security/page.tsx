@@ -23,28 +23,28 @@ export default function SecurityPage() {
   const [loginAlerts, setLoginAlerts] = useState(true);
 
   return (
-    <div className="min-h-screen pb-10" style={{ background: "#050A14" }}>
+    <div className="min-h-screen pb-10" style={{ background: "var(--bg-1)" }}>
       <StatusBar />
 
       <div className="px-5 pt-1 pb-4 flex items-center gap-3">
-        <Link href="/settings" className="w-9 h-9 rounded-2xl flex items-center justify-center flex-shrink-0" style={{ background: "rgba(255,255,255,0.07)", border: "1px solid rgba(255,255,255,0.09)" }}>
+        <Link href="/settings" className="w-9 h-9 rounded-2xl flex items-center justify-center flex-shrink-0 liquid-glass">
           <svg width="18" height="18" viewBox="0 0 24 24" fill="none"><path d="M19 12H5M12 5l-7 7 7 7" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" /></svg>
         </Link>
-        <h1 className="text-white font-bold text-xl">Security</h1>
+        <h1 className="font-bold text-xl" style={{ color: "var(--text-1)" }}>Security</h1>
       </div>
 
       <div className="px-4 space-y-4">
         {/* Auth methods */}
         <div>
           <p className="text-text-secondary text-xs font-medium uppercase tracking-wide mb-2 px-1">Authentication</p>
-          <div className="rounded-2xl overflow-hidden" style={{ background: "rgba(255,255,255,0.04)", border: "1px solid rgba(255,255,255,0.07)" }}>
+          <div className="rounded-2xl overflow-hidden" style={{ background: "rgba(255,255,255,0.04)", border: "0.5px solid var(--glass-border)" }}>
             {[
               { label: "Face ID", desc: "Unlock with Face ID", enabled: faceIdEnabled, onToggle: () => setFaceIdEnabled(!faceIdEnabled) },
               { label: "Login Alerts", desc: "Notify on new sign-ins", enabled: loginAlerts, onToggle: () => setLoginAlerts(!loginAlerts) },
             ].map((item, i) => (
               <div key={item.label} className="flex items-center justify-between px-4 py-3.5" style={{ borderBottom: i === 0 ? "1px solid rgba(255,255,255,0.06)" : undefined }}>
                 <div>
-                  <p className="text-white text-sm font-medium">{item.label}</p>
+                  <p className="text-sm font-medium" style={{ color: "var(--text-1)" }}>{item.label}</p>
                   <p className="text-text-secondary text-xs">{item.desc}</p>
                 </div>
                 <button
@@ -67,7 +67,7 @@ export default function SecurityPage() {
           </div>
           <div className="space-y-2">
             {sessions.map((s) => (
-              <div key={s.id} className="rounded-2xl p-3.5 flex items-center gap-3" style={{ background: "rgba(255,255,255,0.05)", border: `1px solid ${s.current ? "rgba(74,222,128,0.25)" : "rgba(255,255,255,0.08)"}` }}>
+              <div key={s.id} className="rounded-2xl p-3.5 flex items-center gap-3" style={{ background: "rgba(255,255,255,0.05)", border: s.current ? "1px solid rgba(74,222,128,0.25)" : "0.5px solid var(--glass-border)" }}>
                 <div className="w-10 h-10 rounded-2xl flex items-center justify-center flex-shrink-0" style={{ background: s.current ? "rgba(74,222,128,0.12)" : "rgba(255,255,255,0.07)" }}>
                   <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
                     <rect x="5" y="2" width="14" height="20" rx="2" stroke={s.current ? "#4ADE80" : "#9CA3AF"} strokeWidth="1.75" />
@@ -76,7 +76,7 @@ export default function SecurityPage() {
                 </div>
                 <div className="flex-1 min-w-0">
                   <div className="flex items-center gap-2">
-                    <p className="text-white text-sm font-medium leading-tight">{s.device}</p>
+                    <p className="text-sm font-medium leading-tight" style={{ color: "var(--text-1)" }}>{s.device}</p>
                     {s.current && <span className="text-[9px] font-medium px-1.5 py-0.5 rounded-full" style={{ background: "rgba(74,222,128,0.15)", color: "#4ADE80" }}>This device</span>}
                   </div>
                   <p className="text-text-secondary text-xs">{s.platform} · {s.location}</p>
@@ -95,12 +95,12 @@ export default function SecurityPage() {
         {/* Audit log */}
         <div>
           <p className="text-text-secondary text-xs font-medium uppercase tracking-wide mb-2 px-1">Audit Log</p>
-          <div className="rounded-2xl overflow-hidden" style={{ background: "rgba(255,255,255,0.04)", border: "1px solid rgba(255,255,255,0.07)" }}>
+          <div className="rounded-2xl overflow-hidden" style={{ background: "rgba(255,255,255,0.04)", border: "0.5px solid var(--glass-border)" }}>
             {auditLog.map((entry, i) => (
               <div key={entry.id} className="flex items-center gap-3 px-4 py-3" style={{ borderBottom: i < auditLog.length - 1 ? "1px solid rgba(255,255,255,0.06)" : undefined }}>
                 <span className="text-base w-7 text-center flex-shrink-0">{entry.icon}</span>
                 <div className="flex-1 min-w-0">
-                  <p className="text-white text-sm leading-tight">{entry.action}</p>
+                  <p className="text-sm leading-tight" style={{ color: "var(--text-1)" }}>{entry.action}</p>
                   <p className="text-text-secondary text-xs">{entry.detail}</p>
                 </div>
                 <span className="text-text-tertiary text-[10px] flex-shrink-0">{entry.time}</span>

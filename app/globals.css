@@ -343,6 +343,87 @@
   [data-theme="light"] [style*="F2F2F7"]  { background: var(--bg-1) !important; }
   [data-theme="light"] [style*="F0F1F7"]  { background: var(--bg-1) !important; }
 
+  /* ─── Light mode: fix text-white Tailwind class ──────────── */
+  [data-theme="light"] .text-white { color: var(--text-1) !important; }
+  [data-theme="light"] .text-gray-100,
+  [data-theme="light"] .text-gray-200,
+  [data-theme="light"] .text-gray-300,
+  [data-theme="light"] .text-gray-400 { color: var(--text-2) !important; }
+  [data-theme="light"] .text-gray-500,
+  [data-theme="light"] .text-gray-600 { color: var(--text-3) !important; }
+
+  /* ─── Light mode: fix pure-black glass card backgrounds ───── */
+  [data-theme="light"] [style*="rgba(255,255,255,0.04)"],
+  [data-theme="light"] [style*="rgba(255,255,255,0.05)"],
+  [data-theme="light"] [style*="rgba(255,255,255,0.06)"],
+  [data-theme="light"] [style*="rgba(255,255,255,0.07)"],
+  [data-theme="light"] [style*="rgba(255,255,255,0.08)"],
+  [data-theme="light"] [style*="rgba(255,255,255,0.09)"] {
+    background: var(--glass-bg) !important;
+    border-color: var(--glass-border) !important;
+  }
+
+  /* ─── Light mode: fix nearly-opaque dark card backgrounds ─── */
+  [data-theme="light"] [style*="rgba(5,10,20"],
+  [data-theme="light"] [style*="rgba(6,8,16"],
+  [data-theme="light"] [style*="rgba(8,9,14"],
+  [data-theme="light"] [style*="rgba(10,12,20"],
+  [data-theme="light"] [style*="rgba(12,15,28"],
+  [data-theme="light"] [style*="rgba(15,20,40"],
+  [data-theme="light"] [style*="rgba(0,0,0,0.4"],
+  [data-theme="light"] [style*="rgba(0,0,0,0.5"],
+  [data-theme="light"] [style*="rgba(0,0,0,0.6"],
+  [data-theme="light"] [style*="rgba(0,0,0,0.7"],
+  [data-theme="light"] [style*="rgba(0,0,0,0.8"],
+  [data-theme="light"] [style*="rgba(0,0,0,0.9"] {
+    background: var(--glass-bg) !important;
+  }
+
+  /* ═══════════════════════════════════════════════════════════
+     GLOBAL ICON NORMALIZATION — Apple SF Symbol minimalist
+     CSS attribute selectors override inline SVG presentation
+     attributes, so hardcoded greys adapt to the active theme.
+  ═══════════════════════════════════════════════════════════ */
+  /* Secondary-grey icon strokes → theme secondary text */
+  svg [stroke="#9CA3AF"], svg[stroke="#9CA3AF"],
+  svg [stroke="#9ca3af"], svg[stroke="#9ca3af"],
+  svg [stroke="#94A3B8"], svg[stroke="#94A3B8"],
+  svg [stroke="#A1A1AA"], svg[stroke="#A1A1AA"] { stroke: var(--text-2) !important; }
+
+  /* Tertiary-grey icon strokes → theme tertiary text */
+  svg [stroke="#6B7280"], svg[stroke="#6B7280"],
+  svg [stroke="#6b7280"], svg[stroke="#6b7280"],
+  svg [stroke="#71717A"], svg[stroke="#71717A"],
+  svg [stroke="#64748B"], svg[stroke="#64748B"] { stroke: var(--text-3) !important; }
+
+  /* Pure-white icon strokes → theme primary text (adapts in light) */
+  svg [stroke="#FFFFFF"], svg[stroke="#FFFFFF"],
+  svg [stroke="#ffffff"], svg[stroke="#ffffff"],
+  svg [stroke="#FFF"], svg[stroke="#FFF"],
+  svg [stroke="white"], svg[stroke="white"] { stroke: var(--text-1) !important; }
+
+  /* Grey icon fills → theme text */
+  svg [fill="#9CA3AF"], svg[fill="#9CA3AF"],
+  svg [fill="#9ca3af"] { fill: var(--text-2) !important; }
+  svg [fill="#6B7280"], svg[fill="#6B7280"],
+  svg [fill="#6b7280"] { fill: var(--text-3) !important; }
+
+  /* Accent-green strokes/fills → theme accent (light-mode safe) */
+  svg [stroke="#4ADE80"], svg[stroke="#4ADE80"] { stroke: var(--accent) !important; }
+
+  /* ─── Light mode: opaque white text colours via inline style ── */
+  [data-theme="light"] [style*="color: #FFFFFF"],
+  [data-theme="light"] [style*="color:#FFFFFF"],
+  [data-theme="light"] [style*="color: #ffffff"],
+  [data-theme="light"] [style*="color: rgb(255, 255, 255)"],
+  [data-theme="light"] [style*="color: rgba(255,255,255,0.9"],
+  [data-theme="light"] [style*="color: rgba(255,255,255,1"] { color: var(--text-1) !important; }
+  [data-theme="light"] [style*="color: rgba(255,255,255,0.6"],
+  [data-theme="light"] [style*="color: rgba(255,255,255,0.5"],
+  [data-theme="light"] [style*="color: rgba(255,255,255,0.7"] { color: var(--text-2) !important; }
+  [data-theme="light"] [style*="color: rgba(255,255,255,0.4"],
+  [data-theme="light"] [style*="color: rgba(255,255,255,0.3"] { color: var(--text-3) !important; }
+
   /* ─── Text gradients ────────────────────────────────────── */
   .text-gradient-green {
     background: linear-gradient(135deg, #4ADE80, #22D3EE);
