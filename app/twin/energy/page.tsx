@@ -22,9 +22,9 @@ const START: EnergyState = { solar: 6.5, home: 0.8, vehicle: 2.2, battery: 4.9, 
 // Image is 853×1235; labels sit at lx/ly (%), leader lines run to anchors (px).
 const IMG_W = 853, IMG_H = 1235;
 const NODES = [
-  { id: "solar", title: "SOLAR", lx: 47, ly: 13, ax: 401, ay: 430, align: "center" as const },
-  { id: "home", title: "ACASĂ", lx: 85, ly: 24, ax: 700, ay: 470, align: "center" as const },
-  { id: "vehicle", title: "PORSCHE 911 GT3 RS", lx: 15, ly: 49, ax: 235, ay: 770, align: "left" as const },
+  { id: "solar", title: "SOLAR", lx: 47, ly: 15, ax: 401, ay: 430, align: "center" as const },
+  { id: "home", title: "ACASĂ", lx: 82, ly: 24, ax: 700, ay: 470, align: "center" as const },
+  { id: "vehicle", title: "PORSCHE 911 GT3 RS", lx: 9, ly: 52, ax: 250, ay: 760, align: "left" as const },
   { id: "battery", title: "POWERWALL", lx: 50, ly: 93, ax: 455, ay: 800, align: "center" as const },
   { id: "grid", title: "GRILĂ", lx: 84, ly: 93, ax: 800, ay: 770, align: "center" as const },
 ];
@@ -76,21 +76,25 @@ function LiveTab({ onGoTab }: { onGoTab: (t: Tab) => void }) {
     return () => clearInterval(id);
   }, []);
 
-  const lbl: React.CSSProperties = { fontSize: 9, letterSpacing: 0.5, color: "#b7c4d1", textShadow: "0 1px 4px rgba(0,0,0,0.9)", lineHeight: 1.35 };
-  const valS: React.CSSProperties = { fontSize: 15, fontWeight: 700, color: "#fff", textShadow: "0 1px 5px rgba(0,0,0,0.95)", lineHeight: 1.25 };
-  const teal = "#22D3EE";
+  const title: React.CSSProperties = { fontSize: 10, letterSpacing: 0.6, color: "#8d99a6", fontWeight: 400, textShadow: "0 1px 3px rgba(0,0,0,0.8)", lineHeight: 1.45 };
+  const val: React.CSSProperties = { fontSize: 17, fontWeight: 600, color: "#fff", textShadow: "0 1px 3px rgba(0,0,0,0.8)", lineHeight: 1.3 };
+  const name: React.CSSProperties = { ...val, fontSize: 14 };
+  const green = "#4ADE80";
 
-  const value = (id: string) => {
-    if (id === "solar") return <div style={valS}>{kw(s.solar)}</div>;
-    if (id === "home") return <div style={valS}>{kw(s.home)}</div>;
-    if (id === "battery") return <div style={valS}>{kw(s.battery)} <span style={{ color: teal }}>•</span> {Math.round(s.batteryPct)}%</div>;
-    if (id === "grid") return <div style={valS}>{Math.round(Math.abs(s.grid))} kW</div>;
-    // vehicle
+  const content = (id: string) => {
+    if (id === "solar") return (<><div style={title}>SOLAR</div><div style={val}>{kw(s.solar)}</div></>);
+    if (id === "home") return (<><div style={title}>ACASĂ</div><div style={val}>{kw(s.home)}</div></>);
+    if (id === "battery") return (<><div style={title}>POWERWALL</div><div style={val}>{kw(s.battery)} <span style={{ color: green }}>▲</span> {Math.round(s.batteryPct)}%</div></>);
+    if (id === "grid") return (<><div style={title}>GRILĂ</div><div style={val}>{Math.round(Math.abs(s.grid))} kW</div></>);
+    // vehicle (Porsche)
     return (
       <>
-        <div style={{ ...lbl, marginTop: 2 }}>Încărcare</div>
-        <div style={{ ...valS, color: teal }}>{kw(s.vehicle)}</div>
-        <div style={{ ...lbl, marginTop: 2 }}>Bateria mașinii {Math.round(carPct)}%</div>
+        <div style={name}>PORSCHE</div>
+        <div style={name}>911 GT3 RS</div>
+        <div style={{ ...title, marginTop: 6 }}>Încărcare</div>
+        <div style={{ ...val, color: green }}>{kw(s.vehicle)}</div>
+        <div style={{ ...title, marginTop: 6 }}>Baterie mașină</div>
+        <div style={val}>{Math.round(carPct)}%</div>
       </>
     );
   };
@@ -112,9 +116,8 @@ function LiveTab({ onGoTab }: { onGoTab: (t: Tab) => void }) {
 
           {/* labels */}
           {NODES.map((n) => (
-            <div key={n.id} className="absolute" style={{ left: `${n.lx}%`, top: `${n.ly}%`, transform: `translate(${n.align === "left" ? "0" : "-50%"}, -50%)`, textAlign: n.align === "left" ? "left" : "center", zIndex: 2 }}>
-              <div style={n.id === "vehicle" ? { ...lbl, color: "#dce4ec", fontWeight: 600 } : lbl}>{n.title}</div>
-              {value(n.id)}
+            <div key={n.id} className="absolute" style={{ left: `${n.lx}%`, top: `${n.ly}%`, transform: `translate(${n.align === "left" ? "0" : "-50%"}, -50%)`, textAlign: n.align === "left" ? "left" : "center", whiteSpace: "nowrap", zIndex: 2 }}>
+              {content(n.id)}
             </div>
           ))}
         </div>
