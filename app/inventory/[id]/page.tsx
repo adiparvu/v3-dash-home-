@@ -244,7 +244,7 @@ export default function InventoryDetailPage({ params }: { params: { id: string }
         {/* Tabs */}
         <div
           className="flex rounded-2xl p-1 mb-5"
-          style={{ background: "rgba(255,255,255,0.05)", border: "0.5px solid var(--glass-border)" }}
+          style={{ background: "var(--glass-bg)", border: "0.5px solid var(--glass-border)" }}
         >
           {tabs.map((tab) => (
             <button
@@ -253,7 +253,7 @@ export default function InventoryDetailPage({ params }: { params: { id: string }
               className="flex-1 py-2 text-xs font-medium rounded-xl transition-all"
               style={
                 activeTab === tab
-                  ? { background: "rgba(255,255,255,0.12)", color: "var(--text-1)" }
+                  ? { background: "var(--glass-bg-strong)", color: "var(--text-1)", boxShadow: "var(--glass-shadow)" }
                   : { color: "var(--text-3)" }
               }
             >
@@ -266,10 +266,7 @@ export default function InventoryDetailPage({ params }: { params: { id: string }
         {activeTab === "Details" && (
           <div>
             {/* Info rows */}
-            <div
-              className="rounded-2xl overflow-hidden mb-4"
-              style={{ background: "rgba(255,255,255,0.06)", border: "0.5px solid var(--glass-border)" }}
-            >
+            <div className="liquid-glass rounded-2xl overflow-hidden mb-4">
               {[
                 { label: "Brand", value: asset.brand },
                 { label: "Model", value: asset.model },
@@ -281,7 +278,7 @@ export default function InventoryDetailPage({ params }: { params: { id: string }
                 <div
                   key={row.label}
                   className="flex items-center justify-between px-4 py-3.5"
-                  style={i < arr.length - 1 ? { borderBottom: "1px solid rgba(255,255,255,0.06)" } : {}}
+                  style={i < arr.length - 1 ? { borderBottom: "0.5px solid var(--glass-border)" } : {}}
                 >
                   <span className="text-sm" style={{ color: "var(--text-3)" }}>{row.label}</span>
                   <span className="text-sm font-medium" style={{ color: "var(--text-1)" }}>{row.value}</span>
@@ -357,19 +354,16 @@ export default function InventoryDetailPage({ params }: { params: { id: string }
 
         {activeTab === "Maintenance" && (
           <div>
-            <div
-              className="rounded-2xl overflow-hidden mb-4"
-              style={{ background: "rgba(255,255,255,0.06)", border: "1px solid rgba(255,255,255,0.10)" }}
-            >
+            <div className="liquid-glass rounded-2xl overflow-hidden mb-4">
               {maintenanceItems.map((item, i) => (
                 <div
                   key={item.title}
                   className="flex items-center justify-between px-4 py-4"
-                  style={i < maintenanceItems.length - 1 ? { borderBottom: "1px solid rgba(255,255,255,0.06)" } : {}}
+                  style={i < maintenanceItems.length - 1 ? { borderBottom: "0.5px solid var(--glass-border)" } : {}}
                 >
                   <div>
-                    <p className="text-white text-sm font-medium">{item.title}</p>
-                    <p className="text-xs mt-0.5" style={{ color: "#6B7280" }}>{item.date}</p>
+                    <p className="text-sm font-medium" style={{ color: "var(--text-1)" }}>{item.title}</p>
+                    <p className="text-xs mt-0.5" style={{ color: "var(--text-3)" }}>{item.date}</p>
                   </div>
                   <span
                     className="px-2.5 py-1 rounded-full text-[10px] font-semibold"
@@ -387,7 +381,7 @@ export default function InventoryDetailPage({ params }: { params: { id: string }
 
             <button
               className="w-full py-3.5 rounded-2xl text-sm font-semibold"
-              style={{ background: "rgba(74,222,128,0.12)", color: "#4ADE80", border: "1px solid rgba(74,222,128,0.25)" }}
+              style={{ background: "rgba(74,222,128,0.12)", color: "var(--accent)", border: "1px solid rgba(74,222,128,0.25)" }}
             >
               + Schedule Maintenance
             </button>
@@ -396,27 +390,24 @@ export default function InventoryDetailPage({ params }: { params: { id: string }
 
         {activeTab === "Documents" && (
           <div>
-            <div
-              className="rounded-2xl overflow-hidden mb-4"
-              style={{ background: "rgba(255,255,255,0.06)", border: "1px solid rgba(255,255,255,0.10)" }}
-            >
+            <div className="liquid-glass rounded-2xl overflow-hidden mb-4">
               {documents.map((doc, i) => (
                 <div
                   key={doc.name}
                   className="flex items-center gap-3.5 px-4 py-4"
-                  style={i < documents.length - 1 ? { borderBottom: "1px solid rgba(255,255,255,0.06)" } : {}}
+                  style={i < documents.length - 1 ? { borderBottom: "0.5px solid var(--glass-border)" } : {}}
                 >
                   <span className="text-2xl">{doc.icon}</span>
                   <div className="flex-1">
-                    <p className="text-white text-sm font-medium">{doc.name}</p>
-                    <p className="text-xs mt-0.5" style={{ color: "#6B7280" }}>{doc.size}</p>
+                    <p className="text-sm font-medium" style={{ color: "var(--text-1)" }}>{doc.name}</p>
+                    <p className="text-xs mt-0.5" style={{ color: "var(--text-3)" }}>{doc.size}</p>
                   </div>
                   <button
                     className="w-8 h-8 rounded-xl flex items-center justify-center"
-                    style={{ background: "rgba(255,255,255,0.08)", border: "1px solid rgba(255,255,255,0.12)" }}
+                    style={{ background: "var(--glass-bg)", border: "0.5px solid var(--glass-border)", color: "var(--text-2)" }}
                   >
                     <svg width="14" height="14" viewBox="0 0 24 24" fill="none">
-                      <path d="M12 5v14M5 19l7 0 7 0M5 12l7 7 7-7" stroke="#9CA3AF" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round" />
+                      <path d="M12 5v14M5 19l7 0 7 0M5 12l7 7 7-7" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round" />
                     </svg>
                   </button>
                 </div>
@@ -425,7 +416,7 @@ export default function InventoryDetailPage({ params }: { params: { id: string }
 
             <button
               className="w-full py-3.5 rounded-2xl text-sm font-semibold"
-              style={{ background: "rgba(255,255,255,0.07)", color: "#9CA3AF", border: "1px solid rgba(255,255,255,0.10)" }}
+              style={{ background: "var(--glass-bg)", color: "var(--text-2)", border: "0.5px solid var(--glass-border)" }}
             >
               + Upload Document
             </button>
@@ -435,10 +426,7 @@ export default function InventoryDetailPage({ params }: { params: { id: string }
         {activeTab === "QR Code" && (
           <div className="flex flex-col items-center">
             {/* QR card */}
-            <div
-              className="w-full rounded-2xl p-6 flex flex-col items-center mb-4"
-              style={{ background: "rgba(255,255,255,0.06)", border: "1px solid rgba(255,255,255,0.10)" }}
-            >
+            <div className="liquid-glass w-full rounded-2xl p-6 flex flex-col items-center mb-4">
               {/* QR placeholder */}
               <div
                 className="w-[180px] h-[180px] rounded-2xl flex items-center justify-center mb-4"
@@ -448,10 +436,10 @@ export default function InventoryDetailPage({ params }: { params: { id: string }
               </div>
 
               {/* Asset ID */}
-              <p className="text-sm font-medium mb-1" style={{ color: "#9CA3AF" }}>
+              <p className="text-sm font-medium mb-1" style={{ color: "var(--text-2)" }}>
                 Asset ID
               </p>
-              <p className="text-white font-bold text-lg tracking-widest">{asset.assetId}</p>
+              <p className="font-bold text-lg tracking-widest" style={{ color: "var(--text-1)" }}>{asset.assetId}</p>
             </div>
 
             {/* Download QR */}
@@ -469,9 +457,9 @@ export default function InventoryDetailPage({ params }: { params: { id: string }
             <button
               className="w-full py-3.5 rounded-2xl text-sm font-semibold"
               style={{
-                background: "rgba(255,255,255,0.07)",
-                color: "#FFFFFF",
-                border: "1px solid rgba(255,255,255,0.12)",
+                background: "var(--glass-bg)",
+                color: "var(--text-1)",
+                border: "0.5px solid var(--glass-border)",
                 backdropFilter: "blur(20px)",
               }}
             >
