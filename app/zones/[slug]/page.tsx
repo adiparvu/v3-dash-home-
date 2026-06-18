@@ -1,12 +1,21 @@
 "use client";
 
+import { useState } from "react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import StatusBar from "../../components/layout/StatusBar";
 import { useStore } from "../../lib/store";
 
 export default function CustomZonePage({ params }: { params: { slug: string } }) {
-  const { ready, findZone } = useStore();
+  const router = useRouter();
+  const { ready, findZone, removeZone } = useStore();
   const zone = findZone(params.slug);
+  const [confirmOpen, setConfirmOpen] = useState(false);
+
+  const doDelete = () => {
+    if (zone) removeZone(zone.href);
+    router.push("/zones");
+  };
 
   // While the store hydrates from localStorage, avoid a flash of "not found"
   if (!ready) {
@@ -44,7 +53,14 @@ export default function CustomZonePage({ params }: { params: { slug: string } })
         <Link href="/zones" aria-label="Back" className="absolute top-14 left-5 w-9 h-9 rounded-2xl flex items-center justify-center z-10 liquid-glass" style={{ color: "var(--text-1)" }}>
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none"><path d="M15 18l-6-6 6-6" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" /></svg>
         </Link>
-        <span className="absolute top-14 right-5 z-10 text-[10px] font-semibold px-2.5 py-1 rounded-full" style={{ background: "rgba(74,222,128,0.15)", color: "var(--accent)" }}>Custom</span>
+        <button
+          onClick={() => setConfirmOpen(true)}
+          aria-label="Delete zone"
+          className="absolute top-14 right-5 w-9 h-9 rounded-2xl flex items-center justify-center z-10 liquid-glass active:scale-90 transition-transform"
+          style={{ color: "#EF4444" }}
+        >
+          <svg width="17" height="17" viewBox="0 0 24 24" fill="none"><path d="M3 6h18M8 6V4a1 1 0 011-1h6a1 1 0 011 1v2m2 0v14a1 1 0 01-1 1H6a1 1 0 01-1-1V6m4 5v6m6-6v6" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round" /></svg>
+        </button>
         <div className="w-24 h-24 rounded-full flex items-center justify-center text-5xl z-10 liquid-glass">{zone.icon}</div>
       </div>
 
@@ -100,6 +116,19 @@ export default function CustomZonePage({ params }: { params: { slug: string } })
           </Link>
         ))}
       </div>
+
+      {/* Delete confirm */}
+      {confirmOpen && (
+        <div className="fixed inset-0 z-[60] flex items-end justify-center" style={{ background: "rgba(0,0,0,0.45)" }} onClick={() => setConfirmOpen(false)}>
+          <div className="w-full md:w-[390px] rounded-t-[28px] p-5 pb-8 animate-slide-up liquid-glass-strong" onClick={(e) => e.stopPropagation()}>
+            <div className="w-10 h-1 rounded-full mx-auto mb-4" style={{ background: "var(--glass-border)" }} />
+            <h2 className="font-bold text-lg mb-1" style={{ color: "var(--text-1)" }}>Delete {zone.name}?</h2>
+            <p className="text-sm mb-5" style={{ color: "var(--text-2)" }}>This zone will be permanently removed.</p>
+            <button onClick={doDelete} className="w-full py-3.5 rounded-2xl font-semibold text-base mb-2 active:scale-[0.97] transition-transform" style={{ background: "#EF4444", color: "#fff" }}>Delete Zone</button>
+            <button onClick={() => setConfirmOpen(false)} className="w-full py-3.5 rounded-2xl font-medium text-base" style={{ background: "var(--glass-bg)", border: "0.5px solid var(--glass-border)", color: "var(--text-1)" }}>Cancel</button>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

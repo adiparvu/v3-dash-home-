@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import StatusBar from "../../components/layout/StatusBar";
 import { useStore } from "../../lib/store";
 
@@ -144,7 +145,9 @@ const documents = [
 
 export default function InventoryDetailPage({ params }: { params: { id: string } }) {
   const [activeTab, setActiveTab] = useState("Details");
-  const { findAsset } = useStore();
+  const [menuOpen, setMenuOpen] = useState(false);
+  const { findAsset, removeAsset } = useStore();
+  const router = useRouter();
 
   const custom = findAsset(params.id);
   const asset = custom
@@ -203,6 +206,8 @@ export default function InventoryDetailPage({ params }: { params: { id: string }
 
         {/* More button */}
         <button
+          onClick={() => setMenuOpen(true)}
+          aria-label="More options"
           className="absolute top-14 right-5 w-9 h-9 rounded-2xl flex items-center justify-center z-10"
           style={{
             background: "rgba(255,255,255,0.10)",
@@ -489,6 +494,30 @@ export default function InventoryDetailPage({ params }: { params: { id: string }
           </div>
         )}
       </div>
+
+      {/* Action sheet */}
+      {menuOpen && (
+        <div className="fixed inset-0 z-[60] flex items-end justify-center" style={{ background: "rgba(0,0,0,0.45)" }} onClick={() => setMenuOpen(false)}>
+          <div className="w-full md:w-[390px] rounded-t-[28px] p-5 pb-8 animate-slide-up liquid-glass-strong" onClick={(e) => e.stopPropagation()}>
+            <div className="w-10 h-1 rounded-full mx-auto mb-4" style={{ background: "var(--glass-border)" }} />
+            <p className="font-bold text-base mb-1" style={{ color: "var(--text-1)" }}>{asset.name}</p>
+            <p className="text-xs mb-5" style={{ color: "var(--text-2)" }}>{custom ? "Custom asset" : "Seed asset (read-only)"}</p>
+            {custom ? (
+              <button
+                onClick={() => { removeAsset(custom.href); router.push("/inventory"); }}
+                className="w-full py-3.5 rounded-2xl font-semibold text-base mb-2 active:scale-[0.97] transition-transform flex items-center justify-center gap-2"
+                style={{ background: "rgba(239,68,68,0.12)", color: "#EF4444", border: "1px solid rgba(239,68,68,0.30)" }}
+              >
+                <svg width="17" height="17" viewBox="0 0 24 24" fill="none"><path d="M3 6h18M8 6V4a1 1 0 011-1h6a1 1 0 011 1v2m2 0v14a1 1 0 01-1 1H6a1 1 0 01-1-1V6m4 5v6m6-6v6" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round" /></svg>
+                Delete Asset
+              </button>
+            ) : (
+              <p className="text-center text-sm py-2 mb-2" style={{ color: "var(--text-3)" }}>Seed assets can&apos;t be deleted in this demo.</p>
+            )}
+            <button onClick={() => setMenuOpen(false)} className="w-full py-3.5 rounded-2xl font-medium text-base" style={{ background: "var(--glass-bg)", border: "0.5px solid var(--glass-border)", color: "var(--text-1)" }}>Cancel</button>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

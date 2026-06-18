@@ -43,6 +43,9 @@ interface StoreCtx {
   addedAssets: Asset[];
   addZone: (z: Zone) => void;
   addAsset: (a: Asset) => void;
+  updateAsset: (href: string, patch: Partial<Asset>) => void;
+  removeAsset: (href: string) => void;
+  removeZone: (href: string) => void;
   findAsset: (slug: string) => Asset | undefined;
   findZone: (slug: string) => Zone | undefined;
 }
@@ -59,6 +62,9 @@ const defaultCtx: StoreCtx = {
   addedAssets: [],
   addZone: () => {},
   addAsset: () => {},
+  updateAsset: () => {},
+  removeAsset: () => {},
+  removeZone: () => {},
   findAsset: () => undefined,
   findZone: () => undefined,
 };
@@ -115,6 +121,13 @@ export function StoreProvider({ children }: { children: React.ReactNode }) {
   const setOnboarded = useCallback((b: boolean) => setOnboardedState(b), []);
   const addZone = useCallback((z: Zone) => setAddedZones((prev) => [{ ...z, custom: true }, ...prev]), []);
   const addAsset = useCallback((a: Asset) => setAddedAssets((prev) => [{ ...a, custom: true }, ...prev]), []);
+  const updateAsset = useCallback(
+    (href: string, patch: Partial<Asset>) =>
+      setAddedAssets((prev) => prev.map((a) => (a.href === href ? { ...a, ...patch } : a))),
+    []
+  );
+  const removeAsset = useCallback((href: string) => setAddedAssets((prev) => prev.filter((a) => a.href !== href)), []);
+  const removeZone = useCallback((href: string) => setAddedZones((prev) => prev.filter((z) => z.href !== href)), []);
   const findAsset = useCallback(
     (slug: string) => addedAssets.find((a) => a.href === `/inventory/${slug}` || a.href.endsWith(`/${slug}`)),
     [addedAssets]
@@ -126,7 +139,7 @@ export function StoreProvider({ children }: { children: React.ReactNode }) {
 
   return (
     <StoreContext.Provider
-      value={{ ready, estateName, setEstateName, onboarded, setOnboarded, addedZones, addedAssets, addZone, addAsset, findAsset, findZone }}
+      value={{ ready, estateName, setEstateName, onboarded, setOnboarded, addedZones, addedAssets, addZone, addAsset, updateAsset, removeAsset, removeZone, findAsset, findZone }}
     >
       {children}
     </StoreContext.Provider>
