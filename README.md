@@ -1,36 +1,49 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# PRVIO Earth
 
-## Getting Started
+A premium **private estate operating system** — property, asset, maintenance,
+communication and digital-twin management for a single owner and trusted
+collaborators. This repository is the web client (Next.js 14 App Router, Tailwind,
+iOS-26 "Liquid Glass" design language) plus the Supabase backend schema.
 
-First, run the development server:
+See [`docs/PRODUCT_SPEC.md`](docs/PRODUCT_SPEC.md) for scope,
+[`docs/ROADMAP.md`](docs/ROADMAP.md) for the phased plan, and
+[`docs/architecture/`](docs/architecture/) for the architecture diagrams.
+
+## Getting started
 
 ```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+npm install
+cp .env.local.example .env.local   # then fill in the values below
+npm run dev                        # http://localhost:3000
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+The app runs in a **localStorage prototype mode** with no configuration. To enable
+authentication and Supabase persistence, set:
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+| Variable | Where to find it |
+| --- | --- |
+| `NEXT_PUBLIC_SUPABASE_URL` | Supabase dashboard → Project Settings → API |
+| `NEXT_PUBLIC_SUPABASE_ANON_KEY` | same page (public, RLS-protected) |
+| `SUPABASE_SERVICE_ROLE_KEY` | same page → `service_role` (server-only secret) |
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+When these are present, the Next.js middleware enforces auth (redirecting to
+`/login`) and the data layer reads/writes through Supabase with Row Level Security.
 
-## Learn More
+## Backend
 
-To learn more about Next.js, take a look at the following resources:
+The schema lives in [`supabase/migrations/`](supabase/migrations/):
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+- `001_initial_schema.sql` — properties, parcels, zones, assets, tasks, sensors,
+  telemetry, automations, documents, contractors, maintenance, notifications, chat.
+- `002_account_identity.sql` — extended profiles, social links, trusted persons,
+  user sessions and an immutable audit log.
+- `003_harden_function_grants.sql` — revokes the RPC surface from trigger helpers.
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+Apply them to a Supabase project with the [Supabase CLI](https://supabase.com/docs/guides/local-development)
+(`supabase db push`) or the dashboard SQL editor.
 
-## Deploy on Vercel
+## Scripts
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+- `npm run dev` — start the dev server
+- `npm run build` — production build
+- `npm run lint` — lint

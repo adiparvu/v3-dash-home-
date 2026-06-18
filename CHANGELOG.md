@@ -40,10 +40,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   All auth is guarded behind `isSupabaseConfigured()` so the app still runs in the
   localStorage prototype mode when no Supabase env vars are present.
 
+- **Live Supabase backend** — provisioned a dedicated project (eu-west-1) and
+  applied migrations `001`–`003`; added `003_harden_function_grants.sql` to revoke
+  the REST RPC surface from trigger-only `SECURITY DEFINER` helpers (security
+  advisors 0028/0029). README documents the env setup.
+
 ### Notes
 - The client persists to `localStorage` (`prvio-store-v1`) in this prototype phase.
-  Supabase auth wiring and live session/audit data are tracked on the roadmap; the
-  schema, data-access layer and `/api/v1` surface are in place to receive them.
+  The Supabase project, schema, data-access layer and `/api/v1` surface are in
+  place; wiring the UI to read/write live data via RLS is the next roadmap step.
 
 ## [1.0.0] — 2026-06-17
 

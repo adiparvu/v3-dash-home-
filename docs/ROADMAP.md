@@ -41,8 +41,9 @@ future track that reuses the same versioned backend contracts.
 
 | Item | Status |
 | --- | --- |
+| Live Supabase project provisioned (eu-west-1) + migrations applied | ✅ |
 | Account & Identity schema: profile fields, social links, trusted persons, sessions, audit log (`002_account_identity.sql`) | ✅ |
-| RLS policies + immutable audit log | ✅ |
+| RLS policies + immutable audit log + hardened function grants | ✅ |
 | Typed data-access layer (`lib/data/profile.ts`) | ✅ |
 | First URI-versioned REST endpoint (`/api/v1/profile`) | ✅ |
 | Auth (email magic-link / OAuth) + middleware session handling | ✅ |
