@@ -9,13 +9,8 @@ const navItems = [
     label: "Overview",
     icon: (active: boolean) => (
       <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
-        <path
-          d="M3 9.5L12 3L21 9.5V20C21 20.5523 20.5523 21 20 21H15V15H9V21H4C3.44772 21 3 20.5523 3 20V9.5Z"
-          stroke={active ? "#4ADE80" : "#9CA3AF"}
-          strokeWidth="1.75"
-          strokeLinecap="round"
-          strokeLinejoin="round"
-        />
+        <path d="M3 9.5L12 3L21 9.5V20C21 20.5523 20.5523 21 20 21H15V15H9V21H4C3.44772 21 3 20.5523 3 20V9.5Z"
+          stroke={active ? "#4ADE80" : "#9CA3AF"} strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round" />
       </svg>
     ),
   },
@@ -48,7 +43,8 @@ const navItems = [
     icon: (active: boolean) => (
       <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
         <path d="M9 11L12 14L22 4" stroke={active ? "#4ADE80" : "#9CA3AF"} strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round" />
-        <path d="M21 12V19C21 20.1046 20.1046 21 19 21H5C3.89543 21 3 20.1046 3 19V5C3 3.89543 3.89543 3 5 3H16" stroke={active ? "#4ADE80" : "#9CA3AF"} strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round" />
+        <path d="M21 12V19C21 20.1046 20.1046 21 19 21H5C3.89543 21 3 20.1046 3 19V5C3 3.89543 3.89543 3 5 3H16"
+          stroke={active ? "#4ADE80" : "#9CA3AF"} strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round" />
       </svg>
     ),
   },
@@ -73,9 +69,9 @@ export default function BottomNav() {
     <nav
       className="fixed bottom-0 left-1/2 -translate-x-1/2 w-full md:w-[390px] z-50"
       style={{
-        background: "rgba(5,10,20,0.85)",
-        backdropFilter: "blur(20px)",
-        WebkitBackdropFilter: "blur(20px)",
+        background: "rgba(5,10,20,0.88)",
+        backdropFilter: "blur(24px)",
+        WebkitBackdropFilter: "blur(24px)",
         borderTop: "1px solid rgba(255,255,255,0.08)",
       }}
     >
@@ -86,7 +82,7 @@ export default function BottomNav() {
             <Link
               key={item.href}
               href={item.href}
-              className="flex flex-col items-center gap-1 min-w-[56px] py-1 px-2"
+              className="flex flex-col items-center gap-1 min-w-[56px] py-1 px-2 active:scale-90 transition-transform"
             >
               {item.icon(active)}
               <span
