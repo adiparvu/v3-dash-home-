@@ -19,15 +19,16 @@ type Tab = (typeof TABS)[number];
 // Starts at the render's values, then drifts live.
 const START: EnergyState = { solar: 6.5, home: 0.8, vehicle: 2.2, battery: 4.9, grid: 0, batteryPct: 89 };
 
-// Full render is 853×1844; labels sit at lx/ly (% of image), leader lines run to
-// anchors (px) — positions measured directly off the reference image.
+// Full render is 853×1844; text sits at lx/ly (% of image). Each leader line is
+// drawn from an explicit start (just outside the text) to an end on the house —
+// measured off the reference. ls/le are [x%, y%].
 const IMG_W = 853, IMG_H = 1844;
 const NODES = [
-  { id: "solar", title: "SOLAR", lx: 52.5, ly: 23, ax: 443, ay: 627, align: "center" as const },
-  { id: "home", title: "ACASĂ", lx: 83.6, ly: 28.4, ax: 665, ay: 664, align: "center" as const },
-  { id: "vehicle", title: "PORSCHE 911 GT3 RS", lx: 6, ly: 48.5, ax: 324, ay: 1106, align: "left" as const },
-  { id: "battery", title: "POWERWALL", lx: 52.3, ly: 72, ax: 440, ay: 1143, align: "center" as const },
-  { id: "grid", title: "GRILĂ", lx: 83.5, ly: 73, ax: 750, ay: 1143, align: "center" as const },
+  { id: "solar", title: "SOLAR", lx: 52.5, ly: 23, ls: [52.5, 25.2], le: [54.1, 33], align: "center" as const },
+  { id: "home", title: "ACASĂ", lx: 83.6, ly: 28.4, ls: [83.4, 30.6], le: [83.3, 38.7], align: "center" as const },
+  { id: "vehicle", title: "PORSCHE 911 GT3 RS", lx: 6, ly: 48.5, ls: [22, 54], le: [40, 60], align: "left" as const },
+  { id: "battery", title: "POWERWALL", lx: 52.3, ly: 72, ls: [52, 70], le: [53, 61], align: "center" as const },
+  { id: "grid", title: "GRILĂ", lx: 83.5, ly: 73, ls: [83.5, 71.3], le: [88, 61], align: "center" as const },
 ];
 
 export default function EnergyPage() {
@@ -109,10 +110,10 @@ function LiveTab({ onGoTab }: { onGoTab: (t: Tab) => void }) {
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img src="/estate-live.png" alt="PRVIO Estate — energy" className="absolute inset-0 w-full h-full" style={{ objectFit: "cover", objectPosition: "center" }} draggable={false} />
 
-          {/* leader lines */}
+          {/* leader lines — explicit start (outside text) → end (on house) */}
           <svg viewBox={`0 0 ${IMG_W} ${IMG_H}`} className="absolute inset-0 w-full h-full" preserveAspectRatio="none">
             {NODES.map((n) => (
-              <line key={n.id} x1={(n.lx / 100) * IMG_W} y1={(n.ly / 100) * IMG_H} x2={n.ax} y2={n.ay} stroke="rgba(255,255,255,0.28)" strokeWidth={1.2} />
+              <line key={n.id} x1={(n.ls[0] / 100) * IMG_W} y1={(n.ls[1] / 100) * IMG_H} x2={(n.le[0] / 100) * IMG_W} y2={(n.le[1] / 100) * IMG_H} stroke="rgba(255,255,255,0.32)" strokeWidth={1.2} />
             ))}
           </svg>
 
