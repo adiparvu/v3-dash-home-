@@ -57,6 +57,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   `useSecurity` hook, with working per-session revoke and "sign out all others"
   (DELETE routes), falling back to demo data when signed out. New data-access
   helpers `revokeOtherSessions` and `listAuditLog`.
+- **Estate wired to Supabase** — new `lib/data/estate.ts` and versioned routes:
+  `/api/v1/properties` (GET list / POST create), `/api/v1/properties/[id]`
+  (GET / PATCH), and nested `/zones` and `/assets` (GET list / POST create), all
+  RLS-scoped and audited. The Properties list screen now renders from
+  `/api/v1/properties` via a `useProperties` hook (computed portfolio summary),
+  falling back to the demo estate when signed out.
 
 ### Notes
 - Without Supabase env vars the client still persists to `localStorage`

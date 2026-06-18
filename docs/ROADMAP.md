@@ -51,7 +51,9 @@ future track that reuses the same versioned backend contracts.
 | Profile read/write wired to UI via `/api/v1` (RLS) with store fallback | ✅ |
 | `/api/v1` routes for social links + trusted persons (GET/POST/DELETE) | ✅ |
 | Active sessions + audit log wired to the Security UI (`/api/v1/profile/sessions`, `/api/v1/audit`) | ✅ |
-| Properties, parcels, zones, assets read/write wired to UI via RLS | ⏳ |
+| Estate API: `/api/v1/properties` (list/create/detail/update) + nested zones & assets (list/create) | ✅ |
+| Properties list UI wired to Supabase (RLS) with demo fallback | ✅ |
+| Zones & assets UI surfaces wired to the estate API | ⏳ |
 | Active session management + device trust + revocation (live) | ⏳ |
 
 ## Phase 3 — Data Privacy, Ownership & Compliance
