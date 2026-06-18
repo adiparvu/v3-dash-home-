@@ -7,7 +7,7 @@ import BottomNav from "../../components/layout/BottomNav";
 import { useStore } from "../../lib/store";
 import { seriesPath } from "../../lib/twin/telemetry";
 import {
-  SCENARIOS, simulate, computeFlows, initialEnergyState, EnergyState, EnergyNodeId, Flow,
+  SCENARIOS, simulate, initialEnergyState, EnergyState, EnergyNodeId,
   MONTHLY_USAGE, MONTH_LABELS, ENERGY_SOURCES, AUTONOMY, TOU_PERIODS,
   SOLAR_VALUE, SOLAR_VALUE_TOTAL, OFFSET, BACKUP_EVENTS, BACKUP_SUMMARY,
   TARIFF_SERIES, TARIFF, kw,
@@ -25,17 +25,6 @@ const NODE_ICON: Record<EnergyNodeId, string> = {
 const NODE_LABEL: Record<EnergyNodeId, string> = {
   solar: "Solar", battery: "Powerwall", home: "Acasă", grid: "Grilă", vehicle: "Vehicul",
 };
-// Positions in a 320×340 canvas (home is the hub).
-const NODE_POS: Record<EnergyNodeId, { x: number; y: number }> = {
-  solar: { x: 160, y: 48 },
-  vehicle: { x: 58, y: 150 },
-  home: { x: 160, y: 178 },
-  battery: { x: 74, y: 300 },
-  grid: { x: 246, y: 300 },
-};
-const BASE_EDGES: [EnergyNodeId, EnergyNodeId][] = [
-  ["solar", "home"], ["vehicle", "home"], ["battery", "home"], ["grid", "home"],
-];
 
 export default function EnergyPage() {
   const { energy } = useStore();
@@ -52,7 +41,6 @@ export default function EnergyPage() {
     return () => clearInterval(id);
   }, [scenario, energy.mode, energy.backupReserve]);
 
-  const flows = computeFlows(state);
   const nodeKw: Record<EnergyNodeId, number> = {
     solar: state.solar, battery: Math.abs(state.battery), home: state.home, grid: Math.abs(state.grid), vehicle: state.vehicle,
   };
@@ -80,7 +68,7 @@ export default function EnergyPage() {
 
       {tab === "Live" && (
         <LiveTab
-          state={state} flows={flows} nodeKw={nodeKw}
+          state={state} nodeKw={nodeKw}
           scenario={scenario} scenarioIdx={scenarioIdx} setScenarioIdx={setScenarioIdx}
           stormWatch={energy.stormWatch} onGoTab={setTab}
         />
@@ -94,15 +82,53 @@ export default function EnergyPage() {
   );
 }
 
+// Energy node anchor points over the estate render (% of the hero).
+const PINS: { id: EnergyNodeId; left: string; top: string; align?: "left" | "right" }[] = [
+  { id: "vehicle", left: "27%", top: "21%" },
+  { id: "grid", left: "86%", top: "30%", align: "right" },
+  { id: "solar", left: "62%", top: "25%", align: "right" },
+  { id: "battery", left: "39%", top: "33%", align: "left" },
+  { id: "home", left: "55%", top: "41%" },
+];
+
+function Pin({ left, top, color, icon, label, value, align = "left" }: {
+  left: string; top: string; color: string; icon: string; label: string; value: string; align?: "left" | "right";
+}) {
+  return (
+    <div className="absolute flex flex-col items-center" style={{ left, top, transform: "translate(-50%,-50%)", zIndex: 2 }}>
+      <div
+        className="flex items-center gap-1.5 rounded-full py-0.5 pr-2 pl-0.5"
+        style={{ background: "rgba(8,15,26,0.78)", border: `1px solid ${color}`, backdropFilter: "blur(6px)", boxShadow: `0 0 10px ${color}44`, flexDirection: align === "right" ? "row-reverse" : "row" }}
+      >
+        <span className="w-5 h-5 rounded-full flex items-center justify-center text-[10px] flex-shrink-0" style={{ background: `${color}26` }}>{icon}</span>
+        <div className={align === "right" ? "text-right pr-1" : "pl-0.5"} style={{ lineHeight: 1 }}>
+          <span className="block text-[7px] uppercase tracking-wide" style={{ color: "#93a7ba" }}>{label}</span>
+          <span className="block text-[11px] font-bold" style={{ color }}>{value}</span>
+        </div>
+      </div>
+      <span className="mt-0.5 w-1.5 h-1.5 rounded-full animate-pulse-glow" style={{ background: color, boxShadow: `0 0 8px ${color}` }} />
+    </div>
+  );
+}
+
 // ── Live tab ─────────────────────────────────────────────────────────────────
-function LiveTab({ state, flows, nodeKw, scenario, scenarioIdx, setScenarioIdx, stormWatch, onGoTab }: {
-  state: EnergyState; flows: Flow[]; nodeKw: Record<EnergyNodeId, number>;
+function LiveTab({ state, nodeKw, scenario, scenarioIdx, setScenarioIdx, stormWatch, onGoTab }: {
+  state: EnergyState; nodeKw: Record<EnergyNodeId, number>;
   scenario: typeof SCENARIOS[number]; scenarioIdx: number; setScenarioIdx: (n: number) => void;
   stormWatch: boolean; onGoTab: (t: Tab) => void;
 }) {
-  const activeNodes = new Set<EnergyNodeId>();
-  flows.forEach((f) => { activeNodes.add(f.from); activeNodes.add(f.to); });
-  const pct = (n: number, total: number) => `${(n / total) * 100}%`;
+  // Scenario-driven colour wash over the night render.
+  const tint = scenario.id === "morning"
+    ? "linear-gradient(180deg, rgba(255,196,120,0.16), rgba(255,150,80,0.05))"
+    : scenario.id === "afternoon"
+      ? "linear-gradient(180deg, rgba(150,180,215,0.12), rgba(90,120,170,0.05))"
+      : "linear-gradient(180deg, rgba(30,55,110,0.34), rgba(10,20,45,0.20))";
+
+  const pinValue = (id: EnergyNodeId): string => {
+    if (id === "battery") return `${Math.round(state.batteryPct)}%`;
+    if (id === "vehicle") return nodeKw.vehicle > 0 ? kw(nodeKw.vehicle) : "idle";
+    return kw(nodeKw[id]);
+  };
 
   return (
     <div>
@@ -118,46 +144,29 @@ function LiveTab({ state, flows, nodeKw, scenario, scenarioIdx, setScenarioIdx, 
         </div>
       )}
 
-      {/* Flow diagram */}
+      {/* Estate render + live energy pins */}
       <div className="px-4 mb-3">
-        <div className="relative w-full rounded-3xl overflow-hidden" style={{ aspectRatio: "320 / 340", background: "linear-gradient(160deg, #071428, #0A2540 55%, #050F1E)", border: "1px solid rgba(255,255,255,0.08)" }}>
-          <svg viewBox="0 0 320 340" className="absolute inset-0 w-full h-full" preserveAspectRatio="xMidYMid meet">
-            {/* base topology (faint) */}
-            {BASE_EDGES.map(([a, b]) => (
-              <line key={`base-${a}-${b}`} x1={NODE_POS[a].x} y1={NODE_POS[a].y} x2={NODE_POS[b].x} y2={NODE_POS[b].y} stroke="rgba(255,255,255,0.10)" strokeWidth={2} />
-            ))}
-            {/* active flows */}
-            {flows.map((f) => {
-              const a = NODE_POS[f.from]; const b = NODE_POS[f.to];
-              return (
-                <line
-                  key={`flow-${f.from}-${f.to}`}
-                  x1={a.x} y1={a.y} x2={b.x} y2={b.y}
-                  stroke={NODE_COLOR[f.from]} strokeWidth={2.5} strokeLinecap="round"
-                  className="energy-flow"
-                  style={{ filter: `drop-shadow(0 0 3px ${NODE_COLOR[f.from]}aa)` }}
-                />
-              );
-            })}
-          </svg>
+        <div className="relative w-full rounded-3xl overflow-hidden" style={{ aspectRatio: "0.64", border: "1px solid rgba(255,255,255,0.08)" }}>
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img src="/estate-live.png" alt="PRVIO Estate" className="absolute inset-0 w-full h-full" style={{ objectFit: "cover", objectPosition: "center 32%" }} />
+          <div className="absolute inset-0" style={{ background: tint }} />
+          <div className="absolute inset-x-0 top-0 h-16" style={{ background: "linear-gradient(180deg, rgba(5,10,20,0.55), transparent)" }} />
+          <div className="absolute inset-x-0 bottom-0 h-16" style={{ background: "linear-gradient(0deg, rgba(5,10,20,0.55), transparent)" }} />
 
-          {/* node chips */}
-          {(Object.keys(NODE_POS) as EnergyNodeId[]).map((id) => {
-            const p = NODE_POS[id];
-            const active = activeNodes.has(id);
-            return (
-              <div key={id} className="absolute flex flex-col items-center" style={{ left: pct(p.x, 320), top: pct(p.y, 340), transform: "translate(-50%,-50%)" }}>
-                <div className="rounded-2xl px-2.5 py-1.5 flex flex-col items-center" style={{ background: "rgba(8,17,30,0.82)", border: `1px solid ${NODE_COLOR[id]}${active ? "" : "40"}`, boxShadow: active ? `0 0 12px ${NODE_COLOR[id]}55` : undefined, minWidth: 64 }}>
-                  <span className="text-base leading-none mb-0.5">{NODE_ICON[id]}</span>
-                  <span className="text-[9px] leading-none" style={{ color: "var(--text-3)" }}>{NODE_LABEL[id]}</span>
-                  <span className="text-[11px] font-bold leading-tight" style={{ color: NODE_COLOR[id] }}>
-                    {id === "battery" || id === "grid" || id === "vehicle" ? (nodeKw[id] > 0 ? kw(nodeKw[id]) : "0 kW") : kw(nodeKw[id])}
-                  </span>
-                  {id === "battery" && <span className="text-[9px] font-semibold" style={{ color: "var(--text-2)" }}>{Math.round(state.batteryPct)}%</span>}
-                </div>
-              </div>
-            );
-          })}
+          {/* LIVE badge */}
+          <div className="absolute top-3 left-3 flex items-center gap-1.5 px-2.5 py-1 rounded-full" style={{ background: "rgba(8,15,26,0.7)", border: "1px solid rgba(74,222,128,0.4)" }}>
+            <span className="w-1.5 h-1.5 rounded-full animate-pulse-glow" style={{ background: "var(--accent)", boxShadow: "0 0 6px var(--accent)" }} />
+            <span className="text-[10px] font-semibold" style={{ color: "var(--accent)" }}>LIVE</span>
+          </div>
+          {/* Generated-today chip */}
+          <div className="absolute top-3 right-3 px-2.5 py-1 rounded-full" style={{ background: "rgba(8,15,26,0.7)", border: "0.5px solid var(--glass-border)" }}>
+            <span className="text-[10px]" style={{ color: "var(--text-2)" }}>{(nodeKw.solar * 1.6).toFixed(1)} kWh azi</span>
+          </div>
+
+          {/* pins */}
+          {PINS.map((p) => (
+            <Pin key={p.id} left={p.left} top={p.top} align={p.align} color={NODE_COLOR[p.id]} icon={NODE_ICON[p.id]} label={NODE_LABEL[p.id]} value={pinValue(p.id)} />
+          ))}
         </div>
 
         {/* scenario carousel */}
