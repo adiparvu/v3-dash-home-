@@ -4,126 +4,14 @@ import { useState } from "react";
 import Link from "next/link";
 import StatusBar from "../components/layout/StatusBar";
 import BottomNav from "../components/layout/BottomNav";
-import { useStore } from "../lib/store";
+import { useZones } from "../lib/useZones";
 
 const zoneTypes = ["All", "Natural", "Agriculture", "Infrastructure", "Built"];
 
-const seedZones = [
-  {
-    href: "/zones/lake",
-    name: "Lake",
-    subtitle: "Freshwater Ecosystem",
-    type: "Natural",
-    status: "Excellent",
-    statusColor: "#22D3EE",
-    health: 95,
-    icon: "💧",
-    accentColor: "#22D3EE",
-    metrics: [{ label: "Water Quality", value: "Excellent" }, { label: "Temp", value: "18.4°C" }],
-  },
-  {
-    href: "/zones/forest",
-    name: "Forest",
-    subtitle: "Mixed Forest Zone",
-    type: "Natural",
-    status: "Good",
-    statusColor: "#4ADE80",
-    health: 91,
-    icon: "🌲",
-    accentColor: "#4ADE80",
-    metrics: [{ label: "Trees", value: "2,543" }, { label: "Biodiversity", value: "High" }],
-  },
-  {
-    href: "/zones/greenhouse",
-    name: "Greenhouse",
-    subtitle: "Main Greenhouse",
-    type: "Agriculture",
-    status: "Optimal",
-    statusColor: "#4ADE80",
-    health: 98,
-    icon: "🏡",
-    accentColor: "#4ADE80",
-    metrics: [{ label: "Temp", value: "24.3°C" }, { label: "Humidity", value: "65%" }],
-  },
-  {
-    href: "/zones/orchard",
-    name: "Orchard",
-    subtitle: "Apple Orchard",
-    type: "Agriculture",
-    status: "Good",
-    statusColor: "#4ADE80",
-    health: 88,
-    icon: "🍎",
-    accentColor: "#F59E0B",
-    metrics: [{ label: "Harvest", value: "23 days" }, { label: "Yield", value: "12.4 t" }],
-  },
-  {
-    href: "/zones/smart-pond",
-    name: "Smart Pond",
-    subtitle: "Koi & Aquatic Garden",
-    type: "Natural",
-    status: "Excellent",
-    statusColor: "#22D3EE",
-    health: 96,
-    icon: "🐟",
-    accentColor: "#22D3EE",
-    metrics: [{ label: "pH", value: "7.4" }, { label: "O₂", value: "8.2 mg/L" }],
-  },
-  {
-    href: "/zones/garden",
-    name: "Garden",
-    subtitle: "Main Garden",
-    type: "Natural",
-    status: "Good",
-    statusColor: "#4ADE80",
-    health: 84,
-    icon: "🌿",
-    accentColor: "#4ADE80",
-    metrics: [{ label: "Plants", value: "87" }, { label: "Irrigation", value: "Active" }],
-  },
-  {
-    href: "/zones/house",
-    name: "House",
-    subtitle: "Main Residence",
-    type: "Built",
-    status: "Good",
-    statusColor: "#7C3AED",
-    health: 90,
-    icon: "🏠",
-    accentColor: "#7C3AED",
-    metrics: [{ label: "Rooms", value: "8" }, { label: "Temp", value: "22.1°C" }],
-  },
-  {
-    href: "/zones/driveway",
-    name: "Driveway",
-    subtitle: "Gate & Access Control",
-    type: "Built",
-    status: "Secured",
-    statusColor: "#9CA3AF",
-    health: 100,
-    icon: "🚗",
-    accentColor: "#9CA3AF",
-    metrics: [{ label: "Cameras", value: "4" }, { label: "Gate", value: "Closed" }],
-  },
-  {
-    href: "/zones/smart-home",
-    name: "Smart Home",
-    subtitle: "Home Automation Hub",
-    type: "Built",
-    status: "Active",
-    statusColor: "#4ADE80",
-    health: 97,
-    icon: "🤖",
-    accentColor: "#4ADE80",
-    metrics: [{ label: "Devices", value: "12" }, { label: "Active", value: "8" }],
-  },
-];
-
 export default function ZonesPage() {
   const [activeType, setActiveType] = useState("All");
-  const { addedZones } = useStore();
+  const { zones, source } = useZones();
 
-  const zones = [...addedZones, ...seedZones];
   const filtered = zones.filter((z) => activeType === "All" || z.type === activeType);
 
   return (
@@ -132,7 +20,19 @@ export default function ZonesPage() {
 
       {/* Header */}
       <div className="px-5 pt-1 pb-3 flex items-center justify-between">
-        <h1 className="font-bold text-2xl" style={{ color: "var(--text-1)" }}>Zones</h1>
+        <div className="flex items-center gap-2">
+          <h1 className="font-bold text-2xl" style={{ color: "var(--text-1)" }}>Zones</h1>
+          <span
+            className="text-[10px] font-medium px-2 py-1 rounded-full"
+            style={
+              source === "remote"
+                ? { background: "rgba(74,222,128,0.12)", border: "1px solid rgba(74,222,128,0.30)", color: "var(--accent)" }
+                : { background: "rgba(255,255,255,0.06)", border: "0.5px solid var(--glass-border)", color: "var(--text-3)" }
+            }
+          >
+            {source === "remote" ? "● Synced" : source === "loading" ? "…" : "Demo"}
+          </span>
+        </div>
         <div className="flex items-center gap-2">
           <Link href="/search" aria-label="Search" className="w-9 h-9 rounded-2xl flex items-center justify-center" style={{ background: "rgba(255,255,255,0.08)", border: "0.5px solid var(--glass-border)", color: "var(--text-1)" }}>
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none"><circle cx="11" cy="11" r="7" stroke="currentColor" strokeWidth="1.75" /><path d="M16.5 16.5L21 21" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" /></svg>

@@ -4,79 +4,14 @@ import { useState } from "react";
 import Link from "next/link";
 import StatusBar from "../components/layout/StatusBar";
 import BottomNav from "../components/layout/BottomNav";
-import { useStore } from "../lib/store";
+import { useAssets } from "../lib/useAssets";
 
 const categories = ["All", "Devices", "Plants", "Equipment", "Vehicles"];
-
-const seedAssets = [
-  {
-    href: "/inventory/water-pump",
-    name: "Water Pump",
-    category: "Equipment",
-    location: "Lake",
-    status: "On",
-    statusColor: "#4ADE80",
-    icon: "⚙️",
-    accentColor: "#22D3EE",
-  },
-  {
-    href: "/inventory/ficus-tree",
-    name: "Ficus Tree",
-    category: "Plants",
-    location: "Living Room",
-    status: "Healthy",
-    statusColor: "#4ADE80",
-    icon: "🌱",
-    accentColor: "#4ADE80",
-  },
-  {
-    href: "/inventory/air-conditioner",
-    name: "Air Conditioner",
-    category: "Devices",
-    location: "House",
-    status: "On",
-    statusColor: "#4ADE80",
-    icon: "❄️",
-    accentColor: "#22D3EE",
-  },
-  {
-    href: "/inventory/lawn-mower",
-    name: "Lawn Mower",
-    category: "Equipment",
-    location: "Garden",
-    status: "Idle",
-    statusColor: "#9CA3AF",
-    icon: "🌿",
-    accentColor: "#4ADE80",
-  },
-  {
-    href: "/inventory/security-camera",
-    name: "Security Camera",
-    category: "Devices",
-    location: "Driveway",
-    status: "3 Active",
-    statusColor: "#FFFFFF",
-    icon: "📷",
-    accentColor: "#7C3AED",
-  },
-  {
-    href: "/inventory/irrigation-system",
-    name: "Irrigation System",
-    category: "Equipment",
-    location: "Orchard",
-    status: "Active",
-    statusColor: "#4ADE80",
-    icon: "💧",
-    accentColor: "#22D3EE",
-  },
-];
 
 export default function InventoryPage() {
   const [activeCategory, setActiveCategory] = useState("All");
   const [search, setSearch] = useState("");
-  const { addedAssets } = useStore();
-
-  const assets = [...addedAssets, ...seedAssets];
+  const { assets, source } = useAssets();
 
   const filtered = assets.filter((a) => {
     const matchesCategory = activeCategory === "All" || a.category === activeCategory;
@@ -90,7 +25,19 @@ export default function InventoryPage() {
 
       {/* Header */}
       <div className="px-5 pt-1 pb-3 flex items-center justify-between">
-        <h1 className="font-bold text-2xl" style={{ color: "var(--text-1)" }}>Inventory</h1>
+        <div className="flex items-center gap-2">
+          <h1 className="font-bold text-2xl" style={{ color: "var(--text-1)" }}>Inventory</h1>
+          <span
+            className="text-[10px] font-medium px-2 py-1 rounded-full"
+            style={
+              source === "remote"
+                ? { background: "rgba(74,222,128,0.12)", border: "1px solid rgba(74,222,128,0.30)", color: "var(--accent)" }
+                : { background: "rgba(255,255,255,0.06)", border: "0.5px solid var(--glass-border)", color: "var(--text-3)" }
+            }
+          >
+            {source === "remote" ? "● Synced" : source === "loading" ? "…" : "Demo"}
+          </span>
+        </div>
         <div className="flex items-center gap-2">
           <Link
             href="/inventory/new"
@@ -127,10 +74,10 @@ export default function InventoryPage() {
       {/* Stats strip */}
       <div className="px-4 mb-4 flex gap-2">
         {[
-          { label: "Total Assets", value: String(140 + addedAssets.length), color: "var(--text-1)" },
-          { label: "Active", value: "118", color: "#4ADE80" },
-          { label: "Maintenance", value: "7", color: "#F59E0B" },
-          { label: "Offline", value: "3", color: "#EF4444" },
+          { label: "Total Assets", value: String(assets.length), color: "var(--text-1)" },
+          { label: "Active", value: String(assets.filter((a) => a.statusColor === "#4ADE80").length), color: "#4ADE80" },
+          { label: "Maintenance", value: String(assets.filter((a) => a.status === "Idle").length), color: "#F59E0B" },
+          { label: "Offline", value: String(assets.filter((a) => a.status === "Offline" || a.statusColor === "#EF4444").length), color: "#EF4444" },
         ].map((s) => (
           <div key={s.label} className="liquid-glass flex-1 rounded-2xl p-2.5 text-center">
             <p className="font-bold text-base leading-tight" style={{ color: s.color }}>{s.value}</p>

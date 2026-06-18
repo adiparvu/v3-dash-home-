@@ -53,7 +53,8 @@ future track that reuses the same versioned backend contracts.
 | Active sessions + audit log wired to the Security UI (`/api/v1/profile/sessions`, `/api/v1/audit`) | ✅ |
 | Estate API: `/api/v1/properties` (list/create/detail/update) + nested zones & assets (list/create) | ✅ |
 | Properties list UI wired to Supabase (RLS) with demo fallback | ✅ |
-| Zones & assets UI surfaces wired to the estate API | ⏳ |
+| Zones & Inventory UI wired to the estate API (first property) with demo fallback | ✅ |
+| Property / zone / asset **detail** screens wired to live records | ⏳ |
 | Active session management + device trust + revocation (live) | ⏳ |
 
 ## Phase 3 — Data Privacy, Ownership & Compliance

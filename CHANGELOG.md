@@ -63,6 +63,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   RLS-scoped and audited. The Properties list screen now renders from
   `/api/v1/properties` via a `useProperties` hook (computed portfolio summary),
   falling back to the demo estate when signed out.
+- **Zones & Inventory wired to Supabase** — `useZones` and `useAssets` hooks load
+  the first property's zones/assets from the estate API and render them in the
+  Zones and Inventory screens (with data-driven inventory stats and "Synced /
+  Demo" badges), falling back to the seed + store data when signed out or empty.
 
 ### Notes
 - Without Supabase env vars the client still persists to `localStorage`
