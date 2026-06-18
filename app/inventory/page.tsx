@@ -88,12 +88,14 @@ export default function InventoryPage() {
       <div className="px-5 pt-1 pb-3 flex items-center justify-between">
         <h1 className="font-bold text-2xl" style={{ color: "var(--text-1)" }}>Inventory</h1>
         <div className="flex items-center gap-2">
-          <button
-            className="w-9 h-9 rounded-2xl flex items-center justify-center"
-            style={{ background: "rgba(74,222,128,0.15)", border: "1px solid rgba(74,222,128,0.30)" }}
+          <Link
+            href="/inventory/new"
+            aria-label="Add asset"
+            className="w-9 h-9 rounded-2xl flex items-center justify-center active:scale-90 transition-transform"
+            style={{ background: "rgba(74,222,128,0.15)", border: "1px solid rgba(74,222,128,0.30)", color: "var(--accent)" }}
           >
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none"><path d="M12 5v14M5 12h14" stroke="#4ADE80" strokeWidth="2" strokeLinecap="round" /></svg>
-          </button>
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none"><path d="M12 5v14M5 12h14" stroke="currentColor" strokeWidth="2" strokeLinecap="round" /></svg>
+          </Link>
         </div>
       </div>
 
@@ -185,8 +187,10 @@ export default function InventoryPage() {
 
       {/* QR Scanner FAB */}
       <div className="fixed bottom-24 right-5 z-40">
-        <button
-          className="w-14 h-14 rounded-full flex items-center justify-center shadow-2xl"
+        <Link
+          href="/inventory/qr"
+          aria-label="Scan QR code"
+          className="w-14 h-14 rounded-full flex items-center justify-center shadow-2xl active:scale-90 transition-transform"
           style={{
             background: "linear-gradient(135deg, #4ADE80, #22D3EE)",
             boxShadow: "0 4px 20px rgba(74,222,128,0.4)",
@@ -198,7 +202,7 @@ export default function InventoryPage() {
             <rect x="3" y="14" width="7" height="7" rx="1" stroke="#050A14" strokeWidth="2" />
             <path d="M14 14h2v2h-2zM18 14h3v3h-3M14 18h3v3h-3" stroke="#050A14" strokeWidth="2" />
           </svg>
-        </button>
+        </Link>
       </div>
 
       <BottomNav />

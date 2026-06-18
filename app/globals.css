@@ -453,7 +453,15 @@
     100% { transform: translateY(18px); opacity:0; }
   }
 
+  @keyframes scanline {
+    0%   { top: 12%;  opacity: 0; }
+    15%  { opacity: 1; }
+    85%  { opacity: 1; }
+    100% { top: 88%;  opacity: 0; }
+  }
+
   .animate-fade-in   { animation: fadeIn   0.3s ease-out forwards; }
   .animate-slide-up  { animation: slideUp  0.4s cubic-bezier(0.16,1,0.3,1) forwards; }
   .animate-pulse-glow{ animation: pulseGlow 2s ease-in-out infinite; }
+  .animate-scanline  { animation: scanline 2.2s ease-in-out infinite; }
 }
