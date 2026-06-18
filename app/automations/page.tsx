@@ -1,9 +1,11 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Link from "next/link";
 import StatusBar from "../components/layout/StatusBar";
 import BottomNav from "../components/layout/BottomNav";
+
+const AUTO_KEY = "prvio-automations-v1";
 
 const automationTemplates = [
   { icon: "💧", name: "Irrigation Schedule", desc: "Auto-water zones on a timer" },
@@ -94,23 +96,51 @@ const automations = [
 ];
 
 export default function AutomationsPage() {
-  const [items, setItems] = useState(automations);
+  const [overrides, setOverrides] = useState<Record<string, boolean>>({});
+  const [mounted, setMounted] = useState(false);
   const [showTemplates, setShowTemplates] = useState(false);
 
+  useEffect(() => {
+    setMounted(true);
+    try {
+      const raw = localStorage.getItem(AUTO_KEY);
+      if (raw) setOverrides(JSON.parse(raw));
+    } catch {
+      /* ignore */
+    }
+  }, []);
+
+  useEffect(() => {
+    if (!mounted) return;
+    try {
+      localStorage.setItem(AUTO_KEY, JSON.stringify(overrides));
+    } catch {
+      /* ignore */
+    }
+  }, [overrides, mounted]);
+
+  const items = automations.map((a) => ({
+    ...a,
+    active: a.id in overrides ? overrides[a.id] : a.active,
+  }));
+
   const toggle = (id: string) =>
-    setItems((prev) => prev.map((a) => (a.id === id ? { ...a, active: !a.active } : a)));
+    setOverrides((o) => {
+      const current = id in o ? o[id] : automations.find((a) => a.id === id)?.active ?? false;
+      return { ...o, [id]: !current };
+    });
 
   const activeCount = items.filter((a) => a.active).length;
   const runsToday = items.reduce((sum, a) => sum + a.runsToday, 0);
 
   return (
-    <div className="min-h-screen pb-28" style={{ background: "#050A14" }}>
+    <div className="min-h-screen pb-28" style={{ color: "var(--text-1)" }}>
       <StatusBar />
 
       {/* Header */}
       <div className="px-5 pt-1 pb-3 flex items-center justify-between">
         <div>
-          <h1 className="text-white font-bold text-2xl">Automations</h1>
+          <h1 className="font-bold text-2xl" style={{ color: "var(--text-1)" }}>Automations</h1>
           <p className="text-text-secondary text-xs">{activeCount} active · {runsToday} runs today</p>
         </div>
         <button
