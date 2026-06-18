@@ -4,18 +4,47 @@ import { useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import StatusBar from "../../components/layout/StatusBar";
+import { useStore, slugify } from "../../lib/store";
 
 const categories = [
-  { id: "Devices", icon: "📱" },
-  { id: "Plants", icon: "🌱" },
-  { id: "Equipment", icon: "⚙️" },
-  { id: "Vehicles", icon: "🚗" },
+  { id: "Devices", icon: "📱", color: "#22D3EE" },
+  { id: "Plants", icon: "🌱", color: "#4ADE80" },
+  { id: "Equipment", icon: "⚙️", color: "#22D3EE" },
+  { id: "Vehicles", icon: "🚗", color: "#7C3AED" },
 ];
 
 const locations = ["Lake", "Forest", "Greenhouse", "Orchard", "Garden", "House", "Driveway"];
 
+function Field({
+  label, value, ph, active, onChange, onFocus, onBlur,
+}: {
+  label: string; value: string; ph: string; active: boolean;
+  onChange: (v: string) => void; onFocus: () => void; onBlur: () => void;
+}) {
+  return (
+    <div>
+      <label className="text-xs font-medium block mb-1.5 px-1" style={{ color: "var(--text-2)" }}>{label}</label>
+      <div
+        className="rounded-2xl overflow-hidden transition-all"
+        style={{ background: "var(--glass-bg)", border: `1px solid ${active ? "var(--accent)" : "var(--glass-border)"}` }}
+      >
+        <input
+          value={value}
+          onChange={(e) => onChange(e.target.value)}
+          onFocus={onFocus}
+          onBlur={onBlur}
+          placeholder={ph}
+          className="w-full bg-transparent px-4 py-3.5 text-sm outline-none"
+          style={{ color: "var(--text-1)", caretColor: "var(--accent)" }}
+        />
+      </div>
+    </div>
+  );
+}
+
 export default function NewInventoryPage() {
   const router = useRouter();
+  const { addAsset } = useStore();
   const [form, setForm] = useState({
     name: "",
     category: "Equipment",
@@ -30,27 +59,33 @@ export default function NewInventoryPage() {
   const set = (k: string, v: string) => setForm((f) => ({ ...f, [k]: v }));
   const canSave = form.name.trim().length > 0;
 
-  const wrap = (key: string) => ({
-    background: "var(--glass-bg)",
-    border: `1px solid ${focused === key ? "var(--accent)" : "var(--glass-border)"}`,
-  });
+  const save = () => {
+    if (!canSave) return;
+    const slug = slugify(form.name) || `asset-${Date.now()}`;
+    const color = categories.find((c) => c.id === form.category)?.color ?? "#4ADE80";
+    addAsset({
+      href: `/inventory/${slug}`,
+      name: form.name.trim(),
+      category: form.category,
+      location: form.location,
+      status: "Active",
+      statusColor: "#4ADE80",
+      icon: form.icon,
+      accentColor: color,
+      brand: form.brand.trim(),
+      model: form.model.trim(),
+      serial: form.serial.trim(),
+    });
+    router.push("/inventory");
+  };
 
-  const Field = ({ k, label, ph }: { k: string; label: string; ph: string }) => (
-    <div>
-      <label className="text-xs font-medium block mb-1.5 px-1" style={{ color: "var(--text-2)" }}>{label}</label>
-      <div className="rounded-2xl overflow-hidden transition-all" style={wrap(k)}>
-        <input
-          value={form[k as keyof typeof form]}
-          onChange={(e) => set(k, e.target.value)}
-          onFocus={() => setFocused(k)}
-          onBlur={() => setFocused(null)}
-          placeholder={ph}
-          className="w-full bg-transparent px-4 py-3.5 text-sm outline-none"
-          style={{ color: "var(--text-1)", caretColor: "var(--accent)" }}
-        />
-      </div>
-    </div>
-  );
+  const fieldProps = (k: "name" | "brand" | "model" | "serial") => ({
+    value: form[k],
+    active: focused === k,
+    onChange: (v: string) => set(k, v),
+    onFocus: () => setFocused(k),
+    onBlur: () => setFocused(null),
+  });
 
   return (
     <div className="min-h-screen pb-10" style={{ color: "var(--text-1)" }}>
@@ -76,7 +111,7 @@ export default function NewInventoryPage() {
           </div>
         </div>
 
-        <Field k="name" label="Asset Name" ph="e.g. Water Pump" />
+        <Field label="Asset Name" ph="e.g. Water Pump" {...fieldProps("name")} />
 
         {/* Category */}
         <div>
@@ -118,9 +153,9 @@ export default function NewInventoryPage() {
         <div className="h-px" style={{ background: "var(--glass-border)" }} />
         <p className="text-xs font-semibold uppercase tracking-widest px-1" style={{ color: "var(--text-3)" }}>Details (optional)</p>
 
-        <Field k="brand" label="Brand" ph="e.g. Grundfos" />
-        <Field k="model" label="Model" ph="e.g. CM 5-4" />
-        <Field k="serial" label="Serial Number" ph="e.g. GF-2023-0041" />
+        <Field label="Brand" ph="e.g. Grundfos" {...fieldProps("brand")} />
+        <Field label="Model" ph="e.g. CM 5-4" {...fieldProps("model")} />
+        <Field label="Serial Number" ph="e.g. GF-2023-0041" {...fieldProps("serial")} />
 
         {/* QR hint */}
         <Link href="/inventory/qr">
@@ -143,7 +178,7 @@ export default function NewInventoryPage() {
 
         {/* Save */}
         <button
-          onClick={() => router.push("/inventory")}
+          onClick={save}
           disabled={!canSave}
           className="w-full py-4 rounded-2xl font-semibold text-base transition-all active:scale-[0.97]"
           style={{

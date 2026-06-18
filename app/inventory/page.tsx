@@ -4,10 +4,11 @@ import { useState } from "react";
 import Link from "next/link";
 import StatusBar from "../components/layout/StatusBar";
 import BottomNav from "../components/layout/BottomNav";
+import { useStore } from "../lib/store";
 
 const categories = ["All", "Devices", "Plants", "Equipment", "Vehicles"];
 
-const assets = [
+const seedAssets = [
   {
     href: "/inventory/water-pump",
     name: "Water Pump",
@@ -73,6 +74,9 @@ const assets = [
 export default function InventoryPage() {
   const [activeCategory, setActiveCategory] = useState("All");
   const [search, setSearch] = useState("");
+  const { addedAssets } = useStore();
+
+  const assets = [...addedAssets, ...seedAssets];
 
   const filtered = assets.filter((a) => {
     const matchesCategory = activeCategory === "All" || a.category === activeCategory;
@@ -123,7 +127,7 @@ export default function InventoryPage() {
       {/* Stats strip */}
       <div className="px-4 mb-4 flex gap-2">
         {[
-          { label: "Total Assets", value: "142", color: "var(--text-1)" },
+          { label: "Total Assets", value: String(140 + addedAssets.length), color: "var(--text-1)" },
           { label: "Active", value: "118", color: "#4ADE80" },
           { label: "Maintenance", value: "7", color: "#F59E0B" },
           { label: "Offline", value: "3", color: "#EF4444" },

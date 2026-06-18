@@ -1,6 +1,7 @@
 import type { Metadata, Viewport } from "next";
 import "./globals.css";
 import { ThemeProvider } from "./components/ThemeProvider";
+import { StoreProvider } from "./lib/store";
 
 export const metadata: Metadata = {
   title: "PRVIO EARTH",
@@ -25,6 +26,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
       </head>
       <body className="antialiased prvio-bg">
         <ThemeProvider>
+         <StoreProvider>
           <div className="min-h-screen flex items-start justify-center md:py-8 prvio-bg">
             {/* Phone frame — the mesh gradient lives HERE, pages are transparent over it */}
             <div
@@ -43,6 +45,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
               </div>
             </div>
           </div>
+         </StoreProvider>
         </ThemeProvider>
       </body>
     </html>

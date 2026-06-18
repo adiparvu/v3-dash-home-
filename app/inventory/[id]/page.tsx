@@ -3,6 +3,7 @@
 import { useState } from "react";
 import Link from "next/link";
 import StatusBar from "../../components/layout/StatusBar";
+import { useStore } from "../../lib/store";
 
 const assetData: Record<string, {
   name: string;
@@ -143,7 +144,27 @@ const documents = [
 
 export default function InventoryDetailPage({ params }: { params: { id: string } }) {
   const [activeTab, setActiveTab] = useState("Details");
-  const asset = assetData[params.id] ?? defaultAsset;
+  const { findAsset } = useStore();
+
+  const custom = findAsset(params.id);
+  const asset = custom
+    ? {
+        ...defaultAsset,
+        name: custom.name,
+        category: custom.category,
+        location: custom.location,
+        status: custom.status,
+        statusColor: custom.statusColor,
+        icon: custom.icon,
+        accentColor: custom.accentColor,
+        assetId: params.id.toUpperCase().slice(0, 10),
+        brand: custom.brand || "—",
+        model: custom.model || "—",
+        serial: custom.serial || "—",
+        purchaseDate: "—",
+        warranty: "—",
+      }
+    : assetData[params.id] ?? defaultAsset;
 
   return (
     <div className="min-h-screen" style={{ background: "var(--bg-1)" }}>
