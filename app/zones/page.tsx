@@ -5,7 +5,7 @@ import Link from "next/link";
 import StatusBar from "../components/layout/StatusBar";
 import BottomNav from "../components/layout/BottomNav";
 
-const zoneTypes = ["All", "Natural", "Agriculture", "Infrastructure"];
+const zoneTypes = ["All", "Natural", "Agriculture", "Infrastructure", "Built"];
 
 const zones = [
   {
@@ -79,6 +79,42 @@ const zones = [
     icon: "🌿",
     accentColor: "#4ADE80",
     metrics: [{ label: "Plants", value: "87" }, { label: "Irrigation", value: "Active" }],
+  },
+  {
+    href: "/zones/house",
+    name: "House",
+    subtitle: "Main Residence",
+    type: "Built",
+    status: "Good",
+    statusColor: "#7C3AED",
+    health: 90,
+    icon: "🏠",
+    accentColor: "#7C3AED",
+    metrics: [{ label: "Rooms", value: "8" }, { label: "Temp", value: "22.1°C" }],
+  },
+  {
+    href: "/zones/driveway",
+    name: "Driveway",
+    subtitle: "Gate & Access Control",
+    type: "Built",
+    status: "Secured",
+    statusColor: "#9CA3AF",
+    health: 100,
+    icon: "🚗",
+    accentColor: "#9CA3AF",
+    metrics: [{ label: "Cameras", value: "4" }, { label: "Gate", value: "Closed" }],
+  },
+  {
+    href: "/zones/smart-home",
+    name: "Smart Home",
+    subtitle: "Home Automation Hub",
+    type: "Built",
+    status: "Active",
+    statusColor: "#4ADE80",
+    health: 97,
+    icon: "🤖",
+    accentColor: "#4ADE80",
+    metrics: [{ label: "Devices", value: "12" }, { label: "Active", value: "8" }],
   },
 ];
 

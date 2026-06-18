@@ -7,6 +7,7 @@ const sections = [
     title: "Estate",
     items: [
       { href: "/automations", label: "Automations", icon: "⚡", desc: "Smart rules & triggers", badge: "3 active" },
+      { href: "/chat", label: "Chat", icon: "💬", desc: "Household live messages", badge: "6 unread" },
       { href: "/ai", label: "AI Assistant", icon: "✨", desc: "Your personal estate AI", badge: "Beta" },
       { href: "/properties", label: "Properties", icon: "🏠", desc: "Manage your properties", badge: null },
       { href: "/documents", label: "Documents", icon: "📄", desc: "Deeds, manuals & records", badge: "12" },
