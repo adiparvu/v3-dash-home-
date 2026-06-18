@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect, useRef } from "react";
 import Link from "next/link";
 import StatusBar from "../components/layout/StatusBar";
 import BottomNav from "../components/layout/BottomNav";
@@ -27,9 +27,92 @@ const sensors = [
 
 const statusColors: Record<string, string> = { ok: "#4ADE80", warning: "#F59E0B", error: "#EF4444", offline: "#6B7280" };
 
+const POINTS = 18;
+
+function parseValue(v: string) {
+  const m = v.match(/-?[\d.]+/);
+  const num = m ? parseFloat(m[0]) : 50;
+  const decimals = m && m[0].includes(".") ? (m[0].split(".")[1]?.length ?? 0) : 0;
+  const unit = m ? v.replace(m[0], "") : v;
+  return { num, decimals, unit };
+}
+
+function Sparkline({ data, color }: { data: number[]; color: string }) {
+  const w = 56, h = 26;
+  if (data.length < 2) return <svg width={w} height={h} />;
+  const min = Math.min(...data);
+  const max = Math.max(...data);
+  const span = max - min || 1;
+  const pts = data.map((d, i) => {
+    const x = (i / (data.length - 1)) * w;
+    const y = h - 2 - ((d - min) / span) * (h - 4);
+    return [x, y] as const;
+  });
+  const line = pts.map((p) => `${p[0].toFixed(1)},${p[1].toFixed(1)}`).join(" ");
+  const area = `${line} ${w},${h} 0,${h}`;
+  const gid = `spark-${color.replace("#", "")}`;
+  return (
+    <svg width={w} height={h} viewBox={`0 0 ${w} ${h}`} style={{ overflow: "visible" }}>
+      <defs>
+        <linearGradient id={gid} x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0%" stopColor={color} stopOpacity="0.30" />
+          <stop offset="100%" stopColor={color} stopOpacity="0" />
+        </linearGradient>
+      </defs>
+      <polygon points={area} fill={`url(#${gid})`} />
+      <polyline points={line} fill="none" stroke={color} strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+      <circle cx={pts[pts.length - 1][0]} cy={pts[pts.length - 1][1]} r="2" fill={color} />
+    </svg>
+  );
+}
+
 export default function SensorsPage() {
   const [category, setCategory] = useState("All");
   const [search, setSearch] = useState("");
+  const [series, setSeries] = useState<Record<string, number[]>>({});
+  const metaRef = useRef<Record<string, { num: number; decimals: number; unit: string }>>({});
+
+  // Seed each sensor's history + start a gentle live random walk
+  useEffect(() => {
+    const meta: Record<string, { num: number; decimals: number; unit: string }> = {};
+    const init: Record<string, number[]> = {};
+    sensors.forEach((s) => {
+      const p = parseValue(s.value);
+      meta[s.id] = p;
+      const base = p.num || 1;
+      const amp = Math.max(Math.abs(base) * 0.04, 0.2);
+      init[s.id] = Array.from({ length: POINTS }, () => base + (Math.random() - 0.5) * amp * 2);
+    });
+    metaRef.current = meta;
+    setSeries(init);
+
+    const iv = setInterval(() => {
+      setSeries((prev) => {
+        const next: Record<string, number[]> = {};
+        for (const s of sensors) {
+          const m = metaRef.current[s.id];
+          const base = m?.num || 1;
+          const amp = Math.max(Math.abs(base) * 0.04, 0.2);
+          const arr = prev[s.id] ?? [base];
+          const last = arr[arr.length - 1];
+          // random walk, softly pulled back toward base
+          let v = last + (Math.random() - 0.5) * amp - (last - base) * 0.15;
+          if (Math.abs(base) > 5) v = Math.max(base * 0.8, Math.min(base * 1.2, v));
+          next[s.id] = [...arr.slice(1), v];
+        }
+        return next;
+      });
+    }, 2000);
+    return () => clearInterval(iv);
+  }, []);
+
+  const liveValue = (s: (typeof sensors)[number]) => {
+    const arr = series[s.id];
+    const m = metaRef.current[s.id];
+    if (!arr || !m) return s.value;
+    const latest = arr[arr.length - 1];
+    return `${latest.toFixed(m.decimals)}${m.unit}`;
+  };
 
   const filtered = sensors.filter((s) => {
     const matchCat = category === "All" || s.category === category;
@@ -42,12 +125,12 @@ export default function SensorsPage() {
   const errCount = sensors.filter((s) => s.status === "error").length;
 
   return (
-    <div className="min-h-screen pb-28" style={{ background: "var(--bg-1)" }}>
+    <div className="min-h-screen pb-28" style={{ color: "var(--text-1)" }}>
       <StatusBar />
 
       <div className="px-5 pt-1 pb-3 flex items-center gap-3">
-        <Link href="/more" className="w-9 h-9 rounded-2xl flex items-center justify-center flex-shrink-0" style={{ background: "rgba(255,255,255,0.07)", border: "0.5px solid var(--glass-border)" }}>
-          <svg width="18" height="18" viewBox="0 0 24 24" fill="none"><path d="M19 12H5M12 5l-7 7 7 7" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" /></svg>
+        <Link href="/more" className="w-9 h-9 rounded-2xl flex items-center justify-center flex-shrink-0" style={{ background: "rgba(255,255,255,0.07)", border: "0.5px solid var(--glass-border)", color: "var(--text-1)" }}>
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none"><path d="M19 12H5M12 5l-7 7 7 7" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" /></svg>
         </Link>
         <h1 className="font-bold text-2xl" style={{ color: "var(--text-1)" }}>Sensors</h1>
         <div className="ml-auto flex items-center gap-1.5">
@@ -64,7 +147,7 @@ export default function SensorsPage() {
             { label: "Warning", value: warnCount, color: "#F59E0B" },
             { label: "Offline", value: errCount, color: "#EF4444" },
           ].map((s) => (
-            <div key={s.label} className="rounded-2xl p-3 text-center" style={{ background: "rgba(255,255,255,0.05)", border: `1px solid ${s.color}20` }}>
+            <div key={s.label} className="liquid-glass rounded-2xl p-3 text-center">
               <p className="font-bold text-xl" style={{ color: s.color }}>{s.value}</p>
               <p className="text-text-secondary text-[10px]">{s.label}</p>
             </div>
@@ -75,8 +158,8 @@ export default function SensorsPage() {
       {/* Search */}
       <div className="px-4 mb-3">
         <div className="flex items-center gap-2 rounded-2xl px-3 py-2.5 liquid-glass">
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="none"><circle cx="11" cy="11" r="7" stroke="#6B7280" strokeWidth="1.75" /><path d="M16.5 16.5L21 21" stroke="#6B7280" strokeWidth="1.75" strokeLinecap="round" /></svg>
-          <input value={search} onChange={(e) => setSearch(e.target.value)} placeholder="Search sensors…" className="flex-1 bg-transparent text-sm placeholder-text-tertiary outline-none" style={{ color: "var(--text-1)" }} />
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" style={{ color: "var(--text-3)", flexShrink: 0 }}><circle cx="11" cy="11" r="7" stroke="currentColor" strokeWidth="1.75" /><path d="M16.5 16.5L21 21" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" /></svg>
+          <input value={search} onChange={(e) => setSearch(e.target.value)} placeholder="Search sensors…" className="flex-1 bg-transparent text-sm outline-none" style={{ color: "var(--text-1)", caretColor: "var(--accent)" }} />
         </div>
       </div>
 
@@ -84,7 +167,7 @@ export default function SensorsPage() {
       <div className="px-4 mb-4 flex gap-2 overflow-x-auto scrollbar-hide">
         {sensorCategories.map((c) => (
           <button key={c} onClick={() => setCategory(c)} className="px-4 py-1.5 rounded-full text-sm font-medium whitespace-nowrap flex-shrink-0 transition-all"
-            style={category === c ? { background: "#4ADE80", color: "#050A14" } : { background: "rgba(255,255,255,0.07)", color: "#9CA3AF", border: "1px solid rgba(255,255,255,0.09)" }}>
+            style={category === c ? { background: "#4ADE80", color: "#050A14" } : { background: "var(--glass-bg)", color: "var(--text-2)", border: "0.5px solid var(--glass-border)" }}>
             {c}
           </button>
         ))}
@@ -102,14 +185,17 @@ export default function SensorsPage() {
                 <p className="text-sm font-medium truncate" style={{ color: "var(--text-1)" }}>{sensor.name}</p>
                 <span className="w-1.5 h-1.5 rounded-full flex-shrink-0" style={{ background: statusColors[sensor.status] }} />
               </div>
-              <p className="text-text-secondary text-xs">{sensor.zone} · {sensor.sub}</p>
+              <p className="text-text-secondary text-xs truncate">{sensor.zone} · {sensor.sub}</p>
             </div>
-            <div className="flex flex-col items-end gap-1 flex-shrink-0">
-              <p className="font-bold text-sm" style={{ color: "var(--text-1)" }}>{sensor.value}</p>
-              <p className="text-text-tertiary text-[10px]">{sensor.lastSeen}</p>
+            {/* Live sparkline */}
+            <div className="flex-shrink-0" style={{ width: 56 }}>
+              <Sparkline data={series[sensor.id] ?? []} color={sensor.color} />
+            </div>
+            <div className="flex flex-col items-end gap-1 flex-shrink-0" style={{ minWidth: 54 }}>
+              <p className="font-bold text-sm tabular-nums" style={{ color: "var(--text-1)", fontVariantNumeric: "tabular-nums" }}>{liveValue(sensor)}</p>
               {sensor.battery !== null && (
                 <div className="flex items-center gap-1">
-                  <div className="w-8 h-1.5 rounded-full overflow-hidden" style={{ background: "rgba(255,255,255,0.12)" }}>
+                  <div className="w-8 h-1.5 rounded-full overflow-hidden" style={{ background: "var(--glass-border)" }}>
                     <div className="h-full rounded-full" style={{ width: `${sensor.battery}%`, background: sensor.battery > 20 ? "#4ADE80" : "#EF4444" }} />
                   </div>
                   <span className="text-text-tertiary text-[9px]">{sensor.battery}%</span>
