@@ -87,20 +87,14 @@ function LiveTab({ onGoTab }: { onGoTab: (t: Tab) => void }) {
 
   return (
     <div>
-      {/* Hybrid: reference render as base; only the values are masked + redrawn live */}
+      {/* Hybrid: render with the values removed (labels + leader lines baked) as the
+          single base — no patch compositing, so there are no mask seams — and the
+          live values are redrawn on top exactly where the originals were. */}
       <div className="px-4 mb-3">
         <div className="relative w-full rounded-3xl overflow-hidden" style={{ aspectRatio: "853 / 1844", border: "1px solid rgba(255,255,255,0.08)", background: "#0a0e16", containerType: "size" }}>
-          {/* base: reference render (text, lines, font all baked in) */}
+          {/* base: reference render with numbers removed (labels + lines kept) */}
           {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img src="/estate-live.png" alt="PRVIO Estate — energy" className="absolute inset-0 w-full h-full" style={{ objectFit: "cover" }} draggable={false} />
-
-          {/* mask each baked value with a clean-plate window */}
-          {VALUES.map((v) => (
-            <div key={v.id + "m"} style={{ position: "absolute", left: `${v.rect[0]}%`, top: `${v.rect[1]}%`, width: `${v.rect[2]}%`, height: `${v.rect[3]}%`, overflow: "hidden" }}>
-              {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img src="/estate-clean.png" alt="" draggable={false} style={{ position: "absolute", width: "100cqw", height: "100cqh", left: `${-v.rect[0]}cqw`, top: `${-v.rect[1]}cqh`, maxWidth: "none" }} />
-            </div>
-          ))}
+          <img src="/estate-clean.png" alt="PRVIO Estate — energy" className="absolute inset-0 w-full h-full" style={{ objectFit: "cover" }} draggable={false} />
 
           {/* live values redrawn on top */}
           {VALUES.map((v) => (
