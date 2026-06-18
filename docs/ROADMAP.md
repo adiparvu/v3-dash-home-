@@ -50,8 +50,8 @@ future track that reuses the same versioned backend contracts.
 | Login screen, auth callback + sign-out routes | ✅ |
 | Profile read/write wired to UI via `/api/v1` (RLS) with store fallback | ✅ |
 | `/api/v1` routes for social links + trusted persons (GET/POST/DELETE) | ✅ |
+| Active sessions + audit log wired to the Security UI (`/api/v1/profile/sessions`, `/api/v1/audit`) | ✅ |
 | Properties, parcels, zones, assets read/write wired to UI via RLS | ⏳ |
-| Active sessions + audit log surfaced in the Security UI | ⏳ |
 | Active session management + device trust + revocation (live) | ⏳ |
 
 ## Phase 3 — Data Privacy, Ownership & Compliance

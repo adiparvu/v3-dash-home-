@@ -52,6 +52,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   out. A "Synced / Local" badge shows the active source. Verified end-to-end
   against the live project: unauthenticated requests return `401`, and middleware
   redirects protected routes to `/login`.
+- **Security wired to Supabase** — the Security screen's Active Sessions and Audit
+  Log now load from `/api/v1/profile/sessions` and `/api/v1/audit` via a
+  `useSecurity` hook, with working per-session revoke and "sign out all others"
+  (DELETE routes), falling back to demo data when signed out. New data-access
+  helpers `revokeOtherSessions` and `listAuditLog`.
 
 ### Notes
 - Without Supabase env vars the client still persists to `localStorage`

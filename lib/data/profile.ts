@@ -12,6 +12,7 @@ import type {
   ProfileSocialLink,
   TrustedPerson,
   UserSession,
+  AuditLogEntry,
   TablesInsert,
   TablesUpdate,
 } from "../types/database.types";
@@ -137,6 +138,30 @@ export async function revokeSession(userId: string, id: string): Promise<void> {
     .eq("id", id)
     .eq("user_id", userId);
   if (error) throw new Error(error.message);
+}
+
+/** Revoke every session except the one marked current. */
+export async function revokeOtherSessions(userId: string): Promise<void> {
+  const supabase = await createClient();
+  const { error } = await supabase
+    .from("user_sessions")
+    .update({ revoked_at: new Date().toISOString() })
+    .eq("user_id", userId)
+    .eq("is_current", false)
+    .is("revoked_at", null);
+  if (error) throw new Error(error.message);
+}
+
+export async function listAuditLog(userId: string, limit = 25): Promise<AuditLogEntry[]> {
+  const supabase = await createClient();
+  const { data, error } = await supabase
+    .from("audit_log")
+    .select("*")
+    .eq("user_id", userId)
+    .order("created_at", { ascending: false })
+    .limit(limit);
+  if (error) throw new Error(error.message);
+  return data ?? [];
 }
 
 /**

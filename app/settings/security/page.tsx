@@ -3,22 +3,10 @@
 import { useState } from "react";
 import Link from "next/link";
 import StatusBar from "../../components/layout/StatusBar";
-
-const sessions = [
-  { id: 1, device: "iPhone 16 Pro", platform: "iOS 26", location: "Cluj-Napoca, RO", lastActive: "Active now", current: true },
-  { id: 2, device: "MacBook Pro", platform: "macOS Tahoe", location: "Cluj-Napoca, RO", lastActive: "2h ago", current: false },
-  { id: 3, device: "iPad Pro", platform: "iPadOS 26", location: "Bucharest, RO", lastActive: "3d ago", current: false },
-];
-
-const auditLog = [
-  { id: 1, action: "Signed in", detail: "iPhone 16 Pro · Cluj-Napoca", time: "Active now", icon: "✅" },
-  { id: 2, action: "Automation triggered", detail: "Morning Irrigation · Orchard", time: "6h ago", icon: "⚡" },
-  { id: 3, action: "Task created", detail: "Irrigation Maintenance", time: "1d ago", icon: "✅" },
-  { id: 4, action: "Signed in", detail: "MacBook Pro · Cluj-Napoca", time: "2d ago", icon: "✅" },
-  { id: 5, action: "Property accessed", detail: "Prvio Estate data export", time: "5d ago", icon: "📋" },
-];
+import { useSecurity } from "../../lib/useSecurity";
 
 export default function SecurityPage() {
+  const { source, sessions, auditLog, revokeSession, revokeOthers } = useSecurity();
   const [faceIdEnabled, setFaceIdEnabled] = useState(true);
   const [loginAlerts, setLoginAlerts] = useState(true);
 
@@ -31,6 +19,16 @@ export default function SecurityPage() {
           <svg width="18" height="18" viewBox="0 0 24 24" fill="none"><path d="M19 12H5M12 5l-7 7 7 7" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" /></svg>
         </Link>
         <h1 className="font-bold text-xl" style={{ color: "var(--text-1)" }}>Security</h1>
+        <span
+          className="ml-auto text-[10px] font-medium px-2 py-1 rounded-full"
+          style={
+            source === "remote"
+              ? { background: "rgba(74,222,128,0.12)", border: "1px solid rgba(74,222,128,0.30)", color: "var(--accent)" }
+              : { background: "var(--glass-bg)", border: "0.5px solid var(--glass-border)", color: "var(--text-3)" }
+          }
+        >
+          {source === "remote" ? "● Synced" : source === "loading" ? "…" : "Demo"}
+        </span>
       </div>
 
       <div className="px-4 space-y-4">
@@ -63,9 +61,14 @@ export default function SecurityPage() {
         <div>
           <div className="flex items-center justify-between mb-2 px-1">
             <p className="text-text-secondary text-xs font-medium uppercase tracking-wide">Active Sessions</p>
-            <button className="text-accent-red text-xs" style={{ color: "#EF4444" }}>Sign out all</button>
+            <button onClick={revokeOthers} className="text-accent-red text-xs" style={{ color: "#EF4444" }}>Sign out all</button>
           </div>
           <div className="space-y-2">
+            {sessions.length === 0 && (
+              <div className="rounded-2xl p-3.5 liquid-glass">
+                <p className="text-text-tertiary text-xs">No other active sessions.</p>
+              </div>
+            )}
             {sessions.map((s) => (
               <div key={s.id} className="rounded-2xl p-3.5 flex items-center gap-3" style={{ background: "rgba(255,255,255,0.05)", border: s.current ? "1px solid rgba(74,222,128,0.25)" : "0.5px solid var(--glass-border)" }}>
                 <div className="w-10 h-10 rounded-2xl flex items-center justify-center flex-shrink-0" style={{ background: s.current ? "rgba(74,222,128,0.12)" : "rgba(255,255,255,0.07)" }}>
@@ -83,7 +86,7 @@ export default function SecurityPage() {
                   <p className="text-text-tertiary text-[10px]">{s.lastActive}</p>
                 </div>
                 {!s.current && (
-                  <button className="text-xs px-2.5 py-1 rounded-full flex-shrink-0" style={{ background: "rgba(239,68,68,0.10)", border: "1px solid rgba(239,68,68,0.20)", color: "#EF4444" }}>
+                  <button onClick={() => revokeSession(s.id)} className="text-xs px-2.5 py-1 rounded-full flex-shrink-0" style={{ background: "rgba(239,68,68,0.10)", border: "1px solid rgba(239,68,68,0.20)", color: "#EF4444" }}>
                     Revoke
                   </button>
                 )}
@@ -96,6 +99,9 @@ export default function SecurityPage() {
         <div>
           <p className="text-text-secondary text-xs font-medium uppercase tracking-wide mb-2 px-1">Audit Log</p>
           <div className="rounded-2xl overflow-hidden" style={{ background: "rgba(255,255,255,0.04)", border: "0.5px solid var(--glass-border)" }}>
+            {auditLog.length === 0 && (
+              <p className="text-text-tertiary text-xs px-4 py-3.5">No audit entries yet.</p>
+            )}
             {auditLog.map((entry, i) => (
               <div key={entry.id} className="flex items-center gap-3 px-4 py-3" style={{ borderBottom: i < auditLog.length - 1 ? "1px solid rgba(255,255,255,0.06)" : undefined }}>
                 <span className="text-base w-7 text-center flex-shrink-0">{entry.icon}</span>
@@ -109,7 +115,7 @@ export default function SecurityPage() {
           </div>
         </div>
 
-        <button className="w-full rounded-2xl py-3 text-sm font-medium" style={{ background: "rgba(239,68,68,0.10)", border: "1px solid rgba(239,68,68,0.20)", color: "#EF4444" }}>
+        <button onClick={revokeOthers} className="w-full rounded-2xl py-3 text-sm font-medium" style={{ background: "rgba(239,68,68,0.10)", border: "1px solid rgba(239,68,68,0.20)", color: "#EF4444" }}>
           Sign Out All Sessions
         </button>
       </div>
