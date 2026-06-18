@@ -1,5 +1,8 @@
+"use client";
+
 import StatusBar from "./components/layout/StatusBar";
 import BottomNav from "./components/layout/BottomNav";
+import { useTheme } from "./components/ThemeProvider";
 import Link from "next/link";
 
 const healthScore = 87;
@@ -7,10 +10,10 @@ const circumference = 2 * Math.PI * 52;
 const offset = circumference - (healthScore / 100) * circumference;
 
 const stats = [
-  { value: "26", label: "Zones", color: "#FFFFFF" },
-  { value: "142", label: "Objects", color: "#FFFFFF" },
-  { value: "7", label: "Tasks", color: "#FFFFFF" },
-  { value: "3", label: "Alerts", color: "#F97316" },
+  { value: "26", label: "Zones" },
+  { value: "142", label: "Objects" },
+  { value: "7", label: "Tasks" },
+  { value: "3", label: "Alerts", alert: true },
 ];
 
 const recentAlerts = [
@@ -26,41 +29,85 @@ const quickZones = [
   { href: "/zones/orchard", label: "Orchard", icon: "🍎", status: "Good", color: "#4ADE80" },
 ];
 
-export default function OverviewPage() {
+function SunIcon() {
   return (
-    <div className="min-h-screen pb-28" style={{ background: "#050A14" }}>
+    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round">
+      <circle cx="12" cy="12" r="4" />
+      <line x1="12" y1="2" x2="12" y2="4" />
+      <line x1="12" y1="20" x2="12" y2="22" />
+      <line x1="4.22" y1="4.22" x2="5.64" y2="5.64" />
+      <line x1="18.36" y1="18.36" x2="19.78" y2="19.78" />
+      <line x1="2" y1="12" x2="4" y2="12" />
+      <line x1="20" y1="12" x2="22" y2="12" />
+      <line x1="4.22" y1="19.78" x2="5.64" y2="18.36" />
+      <line x1="18.36" y1="5.64" x2="19.78" y2="4.22" />
+    </svg>
+  );
+}
+
+function MoonIcon() {
+  return (
+    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round">
+      <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z" />
+    </svg>
+  );
+}
+
+export default function OverviewPage() {
+  const { theme, toggle } = useTheme();
+
+  return (
+    <div className="min-h-screen pb-32 prvio-bg" style={{ color: "var(--text-1)" }}>
       <StatusBar />
 
       {/* Header */}
       <div className="px-5 pt-1 pb-3 flex justify-between items-center">
         <div>
-          <p className="text-text-secondary text-xs font-medium">Good morning</p>
-          <h1 className="text-white font-bold text-2xl leading-tight">My Property</h1>
+          <p className="text-xs font-medium" style={{ color: "var(--text-2)" }}>Good morning</p>
+          <h1 className="font-bold text-2xl leading-tight" style={{ color: "var(--text-1)" }}>My Property</h1>
         </div>
         <div className="flex items-center gap-2">
+          {/* Theme toggle */}
+          <button
+            onClick={toggle}
+            aria-label="Toggle theme"
+            className="w-9 h-9 rounded-2xl flex items-center justify-center transition-all duration-150 active:scale-90"
+            style={{
+              background: "var(--glass-bg)",
+              border: "0.5px solid var(--glass-border)",
+              color: "var(--text-2)",
+            }}
+          >
+            {theme === "dark" ? <SunIcon /> : <MoonIcon />}
+          </button>
+          {/* Notification bell */}
           <button
             className="w-9 h-9 rounded-2xl flex items-center justify-center"
-            style={{ background: "rgba(255,255,255,0.08)", border: "1px solid rgba(255,255,255,0.10)" }}
+            style={{
+              background: "var(--glass-bg)",
+              border: "0.5px solid var(--glass-border)",
+              color: "var(--text-2)",
+            }}
           >
             <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
-              <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9" stroke="#9CA3AF" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round" />
-              <path d="M13.73 21a2 2 0 0 1-3.46 0" stroke="#9CA3AF" strokeWidth="1.75" strokeLinecap="round" />
+              <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round" />
+              <path d="M13.73 21a2 2 0 0 1-3.46 0" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" />
             </svg>
           </button>
           <div
             className="w-9 h-9 rounded-2xl overflow-hidden flex items-center justify-center"
             style={{ background: "linear-gradient(135deg, #4ADE80, #22D3EE)" }}
           >
-            <span className="text-bg font-bold text-sm">A</span>
+            <span style={{ color: "var(--bg-1)", fontWeight: "bold", fontSize: "0.875rem" }}>A</span>
           </div>
         </div>
       </div>
 
       {/* Live indicator */}
       <div className="px-5 mb-3 flex items-center gap-1.5">
-        <span className="w-1.5 h-1.5 rounded-full bg-accent-green inline-block" style={{ boxShadow: "0 0 6px #4ADE80" }} />
-        <span className="text-accent-green text-xs font-medium">Live</span>
-        <span className="text-text-tertiary text-xs">· Updated just now</span>
+        <span className="w-1.5 h-1.5 rounded-full inline-block" style={{ background: "var(--accent)", boxShadow: "0 0 6px var(--accent)" }} />
+        <span className="text-xs font-medium" style={{ color: "var(--accent)" }}>Live</span>
+        <span className="text-xs" style={{ color: "var(--text-3)" }}>· Updated just now</span>
       </div>
 
       {/* Hero map area */}
@@ -110,7 +157,7 @@ export default function OverviewPage() {
           className="absolute top-3 left-3 rounded-xl px-2.5 py-1.5 flex items-center gap-1.5"
           style={{ background: "rgba(0,0,0,0.5)", backdropFilter: "blur(10px)", border: "1px solid rgba(255,255,255,0.10)" }}
         >
-          <span className="w-1.5 h-1.5 rounded-full bg-accent-green" style={{ boxShadow: "0 0 6px #4ADE80" }} />
+          <span className="w-1.5 h-1.5 rounded-full" style={{ background: "var(--accent)", boxShadow: "0 0 6px var(--accent)" }} />
           <span className="text-white text-xs font-medium">Prvio Estate</span>
         </div>
         {/* Bottom-right */}
@@ -118,7 +165,7 @@ export default function OverviewPage() {
           className="absolute bottom-3 right-3 rounded-xl px-2.5 py-1.5"
           style={{ background: "rgba(0,0,0,0.5)", backdropFilter: "blur(10px)", border: "1px solid rgba(255,255,255,0.10)" }}
         >
-          <span className="text-text-secondary text-[10px]">26 zones · 142 objects</span>
+          <span className="text-[10px]" style={{ color: "var(--text-2)" }}>26 zones · 142 objects</span>
         </div>
       </div>
 
@@ -126,10 +173,10 @@ export default function OverviewPage() {
       <div className="mx-4 mb-4 flex gap-3">
         {/* Health ring */}
         <div
-          className="rounded-3xl p-4 flex flex-col items-center justify-center"
-          style={{ background: "rgba(255,255,255,0.05)", border: "1px solid rgba(255,255,255,0.08)", minWidth: 120 }}
+          className="rounded-3xl p-4 flex flex-col items-center justify-center liquid-glass"
+          style={{ minWidth: 120 }}
         >
-          <span className="text-text-secondary text-[10px] font-medium mb-2">Health Score</span>
+          <span className="text-[10px] font-medium mb-2" style={{ color: "var(--text-2)" }}>Health Score</span>
           <svg width="80" height="80" viewBox="0 0 120 120">
             <defs>
               <linearGradient id="healthGrad" x1="0%" y1="0%" x2="100%" y2="0%">
@@ -144,9 +191,9 @@ export default function OverviewPage() {
               strokeDasharray={circumference} strokeDashoffset={offset}
               strokeLinecap="round" transform="rotate(-90 60 60)"
             />
-            <text x="60" y="65" textAnchor="middle" fill="white" fontSize="22" fontWeight="bold">{healthScore}</text>
+            <text x="60" y="65" textAnchor="middle" fill="currentColor" fontSize="22" fontWeight="bold">{healthScore}</text>
           </svg>
-          <span className="text-accent-green text-xs font-medium mt-1">Very Good</span>
+          <span className="text-xs font-medium mt-1" style={{ color: "var(--accent)" }}>Very Good</span>
         </div>
 
         {/* Stats grid */}
@@ -154,11 +201,10 @@ export default function OverviewPage() {
           {stats.map((s) => (
             <div
               key={s.label}
-              className="rounded-2xl p-3 flex flex-col justify-center"
-              style={{ background: "rgba(255,255,255,0.05)", border: "1px solid rgba(255,255,255,0.08)" }}
+              className="rounded-2xl p-3 flex flex-col justify-center liquid-glass"
             >
-              <span className="font-bold text-xl leading-tight" style={{ color: s.color }}>{s.value}</span>
-              <span className="text-text-secondary text-xs mt-0.5">{s.label}</span>
+              <span className="font-bold text-xl leading-tight" style={{ color: s.alert ? "#F97316" : "var(--text-1)" }}>{s.value}</span>
+              <span className="text-xs mt-0.5" style={{ color: "var(--text-2)" }}>{s.label}</span>
             </div>
           ))}
         </div>
@@ -166,18 +212,17 @@ export default function OverviewPage() {
 
       {/* Quick access zones */}
       <div className="px-5 mb-2 flex items-center justify-between">
-        <span className="text-white font-semibold text-sm">Quick Access</span>
-        <Link href="/zones" className="text-accent-green text-xs font-medium">See all</Link>
+        <span className="font-semibold text-sm" style={{ color: "var(--text-1)" }}>Quick Access</span>
+        <Link href="/zones" className="text-xs font-medium" style={{ color: "var(--accent)" }}>See all</Link>
       </div>
       <div className="px-4 mb-4 grid grid-cols-4 gap-2">
         {quickZones.map((z) => (
           <Link key={z.href} href={z.href}>
             <div
-              className="rounded-2xl p-2.5 flex flex-col items-center gap-1.5 active:scale-95 transition-transform"
-              style={{ background: "rgba(255,255,255,0.05)", border: "1px solid rgba(255,255,255,0.08)" }}
+              className="rounded-2xl p-2.5 flex flex-col items-center gap-1.5 active:scale-95 transition-transform liquid-glass"
             >
               <span className="text-xl">{z.icon}</span>
-              <span className="text-white text-[10px] font-medium leading-tight text-center">{z.label}</span>
+              <span className="text-[10px] font-medium leading-tight text-center" style={{ color: "var(--text-1)" }}>{z.label}</span>
               <span className="text-[9px] font-medium" style={{ color: z.color }}>{z.status}</span>
             </div>
           </Link>
@@ -186,15 +231,14 @@ export default function OverviewPage() {
 
       {/* Recent Alerts */}
       <div className="px-5 mb-2 flex items-center justify-between">
-        <span className="text-white font-semibold text-sm">Recent Activity</span>
-        <button className="text-accent-green text-xs font-medium">Clear all</button>
+        <span className="font-semibold text-sm" style={{ color: "var(--text-1)" }}>Recent Activity</span>
+        <button className="text-xs font-medium" style={{ color: "var(--accent)" }}>Clear all</button>
       </div>
       <div className="px-4 space-y-2 mb-4">
         {recentAlerts.map((alert) => (
           <div
             key={alert.id}
-            className="rounded-2xl p-3.5 flex items-start gap-3"
-            style={{ background: "rgba(255,255,255,0.05)", border: "1px solid rgba(255,255,255,0.08)" }}
+            className="rounded-2xl p-3.5 flex items-start gap-3 liquid-glass"
           >
             <div
               className="w-8 h-8 rounded-xl flex items-center justify-center flex-shrink-0 mt-0.5"
@@ -203,10 +247,10 @@ export default function OverviewPage() {
               <span className="w-1.5 h-1.5 rounded-full" style={{ background: alert.color }} />
             </div>
             <div className="flex-1 min-w-0">
-              <p className="text-white text-sm font-medium leading-tight">{alert.title}</p>
-              <p className="text-text-secondary text-xs mt-0.5 leading-snug">{alert.desc}</p>
+              <p className="text-sm font-medium leading-tight" style={{ color: "var(--text-1)" }}>{alert.title}</p>
+              <p className="text-xs mt-0.5 leading-snug" style={{ color: "var(--text-2)" }}>{alert.desc}</p>
             </div>
-            <span className="text-text-tertiary text-[10px] flex-shrink-0">{alert.time}</span>
+            <span className="text-[10px] flex-shrink-0" style={{ color: "var(--text-3)" }}>{alert.time}</span>
           </div>
         ))}
       </div>
