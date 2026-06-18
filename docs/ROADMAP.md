@@ -102,6 +102,7 @@ future track that reuses the same versioned backend contracts.
 | Telemetry ingestion + time-series representation (live sparklines) | ✅ |
 | Home Assistant / IoT integration gateway surface | ✅ |
 | Real-time state sync via event bus (twin_events + Supabase Realtime + `/api/v1/twin/events`; on-device fallback) | ✅ |
+| Energy module — Tesla-style power flow (Live flow diagram + Energie + Impact + Powerwall/reserve/mode/tariff/off-grid) | ✅ |
 
 ## Phase 8 — Apple-Native Clients & Widgets
 

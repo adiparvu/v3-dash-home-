@@ -153,6 +153,18 @@ export default function DigitalTwinPage() {
         </button>
       </div>
 
+      {/* Energy module link */}
+      <div className="px-4 mb-3">
+        <Link href="/twin/energy" className="flex items-center gap-3 rounded-2xl px-4 py-3 liquid-glass active:scale-[0.99] transition-transform">
+          <span className="w-9 h-9 rounded-xl flex items-center justify-center text-lg flex-shrink-0" style={{ background: "rgba(245,158,11,0.14)", border: "1px solid rgba(245,158,11,0.3)" }}>⚡</span>
+          <div className="flex-1">
+            <p className="text-sm font-medium" style={{ color: "var(--text-1)" }}>Energy flow</p>
+            <p className="text-text-secondary text-xs">Solar · Powerwall · Grid · live power</p>
+          </div>
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" style={{ opacity: 0.45 }}><path d="M9 18l6-6-6-6" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round" /></svg>
+        </Link>
+      </div>
+
       {/* Status strip */}
       <div className="px-4 mb-3 grid grid-cols-3 gap-2">
         {[

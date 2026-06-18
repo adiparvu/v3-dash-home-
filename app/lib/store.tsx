@@ -228,6 +228,23 @@ export type AiAuditEntry = {
   scopes: string[];
 };
 
+/** Powerwall / energy preferences (Tesla-style energy module). */
+export type EnergyMode = "self_powered" | "time_based";
+export type EnergyPrefs = {
+  /** Backup reserve percentage kept for grid outages. */
+  backupReserve: number;
+  mode: EnergyMode;
+  offGrid: boolean;
+  stormWatch: boolean;
+};
+
+const defaultEnergy: EnergyPrefs = {
+  backupReserve: 20,
+  mode: "time_based",
+  offGrid: false,
+  stormWatch: true,
+};
+
 /** An ownership-transfer record (spec: Property & Estate Management → Property Transfer). */
 export type PropertyTransfer = {
   id: string;
@@ -279,6 +296,8 @@ interface StoreCtx {
   logAiDecision: (entry: Omit<AiAuditEntry, "id" | "at">) => void;
   propertyTransfers: PropertyTransfer[];
   addPropertyTransfer: (t: Omit<PropertyTransfer, "id" | "createdAt" | "status">) => void;
+  energy: EnergyPrefs;
+  setEnergy: (patch: Partial<EnergyPrefs>) => void;
 }
 
 const STORAGE_KEY = "prvio-store-v1";
@@ -318,6 +337,8 @@ const defaultCtx: StoreCtx = {
   logAiDecision: () => {},
   propertyTransfers: [],
   addPropertyTransfer: () => {},
+  energy: defaultEnergy,
+  setEnergy: () => {},
 };
 
 const StoreContext = createContext<StoreCtx>(defaultCtx);
@@ -334,6 +355,7 @@ type Persisted = {
   privacyRequests: PrivacyRequest[];
   aiAuditLog: AiAuditEntry[];
   propertyTransfers: PropertyTransfer[];
+  energy: EnergyPrefs;
 };
 
 export function StoreProvider({ children }: { children: React.ReactNode }) {
@@ -349,6 +371,7 @@ export function StoreProvider({ children }: { children: React.ReactNode }) {
   const [privacyRequests, setPrivacyRequests] = useState<PrivacyRequest[]>([]);
   const [aiAuditLog, setAiAuditLog] = useState<AiAuditEntry[]>([]);
   const [propertyTransfers, setPropertyTransfers] = useState<PropertyTransfer[]>([]);
+  const [energy, setEnergyState] = useState<EnergyPrefs>(defaultEnergy);
 
   // Load
   useEffect(() => {
@@ -377,6 +400,7 @@ export function StoreProvider({ children }: { children: React.ReactNode }) {
         if (Array.isArray(p.privacyRequests)) setPrivacyRequests(p.privacyRequests);
         if (Array.isArray(p.aiAuditLog)) setAiAuditLog(p.aiAuditLog);
         if (Array.isArray(p.propertyTransfers)) setPropertyTransfers(p.propertyTransfers);
+        if (p.energy && typeof p.energy === "object") setEnergyState({ ...defaultEnergy, ...p.energy });
       } else {
         // No store yet → treat as first launch
         setOnboardedState(false);
@@ -390,13 +414,13 @@ export function StoreProvider({ children }: { children: React.ReactNode }) {
   // Persist
   useEffect(() => {
     if (!ready) return;
-    const data: Persisted = { estateName, onboarded, addedZones, addedAssets, profile, assistant, security, consents, privacyRequests, aiAuditLog, propertyTransfers };
+    const data: Persisted = { estateName, onboarded, addedZones, addedAssets, profile, assistant, security, consents, privacyRequests, aiAuditLog, propertyTransfers, energy };
     try {
       localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
     } catch {
       /* quota / private mode — ignore */
     }
-  }, [ready, estateName, onboarded, addedZones, addedAssets, profile, assistant, security, consents, privacyRequests, aiAuditLog, propertyTransfers]);
+  }, [ready, estateName, onboarded, addedZones, addedAssets, profile, assistant, security, consents, privacyRequests, aiAuditLog, propertyTransfers, energy]);
 
   const setEstateName = useCallback((s: string) => setEstateNameState(s), []);
   const setOnboarded = useCallback((b: boolean) => setOnboardedState(b), []);
@@ -484,10 +508,14 @@ export function StoreProvider({ children }: { children: React.ReactNode }) {
       ]),
     []
   );
+  const setEnergy = useCallback(
+    (patch: Partial<EnergyPrefs>) => setEnergyState((prev) => ({ ...prev, ...patch })),
+    []
+  );
 
   return (
     <StoreContext.Provider
-      value={{ ready, estateName, setEstateName, onboarded, setOnboarded, addedZones, addedAssets, addZone, addAsset, updateAsset, updateZone, removeAsset, removeZone, findAsset, findZone, profile, setProfile, addSocialLink, removeSocialLink, addTrustedPerson, removeTrustedPerson, assistant, setAssistant, security, setSecurity, consents, setConsent, privacyRequests, addPrivacyRequest, removePrivacyRequest, aiAuditLog, logAiDecision, propertyTransfers, addPropertyTransfer }}
+      value={{ ready, estateName, setEstateName, onboarded, setOnboarded, addedZones, addedAssets, addZone, addAsset, updateAsset, updateZone, removeAsset, removeZone, findAsset, findZone, profile, setProfile, addSocialLink, removeSocialLink, addTrustedPerson, removeTrustedPerson, assistant, setAssistant, security, setSecurity, consents, setConsent, privacyRequests, addPrivacyRequest, removePrivacyRequest, aiAuditLog, logAiDecision, propertyTransfers, addPropertyTransfer, energy, setEnergy }}
     >
       {children}
     </StoreContext.Provider>

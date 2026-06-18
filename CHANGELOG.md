@@ -9,6 +9,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 ### Added
+- **Energy module (Tesla-style)** — a new `/twin/energy` surface modelled on the
+  Tesla app's energy section, with four sub-tabs: **Live** (an animated power-flow
+  diagram across Solar · Powerwall · Home · Grid · Vehicle with live kW, battery
+  %, weather/time scenarios and a Storm Watch banner), **Energie** (monthly usage
+  bar chart + "Utilizat din" source breakdown), **Impact** (autonomy donut,
+  time-of-use split, solar value, solar offset, backup-outage history) and
+  **Powerwall** (backup-reserve slider, operational mode, Tibber tariff graph,
+  off-grid runtime and storm watch). Backed by a framework-free model
+  (`app/lib/twin/energy.ts`) with a live power-balance simulation; Powerwall
+  preferences (reserve, mode, off-grid, storm watch) persist in the store.
+  Linked from the Digital Twin and More → Monitoring.
 - **Chat breadth & avatar ring color (Phase 5)** — household chat now spans all
   spec channel types: Group, **Property**, Zone, **Asset** and **Task** channels
   (plus Direct Messages), each with seeded threads and a typed header badge. The
