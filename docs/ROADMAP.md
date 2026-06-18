@@ -72,7 +72,7 @@ future track that reuses the same versioned backend contracts.
 | Item | Status |
 | --- | --- |
 | Property value tracking (current, historical, purchase, improvements, appreciation, market notes) | ✅ |
-| Contractor management (full field set + insurance + ratings + history) | ⏳ |
+| Contractor management (full field set + insurance + ratings + history) | ✅ |
 | Ownership transfer workflow (verification, legal records, asset/document reassignment, multi-step confirmation, audit preservation) | ✅ |
 
 ## Phase 5 — Communication & Collaboration
@@ -90,7 +90,7 @@ future track that reuses the same versioned backend contracts.
 | User-owned AI identity (name, avatar, personality config) | ✅ |
 | Bring-your-own-model selection (UI) | ✅ |
 | Retrieval-augmented estate knowledge (scope-controlled retriever; pgvector backend pending) | 🚧 |
-| Document understanding + summarization | ⏳ |
+| Document understanding + summarization (on-device; backend orchestrator pending) | 🚧 |
 | Bring-your-own-model support | ⏳ |
 | AI guardrails (deny-by-default tools, prompt isolation, classification, output validation, AI audit log) | ✅ |
 

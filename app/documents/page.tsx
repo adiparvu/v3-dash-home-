@@ -4,6 +4,8 @@ import { useState, useEffect } from "react";
 import Link from "next/link";
 import StatusBar from "../components/layout/StatusBar";
 import BottomNav from "../components/layout/BottomNav";
+import { useStore } from "../lib/store";
+import { summarizeDocument, DocSummary } from "../lib/ai/documents";
 
 const docCategories = ["All", "Legal", "Technical", "Financial", "Manuals"];
 const DOCS_KEY = "prvio-docs-v1";
@@ -34,6 +36,7 @@ const catColor: Record<string, string> = { Legal: "#7C3AED", Technical: "#22D3EE
 const catIcon: Record<string, string> = { Legal: "📄", Technical: "📐", Financial: "💰", Manuals: "📖" };
 
 export default function DocumentsPage() {
+  const { logAiDecision } = useStore();
   const [category, setCategory] = useState("All");
   const [search, setSearch] = useState("");
   const [customDocs, setCustomDocs] = useState<Doc[]>([]);
@@ -43,6 +46,24 @@ export default function DocumentsPage() {
   const [name, setName] = useState("");
   const [cat, setCat] = useState("Legal");
   const [type, setType] = useState("PDF");
+
+  // AI document understanding sheet
+  const [summaryDoc, setSummaryDoc] = useState<Doc | null>(null);
+  const [summary, setSummary] = useState<DocSummary | null>(null);
+  const [summarizing, setSummarizing] = useState(false);
+
+  const runSummary = (doc: Doc) => {
+    setSummaryDoc(doc);
+    setSummary(null);
+    setSummarizing(true);
+    // Document content is treated as untrusted; understanding is logged as an AI decision.
+    setTimeout(() => {
+      const result = summarizeDocument({ name: doc.name, category: doc.category, type: doc.type, zone: doc.zone, date: doc.date });
+      logAiDecision({ prompt: `Summarize: ${doc.name}`.slice(0, 120), classification: "estate_query", risk: "low", allowed: true, scopes: ["documents"] });
+      setSummary(result);
+      setSummarizing(false);
+    }, 600);
+  };
 
   useEffect(() => {
     setMounted(true);
@@ -92,6 +113,9 @@ export default function DocumentsPage() {
         </span>
         <span className="text-text-tertiary text-[10px]">{doc.size}</span>
       </div>
+      <button onClick={() => runSummary(doc)} aria-label="AI summary" className="w-8 h-8 rounded-xl flex items-center justify-center flex-shrink-0" style={{ background: "rgba(124,58,237,0.12)", border: "1px solid rgba(124,58,237,0.25)" }}>
+        <span className="text-sm">✨</span>
+      </button>
       {doc.custom && (
         <button onClick={() => setCustomDocs((d) => d.filter((x) => x.id !== doc.id))} aria-label="Delete document" className="w-6 h-6 rounded-lg flex items-center justify-center flex-shrink-0" style={{ color: "var(--text-3)" }}>
           <svg width="14" height="14" viewBox="0 0 24 24" fill="none"><path d="M6 6l12 12M18 6L6 18" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" /></svg>
@@ -193,6 +217,66 @@ export default function DocumentsPage() {
               ))}
             </div>
             <button onClick={addDoc} disabled={!name.trim()} className="w-full py-3.5 rounded-2xl font-semibold text-base active:scale-[0.97] transition-transform" style={{ background: name.trim() ? "linear-gradient(135deg, #4ADE80 0%, #22C55E 100%)" : "var(--glass-bg)", color: name.trim() ? "#08111E" : "var(--text-3)", border: name.trim() ? "none" : "0.5px solid var(--glass-border)" }}>Add Document</button>
+          </div>
+        </div>
+      )}
+
+      {/* AI summary sheet */}
+      {summaryDoc && (
+        <div className="fixed inset-0 z-[60] flex items-end justify-center" style={{ background: "rgba(0,0,0,0.45)" }} onClick={() => setSummaryDoc(null)}>
+          <div className="w-full md:w-[390px] rounded-t-[28px] p-5 pb-8 animate-slide-up liquid-glass-strong max-h-[85vh] overflow-y-auto" onClick={(e) => e.stopPropagation()}>
+            <div className="w-10 h-1 rounded-full mx-auto mb-4" style={{ background: "var(--glass-border)" }} />
+            <div className="flex items-center gap-2 mb-1">
+              <span className="text-lg">✨</span>
+              <h2 className="font-bold text-lg" style={{ color: "var(--text-1)" }}>AI Summary</h2>
+              <span className="ml-auto text-[10px] font-medium px-2 py-0.5 rounded-full" style={{ background: "rgba(124,58,237,0.12)", color: "#A78BFA" }}>on-device</span>
+            </div>
+            <p className="text-text-secondary text-xs mb-4 truncate">{summaryDoc.name}</p>
+
+            {summarizing && (
+              <div className="flex items-center gap-1.5 py-6 justify-center">
+                {[0, 1, 2].map((i) => (
+                  <span key={i} className="w-2 h-2 rounded-full animate-pulse-glow" style={{ background: "var(--text-3)", animationDelay: `${i * 0.2}s` }} />
+                ))}
+              </div>
+            )}
+
+            {summary && !summarizing && (
+              <div className="space-y-4">
+                <p className="text-sm leading-relaxed" style={{ color: "var(--text-1)" }}>{summary.summary}</p>
+
+                <div>
+                  <p className="text-text-secondary text-xs font-medium uppercase tracking-wide mb-2">Key points</p>
+                  <div className="space-y-1.5">
+                    {summary.keyPoints.map((k) => (
+                      <div key={k} className="flex gap-2">
+                        <span className="text-[#4ADE80] text-xs mt-0.5">•</span>
+                        <p className="text-text-secondary text-xs leading-relaxed">{k}</p>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+
+                <div>
+                  <p className="text-text-secondary text-xs font-medium uppercase tracking-wide mb-2">Extracted details</p>
+                  <div className="rounded-2xl overflow-hidden" style={{ background: "rgba(255,255,255,0.04)", border: "0.5px solid var(--glass-border)" }}>
+                    {summary.entities.map((e, i) => (
+                      <div key={e.label} className="flex items-center justify-between px-4 py-2.5" style={{ borderBottom: i < summary.entities.length - 1 ? "1px solid rgba(255,255,255,0.06)" : undefined }}>
+                        <span className="text-text-secondary text-xs">{e.label}</span>
+                        <span className="text-sm font-medium text-right" style={{ color: "var(--text-1)" }}>{e.value}</span>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+
+                <p className="text-text-tertiary text-[11px] leading-relaxed">
+                  Document content is treated as untrusted; output is moderated and this
+                  understanding is recorded in the AI audit log.{summary.redacted ? " Sensitive content was redacted." : ""}
+                </p>
+              </div>
+            )}
+
+            <button onClick={() => setSummaryDoc(null)} className="w-full mt-5 py-3.5 rounded-2xl font-medium text-base" style={{ background: "var(--glass-bg)", border: "0.5px solid var(--glass-border)", color: "var(--text-1)" }}>Close</button>
           </div>
         </div>
       )}

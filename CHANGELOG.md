@@ -9,6 +9,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 ### Added
+- **Contractor management — full field set** — contractors now carry the complete
+  spec field set: Company Name, Contact Person, Phone, Email, Website, Services,
+  Notes, Documents, Insurance Records, Ratings and Property History. A new
+  contractor detail sheet surfaces all of it (with Call/Email/Website actions and
+  the multi-service call menu), and the add composer captures email, website,
+  services and insurance. (Storage key bumped to `prvio-contractors-v2`.)
+- **Document understanding & summarization** — a new `app/lib/ai/documents.ts`
+  produces grounded, schema-validated summaries (summary, key points, extracted
+  details + retention) with document content treated as untrusted and output
+  moderated. The Documents screen gains a per-document ✨ AI Summary sheet; each
+  run is recorded in the AI decision audit log.
 - **Ownership Transfer workflow** — a high-risk, multi-step wizard at
   `/properties/transfer` covering ownership verification, recipient + legal
   confirmation records, asset/zone reassignment, document transfer, a
