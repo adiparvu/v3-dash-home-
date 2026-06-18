@@ -94,7 +94,7 @@ function LiveTab({ onGoTab }: { onGoTab: (t: Tab) => void }) {
         <div className="relative w-full rounded-3xl overflow-hidden" style={{ aspectRatio: "853 / 1844", border: "1px solid rgba(255,255,255,0.08)", background: "#0a0e16", containerType: "size" }}>
           {/* base: reference render with numbers removed (labels + lines kept) */}
           {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img src="/estate-clean.png" alt="PRVIO Estate — energy" className="absolute inset-0 w-full h-full" style={{ objectFit: "cover" }} draggable={false} />
+          <img src="/estate-energy-v2.png" alt="PRVIO Estate — energy" className="absolute inset-0 w-full h-full" style={{ objectFit: "cover" }} draggable={false} />
 
           {/* live values redrawn on top */}
           {VALUES.map((v) => (
