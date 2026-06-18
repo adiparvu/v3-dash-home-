@@ -1,8 +1,10 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import StatusBar from "../components/layout/StatusBar";
 import BottomNav from "../components/layout/BottomNav";
+
+const NOTIF_STATE_KEY = "prvio-notif-state-v1";
 
 const notifications = [
   {
@@ -38,15 +40,46 @@ const notifications = [
 ];
 
 export default function NotificationsPage() {
-  const [items, setItems] = useState(notifications);
+  const [readIds, setReadIds] = useState<number[]>([]);
+  const [dismissedIds, setDismissedIds] = useState<number[]>([]);
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    setMounted(true);
+    try {
+      const raw = localStorage.getItem(NOTIF_STATE_KEY);
+      if (raw) {
+        const s = JSON.parse(raw);
+        if (Array.isArray(s.read)) setReadIds(s.read);
+        if (Array.isArray(s.dismissed)) setDismissedIds(s.dismissed);
+      }
+    } catch {
+      /* ignore */
+    }
+  }, []);
+
+  useEffect(() => {
+    if (!mounted) return;
+    try {
+      localStorage.setItem(NOTIF_STATE_KEY, JSON.stringify({ read: readIds, dismissed: dismissedIds }));
+    } catch {
+      /* ignore */
+    }
+  }, [readIds, dismissedIds, mounted]);
+
+  const items = notifications
+    .filter((n) => !dismissedIds.includes(n.id))
+    .map((n) => ({ ...n, read: n.read || readIds.includes(n.id) }));
 
   const unreadCount = items.filter((n) => !n.read).length;
 
-  const markAllRead = () => setItems((prev) => prev.map((n) => ({ ...n, read: true })));
-  const markRead = (id: number) => setItems((prev) => prev.map((n) => n.id === id ? { ...n, read: true } : n));
+  const markRead = (id: number) => setReadIds((r) => (r.includes(id) ? r : [...r, id]));
+  const markAllRead = () => setReadIds(notifications.map((n) => n.id));
+  const dismiss = (id: number) => setDismissedIds((d) => (d.includes(id) ? d : [...d, id]));
+  const clearAll = () => setDismissedIds(notifications.map((n) => n.id));
 
   return (
-    <div className="min-h-screen pb-28" style={{ background: "var(--bg-1)" }}>
+    <div className="min-h-screen pb-28" style={{ color: "var(--text-1)" }}>
       <StatusBar />
 
       <div className="px-5 pt-1 pb-3 flex items-center justify-between">
@@ -54,45 +87,55 @@ export default function NotificationsPage() {
           <h1 className="font-bold text-2xl" style={{ color: "var(--text-1)" }}>Notifications</h1>
           {unreadCount > 0 && <p className="text-text-secondary text-xs">{unreadCount} unread</p>}
         </div>
-        {unreadCount > 0 && (
-          <button onClick={markAllRead} className="text-accent-green text-xs font-medium">
-            Mark all read
-          </button>
-        )}
+        <div className="flex items-center gap-3">
+          {unreadCount > 0 && (
+            <button onClick={markAllRead} className="text-accent-green text-xs font-medium">Mark all read</button>
+          )}
+          {items.length > 0 && (
+            <button onClick={clearAll} className="text-xs font-medium" style={{ color: "var(--text-2)" }}>Clear all</button>
+          )}
+        </div>
       </div>
 
-      <div className="px-4 space-y-2">
-        {items.map((notif) => (
-          <button
-            key={notif.id}
-            onClick={() => markRead(notif.id)}
-            className="w-full rounded-2xl p-3.5 flex items-start gap-3 text-left active:scale-[0.98] transition-transform"
-            style={{
-              background: notif.read ? "rgba(255,255,255,0.04)" : "rgba(255,255,255,0.07)",
-              border: `0.5px solid var(--glass-border)`,
-            }}
-          >
+      {items.length === 0 ? (
+        <div className="flex flex-col items-center justify-center px-8 text-center mt-32">
+          <span className="text-5xl mb-4">🔔</span>
+          <p className="text-base font-semibold mb-1" style={{ color: "var(--text-1)" }}>All caught up</p>
+          <p className="text-sm" style={{ color: "var(--text-2)" }}>You have no new notifications.</p>
+        </div>
+      ) : (
+        <div className="px-4 space-y-2">
+          {items.map((notif) => (
             <div
-              className="w-9 h-9 rounded-xl flex items-center justify-center text-base flex-shrink-0 mt-0.5"
-              style={{ background: `${notif.color}15`, border: `1px solid ${notif.color}25` }}
+              key={notif.id}
+              className="w-full rounded-2xl p-3.5 flex items-start gap-3 liquid-glass"
+              style={{ opacity: notif.read ? 0.72 : 1 }}
             >
-              {notif.icon}
+              <button onClick={() => markRead(notif.id)} className="flex items-start gap-3 flex-1 min-w-0 text-left">
+                <div
+                  className="w-9 h-9 rounded-xl flex items-center justify-center text-base flex-shrink-0 mt-0.5"
+                  style={{ background: `${notif.color}15`, border: `1px solid ${notif.color}25` }}
+                >
+                  {notif.icon}
+                </div>
+                <div className="flex-1 min-w-0">
+                  <div className="flex items-center gap-2">
+                    <p className="text-sm font-medium leading-tight" style={{ color: notif.read ? "var(--text-2)" : "var(--text-1)" }}>
+                      {notif.title}
+                    </p>
+                    {!notif.read && <span className="w-1.5 h-1.5 rounded-full flex-shrink-0" style={{ background: notif.color }} />}
+                  </div>
+                  <p className="text-text-secondary text-xs mt-0.5 leading-snug">{notif.desc}</p>
+                  <span className="text-text-tertiary text-[10px]">{notif.time}</span>
+                </div>
+              </button>
+              <button onClick={() => dismiss(notif.id)} aria-label="Dismiss" className="w-7 h-7 rounded-lg flex items-center justify-center flex-shrink-0 active:scale-90 transition-transform" style={{ color: "var(--text-3)" }}>
+                <svg width="15" height="15" viewBox="0 0 24 24" fill="none"><path d="M6 6l12 12M18 6L6 18" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" /></svg>
+              </button>
             </div>
-            <div className="flex-1 min-w-0">
-              <div className="flex items-center gap-2">
-                <p className={`text-sm font-medium leading-tight`} style={{ color: notif.read ? "var(--text-2)" : "var(--text-1)" }}>
-                  {notif.title}
-                </p>
-                {!notif.read && (
-                  <span className="w-1.5 h-1.5 rounded-full flex-shrink-0" style={{ background: notif.color }} />
-                )}
-              </div>
-              <p className="text-text-secondary text-xs mt-0.5 leading-snug">{notif.desc}</p>
-            </div>
-            <span className="text-text-tertiary text-[10px] flex-shrink-0 mt-0.5">{notif.time}</span>
-          </button>
-        ))}
-      </div>
+          ))}
+        </div>
+      )}
 
       <BottomNav />
     </div>

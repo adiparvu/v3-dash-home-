@@ -100,8 +100,10 @@ export default function OverviewPage() {
             {theme === "dark" ? <SunIcon /> : <MoonIcon />}
           </button>
           {/* Notification bell */}
-          <button
-            className="w-9 h-9 rounded-2xl flex items-center justify-center"
+          <Link
+            href="/notifications"
+            aria-label="Notifications"
+            className="w-9 h-9 rounded-2xl flex items-center justify-center relative"
             style={{
               background: "var(--glass-bg)",
               border: "0.5px solid var(--glass-border)",
@@ -112,7 +114,8 @@ export default function OverviewPage() {
               <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round" />
               <path d="M13.73 21a2 2 0 0 1-3.46 0" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" />
             </svg>
-          </button>
+            <span className="absolute -top-0.5 -right-0.5 w-2.5 h-2.5 rounded-full" style={{ background: "#F97316", border: "1.5px solid var(--bg-1)" }} />
+          </Link>
           <div
             className="w-9 h-9 rounded-2xl overflow-hidden flex items-center justify-center"
             style={{ background: "linear-gradient(135deg, #4ADE80, #22D3EE)" }}
