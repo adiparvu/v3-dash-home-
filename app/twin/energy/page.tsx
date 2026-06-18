@@ -23,11 +23,11 @@ const START: EnergyState = { solar: 6.5, home: 0.8, vehicle: 2.2, battery: 4.9, 
 // anchors (px) — positions measured directly off the reference image.
 const IMG_W = 853, IMG_H = 1844;
 const NODES = [
-  { id: "solar", title: "SOLAR", lx: 52, ly: 22.5, ax: 443, ay: 645, align: "center" as const },
-  { id: "home", title: "ACASĂ", lx: 84, ly: 28, ax: 672, ay: 660, align: "center" as const },
-  { id: "vehicle", title: "PORSCHE 911 GT3 RS", lx: 1, ly: 45, ax: 360, ay: 1095, align: "left" as const },
-  { id: "battery", title: "POWERWALL", lx: 52, ly: 69, ax: 452, ay: 1115, align: "center" as const },
-  { id: "grid", title: "GRILĂ", lx: 84, ly: 69, ax: 745, ay: 1115, align: "center" as const },
+  { id: "solar", title: "SOLAR", lx: 52.5, ly: 23, ax: 443, ay: 627, align: "center" as const },
+  { id: "home", title: "ACASĂ", lx: 83.6, ly: 28.4, ax: 665, ay: 664, align: "center" as const },
+  { id: "vehicle", title: "PORSCHE 911 GT3 RS", lx: 6, ly: 48.5, ax: 324, ay: 1106, align: "left" as const },
+  { id: "battery", title: "POWERWALL", lx: 52.3, ly: 72, ax: 440, ay: 1143, align: "center" as const },
+  { id: "grid", title: "GRILĂ", lx: 83.5, ly: 73, ax: 750, ay: 1143, align: "center" as const },
 ];
 
 export default function EnergyPage() {
