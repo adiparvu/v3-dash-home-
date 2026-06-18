@@ -78,9 +78,9 @@ function LiveTab({ onGoTab }: { onGoTab: (t: Tab) => void }) {
   }, []);
 
   const sh = "0 1px 1px rgba(0,0,0,0.55)";
-  const title: React.CSSProperties = { fontSize: 9, letterSpacing: 0.5, color: "#9aa6b2", fontWeight: 400, textShadow: sh, lineHeight: 1.4 };
-  const val: React.CSSProperties = { fontSize: 16, fontWeight: 600, color: "#fff", textShadow: sh, lineHeight: 1.3 };
-  const name: React.CSSProperties = { ...val, fontSize: 13 };
+  const title: React.CSSProperties = { fontSize: 7.5, letterSpacing: 0.4, color: "#9aa6b2", fontWeight: 400, textShadow: sh, lineHeight: 1.4 };
+  const val: React.CSSProperties = { fontSize: 13, fontWeight: 600, color: "#fff", textShadow: sh, lineHeight: 1.3 };
+  const name: React.CSSProperties = { ...val, fontSize: 11 };
   const green = "#4ADE80";
 
   const content = (id: string) => {
