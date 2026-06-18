@@ -45,7 +45,8 @@ future track that reuses the same versioned backend contracts.
 | RLS policies + immutable audit log | ✅ |
 | Typed data-access layer (`lib/data/profile.ts`) | ✅ |
 | First URI-versioned REST endpoint (`/api/v1/profile`) | ✅ |
-| Auth (email / OAuth / magic link) + middleware session handling | 🚧 |
+| Auth (email magic-link / OAuth) + middleware session handling | ✅ |
+| Login screen, auth callback + sign-out routes | ✅ |
 | Properties, parcels, zones, assets read/write wired to UI via RLS | ⏳ |
 | Active session management + device trust + revocation (live) | ⏳ |
 

@@ -128,12 +128,15 @@ export default function SettingsPage() {
         </div>
 
         {/* Sign out */}
-        <button
-          className="w-full rounded-2xl py-3.5 text-sm font-medium"
-          style={{ background: "rgba(239,68,68,0.10)", border: "1px solid rgba(239,68,68,0.20)", color: "#EF4444" }}
-        >
-          Sign Out
-        </button>
+        <form action="/auth/signout" method="post">
+          <button
+            type="submit"
+            className="w-full rounded-2xl py-3.5 text-sm font-medium"
+            style={{ background: "rgba(239,68,68,0.10)", border: "1px solid rgba(239,68,68,0.20)", color: "#EF4444" }}
+          >
+            Sign Out
+          </button>
+        </form>
 
         <p className="text-text-tertiary text-center text-xs pb-4">PRVIO EARTH · v1.0.0 · Build 2026.06</p>
       </div>

@@ -31,6 +31,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   database types; a typed data-access layer (`lib/data/profile.ts`); and the first
   URI-versioned API route (`/api/v1/profile`, GET/PATCH) with input allowlisting
   and audit logging.
+- **Authentication (Phase 2)** — Supabase SSR auth: a `/login` screen (email
+  magic-link + Apple/Google OAuth), `/auth/callback` and `/auth/signout` route
+  handlers, and Next.js middleware that refreshes the session and gates the app.
+  All auth is guarded behind `isSupabaseConfigured()` so the app still runs in the
+  localStorage prototype mode when no Supabase env vars are present.
 
 ### Notes
 - The client persists to `localStorage` (`prvio-store-v1`) in this prototype phase.
