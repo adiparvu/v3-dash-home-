@@ -3,6 +3,7 @@
 import { useState, useRef, useEffect } from "react";
 import StatusBar from "../components/layout/StatusBar";
 import BottomNav from "../components/layout/BottomNav";
+import CallMenu, { CallContact } from "../components/CallMenu";
 
 const rooms = [
   { id: "general", name: "General", icon: "🏡", type: "group", unread: 0 },
@@ -10,8 +11,8 @@ const rooms = [
   { id: "greenhouse", name: "Greenhouse", icon: "🏡", type: "zone", unread: 1 },
   { id: "lake", name: "Lake Zone", icon: "💧", type: "zone", unread: 0 },
   { id: "orchard", name: "Orchard", icon: "🍎", type: "zone", unread: 0 },
-  { id: "ion", name: "Ion (Caretaker)", icon: "👨‍🌾", type: "dm", unread: 3 },
-  { id: "ana", name: "Ana (Manager)", icon: "👩‍💼", type: "dm", unread: 0 },
+  { id: "ion", name: "Ion (Caretaker)", icon: "👨‍🌾", type: "dm", unread: 3, phone: "+40 733 000 011" },
+  { id: "ana", name: "Ana (Manager)", icon: "👩‍💼", type: "dm", unread: 0, phone: "+40 733 000 012" },
 ];
 
 const messagesData: Record<string, Message[]> = {
@@ -68,6 +69,7 @@ interface Message {
 export default function ChatPage() {
   const [activeRoom, setActiveRoom] = useState("general");
   const [showRooms, setShowRooms] = useState(false);
+  const [callContact, setCallContact] = useState<CallContact | null>(null);
   const [messages, setMessages] = useState<Record<string, Message[]>>(messagesData);
   const [input, setInput] = useState("");
   const bottomRef = useRef<HTMLDivElement>(null);
@@ -148,13 +150,16 @@ export default function ChatPage() {
           </div>
         </div>
 
-        <button className="w-9 h-9 rounded-2xl flex items-center justify-center flex-shrink-0" style={{ background: "rgba(255,255,255,0.07)", border: "0.5px solid var(--glass-border)" }}>
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
-            <circle cx="12" cy="12" r="1.5" fill="white" />
-            <circle cx="6" cy="12" r="1.5" fill="white" />
-            <circle cx="18" cy="12" r="1.5" fill="white" />
-          </svg>
-        </button>
+        {room.type === "dm" && (
+          <button
+            onClick={() => setCallContact({ name: room.name, phone: (room as { phone?: string }).phone })}
+            aria-label={`Call ${room.name}`}
+            className="w-9 h-9 rounded-2xl flex items-center justify-center flex-shrink-0"
+            style={{ background: "rgba(74,222,128,0.12)", border: "1px solid rgba(74,222,128,0.25)" }}
+          >
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none"><path d="M22 16.92v3a2 2 0 01-2.18 2 19.79 19.79 0 01-8.63-3.07A19.5 19.5 0 013.07 10a19.79 19.79 0 01-3.07-8.67A2 2 0 012 .18h3a2 2 0 012 1.72c.127.96.361 1.903.7 2.81a2 2 0 01-.45 2.11L6.09 7.91a16 16 0 006 6l1.27-1.27a2 2 0 012.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0122 14.92z" stroke="#4ADE80" strokeWidth="1.75" /></svg>
+          </button>
+        )}
       </div>
 
       {/* Room drawer overlay */}
@@ -299,6 +304,8 @@ export default function ChatPage() {
           </button>
         </div>
       </div>
+
+      {callContact && <CallMenu contact={callContact} onClose={() => setCallContact(null)} />}
 
       <BottomNav />
     </div>

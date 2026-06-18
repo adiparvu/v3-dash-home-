@@ -3,12 +3,39 @@
 import { useState } from "react";
 import Link from "next/link";
 import StatusBar from "../../components/layout/StatusBar";
+import { useStore, PRIVACY_REQUEST_TYPES, PrivacyRequestType, PrivacyRequest } from "../../lib/store";
+
+/** Documented retention schedule shown to users (spec: "Display retention schedules"). */
+const RETENTION_SCHEDULE: { category: string; period: string }[] = [
+  { category: "Account & profile", period: "Until account deletion" },
+  { category: "Estate & asset records", period: "Until deleted by owner" },
+  { category: "Communications & chat", period: "24 months, then purged" },
+  { category: "Audit logs", period: "7 years (compliance)" },
+  { category: "Analytics events", period: "14 months" },
+  { category: "Ownership-transfer records", period: "Retained (legally required)" },
+];
+
+const CONSENTS: { key: "analytics" | "crashReports" | "personalization" | "marketing" | "aiProcessing"; label: string; desc: string }[] = [
+  { key: "analytics", label: "Analytics", desc: "Help improve the app with usage data" },
+  { key: "crashReports", label: "Crash Reports", desc: "Automatically report crashes" },
+  { key: "personalization", label: "Personalization", desc: "Tailor the experience to your estate" },
+  { key: "aiProcessing", label: "AI Processing", desc: "Allow the assistant to use your estate knowledge" },
+  { key: "marketing", label: "Marketing", desc: "Product news and announcements" },
+];
+
+const STATUS_META: Record<PrivacyRequest["status"], { label: string; color: string }> = {
+  submitted: { label: "Submitted", color: "#22D3EE" },
+  in_review: { label: "In review", color: "#F59E0B" },
+  completed: { label: "Completed", color: "#4ADE80" },
+};
 
 export default function PrivacyPage() {
-  const [analytics, setAnalytics] = useState(false);
-  const [crashReports, setCrashReports] = useState(true);
+  const { consents, setConsent, privacyRequests, addPrivacyRequest, removePrivacyRequest } = useStore();
   const [confirmDelete, setConfirmDelete] = useState(false);
   const [exported, setExported] = useState(false);
+  const [requestOpen, setRequestOpen] = useState(false);
+  const [reqType, setReqType] = useState<PrivacyRequestType>("access");
+  const [reqReg, setReqReg] = useState<PrivacyRequest["regulation"]>("GDPR");
 
   const collectData = () => {
     const data: Record<string, unknown> = {};
@@ -23,7 +50,7 @@ export default function PrivacyPage() {
   };
 
   const exportData = () => {
-    const blob = new Blob([JSON.stringify({ exportedAt: new Date().toISOString(), app: "PRVIO Earth", data: collectData() }, null, 2)], { type: "application/json" });
+    const blob = new Blob([JSON.stringify({ exportedAt: new Date().toISOString(), app: "PRVIO Earth", format: "machine-readable", data: collectData() }, null, 2)], { type: "application/json" });
     const url = URL.createObjectURL(blob);
     const a = document.createElement("a");
     a.href = url;
@@ -46,6 +73,13 @@ export default function PrivacyPage() {
     window.location.href = "/";
   };
 
+  const submitRequest = () => {
+    // Portability is fulfilled instantly via local export; others are tracked.
+    if (reqType === "portability") exportData();
+    addPrivacyRequest(reqType, reqReg);
+    setRequestOpen(false);
+  };
+
   return (
     <div className="min-h-screen pb-10" style={{ color: "var(--text-1)" }}>
       <StatusBar />
@@ -65,49 +99,92 @@ export default function PrivacyPage() {
             <p className="text-white font-semibold text-sm">You own your data</p>
           </div>
           <p className="text-text-secondary text-xs leading-relaxed">
-            All your estate data, documents, communications, and AI knowledge bases remain your property at all times. PRVIO Earth never sells your data to third parties.
+            All your estate data, documents, communications, and AI knowledge bases remain your property at all times. PRVIO Earth never sells your data to third parties, and AI systems never claim ownership of your content.
           </p>
         </div>
 
-        {/* Data collection toggles */}
+        {/* Consent management */}
         <div>
-          <p className="text-text-secondary text-xs font-medium uppercase tracking-wide mb-2 px-1">Data Collection</p>
+          <div className="flex items-center justify-between mb-2 px-1">
+            <p className="text-text-secondary text-xs font-medium uppercase tracking-wide">Consent Management</p>
+            <span className="text-text-tertiary text-[10px]">Updated {new Date(consents.updatedAt).toLocaleDateString()}</span>
+          </div>
           <div className="rounded-2xl overflow-hidden" style={{ background: "rgba(255,255,255,0.04)", border: "1px solid rgba(255,255,255,0.07)" }}>
-            {[
-              { label: "Analytics", desc: "Help improve the app with usage data", enabled: analytics, toggle: () => setAnalytics(!analytics) },
-              { label: "Crash Reports", desc: "Automatically report crashes", enabled: crashReports, toggle: () => setCrashReports(!crashReports) },
-            ].map((item, i) => (
-              <div key={item.label} className="flex items-center justify-between px-4 py-3.5" style={{ borderBottom: i === 0 ? "1px solid rgba(255,255,255,0.06)" : undefined }}>
-                <div>
+            {CONSENTS.map((item, i) => (
+              <div key={item.key} className="flex items-center justify-between px-4 py-3.5" style={{ borderBottom: i < CONSENTS.length - 1 ? "1px solid rgba(255,255,255,0.06)" : undefined }}>
+                <div className="pr-3">
                   <p className="text-white text-sm font-medium">{item.label}</p>
                   <p className="text-text-secondary text-xs">{item.desc}</p>
                 </div>
-                <button onClick={item.toggle} className="w-11 h-6 rounded-full relative transition-all duration-200 flex-shrink-0" style={{ background: item.enabled ? "#4ADE80" : "rgba(255,255,255,0.15)" }}>
-                  <div className="absolute top-0.5 w-5 h-5 rounded-full transition-all duration-200" style={{ left: item.enabled ? "calc(100% - 22px)" : "2px", background: item.enabled ? "#050A14" : "rgba(255,255,255,0.5)" }} />
+                <button onClick={() => setConsent(item.key, !consents[item.key])} aria-label={item.label} className="w-11 h-6 rounded-full relative transition-all duration-200 flex-shrink-0" style={{ background: consents[item.key] ? "#4ADE80" : "rgba(255,255,255,0.15)" }}>
+                  <div className="absolute top-0.5 w-5 h-5 rounded-full transition-all duration-200" style={{ left: consents[item.key] ? "calc(100% - 22px)" : "2px", background: consents[item.key] ? "#050A14" : "rgba(255,255,255,0.5)" }} />
                 </button>
               </div>
             ))}
           </div>
+          <p className="text-text-tertiary text-[11px] mt-1.5 px-1">You can withdraw consent at any time. Changes are recorded with a timestamp.</p>
         </div>
 
-        {/* Rights */}
+        {/* Data subject rights */}
         <div>
-          <p className="text-text-secondary text-xs font-medium uppercase tracking-wide mb-2 px-1">Your Rights (GDPR / CCPA)</p>
+          <div className="flex items-center justify-between mb-2 px-1">
+            <p className="text-text-secondary text-xs font-medium uppercase tracking-wide">Your Rights (GDPR / CCPA)</p>
+            <button onClick={() => setRequestOpen(true)} className="text-xs px-3 py-1 rounded-full" style={{ background: "rgba(74,222,128,0.10)", border: "1px solid rgba(74,222,128,0.25)", color: "#4ADE80" }}>New request</button>
+          </div>
           <div className="rounded-2xl overflow-hidden" style={{ background: "rgba(255,255,255,0.04)", border: "1px solid rgba(255,255,255,0.07)" }}>
-            {[
-              { label: "Download My Data", desc: "Export all your data as JSON", action: exported ? "Saved ✓" : "Export", onClick: exportData },
-              { label: "Request Data Report", desc: "Summary of what we store", action: "Request", onClick: undefined },
-              { label: "Correct My Information", desc: "Update or rectify your data", action: "Edit", onClick: undefined },
-              { label: "Restrict Processing", desc: "Limit how we use your data", action: "Manage", onClick: undefined },
-            ].map((item, i, arr) => (
-              <div key={item.label} className="flex items-center justify-between px-4 py-3.5" style={{ borderBottom: i < arr.length - 1 ? "0.5px solid var(--glass-border)" : undefined }}>
-                <div>
-                  <p className="text-sm font-medium" style={{ color: "var(--text-1)" }}>{item.label}</p>
-                  <p className="text-text-secondary text-xs">{item.desc}</p>
-                </div>
-                <button onClick={item.onClick} className="text-xs px-3 py-1.5 rounded-full flex-shrink-0" style={{ background: "rgba(74,222,128,0.10)", border: "1px solid rgba(74,222,128,0.25)", color: "#4ADE80" }}>
-                  {item.action}
-                </button>
+            <button onClick={exportData} className="w-full flex items-center justify-between px-4 py-3.5 text-left" style={{ borderBottom: "0.5px solid var(--glass-border)" }}>
+              <div>
+                <p className="text-sm font-medium" style={{ color: "var(--text-1)" }}>Download My Data</p>
+                <p className="text-text-secondary text-xs">Structured, machine-readable export (JSON)</p>
+              </div>
+              <span className="text-xs px-3 py-1.5 rounded-full flex-shrink-0" style={{ background: "rgba(74,222,128,0.10)", border: "1px solid rgba(74,222,128,0.25)", color: "#4ADE80" }}>{exported ? "Saved ✓" : "Export"}</span>
+            </button>
+            <Link href="/settings/profile" className="w-full flex items-center justify-between px-4 py-3.5 text-left">
+              <div>
+                <p className="text-sm font-medium" style={{ color: "var(--text-1)" }}>Correct My Information</p>
+                <p className="text-text-secondary text-xs">Update or rectify your profile data</p>
+              </div>
+              <span className="text-xs px-3 py-1.5 rounded-full flex-shrink-0" style={{ background: "rgba(74,222,128,0.10)", border: "1px solid rgba(74,222,128,0.25)", color: "#4ADE80" }}>Edit</span>
+            </Link>
+          </div>
+        </div>
+
+        {/* Tracked requests */}
+        {privacyRequests.length > 0 && (
+          <div>
+            <p className="text-text-secondary text-xs font-medium uppercase tracking-wide mb-2 px-1">Request History</p>
+            <div className="space-y-2">
+              {privacyRequests.map((r) => {
+                const meta = PRIVACY_REQUEST_TYPES.find((t) => t.id === r.type);
+                const sm = STATUS_META[r.status];
+                return (
+                  <div key={r.id} className="rounded-2xl p-3.5 flex items-center gap-3 liquid-glass">
+                    <div className="flex-1 min-w-0">
+                      <div className="flex items-center gap-2">
+                        <p className="text-sm font-medium leading-tight" style={{ color: "var(--text-1)" }}>{meta?.label ?? r.type}</p>
+                        <span className="text-[9px] font-medium px-1.5 py-0.5 rounded-full" style={{ background: "var(--glass-bg)", color: "var(--text-3)" }}>{r.regulation}</span>
+                      </div>
+                      <p className="text-text-tertiary text-[10px]">Submitted {new Date(r.createdAt).toLocaleDateString()}</p>
+                    </div>
+                    <span className="text-[10px] font-medium px-2 py-0.5 rounded-full flex-shrink-0" style={{ background: `${sm.color}1a`, color: sm.color }}>{sm.label}</span>
+                    <button onClick={() => removePrivacyRequest(r.id)} aria-label="Withdraw request" style={{ color: "var(--text-3)" }}>
+                      <svg width="14" height="14" viewBox="0 0 24 24" fill="none"><path d="M6 6l12 12M18 6L6 18" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" /></svg>
+                    </button>
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+        )}
+
+        {/* Retention schedule */}
+        <div>
+          <p className="text-text-secondary text-xs font-medium uppercase tracking-wide mb-2 px-1">Data Retention Schedule</p>
+          <div className="rounded-2xl overflow-hidden" style={{ background: "rgba(255,255,255,0.04)", border: "1px solid rgba(255,255,255,0.07)" }}>
+            {RETENTION_SCHEDULE.map((row, i) => (
+              <div key={row.category} className="flex items-center justify-between px-4 py-3" style={{ borderBottom: i < RETENTION_SCHEDULE.length - 1 ? "1px solid rgba(255,255,255,0.06)" : undefined }}>
+                <p className="text-sm" style={{ color: "var(--text-1)" }}>{row.category}</p>
+                <p className="text-text-secondary text-xs text-right">{row.period}</p>
               </div>
             ))}
           </div>
@@ -129,13 +206,46 @@ export default function PrivacyPage() {
                 <p className="text-sm font-medium" style={{ color: "var(--text-1)" }}>Delete Account</p>
                 <p className="text-text-secondary text-xs">Close account · subject to legal requirements</p>
               </div>
-              <button className="text-xs px-3 py-1.5 rounded-full" style={{ background: "rgba(239,68,68,0.12)", border: "1px solid rgba(239,68,68,0.25)", color: "#EF4444" }}>Close</button>
+              <button onClick={() => { setReqType("erasure"); setRequestOpen(true); }} className="text-xs px-3 py-1.5 rounded-full" style={{ background: "rgba(239,68,68,0.12)", border: "1px solid rgba(239,68,68,0.25)", color: "#EF4444" }}>Close</button>
             </div>
           </div>
         </div>
 
         <p className="text-text-tertiary text-xs text-center pb-4">Compliant with GDPR · CCPA · Privacy by Design</p>
       </div>
+
+      {/* New request sheet */}
+      {requestOpen && (
+        <div className="fixed inset-0 z-[60] flex items-end justify-center" style={{ background: "rgba(0,0,0,0.45)" }} onClick={() => setRequestOpen(false)}>
+          <div className="w-full md:w-[390px] rounded-t-[28px] p-5 pb-8 animate-slide-up liquid-glass-strong" onClick={(e) => e.stopPropagation()}>
+            <div className="w-10 h-1 rounded-full mx-auto mb-4" style={{ background: "var(--glass-border)" }} />
+            <h2 className="font-bold text-lg mb-1" style={{ color: "var(--text-1)" }}>New Privacy Request</h2>
+            <p className="text-sm mb-4" style={{ color: "var(--text-2)" }}>Submit a verified data-subject request. We respond within statutory timelines.</p>
+
+            <label className="text-xs font-medium block mb-2 px-1" style={{ color: "var(--text-2)" }}>Regulation</label>
+            <div className="flex gap-2 mb-4">
+              {(["GDPR", "CCPA"] as const).map((r) => (
+                <button key={r} onClick={() => setReqReg(r)} className="flex-1 py-2 rounded-xl text-sm font-medium transition-all" style={reqReg === r ? { background: "var(--accent)", color: "#08111E" } : { background: "var(--glass-bg)", color: "var(--text-2)", border: "0.5px solid var(--glass-border)" }}>{r}</button>
+              ))}
+            </div>
+
+            <label className="text-xs font-medium block mb-2 px-1" style={{ color: "var(--text-2)" }}>Request type</label>
+            <div className="rounded-2xl overflow-hidden mb-5" style={{ background: "var(--glass-bg)", border: "0.5px solid var(--glass-border)" }}>
+              {PRIVACY_REQUEST_TYPES.map((t, i) => (
+                <button key={t.id} onClick={() => setReqType(t.id)} className="w-full flex items-center justify-between px-4 py-3 text-left" style={{ borderBottom: i < PRIVACY_REQUEST_TYPES.length - 1 ? "0.5px solid var(--glass-border)" : undefined }}>
+                  <div className="pr-3">
+                    <p className="text-sm" style={{ color: "var(--text-1)" }}>{t.label}</p>
+                    <p className="text-text-secondary text-xs">{t.desc}</p>
+                  </div>
+                  {reqType === t.id && <svg width="18" height="18" viewBox="0 0 24 24" fill="none"><path d="M20 6L9 17l-5-5" stroke="var(--accent)" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" /></svg>}
+                </button>
+              ))}
+            </div>
+
+            <button onClick={submitRequest} className="w-full py-3.5 rounded-2xl font-semibold text-base active:scale-[0.97] transition-transform" style={{ background: "linear-gradient(135deg, #4ADE80 0%, #22C55E 100%)", color: "#08111E" }}>Submit Request</button>
+          </div>
+        </div>
+      )}
 
       {/* Delete confirm */}
       {confirmDelete && (

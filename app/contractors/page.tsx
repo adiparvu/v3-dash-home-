@@ -4,6 +4,7 @@ import { useState, useEffect } from "react";
 import Link from "next/link";
 import StatusBar from "../components/layout/StatusBar";
 import BottomNav from "../components/layout/BottomNav";
+import CallMenu, { CallContact } from "../components/CallMenu";
 
 const specialties = ["All", "Plumbing", "Electrical", "HVAC", "Landscaping", "Tech"];
 const CONTRACTORS_KEY = "prvio-contractors-v1";
@@ -50,6 +51,7 @@ export default function ContractorsPage() {
   const [mounted, setMounted] = useState(false);
 
   const [open, setOpen] = useState(false);
+  const [callContact, setCallContact] = useState<CallContact | null>(null);
   const [fName, setFName] = useState("");
   const [fContact, setFContact] = useState("");
   const [fPhone, setFPhone] = useState("");
@@ -152,13 +154,13 @@ export default function ContractorsPage() {
             <p className="text-text-secondary text-xs mb-3 leading-relaxed">{c.notes}</p>
 
             <div className="flex gap-2">
-              <a href={`tel:${c.phone}`} className="flex-1 py-2 rounded-xl text-xs font-medium text-center flex items-center justify-center gap-1.5" style={{ background: "rgba(74,222,128,0.12)", border: "1px solid rgba(74,222,128,0.25)", color: "#4ADE80" }}>
+              <button onClick={() => setCallContact({ name: c.name, phone: c.phone })} className="flex-1 py-2 rounded-xl text-xs font-medium text-center flex items-center justify-center gap-1.5" style={{ background: "rgba(74,222,128,0.12)", border: "1px solid rgba(74,222,128,0.25)", color: "#4ADE80" }}>
                 <svg width="12" height="12" viewBox="0 0 24 24" fill="none"><path d="M22 16.92v3a2 2 0 01-2.18 2 19.79 19.79 0 01-8.63-3.07A19.5 19.5 0 013.07 10a19.79 19.79 0 01-3.07-8.67A2 2 0 012 .18h3a2 2 0 012 1.72c.127.96.361 1.903.7 2.81a2 2 0 01-.45 2.11L6.09 7.91a16 16 0 006 6l1.27-1.27a2 2 0 012.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0122 14.92z" stroke="#4ADE80" strokeWidth="1.75" /></svg>
                 Call
-              </a>
-              <button className="flex-1 py-2 rounded-xl text-xs font-medium" style={{ background: "rgba(255,255,255,0.07)", border: "0.5px solid var(--glass-border)", color: "var(--text-1)" }}>
-                Message
               </button>
+              <a href={`sms:${c.phone}`} className="flex-1 py-2 rounded-xl text-xs font-medium text-center" style={{ background: "rgba(255,255,255,0.07)", border: "0.5px solid var(--glass-border)", color: "var(--text-1)" }}>
+                Message
+              </a>
               <button className="flex-1 py-2 rounded-xl text-xs font-medium" style={{ background: "rgba(255,255,255,0.07)", border: "0.5px solid var(--glass-border)", color: "var(--text-1)" }}>
                 Schedule
               </button>
@@ -207,6 +209,8 @@ export default function ContractorsPage() {
           </div>
         </div>
       )}
+
+      {callContact && <CallMenu contact={callContact} onClose={() => setCallContact(null)} />}
 
       <BottomNav />
     </div>

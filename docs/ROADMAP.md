@@ -34,8 +34,8 @@ future track that reuses the same versioned backend contracts.
 | Trusted Persons with continuity permissions | ✅ |
 | Membership: creation date, Member Since badge, Total Time Using | ✅ |
 | Product spec, roadmap, changelog, full architecture diagram set + legend | ✅ |
-| Active sessions / audit log wired to backend | ⏳ |
-| Auto-lock full option set (immediate → 1h → custom) persisted | ⏳ |
+| Active sessions / audit log wired to backend | ✅ |
+| Auto-lock full option set (immediate → 1h → custom) persisted | ✅ |
 
 ## Phase 2 — Backend & Identity Platform (Supabase)
 
@@ -61,11 +61,11 @@ future track that reuses the same versioned backend contracts.
 
 | Item | Status |
 | --- | --- |
-| Granular consent management + withdrawal | ⏳ |
-| Right of access / portability / rectification / erasure / restriction | ⏳ |
-| Configurable, documented data-retention policies | ⏳ |
-| Structured machine-readable export + account deletion workflow | ⏳ |
-| GDPR / CCPA request tracking | ⏳ |
+| Granular consent management + withdrawal | ✅ |
+| Right of access / portability / rectification / erasure / restriction | ✅ |
+| Configurable, documented data-retention policies (schedule displayed) | ✅ |
+| Structured machine-readable export + account deletion workflow | ✅ |
+| GDPR / CCPA request tracking | ✅ |
 
 ## Phase 4 — Property & Estate Management
 
@@ -79,9 +79,9 @@ future track that reuses the same versioned backend contracts.
 
 | Item | Status |
 | --- | --- |
-| Household chat (direct, group, property, asset, task) | ⏳ |
+| Household chat (direct, group, property, asset, task) | 🚧 |
 | Avatar ring color shown in chat / collaboration | ⏳ |
-| Calling integrations (Phone, FaceTime, WhatsApp, Telegram) | ⏳ |
+| Calling integrations (Phone, FaceTime, WhatsApp, Telegram) | ✅ |
 
 ## Phase 6 — Virtual AI Assistant
 

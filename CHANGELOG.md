@@ -9,6 +9,22 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 ### Added
+- **Auto-Lock configuration** — the Security screen now exposes the full mandated
+  option set (Immediately, 30s, 1m, 5m, 15m, 30m, 1h, Custom minutes) via a picker
+  sheet, plus Touch ID, Passcode Lock and Suspicious Activity toggles. All device
+  security preferences persist in the store (`SecurityPrefs`).
+- **Privacy, Ownership & Compliance center** — the Privacy & Data screen now
+  implements granular **consent management** (analytics, crash reports,
+  personalization, AI processing, marketing) with timestamped withdrawal; a
+  **data-subject request** workflow covering Right of Access, Data Portability,
+  Correction, Erasure, Restriction and Objection under GDPR/CCPA, with a tracked
+  **request history** (submitted/in-review/completed) persisted in the store; a
+  displayed **data-retention schedule** by data category; and a structured,
+  machine-readable export.
+- **Calling integrations** — a reusable `CallMenu` deep-links to Standard Phone
+  Call, FaceTime Audio/Video, WhatsApp Audio/Video and Telegram Audio/Video via
+  their URL schemes. Wired into the Contractors cards (Call) and Direct-Message
+  chat headers (spec: Communication & Collaboration → Calling Integrations).
 - **Account & Identity** — full profile model backed by the persisted client store:
   First Name, Last Name, Display Name, Email, Phone, Notes.
 - **Avatar Ring Color** — user-selectable ring, persisted and reflected across the

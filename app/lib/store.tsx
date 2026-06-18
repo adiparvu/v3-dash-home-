@@ -124,6 +124,97 @@ const defaultAssistant: Assistant = {
   voiceEnabled: false,
 };
 
+/** Auto-lock durations mandated by the Account & Security spec. */
+export const AUTO_LOCK_OPTIONS: { id: string; label: string; seconds: number }[] = [
+  { id: "immediately", label: "Immediately", seconds: 0 },
+  { id: "30s", label: "30 seconds", seconds: 30 },
+  { id: "1m", label: "1 minute", seconds: 60 },
+  { id: "5m", label: "5 minutes", seconds: 300 },
+  { id: "15m", label: "15 minutes", seconds: 900 },
+  { id: "30m", label: "30 minutes", seconds: 1800 },
+  { id: "1h", label: "1 hour", seconds: 3600 },
+  { id: "custom", label: "Custom", seconds: -1 },
+];
+
+/** Persisted device-security preferences (local prototype mirror of backend policy). */
+export type SecurityPrefs = {
+  faceId: boolean;
+  touchId: boolean;
+  passcodeLock: boolean;
+  loginAlerts: boolean;
+  suspiciousActivity: boolean;
+  /** AUTO_LOCK_OPTIONS id. */
+  autoLock: string;
+  /** Minutes used when autoLock === "custom". */
+  autoLockCustomMinutes: number;
+};
+
+const defaultSecurity: SecurityPrefs = {
+  faceId: true,
+  touchId: false,
+  passcodeLock: true,
+  loginAlerts: true,
+  suspiciousActivity: true,
+  autoLock: "5m",
+  autoLockCustomMinutes: 10,
+};
+
+/** Human-readable auto-lock label including the custom duration when selected. */
+export function autoLockLabel(prefs: SecurityPrefs): string {
+  if (prefs.autoLock === "custom") {
+    const m = prefs.autoLockCustomMinutes;
+    return `${m} ${m === 1 ? "minute" : "minutes"}`;
+  }
+  return AUTO_LOCK_OPTIONS.find((o) => o.id === prefs.autoLock)?.label ?? "5 minutes";
+}
+
+/** Granular consent toggles for privacy-by-default consent management. */
+export type ConsentState = {
+  analytics: boolean;
+  crashReports: boolean;
+  personalization: boolean;
+  marketing: boolean;
+  aiProcessing: boolean;
+  /** ISO timestamp of the last consent change — part of the consent record. */
+  updatedAt: string;
+};
+
+const defaultConsents: ConsentState = {
+  analytics: false,
+  crashReports: true,
+  personalization: true,
+  marketing: false,
+  aiProcessing: true,
+  updatedAt: "2024-01-15T00:00:00.000Z",
+};
+
+/** Data-subject request categories required by GDPR / CCPA. */
+export const PRIVACY_REQUEST_TYPES: { id: PrivacyRequestType; label: string; desc: string }[] = [
+  { id: "access", label: "Right of Access", desc: "A report of the personal data we hold about you." },
+  { id: "portability", label: "Data Portability", desc: "A structured, machine-readable export of your data." },
+  { id: "rectification", label: "Correction", desc: "Correct or rectify inaccurate information." },
+  { id: "erasure", label: "Erasure", desc: "Delete your data, subject to legal retention." },
+  { id: "restriction", label: "Restrict Processing", desc: "Limit how your data is processed." },
+  { id: "objection", label: "Object to Processing", desc: "Object to processing where applicable." },
+];
+
+export type PrivacyRequestType =
+  | "access"
+  | "portability"
+  | "rectification"
+  | "erasure"
+  | "restriction"
+  | "objection";
+
+export type PrivacyRequest = {
+  id: string;
+  type: PrivacyRequestType;
+  status: "submitted" | "in_review" | "completed";
+  regulation: "GDPR" | "CCPA";
+  createdAt: string;
+  note?: string;
+};
+
 interface StoreCtx {
   ready: boolean;
   estateName: string;
@@ -148,6 +239,13 @@ interface StoreCtx {
   removeTrustedPerson: (id: string) => void;
   assistant: Assistant;
   setAssistant: (patch: Partial<Assistant>) => void;
+  security: SecurityPrefs;
+  setSecurity: (patch: Partial<SecurityPrefs>) => void;
+  consents: ConsentState;
+  setConsent: (key: keyof Omit<ConsentState, "updatedAt">, value: boolean) => void;
+  privacyRequests: PrivacyRequest[];
+  addPrivacyRequest: (type: PrivacyRequestType, regulation: PrivacyRequest["regulation"]) => void;
+  removePrivacyRequest: (id: string) => void;
 }
 
 const STORAGE_KEY = "prvio-store-v1";
@@ -176,6 +274,13 @@ const defaultCtx: StoreCtx = {
   removeTrustedPerson: () => {},
   assistant: defaultAssistant,
   setAssistant: () => {},
+  security: defaultSecurity,
+  setSecurity: () => {},
+  consents: defaultConsents,
+  setConsent: () => {},
+  privacyRequests: [],
+  addPrivacyRequest: () => {},
+  removePrivacyRequest: () => {},
 };
 
 const StoreContext = createContext<StoreCtx>(defaultCtx);
@@ -187,6 +292,9 @@ type Persisted = {
   addedAssets: Asset[];
   profile: Profile;
   assistant: Assistant;
+  security: SecurityPrefs;
+  consents: ConsentState;
+  privacyRequests: PrivacyRequest[];
 };
 
 export function StoreProvider({ children }: { children: React.ReactNode }) {
@@ -197,6 +305,9 @@ export function StoreProvider({ children }: { children: React.ReactNode }) {
   const [addedAssets, setAddedAssets] = useState<Asset[]>([]);
   const [profile, setProfileState] = useState<Profile>(defaultProfile);
   const [assistant, setAssistantState] = useState<Assistant>(defaultAssistant);
+  const [security, setSecurityState] = useState<SecurityPrefs>(defaultSecurity);
+  const [consents, setConsentsState] = useState<ConsentState>(defaultConsents);
+  const [privacyRequests, setPrivacyRequests] = useState<PrivacyRequest[]>([]);
 
   // Load
   useEffect(() => {
@@ -216,6 +327,13 @@ export function StoreProvider({ children }: { children: React.ReactNode }) {
         if (p.assistant && typeof p.assistant === "object") {
           setAssistantState({ ...defaultAssistant, ...p.assistant });
         }
+        if (p.security && typeof p.security === "object") {
+          setSecurityState({ ...defaultSecurity, ...p.security });
+        }
+        if (p.consents && typeof p.consents === "object") {
+          setConsentsState({ ...defaultConsents, ...p.consents });
+        }
+        if (Array.isArray(p.privacyRequests)) setPrivacyRequests(p.privacyRequests);
       } else {
         // No store yet → treat as first launch
         setOnboardedState(false);
@@ -229,13 +347,13 @@ export function StoreProvider({ children }: { children: React.ReactNode }) {
   // Persist
   useEffect(() => {
     if (!ready) return;
-    const data: Persisted = { estateName, onboarded, addedZones, addedAssets, profile, assistant };
+    const data: Persisted = { estateName, onboarded, addedZones, addedAssets, profile, assistant, security, consents, privacyRequests };
     try {
       localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
     } catch {
       /* quota / private mode — ignore */
     }
-  }, [ready, estateName, onboarded, addedZones, addedAssets, profile, assistant]);
+  }, [ready, estateName, onboarded, addedZones, addedAssets, profile, assistant, security, consents, privacyRequests]);
 
   const setEstateName = useCallback((s: string) => setEstateNameState(s), []);
   const setOnboarded = useCallback((b: boolean) => setOnboardedState(b), []);
@@ -286,10 +404,31 @@ export function StoreProvider({ children }: { children: React.ReactNode }) {
     (patch: Partial<Assistant>) => setAssistantState((prev) => ({ ...prev, ...patch })),
     []
   );
+  const setSecurity = useCallback(
+    (patch: Partial<SecurityPrefs>) => setSecurityState((prev) => ({ ...prev, ...patch })),
+    []
+  );
+  const setConsent = useCallback(
+    (key: keyof Omit<ConsentState, "updatedAt">, value: boolean) =>
+      setConsentsState((prev) => ({ ...prev, [key]: value, updatedAt: new Date().toISOString() })),
+    []
+  );
+  const addPrivacyRequest = useCallback(
+    (type: PrivacyRequestType, regulation: PrivacyRequest["regulation"]) =>
+      setPrivacyRequests((prev) => [
+        { id: `req-${Date.now()}`, type, regulation, status: "submitted", createdAt: new Date().toISOString() },
+        ...prev,
+      ]),
+    []
+  );
+  const removePrivacyRequest = useCallback(
+    (id: string) => setPrivacyRequests((prev) => prev.filter((r) => r.id !== id)),
+    []
+  );
 
   return (
     <StoreContext.Provider
-      value={{ ready, estateName, setEstateName, onboarded, setOnboarded, addedZones, addedAssets, addZone, addAsset, updateAsset, updateZone, removeAsset, removeZone, findAsset, findZone, profile, setProfile, addSocialLink, removeSocialLink, addTrustedPerson, removeTrustedPerson, assistant, setAssistant }}
+      value={{ ready, estateName, setEstateName, onboarded, setOnboarded, addedZones, addedAssets, addZone, addAsset, updateAsset, updateZone, removeAsset, removeZone, findAsset, findZone, profile, setProfile, addSocialLink, removeSocialLink, addTrustedPerson, removeTrustedPerson, assistant, setAssistant, security, setSecurity, consents, setConsent, privacyRequests, addPrivacyRequest, removePrivacyRequest }}
     >
       {children}
     </StoreContext.Provider>
