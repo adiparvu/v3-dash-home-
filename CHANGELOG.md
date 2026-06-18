@@ -22,10 +22,20 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   phased delivery roadmap (`docs/ROADMAP.md`), architecture diagram set
   (`docs/architecture/diagram-set.md`) and diagram legend / notation guide
   (`docs/architecture/diagram-legend.md`).
+- **Virtual AI Assistant configuration** — user-owned AI identity (custom name,
+  avatar, personality), bring-your-own-model selection and voice toggle, persisted
+  in the store and reflected in the assistant chat surface.
+- **Backend foundation (Phase 2)** — migration `002_account_identity.sql` adding
+  extended profile fields, `profile_social_links`, `trusted_persons`,
+  `user_sessions` and an immutable `audit_log`, all RLS-protected; generated
+  database types; a typed data-access layer (`lib/data/profile.ts`); and the first
+  URI-versioned API route (`/api/v1/profile`, GET/PATCH) with input allowlisting
+  and audit logging.
 
 ### Notes
 - The client persists to `localStorage` (`prvio-store-v1`) in this prototype phase.
-  Backend persistence (Supabase) is scaffolded and tracked on the roadmap.
+  Supabase auth wiring and live session/audit data are tracked on the roadmap; the
+  schema, data-access layer and `/api/v1` surface are in place to receive them.
 
 ## [1.0.0] — 2026-06-17
 

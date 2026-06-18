@@ -96,6 +96,34 @@ const defaultProfile: Profile = {
   createdAt: "2024-01-15",
 };
 
+/** Personality presets for the user-owned AI assistant. */
+export const ASSISTANT_PERSONALITIES: { id: string; label: string; blurb: string }[] = [
+  { id: "concise", label: "Concise", blurb: "Short, direct answers." },
+  { id: "friendly", label: "Friendly", blurb: "Warm and conversational." },
+  { id: "expert", label: "Expert", blurb: "Detailed and technical." },
+  { id: "proactive", label: "Proactive", blurb: "Suggests next steps." },
+];
+
+/** Avatar glyphs the assistant can use. */
+export const ASSISTANT_AVATARS = ["✨", "🌿", "🤖", "🦉", "🛰️", "🌍"];
+
+export type Assistant = {
+  name: string;
+  avatar: string;
+  personality: string;
+  /** Model identifier — supports bring-your-own-model. */
+  model: string;
+  voiceEnabled: boolean;
+};
+
+const defaultAssistant: Assistant = {
+  name: "PRVIO Assistant",
+  avatar: "✨",
+  personality: "friendly",
+  model: "on-device",
+  voiceEnabled: false,
+};
+
 interface StoreCtx {
   ready: boolean;
   estateName: string;
@@ -118,6 +146,8 @@ interface StoreCtx {
   removeSocialLink: (id: string) => void;
   addTrustedPerson: (person: TrustedPerson) => void;
   removeTrustedPerson: (id: string) => void;
+  assistant: Assistant;
+  setAssistant: (patch: Partial<Assistant>) => void;
 }
 
 const STORAGE_KEY = "prvio-store-v1";
@@ -144,6 +174,8 @@ const defaultCtx: StoreCtx = {
   removeSocialLink: () => {},
   addTrustedPerson: () => {},
   removeTrustedPerson: () => {},
+  assistant: defaultAssistant,
+  setAssistant: () => {},
 };
 
 const StoreContext = createContext<StoreCtx>(defaultCtx);
@@ -154,6 +186,7 @@ type Persisted = {
   addedZones: Zone[];
   addedAssets: Asset[];
   profile: Profile;
+  assistant: Assistant;
 };
 
 export function StoreProvider({ children }: { children: React.ReactNode }) {
@@ -163,6 +196,7 @@ export function StoreProvider({ children }: { children: React.ReactNode }) {
   const [addedZones, setAddedZones] = useState<Zone[]>([]);
   const [addedAssets, setAddedAssets] = useState<Asset[]>([]);
   const [profile, setProfileState] = useState<Profile>(defaultProfile);
+  const [assistant, setAssistantState] = useState<Assistant>(defaultAssistant);
 
   // Load
   useEffect(() => {
@@ -179,6 +213,9 @@ export function StoreProvider({ children }: { children: React.ReactNode }) {
           // Merge so new fields added in later versions get sane defaults.
           setProfileState({ ...defaultProfile, ...p.profile });
         }
+        if (p.assistant && typeof p.assistant === "object") {
+          setAssistantState({ ...defaultAssistant, ...p.assistant });
+        }
       } else {
         // No store yet → treat as first launch
         setOnboardedState(false);
@@ -192,13 +229,13 @@ export function StoreProvider({ children }: { children: React.ReactNode }) {
   // Persist
   useEffect(() => {
     if (!ready) return;
-    const data: Persisted = { estateName, onboarded, addedZones, addedAssets, profile };
+    const data: Persisted = { estateName, onboarded, addedZones, addedAssets, profile, assistant };
     try {
       localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
     } catch {
       /* quota / private mode — ignore */
     }
-  }, [ready, estateName, onboarded, addedZones, addedAssets, profile]);
+  }, [ready, estateName, onboarded, addedZones, addedAssets, profile, assistant]);
 
   const setEstateName = useCallback((s: string) => setEstateNameState(s), []);
   const setOnboarded = useCallback((b: boolean) => setOnboardedState(b), []);
@@ -245,10 +282,14 @@ export function StoreProvider({ children }: { children: React.ReactNode }) {
     (id: string) => setProfileState((prev) => ({ ...prev, trustedPersons: prev.trustedPersons.filter((t) => t.id !== id) })),
     []
   );
+  const setAssistant = useCallback(
+    (patch: Partial<Assistant>) => setAssistantState((prev) => ({ ...prev, ...patch })),
+    []
+  );
 
   return (
     <StoreContext.Provider
-      value={{ ready, estateName, setEstateName, onboarded, setOnboarded, addedZones, addedAssets, addZone, addAsset, updateAsset, updateZone, removeAsset, removeZone, findAsset, findZone, profile, setProfile, addSocialLink, removeSocialLink, addTrustedPerson, removeTrustedPerson }}
+      value={{ ready, estateName, setEstateName, onboarded, setOnboarded, addedZones, addedAssets, addZone, addAsset, updateAsset, updateZone, removeAsset, removeZone, findAsset, findZone, profile, setProfile, addSocialLink, removeSocialLink, addTrustedPerson, removeTrustedPerson, assistant, setAssistant }}
     >
       {children}
     </StoreContext.Provider>

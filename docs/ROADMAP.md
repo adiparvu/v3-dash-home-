@@ -41,11 +41,13 @@ future track that reuses the same versioned backend contracts.
 
 | Item | Status |
 | --- | --- |
-| Auth (email / OAuth / magic link) + middleware session handling | ⏳ |
-| Profiles, properties, parcels, zones, assets persisted via RLS | ⏳ |
-| Active session management + device trust + revocation | ⏳ |
-| Audit logging (immutable) for security + user-impacting actions | ⏳ |
-| Versioned REST endpoints (`/api/v1/...`) | ⏳ |
+| Account & Identity schema: profile fields, social links, trusted persons, sessions, audit log (`002_account_identity.sql`) | ✅ |
+| RLS policies + immutable audit log | ✅ |
+| Typed data-access layer (`lib/data/profile.ts`) | ✅ |
+| First URI-versioned REST endpoint (`/api/v1/profile`) | ✅ |
+| Auth (email / OAuth / magic link) + middleware session handling | 🚧 |
+| Properties, parcels, zones, assets read/write wired to UI via RLS | ⏳ |
+| Active session management + device trust + revocation (live) | ⏳ |
 
 ## Phase 3 — Data Privacy, Ownership & Compliance
 
@@ -77,7 +79,8 @@ future track that reuses the same versioned backend contracts.
 
 | Item | Status |
 | --- | --- |
-| User-owned AI identity (name, avatar, personality config) | ⏳ |
+| User-owned AI identity (name, avatar, personality config) | ✅ |
+| Bring-your-own-model selection (UI) | ✅ |
 | Retrieval-augmented estate knowledge (pgvector) | ⏳ |
 | Document understanding + summarization | ⏳ |
 | Bring-your-own-model support | ⏳ |

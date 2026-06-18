@@ -24,7 +24,7 @@ const initial: Msg[] = [
 ];
 
 export default function AIPage() {
-  const { estateName, addedZones, addedAssets } = useStore();
+  const { estateName, addedZones, addedAssets, assistant } = useStore();
   const [input, setInput] = useState("");
   const [chat, setChat] = useState<Msg[]>(initial);
   const [typing, setTyping] = useState(false);
@@ -88,10 +88,10 @@ export default function AIPage() {
               boxShadow: "0 0 20px rgba(124,58,237,0.2)",
             }}
           >
-            <span className="text-base">✨</span>
+            <span className="text-base">{assistant.avatar}</span>
           </div>
           <div>
-            <h1 className="font-bold text-lg leading-tight" style={{ color: "var(--text-1)" }}>AI Assistant</h1>
+            <h1 className="font-bold text-lg leading-tight" style={{ color: "var(--text-1)" }}>{assistant.name}</h1>
             <div className="flex items-center gap-1">
               <span className="w-1 h-1 rounded-full" style={{ background: "var(--accent)" }} />
               <span className="text-[10px]" style={{ color: "var(--accent)" }}>Online</span>
@@ -114,7 +114,7 @@ export default function AIPage() {
           <div key={msg.id} className={`flex ${msg.role === "user" ? "justify-end" : "justify-start"}`}>
             {msg.role === "assistant" && (
               <div className="w-7 h-7 rounded-xl flex items-center justify-center text-sm mr-2 mt-auto flex-shrink-0" style={{ background: "linear-gradient(135deg, rgba(124,58,237,0.3), rgba(34,211,238,0.3))", border: "1px solid rgba(124,58,237,0.3)" }}>
-                ✨
+                {assistant.avatar}
               </div>
             )}
             <div
@@ -133,7 +133,7 @@ export default function AIPage() {
         {/* Typing indicator */}
         {typing && (
           <div className="flex justify-start">
-            <div className="w-7 h-7 rounded-xl flex items-center justify-center text-sm mr-2 mt-auto flex-shrink-0" style={{ background: "linear-gradient(135deg, rgba(124,58,237,0.3), rgba(34,211,238,0.3))", border: "1px solid rgba(124,58,237,0.3)" }}>✨</div>
+            <div className="w-7 h-7 rounded-xl flex items-center justify-center text-sm mr-2 mt-auto flex-shrink-0" style={{ background: "linear-gradient(135deg, rgba(124,58,237,0.3), rgba(34,211,238,0.3))", border: "1px solid rgba(124,58,237,0.3)" }}>{assistant.avatar}</div>
             <div className="rounded-2xl px-4 py-3.5 flex items-center gap-1" style={{ background: "var(--glass-bg)", border: "0.5px solid var(--glass-border)", borderBottomLeftRadius: 6 }}>
               {[0, 1, 2].map((i) => (
                 <span key={i} className="w-1.5 h-1.5 rounded-full animate-pulse-glow" style={{ background: "var(--text-3)", animationDelay: `${i * 0.2}s` }} />

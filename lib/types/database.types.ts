@@ -14,7 +14,14 @@ export type Database = {
           id: string
           email: string
           full_name: string | null
+          first_name: string | null
+          last_name: string | null
+          display_name: string | null
+          notes: string | null
           avatar_url: string | null
+          avatar_ring_color: number
+          auto_lock_seconds: number | null
+          login_alerts: boolean
           phone: string | null
           timezone: string
           locale: string
@@ -26,7 +33,14 @@ export type Database = {
           id: string
           email: string
           full_name?: string | null
+          first_name?: string | null
+          last_name?: string | null
+          display_name?: string | null
+          notes?: string | null
           avatar_url?: string | null
+          avatar_ring_color?: number
+          auto_lock_seconds?: number | null
+          login_alerts?: boolean
           phone?: string | null
           timezone?: string
           locale?: string
@@ -38,7 +52,14 @@ export type Database = {
           id?: string
           email?: string
           full_name?: string | null
+          first_name?: string | null
+          last_name?: string | null
+          display_name?: string | null
+          notes?: string | null
           avatar_url?: string | null
+          avatar_ring_color?: number
+          auto_lock_seconds?: number | null
+          login_alerts?: boolean
           phone?: string | null
           timezone?: string
           locale?: string
@@ -46,6 +67,7 @@ export type Database = {
           created_at?: string
           updated_at?: string
         }
+        Relationships: []
       }
       properties: {
         Row: {
@@ -102,6 +124,7 @@ export type Database = {
           created_at?: string
           updated_at?: string
         }
+        Relationships: []
       }
       parcels: {
         Row: {
@@ -140,6 +163,7 @@ export type Database = {
           created_at?: string
           updated_at?: string
         }
+        Relationships: []
       }
       zones: {
         Row: {
@@ -190,6 +214,7 @@ export type Database = {
           created_at?: string
           updated_at?: string
         }
+        Relationships: []
       }
       assets: {
         Row: {
@@ -267,6 +292,7 @@ export type Database = {
           created_at?: string
           updated_at?: string
         }
+        Relationships: []
       }
       asset_qr_codes: {
         Row: {
@@ -305,6 +331,7 @@ export type Database = {
           scan_count?: number
           created_at?: string
         }
+        Relationships: []
       }
       tasks: {
         Row: {
@@ -382,6 +409,7 @@ export type Database = {
           created_at?: string
           updated_at?: string
         }
+        Relationships: []
       }
       sensors: {
         Row: {
@@ -459,6 +487,7 @@ export type Database = {
           created_at?: string
           updated_at?: string
         }
+        Relationships: []
       }
       telemetry: {
         Row: {
@@ -491,6 +520,7 @@ export type Database = {
           recorded_at?: string
           created_at?: string
         }
+        Relationships: []
       }
       automations: {
         Row: {
@@ -541,6 +571,7 @@ export type Database = {
           created_at?: string
           updated_at?: string
         }
+        Relationships: []
       }
       documents: {
         Row: {
@@ -600,6 +631,7 @@ export type Database = {
           created_at?: string
           updated_at?: string
         }
+        Relationships: []
       }
       contractors: {
         Row: {
@@ -650,6 +682,7 @@ export type Database = {
           created_at?: string
           updated_at?: string
         }
+        Relationships: []
       }
       maintenance_records: {
         Row: {
@@ -718,6 +751,7 @@ export type Database = {
           created_at?: string
           updated_at?: string
         }
+        Relationships: []
       }
       notifications: {
         Row: {
@@ -765,6 +799,7 @@ export type Database = {
           is_archived?: boolean
           created_at?: string
         }
+        Relationships: []
       }
       chat_messages: {
         Row: {
@@ -806,6 +841,163 @@ export type Database = {
           parent_message_id?: string | null
           created_at?: string
         }
+        Relationships: []
+      }
+      profile_social_links: {
+        Row: {
+          id: string
+          profile_id: string
+          platform: Database['public']['Enums']['social_platform']
+          label: string | null
+          url: string
+          sort_order: number
+          created_at: string
+        }
+        Insert: {
+          id?: string
+          profile_id: string
+          platform: Database['public']['Enums']['social_platform']
+          label?: string | null
+          url: string
+          sort_order?: number
+          created_at?: string
+        }
+        Update: {
+          id?: string
+          profile_id?: string
+          platform?: Database['public']['Enums']['social_platform']
+          label?: string | null
+          url?: string
+          sort_order?: number
+          created_at?: string
+        }
+        Relationships: []
+      }
+      trusted_persons: {
+        Row: {
+          id: string
+          profile_id: string
+          linked_user_id: string | null
+          name: string
+          relationship: string | null
+          email: string | null
+          phone: string | null
+          permissions: Database['public']['Enums']['trusted_permission'][]
+          invited_at: string
+          accepted_at: string | null
+          created_at: string
+          updated_at: string
+        }
+        Insert: {
+          id?: string
+          profile_id: string
+          linked_user_id?: string | null
+          name: string
+          relationship?: string | null
+          email?: string | null
+          phone?: string | null
+          permissions?: Database['public']['Enums']['trusted_permission'][]
+          invited_at?: string
+          accepted_at?: string | null
+          created_at?: string
+          updated_at?: string
+        }
+        Update: {
+          id?: string
+          profile_id?: string
+          linked_user_id?: string | null
+          name?: string
+          relationship?: string | null
+          email?: string | null
+          phone?: string | null
+          permissions?: Database['public']['Enums']['trusted_permission'][]
+          invited_at?: string
+          accepted_at?: string | null
+          created_at?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      user_sessions: {
+        Row: {
+          id: string
+          user_id: string
+          device_name: string | null
+          platform: string | null
+          ip_address: string | null
+          location: string | null
+          user_agent: string | null
+          is_trusted: boolean
+          is_current: boolean
+          last_active_at: string
+          revoked_at: string | null
+          created_at: string
+        }
+        Insert: {
+          id?: string
+          user_id: string
+          device_name?: string | null
+          platform?: string | null
+          ip_address?: string | null
+          location?: string | null
+          user_agent?: string | null
+          is_trusted?: boolean
+          is_current?: boolean
+          last_active_at?: string
+          revoked_at?: string | null
+          created_at?: string
+        }
+        Update: {
+          id?: string
+          user_id?: string
+          device_name?: string | null
+          platform?: string | null
+          ip_address?: string | null
+          location?: string | null
+          user_agent?: string | null
+          is_trusted?: boolean
+          is_current?: boolean
+          last_active_at?: string
+          revoked_at?: string | null
+          created_at?: string
+        }
+        Relationships: []
+      }
+      audit_log: {
+        Row: {
+          id: string
+          user_id: string | null
+          property_id: string | null
+          action: string
+          resource: string | null
+          detail: string | null
+          ip_address: string | null
+          metadata: Json | null
+          created_at: string
+        }
+        Insert: {
+          id?: string
+          user_id?: string | null
+          property_id?: string | null
+          action: string
+          resource?: string | null
+          detail?: string | null
+          ip_address?: string | null
+          metadata?: Json | null
+          created_at?: string
+        }
+        Update: {
+          id?: string
+          user_id?: string | null
+          property_id?: string | null
+          action?: string
+          resource?: string | null
+          detail?: string | null
+          ip_address?: string | null
+          metadata?: Json | null
+          created_at?: string
+        }
+        Relationships: []
       }
     }
     Views: {
@@ -845,6 +1037,22 @@ export type Database = {
         | 'light'
         | 'water_level'
         | 'custom'
+      social_platform:
+        | 'facebook'
+        | 'instagram'
+        | 'x'
+        | 'threads'
+        | 'linkedin'
+        | 'tiktok'
+        | 'youtube'
+        | 'telegram'
+        | 'whatsapp'
+        | 'custom'
+      trusted_permission:
+        | 'emergency_access'
+        | 'ownership_transfer'
+        | 'recovery_approvals'
+        | 'estate_continuity'
     }
     CompositeTypes: {
       [_ in never]: never
@@ -887,6 +1095,10 @@ export type Contractor = Tables<'contractors'>
 export type MaintenanceRecord = Tables<'maintenance_records'>
 export type Notification = Tables<'notifications'>
 export type ChatMessage = Tables<'chat_messages'>
+export type ProfileSocialLink = Tables<'profile_social_links'>
+export type TrustedPerson = Tables<'trusted_persons'>
+export type UserSession = Tables<'user_sessions'>
+export type AuditLogEntry = Tables<'audit_log'>
 
 // ---------------------------------------------------------------------------
 // Named enum types
@@ -897,3 +1109,5 @@ export type AssetCategory = Enums<'asset_category'>
 export type TaskStatus = Enums<'task_status'>
 export type TaskPriority = Enums<'task_priority'>
 export type SensorType = Enums<'sensor_type'>
+export type SocialPlatform = Enums<'social_platform'>
+export type TrustedPermission = Enums<'trusted_permission'>

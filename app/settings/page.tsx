@@ -14,6 +14,7 @@ const settingsSections = [
       { href: "/settings/security", label: "Security", icon: "🔒", desc: "Face ID, sessions & audit log" },
       { href: "/settings/privacy", label: "Privacy & Data", icon: "🛡️", desc: "GDPR, data exports & deletion" },
       { href: "/settings/notifications", label: "Notifications", icon: "🔔", desc: "Alerts & push preferences" },
+      { href: "/settings/assistant", label: "AI Assistant", icon: "✨", desc: "Name, avatar, personality & model" },
     ],
   },
   {
