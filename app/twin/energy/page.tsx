@@ -79,31 +79,31 @@ function LiveTab({ onGoTab }: { onGoTab: (t: Tab) => void }) {
   type Align = "center" | "left";
   // Static labels: [x, y] center (%), align, font size (cqw), color, weight, tracking, node
   const LABELS: { id: string; c: [number, number]; align: Align; fs: number; color: string; w: number; ls?: number; node: React.ReactNode }[] = [
-    { id: "solarL", c: [52, 21.6], align: "center", fs: 2.0, color: GREY, w: 500, ls: 0.12, node: "SOLAR" },
-    { id: "homeL", c: [83.3, 27.9], align: "center", fs: 2.0, color: GREY, w: 500, ls: 0.12, node: "ACASĂ" },
-    { id: "pwL", c: [52, 71.7], align: "center", fs: 2.0, color: GREY, w: 500, ls: 0.12, node: "POWERWALL" },
-    { id: "gridL", c: [83.3, 71.7], align: "center", fs: 2.0, color: GREY, w: 500, ls: 0.12, node: "GRILĂ" },
-    { id: "porTitle", c: [7.3, 43.9], align: "left", fs: 2.5, color: "rgba(236,238,241,0.96)", w: 600, node: "PORSCHE" },
-    { id: "porTitle2", c: [7.3, 45.9], align: "left", fs: 2.5, color: "rgba(236,238,241,0.96)", w: 600, node: "911 GT3 RS" },
-    { id: "chL", c: [7.3, 47.7], align: "left", fs: 2.1, color: GREY, w: 500, node: "Încărcare" },
-    { id: "batL", c: [7.3, 51.3], align: "left", fs: 2.1, color: GREY, w: 500, node: "Baterie mașină" },
+    { id: "solarL", c: [52.5, 21.9], align: "center", fs: 2.0, color: GREY, w: 500, ls: 0.12, node: "SOLAR" },
+    { id: "homeL", c: [83.65, 27.5], align: "center", fs: 2.0, color: GREY, w: 500, ls: 0.12, node: "ACASĂ" },
+    { id: "pwL", c: [52.4, 72.0], align: "center", fs: 2.0, color: GREY, w: 500, ls: 0.12, node: "POWERWALL" },
+    { id: "gridL", c: [83.45, 72.0], align: "center", fs: 2.0, color: GREY, w: 500, ls: 0.12, node: "GRILĂ" },
+    { id: "porTitle", c: [7.3, 43.7], align: "left", fs: 2.5, color: "rgba(236,238,241,0.96)", w: 600, node: "PORSCHE" },
+    { id: "porTitle2", c: [7.3, 45.2], align: "left", fs: 2.5, color: "rgba(236,238,241,0.96)", w: 600, node: "911 GT3 RS" },
+    { id: "chL", c: [7.3, 47.3], align: "left", fs: 2.1, color: GREY, w: 500, node: "Încărcare" },
+    { id: "batL", c: [7.3, 50.9], align: "left", fs: 2.1, color: GREY, w: 500, node: "Baterie mașină" },
   ];
   // Live values: [x, y] center (%), align, font size (cqw), node
   const VALUES: { id: string; c: [number, number]; align: Align; fs: number; node: React.ReactNode }[] = [
-    { id: "solar", c: [52, 24.0], align: "center", fs: 3.5, node: <>{kw(s.solar)}</> },
-    { id: "home", c: [83.3, 30.2], align: "center", fs: 3.5, node: <>{kw(s.home)}</> },
-    { id: "battery", c: [52, 74.0], align: "center", fs: 3.5, node: <>{kw(s.battery)} <span style={{ color: GREEN }}>▲</span> {Math.round(s.batteryPct)}%</> },
-    { id: "grid", c: [83.3, 74.0], align: "center", fs: 3.5, node: <>{Math.round(Math.abs(s.grid))} kW</> },
-    { id: "vch", c: [7.3, 49.4], align: "left", fs: 3.5, node: <span style={{ color: GREEN }}>{kw(s.vehicle)}</span> },
-    { id: "vb", c: [7.3, 52.8], align: "left", fs: 3.1, node: <>{Math.round(carPct)}%</> },
+    { id: "solar", c: [52.5, 23.7], align: "center", fs: 3.5, node: <>{kw(s.solar)}</> },
+    { id: "home", c: [83.65, 29.3], align: "center", fs: 3.5, node: <>{kw(s.home)}</> },
+    { id: "battery", c: [52.4, 73.8], align: "center", fs: 3.5, node: <>{kw(s.battery)} <span style={{ color: GREEN }}>▲</span> {Math.round(s.batteryPct)}%</> },
+    { id: "grid", c: [83.45, 73.8], align: "center", fs: 3.5, node: <>{Math.round(Math.abs(s.grid))} kW</> },
+    { id: "vch", c: [7.3, 48.7], align: "left", fs: 3.5, node: <span style={{ color: GREEN }}>{kw(s.vehicle)}</span> },
+    { id: "vb", c: [7.3, 52.3], align: "left", fs: 3.1, node: <>{Math.round(carPct)}%</> },
   ];
   // Leader lines, in % of the image (preserveAspectRatio none → coords map 1:1).
   const LINES: [number, number, number, number][] = [
-    [52, 25.6, 52, 39.2],     // solar → roof panel
-    [83.3, 31.7, 83.3, 42.5], // acasă → window
-    [52, 71.1, 52, 63.0],     // powerwall → unit
-    [83.3, 71.1, 83.3, 62.5], // grilă → meter
-    [13.5, 52.7, 21.5, 52.7], // porsche → charger
+    [52.5, 25.4, 52.5, 39.2], // solar → roof panel
+    [83.4, 30.7, 83.4, 46],   // acasă → window
+    [52.4, 65.3, 52.4, 70.9], // powerwall → unit
+    [83.4, 66.3, 83.4, 71],   // grilă → meter
+    [13, 52.2, 22.2, 52.2],   // porsche → charger
   ];
 
   const drawText = (t: { c: [number, number]; align: Align; fs: number; color?: string; w?: number; ls?: number; node: React.ReactNode }, key: string) => (
