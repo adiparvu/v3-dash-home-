@@ -503,14 +503,24 @@ export default function InventoryDetailPage({ params }: { params: { id: string }
             <p className="font-bold text-base mb-1" style={{ color: "var(--text-1)" }}>{asset.name}</p>
             <p className="text-xs mb-5" style={{ color: "var(--text-2)" }}>{custom ? "Custom asset" : "Seed asset (read-only)"}</p>
             {custom ? (
-              <button
-                onClick={() => { removeAsset(custom.href); router.push("/inventory"); }}
-                className="w-full py-3.5 rounded-2xl font-semibold text-base mb-2 active:scale-[0.97] transition-transform flex items-center justify-center gap-2"
-                style={{ background: "rgba(239,68,68,0.12)", color: "#EF4444", border: "1px solid rgba(239,68,68,0.30)" }}
-              >
-                <svg width="17" height="17" viewBox="0 0 24 24" fill="none"><path d="M3 6h18M8 6V4a1 1 0 011-1h6a1 1 0 011 1v2m2 0v14a1 1 0 01-1 1H6a1 1 0 01-1-1V6m4 5v6m6-6v6" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round" /></svg>
-                Delete Asset
-              </button>
+              <>
+                <button
+                  onClick={() => router.push(`${custom.href}/edit`)}
+                  className="w-full py-3.5 rounded-2xl font-semibold text-base mb-2 active:scale-[0.97] transition-transform flex items-center justify-center gap-2"
+                  style={{ background: "var(--glass-bg)", color: "var(--text-1)", border: "0.5px solid var(--glass-border)" }}
+                >
+                  <svg width="17" height="17" viewBox="0 0 24 24" fill="none"><path d="M12 20h9M16.5 3.5a2.12 2.12 0 013 3L7 19l-4 1 1-4z" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round" /></svg>
+                  Edit Asset
+                </button>
+                <button
+                  onClick={() => { removeAsset(custom.href); router.push("/inventory"); }}
+                  className="w-full py-3.5 rounded-2xl font-semibold text-base mb-2 active:scale-[0.97] transition-transform flex items-center justify-center gap-2"
+                  style={{ background: "rgba(239,68,68,0.12)", color: "#EF4444", border: "1px solid rgba(239,68,68,0.30)" }}
+                >
+                  <svg width="17" height="17" viewBox="0 0 24 24" fill="none"><path d="M3 6h18M8 6V4a1 1 0 011-1h6a1 1 0 011 1v2m2 0v14a1 1 0 01-1 1H6a1 1 0 01-1-1V6m4 5v6m6-6v6" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round" /></svg>
+                  Delete Asset
+                </button>
+              </>
             ) : (
               <p className="text-center text-sm py-2 mb-2" style={{ color: "var(--text-3)" }}>Seed assets can&apos;t be deleted in this demo.</p>
             )}
