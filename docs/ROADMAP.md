@@ -1,0 +1,114 @@
+# PRVIO Earth — Delivery Roadmap
+
+**Version:** v1.0.0
+**Last updated:** 2026-06-18
+**Status legend:** ✅ done · 🚧 in progress · ⏳ planned
+
+This roadmap translates the [Product Specification](./PRODUCT_SPEC.md) into incremental,
+shippable phases. The current implementation is a **Next.js + Tailwind web prototype**
+with an iOS-26 "Liquid Glass" design language and a localStorage-backed client store;
+backend (Supabase), AI and Digital Twin layers are scaffolded and delivered over the
+phases below. Native Apple (SwiftUI) clients described in the master spec are a
+future track that reuses the same versioned backend contracts.
+
+---
+
+## Phase 0 — Foundation (shipped)
+
+| Item | Status |
+| --- | --- |
+| Next.js 14 App Router + Tailwind + Liquid Glass design system | ✅ |
+| Estate surfaces (Overview, Zones, Inventory + QR, Tasks, Maintenance, Automations, Sensors, Documents, Contractors, Notifications, Search) | ✅ |
+| On-device AI assistant surface | ✅ |
+| Settings shell (Profile, Security, Privacy, Notifications, Units, Integrations, Appearance, Language) | ✅ |
+| Supabase initial schema migration | ✅ |
+| Base architecture documentation | ✅ |
+
+## Phase 1 — Account, Identity & Documentation (current)
+
+| Item | Status |
+| --- | --- |
+| Profile model: First/Last/Display name, Email, Phone, Notes | ✅ |
+| Avatar Ring Color (persisted + reflected across app) | ✅ |
+| Social Links with Contacts-style "+" add experience | ✅ |
+| Trusted Persons with continuity permissions | ✅ |
+| Membership: creation date, Member Since badge, Total Time Using | ✅ |
+| Product spec, roadmap, changelog, full architecture diagram set + legend | ✅ |
+| Active sessions / audit log wired to backend | ⏳ |
+| Auto-lock full option set (immediate → 1h → custom) persisted | ⏳ |
+
+## Phase 2 — Backend & Identity Platform (Supabase)
+
+| Item | Status |
+| --- | --- |
+| Auth (email / OAuth / magic link) + middleware session handling | ⏳ |
+| Profiles, properties, parcels, zones, assets persisted via RLS | ⏳ |
+| Active session management + device trust + revocation | ⏳ |
+| Audit logging (immutable) for security + user-impacting actions | ⏳ |
+| Versioned REST endpoints (`/api/v1/...`) | ⏳ |
+
+## Phase 3 — Data Privacy, Ownership & Compliance
+
+| Item | Status |
+| --- | --- |
+| Granular consent management + withdrawal | ⏳ |
+| Right of access / portability / rectification / erasure / restriction | ⏳ |
+| Configurable, documented data-retention policies | ⏳ |
+| Structured machine-readable export + account deletion workflow | ⏳ |
+| GDPR / CCPA request tracking | ⏳ |
+
+## Phase 4 — Property & Estate Management
+
+| Item | Status |
+| --- | --- |
+| Property value tracking (current, historical, purchase, improvements) | ⏳ |
+| Contractor management (full field set + insurance + ratings + history) | ⏳ |
+| Ownership transfer workflow (verification, legal records, audit preservation) | ⏳ |
+
+## Phase 5 — Communication & Collaboration
+
+| Item | Status |
+| --- | --- |
+| Household chat (direct, group, property, asset, task) | ⏳ |
+| Avatar ring color shown in chat / collaboration | ⏳ |
+| Calling integrations (Phone, FaceTime, WhatsApp, Telegram) | ⏳ |
+
+## Phase 6 — Virtual AI Assistant
+
+| Item | Status |
+| --- | --- |
+| User-owned AI identity (name, avatar, personality config) | ⏳ |
+| Retrieval-augmented estate knowledge (pgvector) | ⏳ |
+| Document understanding + summarization | ⏳ |
+| Bring-your-own-model support | ⏳ |
+| AI guardrails (deny-by-default tools, prompt isolation, output validation) | ⏳ |
+
+## Phase 7 — Digital Twin & IoT
+
+| Item | Status |
+| --- | --- |
+| 2D/3D property + spatial asset mapping | ⏳ |
+| Telemetry ingestion + time-series representation | ⏳ |
+| Home Assistant / IoT integration gateways | ⏳ |
+| Real-time state sync via event bus | ⏳ |
+
+## Phase 8 — Apple-Native Clients & Widgets
+
+| Item | Status |
+| --- | --- |
+| SwiftUI apps (iPhone, iPad, Mac, Watch, Vision Pro) on shared backend contracts | ⏳ |
+| Home / Lock screen / Notification Center widgets | ⏳ |
+| Live Activities (maintenance, deliveries, incidents, inspections) | ⏳ |
+| Face ID / Touch ID / Secure Enclave + Keychain | ⏳ |
+
+---
+
+## Cross-cutting requirements (every phase)
+
+- **Security & AI guardrails** — zero-trust, least privilege, tenant isolation,
+  backend-enforced authorization, immutable audit logging, threat models kept as
+  living artifacts (STRIDE, attack trees, abuse cases, data-flow analysis).
+- **Versioning** — SemVer across APIs, event contracts, schemas, AI response
+  schemas and Digital Twin models; URI versioning for REST.
+- **Architecture diagrams** — updated before merging architectural changes; treated
+  as documentation defects when stale (see [diagram set](./architecture/diagram-set.md)).

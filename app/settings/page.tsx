@@ -4,6 +4,7 @@ import { useState } from "react";
 import Link from "next/link";
 import StatusBar from "../components/layout/StatusBar";
 import BottomNav from "../components/layout/BottomNav";
+import { useStore, RING_COLORS, memberSince, initials } from "../lib/store";
 
 const settingsSections = [
   {
@@ -33,6 +34,8 @@ const settingsSections = [
 ];
 
 export default function SettingsPage() {
+  const { profile } = useStore();
+  const ring = RING_COLORS[profile.ringColor] ?? RING_COLORS[0];
   const [autoLock, setAutoLock] = useState("5 minutes");
 
   return (
@@ -48,17 +51,19 @@ export default function SettingsPage() {
         <Link href="/settings/profile">
           <div className="liquid-glass rounded-3xl p-4 flex items-center gap-4 active:scale-[0.98] transition-transform">
             <div
-              className="w-14 h-14 rounded-full flex items-center justify-center flex-shrink-0"
-              style={{ background: "linear-gradient(135deg, #4ADE80, #22D3EE)", boxShadow: "0 0 16px rgba(74,222,128,0.3)", border: "2px solid #4ADE80" }}
+              className="w-14 h-14 rounded-full flex items-center justify-center flex-shrink-0 p-0.5"
+              style={{ background: ring.value, boxShadow: "0 0 16px rgba(74,222,128,0.3)" }}
             >
-              <span className="text-bg font-bold text-xl">A</span>
+              <div className="w-full h-full rounded-full flex items-center justify-center" style={{ background: "var(--bg-1)" }}>
+                <span className="font-bold text-xl" style={{ color: "var(--text-1)" }}>{initials(profile.displayName)}</span>
+              </div>
             </div>
             <div className="flex-1">
-              <p className="font-semibold" style={{ color: "var(--text-1)" }}>Alex Owner</p>
-              <p className="text-text-secondary text-xs">alex@prvio.earth</p>
+              <p className="font-semibold" style={{ color: "var(--text-1)" }}>{profile.displayName}</p>
+              <p className="text-text-secondary text-xs">{profile.email}</p>
               <div className="flex items-center gap-1.5 mt-1">
                 <span className="w-1.5 h-1.5 rounded-full bg-accent-green" />
-                <span className="text-accent-green text-[10px] font-medium">Pro · Member since 2024</span>
+                <span className="text-accent-green text-[10px] font-medium">Pro · Member since {memberSince(profile.createdAt)}</span>
               </div>
             </div>
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" style={{ color: "var(--text-3)" }}><path d="M9 18l6-6-6-6" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round" /></svg>
