@@ -4,6 +4,7 @@ import { useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import StatusBar from "../../components/layout/StatusBar";
+import { useStore, slugify } from "../../lib/store";
 
 const types = [
   { id: "Natural", label: "Natural", icon: "🌿", color: "#4ADE80" },
@@ -16,11 +17,34 @@ const iconChoices = ["💧", "🌲", "🏡", "🍎", "🌿", "🐟", "🏠", "�
 
 export default function NewZonePage() {
   const router = useRouter();
+  const { addZone } = useStore();
   const [name, setName] = useState("");
   const [subtitle, setSubtitle] = useState("");
   const [type, setType] = useState("Natural");
   const [icon, setIcon] = useState("🌿");
   const [focused, setFocused] = useState<string | null>(null);
+
+  const save = () => {
+    if (!name.trim()) return;
+    const slug = slugify(name) || `zone-${Date.now()}`;
+    const color = types.find((t) => t.id === type)?.color ?? "#4ADE80";
+    addZone({
+      href: `/zones/${slug}`,
+      name: name.trim(),
+      subtitle: subtitle.trim() || type,
+      type,
+      status: "Good",
+      statusColor: color,
+      health: 90,
+      icon,
+      accentColor: color,
+      metrics: [
+        { label: "Status", value: "Active" },
+        { label: "Health", value: "90" },
+      ],
+    });
+    router.push("/zones");
+  };
 
   const inputWrap = (key: string) => ({
     background: "var(--glass-bg)",
@@ -105,7 +129,7 @@ export default function NewZonePage() {
 
         {/* Save */}
         <button
-          onClick={() => router.push("/zones")}
+          onClick={save}
           disabled={!canSave}
           className="w-full py-4 rounded-2xl font-semibold text-base transition-all active:scale-[0.97] mt-1"
           style={{

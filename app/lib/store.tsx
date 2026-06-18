@@ -44,6 +44,7 @@ interface StoreCtx {
   addZone: (z: Zone) => void;
   addAsset: (a: Asset) => void;
   findAsset: (slug: string) => Asset | undefined;
+  findZone: (slug: string) => Zone | undefined;
 }
 
 const STORAGE_KEY = "prvio-store-v1";
@@ -59,6 +60,7 @@ const defaultCtx: StoreCtx = {
   addZone: () => {},
   addAsset: () => {},
   findAsset: () => undefined,
+  findZone: () => undefined,
 };
 
 const StoreContext = createContext<StoreCtx>(defaultCtx);
@@ -117,10 +119,14 @@ export function StoreProvider({ children }: { children: React.ReactNode }) {
     (slug: string) => addedAssets.find((a) => a.href === `/inventory/${slug}` || a.href.endsWith(`/${slug}`)),
     [addedAssets]
   );
+  const findZone = useCallback(
+    (slug: string) => addedZones.find((z) => z.href === `/zones/${slug}` || z.href.endsWith(`/${slug}`)),
+    [addedZones]
+  );
 
   return (
     <StoreContext.Provider
-      value={{ ready, estateName, setEstateName, onboarded, setOnboarded, addedZones, addedAssets, addZone, addAsset, findAsset }}
+      value={{ ready, estateName, setEstateName, onboarded, setOnboarded, addedZones, addedAssets, addZone, addAsset, findAsset, findZone }}
     >
       {children}
     </StoreContext.Provider>

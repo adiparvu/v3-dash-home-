@@ -4,10 +4,11 @@ import { useState } from "react";
 import Link from "next/link";
 import StatusBar from "../components/layout/StatusBar";
 import BottomNav from "../components/layout/BottomNav";
+import { useStore } from "../lib/store";
 
 const zoneTypes = ["All", "Natural", "Agriculture", "Infrastructure", "Built"];
 
-const zones = [
+const seedZones = [
   {
     href: "/zones/lake",
     name: "Lake",
@@ -120,7 +121,9 @@ const zones = [
 
 export default function ZonesPage() {
   const [activeType, setActiveType] = useState("All");
+  const { addedZones } = useStore();
 
+  const zones = [...addedZones, ...seedZones];
   const filtered = zones.filter((z) => activeType === "All" || z.type === activeType);
 
   return (
