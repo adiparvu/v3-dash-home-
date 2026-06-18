@@ -4,7 +4,6 @@ import { useState } from "react";
 import Link from "next/link";
 import StatusBar from "../../components/layout/StatusBar";
 import {
-  useStore,
   RING_COLORS,
   SOCIAL_PLATFORMS,
   memberSince,
@@ -13,6 +12,7 @@ import {
   type SocialLink,
   type TrustedPerson,
 } from "../../lib/store";
+import { useProfile } from "../../lib/useProfile";
 
 function uid() {
   return Math.random().toString(36).slice(2, 10);
@@ -28,12 +28,13 @@ const TRUSTED_PERMISSIONS = [
 export default function ProfilePage() {
   const {
     profile,
+    source,
     setProfile,
     addSocialLink,
     removeSocialLink,
     addTrustedPerson,
     removeTrustedPerson,
-  } = useStore();
+  } = useProfile();
 
   const [saved, setSaved] = useState(false);
 
@@ -95,6 +96,16 @@ export default function ProfilePage() {
           <svg width="18" height="18" viewBox="0 0 24 24" fill="none"><path d="M19 12H5M12 5l-7 7 7 7" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" /></svg>
         </Link>
         <h1 className="font-bold text-xl" style={{ color: "var(--text-1)" }}>Edit Profile</h1>
+        <span
+          className="ml-auto text-[10px] font-medium px-2 py-1 rounded-full"
+          style={
+            source === "remote"
+              ? { background: "rgba(74,222,128,0.12)", border: "1px solid rgba(74,222,128,0.30)", color: "var(--accent)" }
+              : { background: "var(--glass-bg)", border: "0.5px solid var(--glass-border)", color: "var(--text-3)" }
+          }
+        >
+          {source === "remote" ? "● Synced" : source === "loading" ? "…" : "Local"}
+        </span>
       </div>
 
       <div className="px-4 space-y-5">

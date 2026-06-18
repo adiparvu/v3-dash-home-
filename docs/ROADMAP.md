@@ -48,7 +48,10 @@ future track that reuses the same versioned backend contracts.
 | First URI-versioned REST endpoint (`/api/v1/profile`) | ✅ |
 | Auth (email magic-link / OAuth) + middleware session handling | ✅ |
 | Login screen, auth callback + sign-out routes | ✅ |
+| Profile read/write wired to UI via `/api/v1` (RLS) with store fallback | ✅ |
+| `/api/v1` routes for social links + trusted persons (GET/POST/DELETE) | ✅ |
 | Properties, parcels, zones, assets read/write wired to UI via RLS | ⏳ |
+| Active sessions + audit log surfaced in the Security UI | ⏳ |
 | Active session management + device trust + revocation (live) | ⏳ |
 
 ## Phase 3 — Data Privacy, Ownership & Compliance

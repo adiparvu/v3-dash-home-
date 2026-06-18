@@ -45,10 +45,18 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   the REST RPC surface from trigger-only `SECURITY DEFINER` helpers (security
   advisors 0028/0029). README documents the env setup.
 
+- **Profile wired to Supabase** — the Edit Profile screen now reads and writes
+  through the versioned `/api/v1/profile` endpoints (incl. new `social-links` and
+  `trusted-persons` POST/DELETE routes) via a `useProfile` hook that falls back to
+  the localStorage store when Supabase is unconfigured or the visitor is signed
+  out. A "Synced / Local" badge shows the active source. Verified end-to-end
+  against the live project: unauthenticated requests return `401`, and middleware
+  redirects protected routes to `/login`.
+
 ### Notes
-- The client persists to `localStorage` (`prvio-store-v1`) in this prototype phase.
-  The Supabase project, schema, data-access layer and `/api/v1` surface are in
-  place; wiring the UI to read/write live data via RLS is the next roadmap step.
+- Without Supabase env vars the client still persists to `localStorage`
+  (`prvio-store-v1`). When configured, profile data is server-authoritative;
+  wiring the remaining surfaces (properties, sessions, audit UI) is the next step.
 
 ## [1.0.0] — 2026-06-17
 
