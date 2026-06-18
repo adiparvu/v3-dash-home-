@@ -22,11 +22,11 @@ const START: EnergyState = { solar: 6.5, home: 0.8, vehicle: 2.2, battery: 4.9, 
 // Image is 853×1235; labels sit at lx/ly (%), leader lines run to anchors (px).
 const IMG_W = 853, IMG_H = 1235;
 const NODES = [
-  { id: "solar", title: "SOLAR", lx: 46, ly: 9, ax: 450, ay: 410, align: "center" as const },
-  { id: "home", title: "ACASĂ", lx: 86, ly: 42, ax: 690, ay: 745, align: "center" as const },
-  { id: "vehicle", title: "PORSCHE 911 GT3 RS", lx: 14, ly: 54, ax: 230, ay: 855, align: "left" as const },
-  { id: "battery", title: "POWERWALL", lx: 40, ly: 94, ax: 452, ay: 800, align: "center" as const },
-  { id: "grid", title: "GRILĂ", lx: 85, ly: 94, ax: 800, ay: 770, align: "center" as const },
+  { id: "solar", title: "SOLAR", lx: 47, ly: 13, ax: 445, ay: 415, align: "center" as const },
+  { id: "home", title: "ACASĂ", lx: 85, ly: 24, ax: 700, ay: 470, align: "center" as const },
+  { id: "vehicle", title: "PORSCHE 911 GT3 RS", lx: 15, ly: 49, ax: 235, ay: 770, align: "left" as const },
+  { id: "battery", title: "POWERWALL", lx: 50, ly: 93, ax: 455, ay: 800, align: "center" as const },
+  { id: "grid", title: "GRILĂ", lx: 84, ly: 93, ax: 800, ay: 770, align: "center" as const },
 ];
 
 export default function EnergyPage() {
@@ -82,13 +82,13 @@ function LiveTab({ onGoTab }: { onGoTab: (t: Tab) => void }) {
   const value = (id: string) => {
     if (id === "solar") return <div style={valS}>{kw(s.solar)}</div>;
     if (id === "home") return <div style={valS}>{kw(s.home)}</div>;
-    if (id === "battery") return <div style={{ ...valS, color: "#4ADE80" }}>{kw(s.battery)} · {Math.round(s.batteryPct)}%</div>;
+    if (id === "battery") return <div style={valS}>{kw(s.battery)} • {Math.round(s.batteryPct)}%</div>;
     if (id === "grid") return <div style={valS}>{kw(s.grid)}</div>;
     // vehicle
     return (
       <>
         <div style={{ ...lbl, marginTop: 2 }}>Încărcare</div>
-        <div style={{ ...valS, color: "#a78bfa" }}>{kw(s.vehicle)}</div>
+        <div style={valS}>{kw(s.vehicle)}</div>
         <div style={{ ...lbl, marginTop: 2 }}>Bateria mașinii {Math.round(carPct)}%</div>
       </>
     );
@@ -105,10 +105,7 @@ function LiveTab({ onGoTab }: { onGoTab: (t: Tab) => void }) {
           {/* leader lines */}
           <svg viewBox={`0 0 ${IMG_W} ${IMG_H}`} className="absolute inset-0 w-full h-full" preserveAspectRatio="none">
             {NODES.map((n) => (
-              <g key={n.id}>
-                <line x1={(n.lx / 100) * IMG_W} y1={(n.ly / 100) * IMG_H} x2={n.ax} y2={n.ay} stroke="rgba(255,255,255,0.4)" strokeWidth={1.4} />
-                <circle cx={n.ax} cy={n.ay} r={4} fill="#fff" fillOpacity={0.8} />
-              </g>
+              <line key={n.id} x1={(n.lx / 100) * IMG_W} y1={(n.ly / 100) * IMG_H} x2={n.ax} y2={n.ay} stroke="rgba(255,255,255,0.28)" strokeWidth={1} />
             ))}
           </svg>
 
@@ -119,12 +116,6 @@ function LiveTab({ onGoTab }: { onGoTab: (t: Tab) => void }) {
               {value(n.id)}
             </div>
           ))}
-
-          {/* LIVE badge */}
-          <div className="absolute top-3 left-3 flex items-center gap-1.5 px-2.5 py-1 rounded-full" style={{ background: "rgba(8,15,26,0.6)", border: "1px solid rgba(74,222,128,0.35)" }}>
-            <span className="w-1.5 h-1.5 rounded-full animate-pulse-glow" style={{ background: "var(--accent)", boxShadow: "0 0 6px var(--accent)" }} />
-            <span className="text-[10px] font-semibold" style={{ color: "var(--accent)" }}>LIVE</span>
-          </div>
         </div>
       </div>
 
