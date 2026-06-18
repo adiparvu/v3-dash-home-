@@ -19,10 +19,10 @@ type Tab = (typeof TABS)[number];
 // Starts at the render's values, then drifts live.
 const START: EnergyState = { solar: 6.5, home: 0.8, vehicle: 2.2, battery: 4.9, grid: 0, batteryPct: 89 };
 
-// Hybrid clone: the reference render (text + lines + font baked in) is the base;
-// only the numeric values are masked out (with a clean-plate "window") and
-// redrawn live. VALUES below define each value's mask rect and text center (% of
-// the 853×1844 image), measured from the reference.
+// Clean clone: a pristine 3D render of the estate (no text at all) is the base,
+// and every label, leader line and value is drawn as a crisp overlay — so there
+// is no image compositing and therefore no mask seams ("chenare"). Positions are
+// in % of the 853×1844 image, measured from the reference render.
 const GREEN = "#4ADE80";
 
 export default function EnergyPage() {
@@ -74,34 +74,64 @@ function LiveTab({ onGoTab }: { onGoTab: (t: Tab) => void }) {
 
   // System font (SF Pro on iOS) to match the render's baked text.
   const ff = '-apple-system, BlinkMacSystemFont, "SF Pro Display", "Helvetica Neue", Helvetica, Arial, sans-serif';
+  const GREY = "rgba(214,218,224,0.92)";
 
-  // Each value: mask rect [l,t,w,h] (% of image) and text center [x,y] (%).
-  const VALUES: { id: string; rect: [number, number, number, number]; c: [number, number]; align: "center" | "left"; fs: number; node: React.ReactNode }[] = [
-    { id: "solar", rect: [45.5, 22.6, 13.5, 2.2], c: [52.46, 23.76], align: "center", fs: 3.6, node: <>{kw(s.solar)}</> },
-    { id: "home", rect: [77.2, 28.3, 13, 2.1], c: [83.65, 29.26], align: "center", fs: 3.6, node: <>{kw(s.home)}</> },
-    { id: "battery", rect: [40.5, 71.7, 23.5, 3.2], c: [52.34, 73.3], align: "center", fs: 3.6, node: <>{kw(s.battery)} <span style={{ color: GREEN }}>▲</span> {Math.round(s.batteryPct)}%</> },
-    { id: "grid", rect: [78.5, 72.9, 10, 2.1], c: [83.47, 73.83], align: "center", fs: 3.6, node: <>{Math.round(Math.abs(s.grid))} kW</> },
-    { id: "vch", rect: [6.8, 48.05, 17.2, 2.35], c: [7.2, 49.2], align: "left", fs: 3.6, node: <span style={{ color: GREEN }}>{kw(s.vehicle)}</span> },
-    { id: "vb", rect: [6.8, 51.55, 11.2, 1.85], c: [7.2, 52.3], align: "left", fs: 3.4, node: <>{Math.round(carPct)}%</> },
+  type Align = "center" | "left";
+  // Static labels: [x, y] center (%), align, font size (cqw), color, weight, tracking, node
+  const LABELS: { id: string; c: [number, number]; align: Align; fs: number; color: string; w: number; ls?: number; node: React.ReactNode }[] = [
+    { id: "solarL", c: [52, 21.6], align: "center", fs: 2.0, color: GREY, w: 500, ls: 0.12, node: "SOLAR" },
+    { id: "homeL", c: [83.3, 27.9], align: "center", fs: 2.0, color: GREY, w: 500, ls: 0.12, node: "ACASĂ" },
+    { id: "pwL", c: [52, 71.7], align: "center", fs: 2.0, color: GREY, w: 500, ls: 0.12, node: "POWERWALL" },
+    { id: "gridL", c: [83.3, 71.7], align: "center", fs: 2.0, color: GREY, w: 500, ls: 0.12, node: "GRILĂ" },
+    { id: "porTitle", c: [7.3, 43.9], align: "left", fs: 2.5, color: "rgba(236,238,241,0.96)", w: 600, node: "PORSCHE" },
+    { id: "porTitle2", c: [7.3, 45.9], align: "left", fs: 2.5, color: "rgba(236,238,241,0.96)", w: 600, node: "911 GT3 RS" },
+    { id: "chL", c: [7.3, 47.7], align: "left", fs: 2.1, color: GREY, w: 500, node: "Încărcare" },
+    { id: "batL", c: [7.3, 51.3], align: "left", fs: 2.1, color: GREY, w: 500, node: "Baterie mașină" },
   ];
+  // Live values: [x, y] center (%), align, font size (cqw), node
+  const VALUES: { id: string; c: [number, number]; align: Align; fs: number; node: React.ReactNode }[] = [
+    { id: "solar", c: [52, 24.0], align: "center", fs: 3.5, node: <>{kw(s.solar)}</> },
+    { id: "home", c: [83.3, 30.2], align: "center", fs: 3.5, node: <>{kw(s.home)}</> },
+    { id: "battery", c: [52, 74.0], align: "center", fs: 3.5, node: <>{kw(s.battery)} <span style={{ color: GREEN }}>▲</span> {Math.round(s.batteryPct)}%</> },
+    { id: "grid", c: [83.3, 74.0], align: "center", fs: 3.5, node: <>{Math.round(Math.abs(s.grid))} kW</> },
+    { id: "vch", c: [7.3, 49.4], align: "left", fs: 3.5, node: <span style={{ color: GREEN }}>{kw(s.vehicle)}</span> },
+    { id: "vb", c: [7.3, 52.8], align: "left", fs: 3.1, node: <>{Math.round(carPct)}%</> },
+  ];
+  // Leader lines, in % of the image (preserveAspectRatio none → coords map 1:1).
+  const LINES: [number, number, number, number][] = [
+    [52, 25.6, 52, 39.2],     // solar → roof panel
+    [83.3, 31.7, 83.3, 42.5], // acasă → window
+    [52, 71.1, 52, 63.0],     // powerwall → unit
+    [83.3, 71.1, 83.3, 62.5], // grilă → meter
+    [13.5, 52.7, 21.5, 52.7], // porsche → charger
+  ];
+
+  const drawText = (t: { c: [number, number]; align: Align; fs: number; color?: string; w?: number; ls?: number; node: React.ReactNode }, key: string) => (
+    <div key={key} style={{ position: "absolute", left: `${t.c[0]}%`, top: `${t.c[1]}%`, transform: `translate(${t.align === "left" ? "0" : "-50%"}, -50%)`, fontFamily: ff, fontWeight: t.w ?? 600, fontSize: `${t.fs}cqw`, letterSpacing: t.ls ? `${t.ls}em` : undefined, color: t.color ?? "#fff", whiteSpace: "nowrap", lineHeight: 1, zIndex: 2 }}>
+      {t.node}
+    </div>
+  );
 
   return (
     <div>
-      {/* Hybrid: render with the values removed (labels + leader lines baked) as the
-          single base — no patch compositing, so there are no mask seams — and the
-          live values are redrawn on top exactly where the originals were. */}
+      {/* Pristine render as base; all text + lines + live values drawn on top — no
+          image compositing, so there are no mask seams. */}
       <div className="px-4 mb-3">
         <div className="relative w-full rounded-3xl overflow-hidden" style={{ aspectRatio: "853 / 1844", border: "1px solid rgba(255,255,255,0.08)", background: "#0a0e16", containerType: "size" }}>
-          {/* base: reference render with numbers removed (labels + lines kept) */}
+          {/* base: clean 3D estate render (no text) */}
           {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img src="/estate-energy-v3.png" alt="PRVIO Estate — energy" className="absolute inset-0 w-full h-full" style={{ objectFit: "cover" }} draggable={false} />
+          <img src="/estate-house.png" alt="PRVIO Estate — energy" className="absolute inset-0 w-full h-full" style={{ objectFit: "cover" }} draggable={false} />
 
-          {/* live values redrawn on top */}
-          {VALUES.map((v) => (
-            <div key={v.id + "t"} style={{ position: "absolute", left: `${v.c[0]}%`, top: `${v.c[1]}%`, transform: `translate(${v.align === "left" ? "0" : "-50%"}, -50%)`, fontFamily: ff, fontWeight: 600, fontSize: `${v.fs}cqw`, color: "#fff", whiteSpace: "nowrap", lineHeight: 1, zIndex: 2 }}>
-              {v.node}
-            </div>
-          ))}
+          {/* leader lines */}
+          <svg viewBox="0 0 100 100" preserveAspectRatio="none" className="absolute inset-0 w-full h-full" style={{ zIndex: 1 }}>
+            {LINES.map((l, i) => (
+              <line key={i} x1={l[0]} y1={l[1]} x2={l[2]} y2={l[3]} stroke="rgba(255,255,255,0.32)" strokeWidth={1} vectorEffect="non-scaling-stroke" />
+            ))}
+          </svg>
+
+          {/* labels + live values */}
+          {LABELS.map((t) => drawText(t, t.id))}
+          {VALUES.map((t) => drawText(t, t.id))}
         </div>
       </div>
 
