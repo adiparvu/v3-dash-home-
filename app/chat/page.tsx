@@ -4,13 +4,28 @@ import { useState, useRef, useEffect } from "react";
 import StatusBar from "../components/layout/StatusBar";
 import BottomNav from "../components/layout/BottomNav";
 import CallMenu, { CallContact } from "../components/CallMenu";
+import { useStore, RING_COLORS, initials } from "../lib/store";
+
+const roomTypeMeta: Record<string, { label: string; color: string }> = {
+  group: { label: "Group", color: "#4ADE80" },
+  property: { label: "Property", color: "#7C3AED" },
+  zone: { label: "Zone", color: "#22D3EE" },
+  asset: { label: "Asset", color: "#F59E0B" },
+  task: { label: "Task", color: "#4ADE80" },
+  dm: { label: "DM", color: "#7C3AED" },
+};
 
 const rooms = [
   { id: "general", name: "General", icon: "🏡", type: "group", unread: 0 },
   { id: "estate", name: "Estate Team", icon: "👥", type: "group", unread: 2 },
+  { id: "prvio-estate", name: "Prvio Estate", icon: "🏠", type: "property", unread: 0 },
   { id: "greenhouse", name: "Greenhouse", icon: "🏡", type: "zone", unread: 1 },
   { id: "lake", name: "Lake Zone", icon: "💧", type: "zone", unread: 0 },
   { id: "orchard", name: "Orchard", icon: "🍎", type: "zone", unread: 0 },
+  { id: "asset-lake-pump", name: "Lake Pump", icon: "🔧", type: "asset", unread: 1 },
+  { id: "asset-solar", name: "Solar Array", icon: "☀️", type: "asset", unread: 0 },
+  { id: "task-irrigation", name: "Irrigation Maintenance", icon: "✅", type: "task", unread: 2 },
+  { id: "task-harvest", name: "Orchard Harvest", icon: "🍏", type: "task", unread: 0 },
   { id: "ion", name: "Ion (Caretaker)", icon: "👨‍🌾", type: "dm", unread: 3, phone: "+40 733 000 011" },
   { id: "ana", name: "Ana (Manager)", icon: "👩‍💼", type: "dm", unread: 0, phone: "+40 733 000 012" },
 ];
@@ -52,6 +67,30 @@ const messagesData: Record<string, Message[]> = {
     { id: 1, author: "Ana", role: "Manager", avatar: "👩‍💼", avatarColor: "#7C3AED", text: "I've updated the Q3 budget proposal. Let me know your thoughts.", time: "Yesterday", mine: false },
     { id: 2, author: "You", role: "Owner", avatar: "🏠", avatarColor: "#4ADE80", text: "I'll review tonight.", time: "Yesterday", mine: true },
   ],
+  "prvio-estate": [
+    { id: 1, author: "System", role: "Bot", avatar: "🏠", avatarColor: "#7C3AED", text: "Estate-wide channel for everyone with access to Prvio Estate.", time: "Mon", mine: false, system: true },
+    { id: 2, author: "Ana", role: "Manager", avatar: "👩‍💼", avatarColor: "#7C3AED", text: "Reminder: annual inspection window opens next week across all zones.", time: "9:10", mine: false },
+    { id: 3, author: "You", role: "Owner", avatar: "🏠", avatarColor: "#4ADE80", text: "Thanks — let's coordinate contractors in the relevant asset channels.", time: "9:14", mine: true },
+  ],
+  "asset-lake-pump": [
+    { id: 1, author: "System", role: "Bot", avatar: "🔧", avatarColor: "#22D3EE", text: "Asset channel · Lake Pump (AquaTech, installed 2022).", time: "Tue", mine: false, system: true },
+    { id: 2, author: "Ion", role: "Caretaker", avatar: "👨‍🌾", avatarColor: "#22D3EE", text: "Pump is back to 97% efficiency after the filter swap.", time: "8:02", mine: false },
+    { id: 3, author: "You", role: "Owner", avatar: "🏠", avatarColor: "#4ADE80", text: "Great. Log the service in maintenance.", time: "8:05", mine: true },
+  ],
+  "asset-solar": [
+    { id: 1, author: "System", role: "Bot", avatar: "☀️", avatarColor: "#F59E0B", text: "Asset channel · Solar + battery array.", time: "Wed", mine: false, system: true },
+    { id: 2, author: "Ana", role: "Manager", avatar: "👩‍💼", avatarColor: "#7C3AED", text: "Yesterday's yield was 142 kWh — best week so far.", time: "10:20", mine: false },
+  ],
+  "task-irrigation": [
+    { id: 1, author: "System", role: "Bot", avatar: "✅", avatarColor: "#4ADE80", text: "Task channel · Irrigation System Maintenance (due today, Orchard).", time: "Today", mine: false, system: true },
+    { id: 2, author: "Ion", role: "Caretaker", avatar: "👨‍🌾", avatarColor: "#22D3EE", text: "Starting on the orchard irrigation lines now.", time: "7:30", mine: false },
+    { id: 3, author: "Ion", role: "Caretaker", avatar: "👨‍🌾", avatarColor: "#22D3EE", text: "Found a cracked emitter on row 4 — replacing it.", time: "7:48", mine: false },
+    { id: 4, author: "You", role: "Owner", avatar: "🏠", avatarColor: "#4ADE80", text: "Perfect. Mark it complete when the test run passes.", time: "8:00", mine: true },
+  ],
+  "task-harvest": [
+    { id: 1, author: "System", role: "Bot", avatar: "🍏", avatarColor: "#4ADE80", text: "Task channel · Orchard Harvest (planned in ~3 weeks).", time: "Mon", mine: false, system: true },
+    { id: 2, author: "Ana", role: "Manager", avatar: "👩‍💼", avatarColor: "#7C3AED", text: "Booking GreenGrow for the harvest week. Yield estimate 12.4 t.", time: "11:15", mine: false },
+  ],
 };
 
 interface Message {
@@ -67,6 +106,8 @@ interface Message {
 }
 
 export default function ChatPage() {
+  const { profile } = useStore();
+  const ring = RING_COLORS[profile.ringColor] ?? RING_COLORS[0];
   const [activeRoom, setActiveRoom] = useState("general");
   const [showRooms, setShowRooms] = useState(false);
   const [callContact, setCallContact] = useState<CallContact | null>(null);
@@ -141,11 +182,8 @@ export default function ChatPage() {
           <div className="flex items-center gap-2">
             <span className="text-base">{room.icon}</span>
             <h1 className="font-semibold text-base truncate" style={{ color: "var(--text-1)" }}>{room.name}</h1>
-            <span className="text-[10px] px-1.5 py-0.5 rounded-full flex-shrink-0" style={{
-              background: room.type === "dm" ? "rgba(124,58,237,0.15)" : room.type === "zone" ? "rgba(34,211,238,0.12)" : "rgba(74,222,128,0.12)",
-              color: room.type === "dm" ? "#7C3AED" : room.type === "zone" ? "#22D3EE" : "#4ADE80",
-            }}>
-              {room.type === "dm" ? "DM" : room.type === "zone" ? "Zone" : "Group"}
+            <span className="text-[10px] px-1.5 py-0.5 rounded-full flex-shrink-0" style={{ background: `${roomTypeMeta[room.type].color}22`, color: roomTypeMeta[room.type].color }}>
+              {roomTypeMeta[room.type].label}
             </span>
           </div>
         </div>
@@ -172,7 +210,10 @@ export default function ChatPage() {
 
             {[
               { label: "Group Chats", items: rooms.filter((r) => r.type === "group") },
+              { label: "Property Channels", items: rooms.filter((r) => r.type === "property") },
               { label: "Zone Channels", items: rooms.filter((r) => r.type === "zone") },
+              { label: "Asset Channels", items: rooms.filter((r) => r.type === "asset") },
+              { label: "Task Channels", items: rooms.filter((r) => r.type === "task") },
               { label: "Direct Messages", items: rooms.filter((r) => r.type === "dm") },
             ].map((section) => (
               <div key={section.label} className="mb-3">
@@ -221,15 +262,26 @@ export default function ChatPage() {
 
           if (msg.mine) {
             return (
-              <div key={msg.id} className={`flex flex-col items-end ${showMeta ? "mt-3" : "mt-0.5"}`}>
-                <div
-                  className="max-w-[75%] px-3.5 py-2.5 rounded-[18px] rounded-tr-md text-sm leading-relaxed"
-                  style={{ background: "linear-gradient(135deg, #4ADE80 0%, #22D3EE 100%)", color: "#050A14", fontWeight: 500 }}
-                >
-                  {msg.text}
+              <div key={msg.id} className={`flex items-end justify-end gap-2 ${showMeta ? "mt-3" : "mt-0.5"}`}>
+                <div className="flex flex-col items-end">
+                  <div
+                    className="max-w-[75%] px-3.5 py-2.5 rounded-[18px] rounded-tr-md text-sm leading-relaxed"
+                    style={{ background: "linear-gradient(135deg, #4ADE80 0%, #22D3EE 100%)", color: "#050A14", fontWeight: 500 }}
+                  >
+                    {msg.text}
+                  </div>
+                  {showMeta && (
+                    <span className="text-text-tertiary text-[10px] mt-0.5 mr-1">{msg.time}</span>
+                  )}
                 </div>
-                {showMeta && (
-                  <span className="text-text-tertiary text-[10px] mt-0.5 mr-1">{msg.time}</span>
+                {showMeta ? (
+                  <div className="w-8 h-8 rounded-full flex-shrink-0 p-0.5" style={{ background: ring.value }} title={`${profile.displayName} · ${ring.label} ring`}>
+                    <div className="w-full h-full rounded-full flex items-center justify-center text-[10px] font-bold" style={{ background: "var(--bg-1)", color: "var(--text-1)" }}>
+                      {initials(profile.displayName)}
+                    </div>
+                  </div>
+                ) : (
+                  <div className="w-8 flex-shrink-0" />
                 )}
               </div>
             );

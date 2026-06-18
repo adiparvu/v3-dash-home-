@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useMemo } from "react";
+import { useState, useEffect, useMemo, useRef, useCallback } from "react";
 import Link from "next/link";
 import StatusBar from "../components/layout/StatusBar";
 import BottomNav from "../components/layout/BottomNav";
@@ -26,6 +26,49 @@ export default function DigitalTwinPage() {
   const [selectedZone, setSelectedZone] = useState<string | null>(null);
   const [live, setLive] = useState(true);
   const [lastSync, setLastSync] = useState(0);
+  const [view, setView] = useState<"2d" | "3d">("2d");
+  // True once the backend twin event bus answers — then events are durable.
+  const remoteRef = useRef(false);
+
+  // Seed from the backend event bus when available (live state sync).
+  useEffect(() => {
+    let cancelled = false;
+    (async () => {
+      try {
+        const res = await fetch("/api/v1/twin/events?limit=20");
+        if (!res.ok) return;
+        const json = await res.json();
+        const rows = json?.data?.events;
+        if (!Array.isArray(rows) || cancelled) return;
+        remoteRef.current = true;
+        if (rows.length) {
+          setEvents(
+            rows.map((r: { id: string; sensor_external_id: string; label: string; message: string; status: TwinEvent["status"]; recorded_at: string }) => ({
+              id: r.id,
+              at: new Date(r.recorded_at).getTime(),
+              sensorId: r.sensor_external_id,
+              label: r.label,
+              message: r.message,
+              status: r.status,
+            }))
+          );
+        }
+      } catch {
+        /* backend unconfigured — stay on the on-device simulation */
+      }
+    })();
+    return () => { cancelled = true; };
+  }, []);
+
+  // Best-effort durable append to the backend event bus.
+  const persistEvent = useCallback((e: TwinEvent) => {
+    if (!remoteRef.current) return;
+    fetch("/api/v1/twin/events", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ sensorExternalId: e.sensorId, label: e.label, message: e.message, status: e.status }),
+    }).catch(() => { /* ignore transient failures */ });
+  }, []);
 
   // Live telemetry loop — synchronized state representation of physical assets.
   useEffect(() => {
@@ -52,7 +95,10 @@ export default function DigitalTwinPage() {
             });
           }
         });
-        if (newEvents.length) setEvents((e) => [...newEvents, ...e].slice(0, 20));
+        if (newEvents.length) {
+          setEvents((e) => [...newEvents, ...e].slice(0, 20));
+          newEvents.forEach(persistEvent);
+        }
         setSeries((ser) => {
           const updated: Record<string, number[]> = { ...ser };
           next.forEach((s) => {
@@ -65,7 +111,7 @@ export default function DigitalTwinPage() {
       setLastSync(Date.now());
     }, 2000);
     return () => clearInterval(interval);
-  }, [live]);
+  }, [live, persistEvent]);
 
   const counts = useMemo(() => {
     const c = { ok: 0, warn: 0, alert: 0 };
@@ -85,6 +131,18 @@ export default function DigitalTwinPage() {
           <svg width="18" height="18" viewBox="0 0 24 24" fill="none"><path d="M19 12H5M12 5l-7 7 7 7" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" /></svg>
         </Link>
         <h1 className="font-bold text-2xl flex-1" style={{ color: "var(--text-1)" }}>Digital Twin</h1>
+        <div className="flex rounded-full overflow-hidden mr-2" style={{ border: "0.5px solid var(--glass-border)" }}>
+          {(["2d", "3d"] as const).map((v) => (
+            <button
+              key={v}
+              onClick={() => setView(v)}
+              className="text-[11px] font-medium px-2.5 py-1 transition-colors"
+              style={view === v ? { background: "var(--accent)", color: "#08111E" } : { background: "var(--glass-bg)", color: "var(--text-3)" }}
+            >
+              {v.toUpperCase()}
+            </button>
+          ))}
+        </div>
         <button
           onClick={() => setLive((v) => !v)}
           className="text-[11px] font-medium px-2.5 py-1 rounded-full flex items-center gap-1.5"
@@ -113,8 +171,12 @@ export default function DigitalTwinPage() {
       <div className="px-4 mb-4">
         <div
           className="relative w-full rounded-3xl overflow-hidden"
-          style={{ aspectRatio: "1 / 1", background: "linear-gradient(160deg, #071428, #0A2540 60%, #050F1E)", border: "1px solid rgba(255,255,255,0.08)" }}
+          style={{ aspectRatio: "1 / 1", background: "linear-gradient(160deg, #071428, #0A2540 60%, #050F1E)", border: "1px solid rgba(255,255,255,0.08)", perspective: view === "3d" ? "900px" : undefined }}
         >
+         <div
+           className="absolute inset-0"
+           style={{ transformStyle: "preserve-3d", transformOrigin: "center 60%", transform: view === "3d" ? "rotateX(54deg) scale(0.82) translateY(-4%)" : "none", transition: "transform 0.5s ease" }}
+         >
           {/* topographic grid */}
           <div className="absolute inset-0 opacity-[0.06]" style={{ backgroundImage: "linear-gradient(rgba(255,255,255,0.5) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.5) 1px, transparent 1px)", backgroundSize: "24px 24px" }} />
 
@@ -127,6 +189,8 @@ export default function DigitalTwinPage() {
               return acc;
             }, "ok");
             const selected = selectedZone === z.id;
+            const lift = Math.round(((z.health - 75) / 25) * 26 + 12); // taller = healthier
+            const depthShadow = `0 ${Math.round(lift / 2)}px ${lift}px rgba(0,0,0,0.45), 0 ${lift}px 0 ${z.color}33`;
             return (
               <button
                 key={z.id}
@@ -136,7 +200,10 @@ export default function DigitalTwinPage() {
                   left: `${z.x}%`, top: `${z.y}%`, width: `${z.w}%`, height: `${z.h}%`,
                   background: `${z.color}1f`,
                   border: selected ? `1.5px solid ${z.color}` : `1px solid ${z.color}55`,
-                  boxShadow: selected ? `0 0 16px ${z.color}55` : undefined,
+                  transformStyle: "preserve-3d",
+                  transform: view === "3d" ? `translateZ(${lift}px)` : undefined,
+                  boxShadow: view === "3d" ? depthShadow : selected ? `0 0 16px ${z.color}55` : undefined,
+                  transition: "transform 0.5s ease, box-shadow 0.5s ease",
                 }}
               >
                 <div className="flex items-center gap-1">
@@ -154,6 +221,7 @@ export default function DigitalTwinPage() {
               </button>
             );
           })}
+         </div>
         </div>
         <div className="flex items-center justify-center gap-4 mt-2">
           {(["ok", "warn", "alert"] as const).map((st) => (

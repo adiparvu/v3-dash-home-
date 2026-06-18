@@ -79,8 +79,8 @@ future track that reuses the same versioned backend contracts.
 
 | Item | Status |
 | --- | --- |
-| Household chat (direct, group, property, asset, task) | 🚧 |
-| Avatar ring color shown in chat / collaboration | ⏳ |
+| Household chat (direct, group, property, asset, task) | ✅ |
+| Avatar ring color shown in chat / collaboration | ✅ |
 | Calling integrations (Phone, FaceTime, WhatsApp, Telegram) | ✅ |
 
 ## Phase 6 — Virtual AI Assistant
@@ -89,7 +89,7 @@ future track that reuses the same versioned backend contracts.
 | --- | --- |
 | User-owned AI identity (name, avatar, personality config) | ✅ |
 | Bring-your-own-model selection (UI) | ✅ |
-| Retrieval-augmented estate knowledge (scope-controlled retriever; pgvector backend pending) | 🚧 |
+| Retrieval-augmented estate knowledge (pgvector store + match_knowledge RPC + `/api/v1/ai/retrieve`; on-device fallback) | ✅ |
 | Document understanding + summarization (on-device; backend orchestrator pending) | 🚧 |
 | Bring-your-own-model support | ⏳ |
 | AI guardrails (deny-by-default tools, prompt isolation, classification, output validation, AI audit log) | ✅ |
@@ -98,10 +98,10 @@ future track that reuses the same versioned backend contracts.
 
 | Item | Status |
 | --- | --- |
-| 2D spatial property + asset/sensor mapping (Digital Twin map; 3D pending) | 🚧 |
+| 2D + 3D spatial property mapping (Digital Twin map with isometric view) | ✅ |
 | Telemetry ingestion + time-series representation (live sparklines) | ✅ |
 | Home Assistant / IoT integration gateway surface | ✅ |
-| Real-time state sync via event bus (client-simulated event feed; backend bus pending) | 🚧 |
+| Real-time state sync via event bus (twin_events + Supabase Realtime + `/api/v1/twin/events`; on-device fallback) | ✅ |
 
 ## Phase 8 — Apple-Native Clients & Widgets
 

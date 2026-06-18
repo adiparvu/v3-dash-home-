@@ -5,7 +5,7 @@ import Link from "next/link";
 import StatusBar from "../components/layout/StatusBar";
 import BottomNav from "../components/layout/BottomNav";
 import { useStore } from "../lib/store";
-import { retrieve, OWNER_SCOPES, RetrievedChunk } from "../lib/ai/retrieval";
+import { retrieve, retrieveRemote, OWNER_SCOPES, RetrievedChunk } from "../lib/ai/retrieval";
 import { classifyAndGuard, validateOutput, classificationMeta, GuardrailDecision } from "../lib/ai/guardrails";
 
 const suggestions = [
@@ -19,6 +19,7 @@ type MsgMeta = {
   classification: GuardrailDecision["classification"];
   sources: { title: string; scope: string }[];
   requiresApproval?: boolean;
+  retrieval?: "backend" | "on-device";
 };
 
 type Msg = { id: number; role: "user" | "assistant"; content: string; meta?: MsgMeta };
@@ -96,13 +97,17 @@ export default function AIPage() {
         return;
       }
 
-      // 2) Authorized retrieval, scoped to the owner's tenant.
-      const chunks = retrieve(decision.sanitizedInput, OWNER_SCOPES, 3);
-      const { text } = validateOutput(compose(trimmed, chunks));
-      const sources = chunks.map((c) => ({ title: c.title, scope: c.scope }));
-      logAiDecision({ prompt: trimmed.slice(0, 120), classification: decision.classification, risk: decision.risk, allowed: true, scopes: sources.map((s) => s.scope) });
-      pushAssistant(text, { classification: decision.classification, sources });
-      setTyping(false);
+      // 2) Authorized retrieval — prefer the backend pgvector store, fall back
+      //    to the on-device retriever when the backend is unavailable.
+      (async () => {
+        const remote = await retrieveRemote(decision.sanitizedInput, OWNER_SCOPES);
+        const chunks = remote ?? retrieve(decision.sanitizedInput, OWNER_SCOPES, 3);
+        const { text } = validateOutput(compose(trimmed, chunks));
+        const sources = chunks.map((c) => ({ title: c.title, scope: c.scope }));
+        logAiDecision({ prompt: trimmed.slice(0, 120), classification: decision.classification, risk: decision.risk, allowed: true, scopes: sources.map((s) => s.scope) });
+        pushAssistant(text, { classification: decision.classification, sources, retrieval: remote ? "backend" : "on-device" });
+        setTyping(false);
+      })();
     }, 650);
   };
 
@@ -193,11 +198,16 @@ export default function AIPage() {
                 )}
 
                 {meta && meta.sources.length > 0 && (
-                  <div className="mt-2 pt-2 flex flex-wrap gap-1.5" style={{ borderTop: "0.5px solid var(--glass-border)" }}>
+                  <div className="mt-2 pt-2 flex flex-wrap items-center gap-1.5" style={{ borderTop: "0.5px solid var(--glass-border)" }}>
                     <span className="text-[10px]" style={{ color: "var(--text-3)" }}>Sources:</span>
                     {meta.sources.map((s, i) => (
                       <span key={i} className="text-[10px] px-1.5 py-0.5 rounded-md" style={{ background: "rgba(34,211,238,0.10)", color: "#22D3EE" }}>{s.title}</span>
                     ))}
+                    {meta.retrieval && (
+                      <span className="text-[10px] px-1.5 py-0.5 rounded-md" style={{ background: "var(--glass-bg)", color: "var(--text-3)" }}>
+                        {meta.retrieval === "backend" ? "● backend store" : "on-device"}
+                      </span>
+                    )}
                   </div>
                 )}
               </div>

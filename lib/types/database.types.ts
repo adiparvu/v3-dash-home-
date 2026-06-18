@@ -999,12 +999,95 @@ export type Database = {
         }
         Relationships: []
       }
+      knowledge_chunks: {
+        Row: {
+          id: string
+          property_id: string
+          scope: string
+          title: string
+          content: string
+          keywords: string[]
+          embedding: string | null
+          metadata: Json | null
+          created_at: string
+          updated_at: string
+        }
+        Insert: {
+          id?: string
+          property_id: string
+          scope: string
+          title: string
+          content: string
+          keywords?: string[]
+          embedding?: string | null
+          metadata?: Json | null
+          created_at?: string
+          updated_at?: string
+        }
+        Update: {
+          id?: string
+          property_id?: string
+          scope?: string
+          title?: string
+          content?: string
+          keywords?: string[]
+          embedding?: string | null
+          metadata?: Json | null
+          created_at?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      twin_events: {
+        Row: {
+          id: string
+          property_id: string
+          sensor_external_id: string
+          label: string
+          message: string
+          status: string
+          recorded_at: string
+        }
+        Insert: {
+          id?: string
+          property_id: string
+          sensor_external_id: string
+          label: string
+          message: string
+          status: string
+          recorded_at?: string
+        }
+        Update: {
+          id?: string
+          property_id?: string
+          sensor_external_id?: string
+          label?: string
+          message?: string
+          status?: string
+          recorded_at?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      match_knowledge: {
+        Args: {
+          prop_id: string
+          query_embedding: string
+          match_scopes: string[]
+          match_count?: number
+        }
+        Returns: {
+          id: string
+          scope: string
+          title: string
+          content: string
+          similarity: number
+        }[]
+      }
     }
     Enums: {
       zone_type:
@@ -1095,6 +1178,8 @@ export type Contractor = Tables<'contractors'>
 export type MaintenanceRecord = Tables<'maintenance_records'>
 export type Notification = Tables<'notifications'>
 export type ChatMessage = Tables<'chat_messages'>
+export type KnowledgeChunk = Tables<'knowledge_chunks'>
+export type TwinEvent = Tables<'twin_events'>
 export type ProfileSocialLink = Tables<'profile_social_links'>
 export type TrustedPerson = Tables<'trusted_persons'>
 export type UserSession = Tables<'user_sessions'>

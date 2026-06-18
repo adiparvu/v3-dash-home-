@@ -9,6 +9,23 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 ### Added
+- **Chat breadth & avatar ring color (Phase 5)** — household chat now spans all
+  spec channel types: Group, **Property**, Zone, **Asset** and **Task** channels
+  (plus Direct Messages), each with seeded threads and a typed header badge. The
+  signed-in user's messages now show their avatar with the **selected ring color**
+  from their profile, carrying avatar-ring identity into chat/collaboration.
+- **Backend promotion of prototype layers** — migration
+  `004_ai_knowledge_and_twin.sql` adds a **pgvector `knowledge_chunks`** store
+  with a backend-authorized, RLS + ownership-checked `match_knowledge` similarity
+  RPC, and a durable **`twin_events`** table published over Supabase Realtime.
+  New DAL (`lib/data/ai.ts`, `lib/data/twin.ts`), versioned routes
+  (`/api/v1/ai/retrieve`, `/api/v1/twin/events`) with auth + audit, and generated
+  types. The AI assistant now prefers the **backend retrieval store** (falling
+  back to the on-device retriever, shown via a source badge), and the Digital
+  Twin seeds from and durably appends to the **backend event bus** when
+  configured (falling back to the on-device simulation).
+- **3D Digital Twin view** — the twin map gains a 2D/3D toggle with an isometric,
+  health-extruded perspective of the estate.
 - **Digital Twin (Phase 7)** — a new `/twin` surface with a 2D spatial estate
   map (zones positioned on a normalized canvas with live status dots), live
   telemetry that ticks every 2s with per-sensor time-series sparklines, a

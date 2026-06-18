@@ -61,6 +61,38 @@ const KNOWLEDGE_BASE: KnowledgeChunk[] = [
  * caller's authorized scopes. Chunks outside the authorized scope set are never
  * returned (deny-by-default), modelling backend-enforced retrieval access control.
  */
+/**
+ * Backend retrieval over the live pgvector knowledge store (/api/v1/ai/retrieve).
+ * Returns null when the backend is unconfigured, the visitor is signed out, or
+ * there are no matches — callers fall back to the on-device retriever.
+ */
+export async function retrieveRemote(
+  query: string,
+  authorizedScopes: KnowledgeScope[]
+): Promise<RetrievedChunk[] | null> {
+  try {
+    const res = await fetch("/api/v1/ai/retrieve", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ query, scopes: authorizedScopes }),
+    });
+    if (!res.ok) return null;
+    const json = await res.json();
+    const chunks = json?.data?.chunks;
+    if (!Array.isArray(chunks) || chunks.length === 0) return null;
+    return chunks.map((c: { id: string; scope: KnowledgeScope; title: string; content: string }, i: number) => ({
+      id: c.id,
+      scope: c.scope,
+      title: c.title,
+      content: c.content,
+      keywords: [],
+      score: chunks.length - i,
+    }));
+  } catch {
+    return null;
+  }
+}
+
 export function retrieve(
   query: string,
   authorizedScopes: KnowledgeScope[],
