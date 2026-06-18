@@ -9,6 +9,18 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 ### Added
+- **Digital Twin (Phase 7)** — a new `/twin` surface with a 2D spatial estate
+  map (zones positioned on a normalized canvas with live status dots), live
+  telemetry that ticks every 2s with per-sensor time-series sparklines, a
+  real-time **State Events** feed (event-bus stand-in emitting on status
+  transitions), and a normal/drifting/alert status strip. Tap a zone to filter
+  its telemetry. Backed by a framework-free model in `app/lib/twin/telemetry.ts`.
+- **Home Assistant / IoT integration gateway** — a new
+  `/settings/integrations/home-assistant` gateway screen showing connection
+  status, the IoT→Gateway→Backend→Twin sync flow, a connected-device/entity list
+  with online state and last-seen, and a sync action — reflecting backend-managed
+  contracts (clients never talk to IoT directly). Linked from Integrations, the
+  Digital Twin, and the property detail Zones/Parcels tab.
 - **Contractor management — full field set** — contractors now carry the complete
   spec field set: Company Name, Contact Person, Phone, Email, Website, Services,
   Notes, Documents, Insurance Records, Ratings and Property History. A new

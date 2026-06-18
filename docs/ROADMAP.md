@@ -98,10 +98,10 @@ future track that reuses the same versioned backend contracts.
 
 | Item | Status |
 | --- | --- |
-| 2D/3D property + spatial asset mapping | ⏳ |
-| Telemetry ingestion + time-series representation | ⏳ |
-| Home Assistant / IoT integration gateways | ⏳ |
-| Real-time state sync via event bus | ⏳ |
+| 2D spatial property + asset/sensor mapping (Digital Twin map; 3D pending) | 🚧 |
+| Telemetry ingestion + time-series representation (live sparklines) | ✅ |
+| Home Assistant / IoT integration gateway surface | ✅ |
+| Real-time state sync via event bus (client-simulated event feed; backend bus pending) | 🚧 |
 
 ## Phase 8 — Apple-Native Clients & Widgets
 

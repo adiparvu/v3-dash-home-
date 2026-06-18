@@ -16,6 +16,7 @@ const sections = [
   {
     title: "Monitoring",
     items: [
+      { href: "/twin", label: "Digital Twin", icon: "🛰️", desc: "Live spatial estate model", badge: "Live" },
       { href: "/sensors", label: "Sensors", icon: "📡", desc: "26 connected sensors", badge: "Live" },
       { href: "/maintenance", label: "Maintenance", icon: "🔧", desc: "Schedule & history", badge: "1 due" },
       { href: "/contractors", label: "Contractors", icon: "👷", desc: "Service providers", badge: null },

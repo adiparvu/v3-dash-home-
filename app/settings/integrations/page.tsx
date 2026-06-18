@@ -55,10 +55,17 @@ export default function IntegrationsPage() {
                 <div className="w-11 h-11 rounded-2xl flex items-center justify-center text-xl flex-shrink-0" style={{ background: `${c.color}18`, border: `1px solid ${c.color}30` }}>
                   {c.icon}
                 </div>
-                <div className="flex-1 min-w-0">
-                  <p className="text-sm font-medium" style={{ color: "var(--text-1)" }}>{c.name}</p>
-                  <p className="text-text-secondary text-xs">{c.desc}</p>
-                </div>
+                {c.id === "ha" ? (
+                  <Link href="/settings/integrations/home-assistant" className="flex-1 min-w-0">
+                    <p className="text-sm font-medium" style={{ color: "var(--text-1)" }}>{c.name}</p>
+                    <p className="text-text-secondary text-xs">{c.desc} · manage gateway →</p>
+                  </Link>
+                ) : (
+                  <div className="flex-1 min-w-0">
+                    <p className="text-sm font-medium" style={{ color: "var(--text-1)" }}>{c.name}</p>
+                    <p className="text-text-secondary text-xs">{c.desc}</p>
+                  </div>
+                )}
                 <button
                   onClick={() => setConns((s) => ({ ...s, [c.id]: !s[c.id] }))}
                   className="w-11 h-6 rounded-full relative transition-all duration-200 flex-shrink-0"
