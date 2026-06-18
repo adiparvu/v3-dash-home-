@@ -3,9 +3,9 @@
 import { createContext, useContext, useState, useEffect } from "react";
 
 type Theme = "dark" | "light";
-interface ThemeCtx { theme: Theme; toggle: () => void }
+interface ThemeCtx { theme: Theme; toggle: () => void; setTheme: (t: Theme) => void }
 
-const ThemeContext = createContext<ThemeCtx>({ theme: "dark", toggle: () => {} });
+const ThemeContext = createContext<ThemeCtx>({ theme: "dark", toggle: () => {}, setTheme: () => {} });
 
 export function ThemeProvider({ children }: { children: React.ReactNode }) {
   const [theme, setTheme] = useState<Theme>("dark");
@@ -27,7 +27,7 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
   const toggle = () => setTheme((t) => (t === "dark" ? "light" : "dark"));
 
   return (
-    <ThemeContext.Provider value={{ theme, toggle }}>
+    <ThemeContext.Provider value={{ theme, toggle, setTheme }}>
       {children}
     </ThemeContext.Provider>
   );
