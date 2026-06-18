@@ -53,14 +53,24 @@ export default function CustomZonePage({ params }: { params: { slug: string } })
         <Link href="/zones" aria-label="Back" className="absolute top-14 left-5 w-9 h-9 rounded-2xl flex items-center justify-center z-10 liquid-glass" style={{ color: "var(--text-1)" }}>
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none"><path d="M15 18l-6-6 6-6" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" /></svg>
         </Link>
-        <button
-          onClick={() => setConfirmOpen(true)}
-          aria-label="Delete zone"
-          className="absolute top-14 right-5 w-9 h-9 rounded-2xl flex items-center justify-center z-10 liquid-glass active:scale-90 transition-transform"
-          style={{ color: "#EF4444" }}
-        >
-          <svg width="17" height="17" viewBox="0 0 24 24" fill="none"><path d="M3 6h18M8 6V4a1 1 0 011-1h6a1 1 0 011 1v2m2 0v14a1 1 0 01-1 1H6a1 1 0 01-1-1V6m4 5v6m6-6v6" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round" /></svg>
-        </button>
+        <div className="absolute top-14 right-5 z-10 flex items-center gap-2">
+          <Link
+            href={`${zone.href}/edit`}
+            aria-label="Edit zone"
+            className="w-9 h-9 rounded-2xl flex items-center justify-center liquid-glass active:scale-90 transition-transform"
+            style={{ color: "var(--text-1)" }}
+          >
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none"><path d="M12 20h9M16.5 3.5a2.12 2.12 0 013 3L7 19l-4 1 1-4z" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round" /></svg>
+          </Link>
+          <button
+            onClick={() => setConfirmOpen(true)}
+            aria-label="Delete zone"
+            className="w-9 h-9 rounded-2xl flex items-center justify-center liquid-glass active:scale-90 transition-transform"
+            style={{ color: "#EF4444" }}
+          >
+            <svg width="17" height="17" viewBox="0 0 24 24" fill="none"><path d="M3 6h18M8 6V4a1 1 0 011-1h6a1 1 0 011 1v2m2 0v14a1 1 0 01-1 1H6a1 1 0 01-1-1V6m4 5v6m6-6v6" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round" /></svg>
+          </button>
+        </div>
         <div className="w-24 h-24 rounded-full flex items-center justify-center text-5xl z-10 liquid-glass">{zone.icon}</div>
       </div>
 

@@ -44,6 +44,7 @@ interface StoreCtx {
   addZone: (z: Zone) => void;
   addAsset: (a: Asset) => void;
   updateAsset: (href: string, patch: Partial<Asset>) => void;
+  updateZone: (href: string, patch: Partial<Zone>) => void;
   removeAsset: (href: string) => void;
   removeZone: (href: string) => void;
   findAsset: (slug: string) => Asset | undefined;
@@ -63,6 +64,7 @@ const defaultCtx: StoreCtx = {
   addZone: () => {},
   addAsset: () => {},
   updateAsset: () => {},
+  updateZone: () => {},
   removeAsset: () => {},
   removeZone: () => {},
   findAsset: () => undefined,
@@ -126,6 +128,11 @@ export function StoreProvider({ children }: { children: React.ReactNode }) {
       setAddedAssets((prev) => prev.map((a) => (a.href === href ? { ...a, ...patch } : a))),
     []
   );
+  const updateZone = useCallback(
+    (href: string, patch: Partial<Zone>) =>
+      setAddedZones((prev) => prev.map((z) => (z.href === href ? { ...z, ...patch } : z))),
+    []
+  );
   const removeAsset = useCallback((href: string) => setAddedAssets((prev) => prev.filter((a) => a.href !== href)), []);
   const removeZone = useCallback((href: string) => setAddedZones((prev) => prev.filter((z) => z.href !== href)), []);
   const findAsset = useCallback(
@@ -139,7 +146,7 @@ export function StoreProvider({ children }: { children: React.ReactNode }) {
 
   return (
     <StoreContext.Provider
-      value={{ ready, estateName, setEstateName, onboarded, setOnboarded, addedZones, addedAssets, addZone, addAsset, updateAsset, removeAsset, removeZone, findAsset, findZone }}
+      value={{ ready, estateName, setEstateName, onboarded, setOnboarded, addedZones, addedAssets, addZone, addAsset, updateAsset, updateZone, removeAsset, removeZone, findAsset, findZone }}
     >
       {children}
     </StoreContext.Provider>
