@@ -37,6 +37,41 @@ const recentActivity = [
 
 const tabs = ["Overview", "Zones", "Parcels", "Value"];
 
+// ── Property Value Tracking (spec §6) ────────────────────────────────────────
+const valueHistory = [
+  { year: "2019", value: 1.8 },
+  { year: "2020", value: 1.95 },
+  { year: "2021", value: 2.05 },
+  { year: "2022", value: 2.2 },
+  { year: "2023", value: 2.3 },
+  { year: "2024", value: 2.4 },
+];
+
+const improvements = [
+  { name: "Smart irrigation system", year: 2021, cost: "€85k" },
+  { name: "Greenhouse expansion", year: 2022, cost: "€120k" },
+  { name: "Solar + battery array", year: 2023, cost: "€140k" },
+];
+
+const marketNotes =
+  "Comparable private estates in Cluj county have appreciated ~7%/yr over the last 3 years. Recent infrastructure improvements and the smart-home retrofit support an above-market valuation.";
+
+/** Build an SVG sparkline path from the value history. */
+function sparkline(points: { value: number }[], w: number, h: number, pad = 4) {
+  const vals = points.map((p) => p.value);
+  const min = Math.min(...vals);
+  const max = Math.max(...vals);
+  const span = max - min || 1;
+  const stepX = (w - pad * 2) / (points.length - 1);
+  return points
+    .map((p, i) => {
+      const x = pad + i * stepX;
+      const y = pad + (h - pad * 2) * (1 - (p.value - min) / span);
+      return `${i === 0 ? "M" : "L"}${x.toFixed(1)},${y.toFixed(1)}`;
+    })
+    .join(" ");
+}
+
 export default function PropertyDetailPage() {
   const [activeTab, setActiveTab] = useState("Overview");
 
@@ -308,7 +343,93 @@ export default function PropertyDetailPage() {
           </div>
         )}
 
-        {activeTab !== "Overview" && (
+        {activeTab === "Value" && (
+          <div className="px-5 space-y-4">
+            {/* Current value headline + sparkline */}
+            <div
+              className="rounded-2xl p-4"
+              style={{ background: "rgba(255,255,255,0.05)", border: "1px solid rgba(255,255,255,0.08)" }}
+            >
+              <p className="text-[#9CA3AF] text-[11px] mb-1">Current Property Value</p>
+              <div className="flex items-end justify-between">
+                <div>
+                  <p className="text-white font-bold text-3xl leading-none">€2.4M</p>
+                  <p className="text-[#4ADE80] text-xs mt-1.5 font-medium">▲ +33% since purchase (2019)</p>
+                </div>
+                <svg width="120" height="48" viewBox="0 0 120 48" fill="none">
+                  <path d={sparkline(valueHistory, 120, 48)} stroke="#4ADE80" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+                  <path d={`${sparkline(valueHistory, 120, 48)} L116,44 L4,44 Z`} fill="rgba(74,222,128,0.10)" stroke="none" />
+                </svg>
+              </div>
+            </div>
+
+            {/* Value breakdown */}
+            <div className="grid grid-cols-2 gap-3">
+              {[
+                { label: "Purchase Price", value: "€1.8M", sub: "Acquired 2019", color: "#22D3EE" },
+                { label: "Improvements", value: "€345k", sub: "3 capital projects", color: "#7C3AED" },
+                { label: "Est. Appreciation", value: "+33%", sub: "≈ €600k over 5 yrs", color: "#4ADE80" },
+                { label: "Land Area", value: "45 ha", sub: "€53k / ha", color: "#F59E0B" },
+              ].map((s) => (
+                <div key={s.label} className="rounded-2xl p-3" style={{ background: "rgba(255,255,255,0.05)", border: "1px solid rgba(255,255,255,0.08)" }}>
+                  <p className="text-[#9CA3AF] text-[11px] mb-1">{s.label}</p>
+                  <p className="font-bold text-xl" style={{ color: s.color }}>{s.value}</p>
+                  <p className="text-[#6B7280] text-[10px] mt-0.5">{s.sub}</p>
+                </div>
+              ))}
+            </div>
+
+            {/* Historical value */}
+            <div>
+              <p className="text-[#9CA3AF] text-xs font-medium uppercase tracking-wider mb-2">Historical Value</p>
+              <div className="rounded-2xl overflow-hidden" style={{ background: "rgba(255,255,255,0.05)", border: "1px solid rgba(255,255,255,0.08)" }}>
+                {valueHistory.slice().reverse().map((h, i, arr) => {
+                  const prev = arr[i + 1];
+                  const delta = prev ? ((h.value - prev.value) / prev.value) * 100 : 0;
+                  return (
+                    <div key={h.year} className={`flex items-center justify-between px-4 py-2.5 ${i < arr.length - 1 ? "border-b" : ""}`} style={{ borderColor: "rgba(255,255,255,0.06)" }}>
+                      <span className="text-[#9CA3AF] text-sm">{h.year}</span>
+                      <div className="flex items-center gap-3">
+                        <span className="text-white text-sm font-medium">€{h.value.toFixed(2)}M</span>
+                        {prev && (
+                          <span className="text-[10px] font-medium w-12 text-right" style={{ color: delta >= 0 ? "#4ADE80" : "#EF4444" }}>
+                            {delta >= 0 ? "+" : ""}{delta.toFixed(1)}%
+                          </span>
+                        )}
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
+
+            {/* Improvements */}
+            <div>
+              <p className="text-[#9CA3AF] text-xs font-medium uppercase tracking-wider mb-2">Improvements</p>
+              <div className="rounded-2xl overflow-hidden" style={{ background: "rgba(255,255,255,0.05)", border: "1px solid rgba(255,255,255,0.08)" }}>
+                {improvements.map((imp, i) => (
+                  <div key={imp.name} className={`flex items-center justify-between px-4 py-3 ${i < improvements.length - 1 ? "border-b" : ""}`} style={{ borderColor: "rgba(255,255,255,0.06)" }}>
+                    <div>
+                      <p className="text-white text-sm font-medium leading-tight">{imp.name}</p>
+                      <p className="text-[#6B7280] text-xs">{imp.year}</p>
+                    </div>
+                    <span className="text-[#7C3AED] text-sm font-semibold">{imp.cost}</span>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            {/* Market notes */}
+            <div>
+              <p className="text-[#9CA3AF] text-xs font-medium uppercase tracking-wider mb-2">Market Notes</p>
+              <div className="rounded-2xl p-4" style={{ background: "rgba(255,255,255,0.05)", border: "1px solid rgba(255,255,255,0.08)" }}>
+                <p className="text-[#C9CDD6] text-sm leading-relaxed">{marketNotes}</p>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {(activeTab === "Zones" || activeTab === "Parcels") && (
           <div className="px-5 py-8 flex flex-col items-center">
             <div
               className="w-16 h-16 rounded-2xl flex items-center justify-center mb-3"

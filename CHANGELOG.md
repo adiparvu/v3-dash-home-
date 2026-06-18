@@ -25,6 +25,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **Virtual AI Assistant configuration** — user-owned AI identity (custom name,
   avatar, personality), bring-your-own-model selection and voice toggle, persisted
   in the store and reflected in the assistant chat surface.
+- **Property Value Tracking** — the property "Value" tab now shows current value
+  with a historical sparkline, purchase price, improvements, estimated
+  appreciation, a year-by-year historical breakdown and market notes (spec §6).
 - **Backend foundation (Phase 2)** — migration `002_account_identity.sql` adding
   extended profile fields, `profile_social_links`, `trusted_persons`,
   `user_sessions` and an immutable `audit_log`, all RLS-protected; generated

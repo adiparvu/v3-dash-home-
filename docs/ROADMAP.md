@@ -64,7 +64,7 @@ future track that reuses the same versioned backend contracts.
 
 | Item | Status |
 | --- | --- |
-| Property value tracking (current, historical, purchase, improvements) | ⏳ |
+| Property value tracking (current, historical, purchase, improvements, appreciation, market notes) | ✅ |
 | Contractor management (full field set + insurance + ratings + history) | ⏳ |
 | Ownership transfer workflow (verification, legal records, audit preservation) | ⏳ |
 
