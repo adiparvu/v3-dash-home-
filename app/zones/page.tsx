@@ -134,9 +134,9 @@ export default function ZonesPage() {
       <div className="px-5 pt-1 pb-3 flex items-center justify-between">
         <h1 className="font-bold text-2xl" style={{ color: "var(--text-1)" }}>Zones</h1>
         <div className="flex items-center gap-2">
-          <button className="w-9 h-9 rounded-2xl flex items-center justify-center" style={{ background: "rgba(255,255,255,0.08)", border: "0.5px solid var(--glass-border)", color: "var(--text-1)" }}>
+          <Link href="/search" aria-label="Search" className="w-9 h-9 rounded-2xl flex items-center justify-center" style={{ background: "rgba(255,255,255,0.08)", border: "0.5px solid var(--glass-border)", color: "var(--text-1)" }}>
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none"><circle cx="11" cy="11" r="7" stroke="currentColor" strokeWidth="1.75" /><path d="M16.5 16.5L21 21" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" /></svg>
-          </button>
+          </Link>
           <Link href="/zones/new" aria-label="Add zone" className="w-9 h-9 rounded-2xl flex items-center justify-center active:scale-90 transition-transform" style={{ background: "rgba(74,222,128,0.15)", border: "1px solid rgba(74,222,128,0.30)", color: "var(--accent)" }}>
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none"><path d="M12 5v14M5 12h14" stroke="currentColor" strokeWidth="2" strokeLinecap="round" /></svg>
           </Link>

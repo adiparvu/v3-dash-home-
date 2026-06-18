@@ -77,6 +77,15 @@ export default function OverviewPage() {
           <h1 className="font-bold text-2xl leading-tight" style={{ color: "var(--text-1)" }}>{estateName}</h1>
         </div>
         <div className="flex items-center gap-2">
+          {/* Search */}
+          <Link
+            href="/search"
+            aria-label="Search"
+            className="w-9 h-9 rounded-2xl flex items-center justify-center transition-all duration-150 active:scale-90"
+            style={{ background: "var(--glass-bg)", border: "0.5px solid var(--glass-border)", color: "var(--text-2)" }}
+          >
+            <svg width="17" height="17" viewBox="0 0 24 24" fill="none"><circle cx="11" cy="11" r="7" stroke="currentColor" strokeWidth="1.75" /><path d="M16.5 16.5L21 21" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" /></svg>
+          </Link>
           {/* Theme toggle */}
           <button
             onClick={toggle}
