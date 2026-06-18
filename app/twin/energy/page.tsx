@@ -79,8 +79,10 @@ function LiveTab({ onGoTab }: { onGoTab: (t: Tab) => void }) {
   }, []);
 
   const sh = "0 1px 1px rgba(0,0,0,0.55)";
-  const title: React.CSSProperties = { fontSize: 7.5, letterSpacing: 0.4, color: "#9aa6b2", fontWeight: 400, textShadow: sh, lineHeight: 1.4 };
-  const val: React.CSSProperties = { fontSize: 13, fontWeight: 600, color: "#fff", textShadow: sh, lineHeight: 1.3 };
+  // Match the render's system font (SF Pro on iOS) instead of the app font.
+  const ff = '-apple-system, BlinkMacSystemFont, "SF Pro Display", "Helvetica Neue", Helvetica, Arial, sans-serif';
+  const title: React.CSSProperties = { fontFamily: ff, fontSize: 7.5, letterSpacing: 0.4, color: "#9aa6b2", fontWeight: 500, textShadow: sh, lineHeight: 1.4 };
+  const val: React.CSSProperties = { fontFamily: ff, fontSize: 13, fontWeight: 600, color: "#fff", textShadow: sh, lineHeight: 1.3 };
   const name: React.CSSProperties = { ...val, fontSize: 11 };
   const green = "#4ADE80";
 
