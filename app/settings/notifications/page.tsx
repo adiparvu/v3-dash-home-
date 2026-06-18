@@ -1,8 +1,10 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Link from "next/link";
 import StatusBar from "../../components/layout/StatusBar";
+
+const NOTIF_KEY = "prvio-notif-settings-v1";
 
 const categories = [
   { id: "alerts", label: "Critical Alerts", desc: "Leaks, intrusions, sensor failures", icon: "🚨", defaultOn: true },
@@ -27,6 +29,31 @@ export default function NotificationsSettingsPage() {
     Object.fromEntries(channels.map((c) => [c.id, c.defaultOn]))
   );
   const [quietHours, setQuietHours] = useState(true);
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    setMounted(true);
+    try {
+      const raw = localStorage.getItem(NOTIF_KEY);
+      if (raw) {
+        const s = JSON.parse(raw);
+        if (s.cats) setCats((c) => ({ ...c, ...s.cats }));
+        if (s.chans) setChans((c) => ({ ...c, ...s.chans }));
+        if (typeof s.quietHours === "boolean") setQuietHours(s.quietHours);
+      }
+    } catch {
+      /* ignore */
+    }
+  }, []);
+
+  useEffect(() => {
+    if (!mounted) return;
+    try {
+      localStorage.setItem(NOTIF_KEY, JSON.stringify({ cats, chans, quietHours }));
+    } catch {
+      /* ignore */
+    }
+  }, [cats, chans, quietHours, mounted]);
 
   const Toggle = ({ on, onClick }: { on: boolean; onClick: () => void }) => (
     <button
