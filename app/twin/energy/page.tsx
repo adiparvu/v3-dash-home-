@@ -103,7 +103,7 @@ function LiveTab({ onGoTab }: { onGoTab: (t: Tab) => void }) {
     // the reference render): HOME → window, BATTERY → Powerwall, GRID → meter,
     // SOLAR → roof panel, car battery → charger.
     [52.5, 25.2, 52.5, 42.5],   // solar → roof panel
-    [83.4, 30.7, 83.4, 51.8],   // home → window
+    [83.4, 30.7, 83.4, 55.9],   // home → window (to its centre)
     [52.4, 65.3, 52.4, 70.9],   // battery → powerwall unit
     [83.4, 66.3, 83.4, 70.9],   // grid → meter
     [13, 52.2, 22.2, 52.2],     // porsche → charger
