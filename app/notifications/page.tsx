@@ -6,6 +6,10 @@ import BottomNav from "../components/layout/BottomNav";
 import { useEnergyLive } from "../lib/twin/energyLive";
 import { useStore } from "../lib/store";
 import { deriveAlerts } from "../lib/twin/alerts";
+import { useNotifications } from "../lib/useSmartHome";
+
+const SEV_COLOR: Record<string, string> = { alert: "#F97316", warn: "#F59E0B", info: "#22D3EE", ok: "#4ADE80" };
+const KIND_ICON: Record<string, string> = { alert: "⚠️", task: "✅", automation: "⚡", system: "🌿", security: "🔒", maintenance: "🔧" };
 
 const NOTIF_STATE_KEY = "prvio-notif-state-v1";
 
@@ -49,6 +53,7 @@ export default function NotificationsPage() {
   const { s, carPct, source } = useEnergyLive();
   const { energy } = useStore();
   const liveAlerts = deriveAlerts(s, carPct, { backupReserve: energy.backupReserve, offGrid: energy.offGrid, stormWatch: energy.stormWatch });
+  const remoteNotifs = useNotifications();
 
   useEffect(() => {
     setMounted(true);
@@ -121,6 +126,26 @@ export default function NotificationsPage() {
                   <p className="text-xs mt-0.5" style={{ color: "var(--text-2)" }}>{a.desc}</p>
                 </div>
                 <span className="text-[9px] font-semibold px-1.5 py-0.5 rounded-full flex-shrink-0" style={{ background: `${a.color}22`, color: a.color }}>acum</span>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+
+      {mounted && remoteNotifs.items && remoteNotifs.items.length > 0 && (
+        <div className="px-4 mb-3">
+          <div className="flex items-center gap-2 mb-2 px-1">
+            <p className="text-text-secondary text-xs font-medium uppercase tracking-wide">Istoric · sincronizat</p>
+            <span className="text-[10px] font-semibold px-2 py-0.5 rounded-full" style={{ background: "rgba(74,222,128,0.15)", color: "#4ADE80" }}>Synced</span>
+          </div>
+          <div className="space-y-2">
+            {remoteNotifs.items.map((n) => (
+              <div key={n.id} className="w-full rounded-2xl p-3.5 flex items-start gap-3 liquid-glass" style={{ opacity: n.read ? 0.7 : 1 }}>
+                <div className="w-9 h-9 rounded-xl flex items-center justify-center text-base flex-shrink-0 mt-0.5" style={{ background: `${SEV_COLOR[n.severity] ?? "#22D3EE"}15`, border: `1px solid ${SEV_COLOR[n.severity] ?? "#22D3EE"}25` }}>{KIND_ICON[n.kind] ?? "🔔"}</div>
+                <div className="flex-1 min-w-0">
+                  <p className="text-sm font-medium leading-tight" style={{ color: "var(--text-1)" }}>{n.title}</p>
+                  {n.body && <p className="text-xs mt-0.5" style={{ color: "var(--text-2)" }}>{n.body}</p>}
+                </div>
               </div>
             ))}
           </div>

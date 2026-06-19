@@ -4,6 +4,7 @@ import { useState, useEffect } from "react";
 import Link from "next/link";
 import StatusBar from "../components/layout/StatusBar";
 import BottomNav from "../components/layout/BottomNav";
+import { useSchedules } from "../lib/useSmartHome";
 
 const AUTO_KEY = "prvio-automations-v1";
 
@@ -100,6 +101,7 @@ export default function AutomationsPage() {
   const [mounted, setMounted] = useState(false);
   const [showTemplates, setShowTemplates] = useState(false);
   const [areaFilter, setAreaFilter] = useState("All");
+  const scheduleHook = useSchedules();
 
   useEffect(() => {
     setMounted(true);
@@ -222,20 +224,26 @@ export default function AutomationsPage() {
 
       {/* Scheduler — time-triggered automations on a timeline */}
       {(() => {
-        const scheduled = items
-          .map((a) => ({ ...a, t: (a.trigger.match(/(\d{1,2}):(\d{2})/) ? a.trigger.match(/(\d{1,2}):(\d{2})/)![0] : a.trigger.includes("Sunset") ? "20:30" : a.trigger.includes("Sunrise") ? "06:15" : null) }))
-          .filter((a) => a.t)
-          .sort((a, b) => (a.t! < b.t! ? -1 : 1));
+        const derived = items
+          .map((a) => ({ id: String(a.id), accent: a.accentColor, icon: a.icon, name: a.name, enabled: a.active, t: (a.trigger.match(/(\d{1,2}):(\d{2})/) ? a.trigger.match(/(\d{1,2}):(\d{2})/)![0] : a.trigger.includes("Sunset") ? "20:30" : a.trigger.includes("Sunrise") ? "06:15" : null) }))
+          .filter((a) => a.t) as { id: string; accent: string; icon: string; name: string; enabled: boolean; t: string }[];
+        const remote = scheduleHook.schedules?.map((s) => ({ id: s.id, accent: "#22D3EE", icon: "⏰", name: s.name, enabled: s.enabled, t: s.time }));
+        const scheduled = (remote && remote.length ? remote : derived).sort((a, b) => (a.t < b.t ? -1 : 1));
         if (!scheduled.length) return null;
         return (
           <div className="px-4 mb-3">
-            <p className="text-text-secondary text-xs font-medium uppercase tracking-wide mb-2 px-1">Scheduler · azi</p>
+            <div className="flex items-center gap-2 mb-2 px-1">
+              <p className="text-text-secondary text-xs font-medium uppercase tracking-wide">Scheduler · azi</p>
+              <span className="text-[10px] font-semibold px-2 py-0.5 rounded-full" style={scheduleHook.source === "remote"
+                ? { background: "rgba(74,222,128,0.15)", color: "#4ADE80" }
+                : { background: "rgba(255,255,255,0.06)", color: "#9CA3AF" }}>{scheduleHook.source === "remote" ? "Synced" : "Demo"}</span>
+            </div>
             <div className="rounded-2xl p-3 liquid-glass space-y-2">
               {scheduled.map((a) => (
                 <div key={a.id} className="flex items-center gap-3">
-                  <span className="text-xs font-bold w-12 flex-shrink-0" style={{ color: a.accentColor }}>{a.t}</span>
+                  <span className="text-xs font-bold w-12 flex-shrink-0" style={{ color: a.accent }}>{a.t}</span>
                   <span className="text-sm flex-1 truncate" style={{ color: "var(--text-1)" }}>{a.icon} {a.name}</span>
-                  <span className="text-[10px]" style={{ color: a.active ? "#4ADE80" : "var(--text-3)" }}>{a.active ? "armat" : "oprit"}</span>
+                  <span className="text-[10px]" style={{ color: a.enabled ? "#4ADE80" : "var(--text-3)" }}>{a.enabled ? "armat" : "oprit"}</span>
                 </div>
               ))}
             </div>

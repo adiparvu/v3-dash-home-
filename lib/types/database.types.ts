@@ -1074,6 +1074,18 @@ export type Database = {
         }
         Relationships: []
       }
+      presence_events: {
+        Row: { id: string; property_id: string; person: string; room: string; present: boolean; recorded_at: string }
+        Insert: { id?: string; property_id: string; person: string; room: string; present?: boolean; recorded_at?: string }
+        Update: { id?: string; property_id?: string; person?: string; room?: string; present?: boolean; recorded_at?: string }
+        Relationships: []
+      }
+      automation_schedules: {
+        Row: { id: string; property_id: string; automation_id: string; area: string | null; at_time: string; enabled: boolean; created_at: string }
+        Insert: { id?: string; property_id: string; automation_id: string; area?: string | null; at_time: string; enabled?: boolean; created_at?: string }
+        Update: { id?: string; property_id?: string; automation_id?: string; area?: string | null; at_time?: string; enabled?: boolean; created_at?: string }
+        Relationships: []
+      }
       energy_readings: {
         Row: {
           id: string
@@ -1257,6 +1269,9 @@ export type KnowledgeChunk = Tables<'knowledge_chunks'>
 export type TwinEvent = Tables<'twin_events'>
 export type EnergyReading = Tables<'energy_readings'>
 export type DeviceRegistryRow = Tables<'device_registry'>
+export type PresenceEventRow = Tables<'presence_events'>
+export type AutomationScheduleRow = Tables<'automation_schedules'>
+export type NotificationRow = Tables<'notifications'>
 export type ProfileSocialLink = Tables<'profile_social_links'>
 export type TrustedPerson = Tables<'trusted_persons'>
 export type UserSession = Tables<'user_sessions'>

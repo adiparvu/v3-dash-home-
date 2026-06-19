@@ -14,6 +14,7 @@ import StatusBar from "../../components/layout/StatusBar";
 import BottomNav from "../../components/layout/BottomNav";
 import { useStore } from "../../lib/store";
 import { useEnergyLive } from "../../lib/twin/energyLive";
+import { usePresence } from "../../lib/useSmartHome";
 
 type Person = { name: string; initial: string; color: string };
 const PEOPLE: Record<string, Person> = {
@@ -51,6 +52,8 @@ export default function FloorplanPage() {
   const [selected, setSelected] = useState<string | null>(null);
   const { energy, setEnergy } = useStore();
   const { s, source } = useEnergyLive();
+  const { byRoom } = usePresence();
+  const peopleIn = (id: string) => byRoom[id] ?? [];
 
   useEffect(() => {
     const id = setInterval(() => setTick((t) => t + 1), 3000);
@@ -66,7 +69,7 @@ export default function FloorplanPage() {
   });
 
   const totalW = ROOMS.reduce((s, r) => s + live(r).watts, 0);
-  const occupied = ROOMS.filter((r) => r.people.length > 0);
+  const occupied = ROOMS.filter((r) => peopleIn(r.id).length > 0);
   const sel = ROOMS.find((r) => r.id === selected);
 
   const climateOn = energy.hvacMode !== "Off";
@@ -112,7 +115,7 @@ export default function FloorplanPage() {
       <div className="px-4 mb-3 grid grid-cols-3 gap-2">
         <div className="rounded-2xl p-2.5 text-center liquid-glass"><p className="font-bold text-lg" style={{ color: "var(--text-1)" }}>{(totalW / 1000).toFixed(1)} kW</p><p className="text-text-secondary text-[10px]">Consum casă</p></div>
         <div className="rounded-2xl p-2.5 text-center liquid-glass"><p className="font-bold text-lg" style={{ color: "#22D3EE" }}>{occupied.length}</p><p className="text-text-secondary text-[10px]">Camere ocupate</p></div>
-        <div className="rounded-2xl p-2.5 text-center liquid-glass"><p className="font-bold text-lg" style={{ color: "#4ADE80" }}>{Object.keys(PEOPLE).filter((p) => ROOMS.some((r) => r.people.includes(p))).length}</p><p className="text-text-secondary text-[10px]">Persoane acasă</p></div>
+        <div className="rounded-2xl p-2.5 text-center liquid-glass"><p className="font-bold text-lg" style={{ color: "#4ADE80" }}>{Object.keys(PEOPLE).filter((p) => ROOMS.some((r) => peopleIn(r.id).includes(p))).length}</p><p className="text-text-secondary text-[10px]">Persoane acasă</p></div>
       </div>
 
       {/* Floorplan grid */}
@@ -120,7 +123,7 @@ export default function FloorplanPage() {
         <div className="grid gap-2" style={{ gridTemplateAreas: GRID_AREAS, gridTemplateColumns: "1fr 1fr 1fr", gridAutoRows: "minmax(78px, auto)" }}>
           {ROOMS.map((r) => {
             const l = live(r);
-            const active = r.people.length > 0;
+            const active = peopleIn(r.id).length > 0;
             const isSel = selected === r.id;
             return (
               <button key={r.id} onClick={() => setSelected(isSel ? null : r.id)}
@@ -129,7 +132,7 @@ export default function FloorplanPage() {
                 <div className="flex items-center justify-between mb-1">
                   <span className="text-lg">{r.icon}</span>
                   <div className="flex -space-x-1">
-                    {r.people.map((p) => (
+                    {peopleIn(r.id).map((p) => (
                       <span key={p} className="w-5 h-5 rounded-full flex items-center justify-center text-[9px] font-bold" style={{ background: PEOPLE[p].color, color: "#05210F", border: "1.5px solid var(--bg-1)" }}>{PEOPLE[p].initial}</span>
                     ))}
                   </div>
@@ -158,7 +161,7 @@ export default function FloorplanPage() {
               { l: "Consum acum", v: `${live(sel).watts} W`, c: "#A78BFA" },
               { l: "Temperatură", v: `${live(sel).temp}°C`, c: "#F59E0B" },
               { l: "Lumini aprinse", v: `${sel.lights}`, c: "var(--text-1)" },
-              { l: "Prezență", v: sel.people.length ? sel.people.map((p) => PEOPLE[p].name).join(", ") : "Nimeni", c: sel.people.length ? "#4ADE80" : "var(--text-3)" },
+              { l: "Prezență", v: peopleIn(sel.id).length ? peopleIn(sel.id).map((p) => PEOPLE[p]?.name ?? p).join(", ") : "Nimeni", c: peopleIn(sel.id).length ? "#4ADE80" : "var(--text-3)" },
             ].map((row) => (
               <div key={row.l} className="flex items-center justify-between py-2.5" style={{ borderBottom: "1px solid rgba(255,255,255,0.06)" }}>
                 <span className="text-sm" style={{ color: "var(--text-3)" }}>{row.l}</span>
