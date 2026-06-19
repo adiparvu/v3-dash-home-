@@ -136,7 +136,14 @@ export default function AIPage() {
             <h1 className="font-bold text-lg leading-tight" style={{ color: "var(--text-1)" }}>{assistant.name}</h1>
             <div className="flex items-center gap-1">
               <span className="w-1 h-1 rounded-full" style={{ background: "var(--accent)" }} />
-              <span className="text-[10px]" style={{ color: "var(--accent)" }}>Online · guardrails on</span>
+              <span className="text-[10px]" style={{ color: "var(--accent)" }}>
+                {(() => {
+                  const m = assistant.model;
+                  const label = m === "byo" ? (assistant.byoModelName || "Custom model") : m === "claude" ? "Claude" : "On-device";
+                  const byoReady = m !== "byo" || Boolean(assistant.byoEndpoint && assistant.byoModelName && assistant.byoApiKey);
+                  return `via ${label}${byoReady ? "" : " · setup needed"} · guardrails on`;
+                })()}
+              </span>
             </div>
           </div>
         </div>

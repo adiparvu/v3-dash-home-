@@ -13,6 +13,7 @@ const MODELS = [
 
 export default function AssistantSettingsPage() {
   const { assistant, setAssistant } = useStore();
+  const byoReady = Boolean(assistant.byoEndpoint && assistant.byoModelName && assistant.byoApiKey);
   const [saved, setSaved] = useState(false);
 
   function save() {
@@ -131,6 +132,46 @@ export default function AssistantSettingsPage() {
             Bring-your-own-model keeps your estate knowledge under your control; the
             platform never claims ownership of it.
           </p>
+
+          {assistant.model === "byo" && (
+            <div className="rounded-2xl p-4 mt-3 liquid-glass space-y-3">
+              <div>
+                <label className="text-text-secondary text-xs font-medium mb-1.5 block">Endpoint URL</label>
+                <input
+                  value={assistant.byoEndpoint ?? ""}
+                  onChange={(e) => setAssistant({ byoEndpoint: e.target.value })}
+                  placeholder="https://api.your-provider.com/v1/chat/completions"
+                  className="w-full rounded-xl px-3 py-2.5 text-sm"
+                  style={{ background: "rgba(255,255,255,0.06)", border: "1px solid var(--glass-border)", color: "var(--text-1)" }}
+                />
+              </div>
+              <div>
+                <label className="text-text-secondary text-xs font-medium mb-1.5 block">Model name</label>
+                <input
+                  value={assistant.byoModelName ?? ""}
+                  onChange={(e) => setAssistant({ byoModelName: e.target.value })}
+                  placeholder="e.g. gpt-4o, llama-3.1-70b"
+                  className="w-full rounded-xl px-3 py-2.5 text-sm"
+                  style={{ background: "rgba(255,255,255,0.06)", border: "1px solid var(--glass-border)", color: "var(--text-1)" }}
+                />
+              </div>
+              <div>
+                <label className="text-text-secondary text-xs font-medium mb-1.5 block">API key</label>
+                <input
+                  type="password"
+                  value={assistant.byoApiKey ?? ""}
+                  onChange={(e) => setAssistant({ byoApiKey: e.target.value })}
+                  placeholder="sk-…"
+                  className="w-full rounded-xl px-3 py-2.5 text-sm"
+                  style={{ background: "rgba(255,255,255,0.06)", border: "1px solid var(--glass-border)", color: "var(--text-1)" }}
+                />
+              </div>
+              <p className="text-[11px] flex items-center gap-1.5" style={{ color: byoReady ? "#4ADE80" : "var(--text-3)" }}>
+                <span style={{ width: 6, height: 6, borderRadius: 999, background: byoReady ? "#4ADE80" : "#9CA3AF", display: "inline-block" }} />
+                {byoReady ? "Configurat — cheia rămâne pe dispozitiv." : "Completează endpoint, model și cheie."}
+              </p>
+            </div>
+          )}
         </div>
 
         {/* Voice */}

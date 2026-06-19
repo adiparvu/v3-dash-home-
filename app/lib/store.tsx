@@ -113,6 +113,10 @@ export type Assistant = {
   personality: string;
   /** Model identifier — supports bring-your-own-model. */
   model: string;
+  /** Bring-your-own-model: custom endpoint, model name and API key. */
+  byoEndpoint?: string;
+  byoModelName?: string;
+  byoApiKey?: string;
   voiceEnabled: boolean;
 };
 
@@ -121,6 +125,9 @@ const defaultAssistant: Assistant = {
   avatar: "✨",
   personality: "friendly",
   model: "on-device",
+  byoEndpoint: "",
+  byoModelName: "",
+  byoApiKey: "",
   voiceEnabled: false,
 };
 

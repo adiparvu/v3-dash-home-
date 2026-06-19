@@ -90,8 +90,8 @@ future track that reuses the same versioned backend contracts.
 | User-owned AI identity (name, avatar, personality config) | ✅ |
 | Bring-your-own-model selection (UI) | ✅ |
 | Retrieval-augmented estate knowledge (pgvector store + match_knowledge RPC + `/api/v1/ai/retrieve`; on-device fallback) | ✅ |
-| Document understanding + summarization (on-device; backend orchestrator pending) | 🚧 |
-| Bring-your-own-model support | ⏳ |
+| Document understanding + summarization (backend orchestrator `/api/v1/ai/summarize` + on-device fallback) | ✅ |
+| Bring-your-own-model support (custom endpoint / model / API key, persisted; active model shown in chat) | ✅ |
 | AI guardrails (deny-by-default tools, prompt isolation, classification, output validation, AI audit log) | ✅ |
 
 ## Phase 7 — Digital Twin & IoT

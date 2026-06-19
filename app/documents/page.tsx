@@ -51,18 +51,41 @@ export default function DocumentsPage() {
   const [summaryDoc, setSummaryDoc] = useState<Doc | null>(null);
   const [summary, setSummary] = useState<DocSummary | null>(null);
   const [summarizing, setSummarizing] = useState(false);
+  const [summarySource, setSummarySource] = useState<"backend" | "on-device">("on-device");
+
+  const aiConfigured = Boolean(
+    process.env.NEXT_PUBLIC_SUPABASE_URL && process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
+  );
 
   const runSummary = (doc: Doc) => {
     setSummaryDoc(doc);
     setSummary(null);
     setSummarizing(true);
+    const input = { name: doc.name, category: doc.category, type: doc.type, zone: doc.zone, date: doc.date };
     // Document content is treated as untrusted; understanding is logged as an AI decision.
-    setTimeout(() => {
-      const result = summarizeDocument({ name: doc.name, category: doc.category, type: doc.type, zone: doc.zone, date: doc.date });
-      logAiDecision({ prompt: `Summarize: ${doc.name}`.slice(0, 120), classification: "estate_query", risk: "low", allowed: true, scopes: ["documents"] });
+    logAiDecision({ prompt: `Summarize: ${doc.name}`.slice(0, 120), classification: "estate_query", risk: "low", allowed: true, scopes: ["documents"] });
+    const finish = (result: DocSummary, src: "backend" | "on-device") => {
+      setSummarySource(src);
       setSummary(result);
       setSummarizing(false);
-    }, 600);
+    };
+    // Prefer the backend orchestrator; fall back to the on-device summarizer.
+    (async () => {
+      if (aiConfigured) {
+        try {
+          const res = await fetch("/api/v1/ai/summarize", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(input),
+          });
+          if (res.ok) {
+            const json = await res.json();
+            if (json?.data?.summary) { finish(json.data.summary as DocSummary, "backend"); return; }
+          }
+        } catch { /* fall through to on-device */ }
+      }
+      setTimeout(() => finish(summarizeDocument(input), "on-device"), 500);
+    })();
   };
 
   useEffect(() => {
@@ -243,6 +266,11 @@ export default function DocumentsPage() {
 
             {summary && !summarizing && (
               <div className="space-y-4">
+                <span className="inline-flex items-center gap-1.5 text-[10px] font-semibold px-2 py-0.5 rounded-full" style={summarySource === "backend"
+                  ? { background: "rgba(74,222,128,0.15)", color: "#4ADE80", border: "1px solid rgba(74,222,128,0.25)" }
+                  : { background: "rgba(255,255,255,0.06)", color: "#9CA3AF", border: "1px solid rgba(255,255,255,0.12)" }}>
+                  {summarySource === "backend" ? "Backend AI" : "On-device"}{summary.redacted ? " · redacted" : ""}
+                </span>
                 <p className="text-sm leading-relaxed" style={{ color: "var(--text-1)" }}>{summary.summary}</p>
 
                 <div>
