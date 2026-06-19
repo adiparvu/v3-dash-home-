@@ -5,7 +5,7 @@ import StatusBar from "../../components/layout/StatusBar";
 import BottomNav from "../../components/layout/BottomNav";
 import EstateScene, { type TwinNode } from "../../components/twin3d/EstateScene";
 import { type MetricStatus } from "../../lib/monitor/types";
-import { POND_WATER, ORCHARD, GREENHOUSE, GARAGE } from "../../lib/monitor/presets";
+import { POND_WATER, ORCHARD, GREENHOUSE, GARAGE, POOL, CELLAR } from "../../lib/monitor/presets";
 import { useTwinStatuses, type StatusConfig } from "../../lib/twin/useTwinStatuses";
 import { useEnergyLive } from "../../lib/twin/energyLive";
 
@@ -15,7 +15,9 @@ const NODES: TwinNode[] = [
   { id: "orchard", label: "Livadă", route: "/zones/orchard", kind: "trees", pos: [7, 3.5] },
   { id: "greenhouse", label: "Greenhouse", route: "/zones/greenhouse", kind: "dome", pos: [6, -5] },
   { id: "garage", label: "Garaj", route: "/zones/garage", kind: "box", pos: [-6, -5], size: [3.2, 1.8, 2.6] },
-  { id: "garden", label: "Grădină", route: "/zones/garden", kind: "trees", pos: [0, 7] },
+  { id: "pool", label: "Piscină", route: "/zones/pool", kind: "water", pos: [4, 6] },
+  { id: "cellar", label: "Subsol", route: "/zones/cellar", kind: "box", pos: [-4, 7], size: [2.6, 1.2, 2.6] },
+  { id: "garden", label: "Grădină", route: "/zones/garden", kind: "trees", pos: [0, 8.5] },
 ];
 
 // Sensor-backed nodes → derive status from live readings vs each preset's bands.
@@ -24,6 +26,8 @@ const SENSOR_CONFIGS: StatusConfig[] = [
   { id: "orchard", zoneType: "orchard", specs: ORCHARD },
   { id: "greenhouse", zoneType: "greenhouse", specs: GREENHOUSE },
   { id: "garage", zoneType: "garage", specs: GARAGE },
+  { id: "pool", zoneType: "pool", specs: POOL },
+  { id: "cellar", zoneType: "cellar", specs: CELLAR },
 ];
 // Demo fallback when no live data flows.
 const FALLBACK: Record<string, MetricStatus> = { orchard: "warn" };

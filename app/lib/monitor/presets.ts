@@ -41,3 +41,21 @@ export const GARAGE: MetricSpec[] = [
   { key: "temperature", label: "Temperatură", unit: "°C", icon: "🌡️", demo: 16.5, decimals: 1, okMin: 5, okMax: 30, warnMin: 0, warnMax: 38 },
   { key: "humidity", label: "Umiditate", unit: "%", icon: "💧", demo: 52, decimals: 0, okMin: 30, okMax: 65, warnMin: 20, warnMax: 80 },
 ];
+
+// Piscină — pool water chemistry & comfort.
+export const POOL: MetricSpec[] = [
+  { key: "temperature", label: "Temperatură", unit: "°C", icon: "🌡️", demo: 27.5, decimals: 1, okMin: 26, okMax: 30, warnMin: 22, warnMax: 34 },
+  { key: "ph", label: "pH", icon: "🧪", demo: 7.4, decimals: 1, okMin: 7.2, okMax: 7.6, warnMin: 6.8, warnMax: 8.0 },
+  { key: "chlorine", label: "Clor liber", unit: "ppm", icon: "🧴", demo: 1.8, decimals: 1, okMin: 1, okMax: 3, warnMin: 0.5, warnMax: 5 },
+  { key: "water_level", label: "Nivel apă", unit: "cm", icon: "📏", demo: 12, decimals: 0, okMin: 8, okMax: 16, warnMin: 4, warnMax: 20 },
+  { key: "turbidity", label: "Turbiditate", unit: "NTU", icon: "🌫️", demo: 0.4, decimals: 1, okMax: 1.0, warnMax: 3.0 },
+  { key: "salinity", label: "Salinitate", unit: "ppt", icon: "🧂", demo: 3.1, decimals: 1, okMin: 2.7, okMax: 3.4, warnMin: 2.0, warnMax: 4.0 },
+];
+
+// Subsol — cramă / tehnic: cellar climate + flood/leak detection.
+export const CELLAR: MetricSpec[] = [
+  { key: "temperature", label: "Temperatură", unit: "°C", icon: "🌡️", demo: 12.5, decimals: 1, okMin: 11, okMax: 14, warnMin: 8, warnMax: 18 },
+  { key: "humidity", label: "Umiditate", unit: "%", icon: "💧", demo: 68, decimals: 0, okMin: 60, okMax: 75, warnMin: 50, warnMax: 85 },
+  { key: "water_level", label: "Inundație", unit: "mm", icon: "🌊", demo: 0, decimals: 0, okMax: 2, warnMax: 10 },
+  { key: "co2", label: "CO₂", unit: "ppm", icon: "🌫️", demo: 620, decimals: 0, okMax: 1000, warnMax: 2000 },
+];
