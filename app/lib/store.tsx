@@ -243,6 +243,8 @@ export type EnergyPrefs = {
   mode: EnergyMode;
   offGrid: boolean;
   stormWatch: boolean;
+  /** Charge the EV / Powerwall during the cheapest tariff window. */
+  chargeWhenCheap: boolean;
 };
 
 const defaultEnergy: EnergyPrefs = {
@@ -250,6 +252,7 @@ const defaultEnergy: EnergyPrefs = {
   mode: "time_based",
   offGrid: false,
   stormWatch: true,
+  chargeWhenCheap: true,
 };
 
 /** An ownership-transfer record (spec: Property & Estate Management → Property Transfer). */

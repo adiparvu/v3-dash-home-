@@ -66,6 +66,20 @@ function LiveTab({ onGoTab }: { onGoTab: (t: Tab) => void }) {
   const { s, carPct, source } = useEnergyLive();
   const [node, setNode] = useState<string | null>(null);
 
+  // OCPP-style charging session: track start % / time while the EV is charging.
+  const sess = useRef<{ startPct: number; startTime: number } | null>(null);
+  useEffect(() => {
+    if (s.vehicle > 0.1) {
+      if (!sess.current) sess.current = { startPct: carPct, startTime: Date.now() };
+    } else {
+      sess.current = null;
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [s.vehicle > 0.1]);
+  const evSession = sess.current
+    ? { active: true, energyKwh: Math.max(0, ((carPct - sess.current.startPct) / 100) * 93), minutes: Math.max(0, (Date.now() - sess.current.startTime) / 60000) }
+    : { active: false, energyKwh: 0, minutes: 0 };
+
   // System font (SF Pro on iOS) to match the render's baked text.
   const ff = '-apple-system, BlinkMacSystemFont, "SF Pro Display", "Helvetica Neue", Helvetica, Arial, sans-serif';
   const GREY = "rgba(214,218,224,0.92)";
@@ -151,7 +165,7 @@ function LiveTab({ onGoTab }: { onGoTab: (t: Tab) => void }) {
         </div>
       </div>
 
-      {node && <NodeSheet node={node} s={s} carPct={carPct} onClose={() => setNode(null)} />}
+      {node && <NodeSheet node={node} s={s} carPct={carPct} evSession={evSession} onClose={() => setNode(null)} />}
 
       {/* Pairwise flow routing — decomposed source → destination streams */}
       <div className="px-4 mb-3">
@@ -450,7 +464,7 @@ function FillBar({ pct, color = GREEN }: { pct: number; color?: string }) {
   );
 }
 
-function NodeSheet({ node, s, carPct, onClose }: { node: string; s: EnergyState; carPct: number; onClose: () => void }) {
+function NodeSheet({ node, s, carPct, evSession, onClose }: { node: string; s: EnergyState; carPct: number; evSession: { active: boolean; energyKwh: number; minutes: number }; onClose: () => void }) {
   const [houseView, setHouseView] = useState<"consumers" | "rooms">("consumers");
   const hist = useEnergyHistory();
   const meta: Record<string, { t: string; icon: string }> = {
@@ -467,7 +481,8 @@ function NodeSheet({ node, s, carPct, onClose }: { node: string; s: EnergyState;
   if (node === "solar") {
     const peak = hist.solar.length ? Math.max(...hist.solar) : s.solar;
     const kwh = hist.solar.length ? (hist.solar.reduce((a, b) => a + b, 0) / hist.solar.length) * 24 : 0;
-    const hmax = Math.max(1, ...hist.solar);
+    const forecastKwh = (hist.forecast.reduce((a, b) => a + b, 0) / hist.forecast.length) * 24;
+    const hmax = Math.max(1, ...hist.solar, ...hist.forecast);
     body = (
       <>
         <div className="flex items-start justify-between">
@@ -480,12 +495,20 @@ function NodeSheet({ node, s, carPct, onClose }: { node: string; s: EnergyState;
             {hist.source === "synced" ? "Sincronizat" : "Demo"}
           </span>
         </div>
-        <p className="text-[11px] mb-1" style={{ color: "var(--text-3)" }}>Producție azi · pe oră</p>
+        <div className="flex items-center justify-between mb-1">
+          <p className="text-[11px]" style={{ color: "var(--text-3)" }}>Producție azi · pe oră</p>
+          <span className="flex items-center gap-3 text-[10px]">
+            <span style={{ color: "#F59E0B" }}>● Realizat</span>
+            <span style={{ color: "#9CA3AF" }}>┄ Prognoză</span>
+          </span>
+        </div>
         <svg viewBox="0 0 300 70" className="w-full mb-3" style={{ height: 70 }} preserveAspectRatio="none">
           <path d={`${scaledPath(hist.solar, 300, 70, 4, hmax)} L296,66 L4,66 Z`} fill="rgba(245,158,11,0.14)" stroke="none" />
+          <path d={scaledPath(hist.forecast, 300, 70, 4, hmax)} fill="none" stroke="#9CA3AF" strokeWidth="1.5" strokeDasharray="4 4" strokeLinecap="round" strokeLinejoin="round" />
           <path d={scaledPath(hist.solar, 300, 70, 4, hmax)} fill="none" stroke="#F59E0B" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
         </svg>
         <SheetRow label="Generat azi" value={`${kwh.toFixed(1)} kWh`} accent />
+        <SheetRow label="Prognoză azi" value={`${forecastKwh.toFixed(1)} kWh`} />
         <SheetRow label="Vârf azi" value={`${peak.toFixed(1)} kW`} />
         <SheetRow label="Capacitate instalată" value="7.2 kWp" />
         <SheetRow label="Panouri" value="18 · funcționale" />
@@ -557,6 +580,21 @@ function NodeSheet({ node, s, carPct, onClose }: { node: string; s: EnergyState;
         <SheetRow label="Timp până la 100%" value={fmtH(eta)} />
         <SheetRow label="Autonomie adăugată" value={`+${Math.round(carPct * 4.6)} km`} />
         <SheetRow label="Capacitate baterie" value={`${cap} kWh`} />
+        {/* OCPP-style charging session */}
+        <div className="mt-3 rounded-2xl p-3" style={{ background: "rgba(255,255,255,0.05)" }}>
+          <div className="flex items-center justify-between mb-2">
+            <p className="text-xs font-semibold uppercase tracking-wide" style={{ color: "var(--text-3)" }}>Sesiune încărcare · OCPP</p>
+            <span className="text-[10px] font-semibold px-2 py-0.5 rounded-full" style={evSession.active
+              ? { background: "rgba(74,222,128,0.15)", color: "#4ADE80" }
+              : { background: "rgba(255,255,255,0.06)", color: "#9CA3AF" }}>
+              {evSession.active ? "Charging" : "Idle"}
+            </span>
+          </div>
+          <SheetRow label="Conector" value="Type 2 · CCS" />
+          <SheetRow label="Energie livrată" value={`${evSession.energyKwh.toFixed(1)} kWh`} accent={evSession.active} />
+          <SheetRow label="Durată sesiune" value={evSession.active ? `${Math.floor(evSession.minutes / 60)}h ${Math.round(evSession.minutes % 60)}m` : "—"} />
+          <SheetRow label="Cost sesiune" value={`${(evSession.energyKwh * TARIFF.buy).toFixed(2)} ${TARIFF.currency}`} />
+        </div>
       </>
     );
   } else if (node === "house") {
@@ -608,13 +646,16 @@ function NodeSheet({ node, s, carPct, onClose }: { node: string; s: EnergyState;
           <div key={c.n} className="py-2" style={{ borderBottom: "1px solid rgba(255,255,255,0.06)" }}>
             <div className="flex items-center justify-between mb-1.5">
               <span className="text-sm" style={{ color: "var(--text-1)" }}>{c.icon} {c.n}</span>
-              <span className="text-sm font-semibold" style={{ color: "var(--text-1)" }}>{(load * c.f).toFixed(2)} kW</span>
+              <span className="text-sm font-semibold flex items-center gap-1.5" style={{ color: "var(--text-1)" }}>
+                {Math.round(load * c.f * 1000)} W
+                <span className="text-[9px] font-medium px-1.5 py-0.5 rounded-full" style={{ background: "rgba(124,58,237,0.18)", color: "#A78BFA" }}>est.</span>
+              </span>
             </div>
             <FillBar pct={c.f * 100} color="#22D3EE" />
           </div>
         ))}
         <p className="text-[11px] mt-3" style={{ color: "var(--text-3)" }}>
-          {houseView === "rooms" ? "Energie pe cameră, sincronizat cu Digital Twin." : "Comută pe „Camere” pentru consumul pe zonă."}
+          {houseView === "rooms" ? "Energie pe cameră, sincronizat cu Digital Twin." : "Putere virtuală estimată (Powercalc) — dispozitive fără contor individual."}
         </p>
       </>
     );
@@ -659,6 +700,16 @@ function NodeSheet({ node, s, carPct, onClose }: { node: string; s: EnergyState;
 }
 
 // ── Energie tab ──────────────────────────────────────────────────────────────
+// Cheapest contiguous window (start hour, length) over an hourly price series.
+function cheapestWindow(series: number[], len = 4): { start: number; end: number; avg: number } {
+  let best = { start: 0, sum: Infinity };
+  for (let i = 0; i + len <= series.length; i++) {
+    const sum = series.slice(i, i + len).reduce((a, b) => a + b, 0);
+    if (sum < best.sum) best = { start: i, sum };
+  }
+  return { start: best.start, end: best.start + len, avg: best.sum / len };
+}
+
 // Shared-scale series path (0..maxVal) for overlaying two series on one chart.
 function scaledPath(values: number[], w: number, h: number, pad: number, maxVal: number): string {
   if (values.length < 2) return "";
@@ -861,6 +912,7 @@ function PowerwallTab() {
   // Rough off-grid runtime estimate from reserve %.
   const hours = Math.max(1, Math.round((reserve / 100) * 13.5 + 2));
   const charging = s.battery >= 0;
+  const cheap = cheapestWindow(TARIFF_SERIES, 4);
 
   return (
     <div className="px-4 space-y-4">
@@ -927,21 +979,32 @@ function PowerwallTab() {
         </div>
       </div>
 
-      {/* Tariff plan */}
+      {/* Tariff plan + dynamic charging */}
       <div className="rounded-3xl p-4 liquid-glass">
         <div className="flex items-center justify-between mb-1">
-          <p className="text-sm font-semibold" style={{ color: "var(--text-1)" }}>Plan tarifar · {TARIFF.provider}</p>
+          <p className="text-sm font-semibold" style={{ color: "var(--text-1)" }}>Plan tarifar dinamic · {TARIFF.provider}</p>
           <span className="text-text-tertiary text-[11px]">azi</span>
         </div>
         <div className="flex gap-6 mb-3">
           <div><p className="text-text-tertiary text-[11px]">Preț achiziție</p><p className="text-base font-bold" style={{ color: "var(--text-1)" }}>{TARIFF.buy.toFixed(2)} {TARIFF.currency}</p></div>
-          <div><p className="text-text-tertiary text-[11px]">Preț vânzare</p><p className="text-base font-bold" style={{ color: "var(--text-1)" }}>{TARIFF.sell.toFixed(2)} {TARIFF.currency}</p></div>
+          <div><p className="text-text-tertiary text-[11px]">Fereastră ieftină</p><p className="text-base font-bold" style={{ color: "#4ADE80" }}>{cheap.start}:00–{cheap.end}:00</p></div>
         </div>
         <svg viewBox="0 0 300 70" className="w-full" style={{ height: 70 }} preserveAspectRatio="none">
-          <path d={`${seriesPath(TARIFF_SERIES, 300, 70, 4)} L296,66 L4,66 Z`} fill="rgba(74,222,128,0.10)" stroke="none" />
+          {/* cheapest-window highlight band */}
+          <rect x={4 + (cheap.start / 24) * 292} y={2} width={((cheap.end - cheap.start) / 24) * 292} height={66} fill="rgba(74,222,128,0.14)" />
+          <path d={`${seriesPath(TARIFF_SERIES, 300, 70, 4)} L296,66 L4,66 Z`} fill="rgba(74,222,128,0.08)" stroke="none" />
           <path d={seriesPath(TARIFF_SERIES, 300, 70, 4)} fill="none" stroke="#4ADE80" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
         </svg>
-        <div className="flex justify-between text-text-tertiary text-[10px] mt-1"><span>6:00</span><span>12:00</span><span>18:00</span></div>
+        <div className="flex justify-between text-text-tertiary text-[10px] mt-1 mb-3"><span>0:00</span><span>12:00</span><span>24:00</span></div>
+        <div className="flex items-center justify-between pt-3" style={{ borderTop: "1px solid rgba(255,255,255,0.06)" }}>
+          <div className="flex-1 pr-3">
+            <p className="text-sm font-medium" style={{ color: "var(--text-1)" }}>Încarcă când e ieftin</p>
+            <p className="text-text-secondary text-xs">{energy.chargeWhenCheap ? `EV & Powerwall se încarcă la ${cheap.start}:00–${cheap.end}:00 (~${cheap.avg.toFixed(2)} ${TARIFF.currency}/kWh)` : "Încărcare oricând e nevoie"}</p>
+          </div>
+          <button onClick={() => setEnergy({ chargeWhenCheap: !energy.chargeWhenCheap })} aria-label="Charge when cheap" className="w-11 h-6 rounded-full relative transition-all flex-shrink-0" style={{ background: energy.chargeWhenCheap ? "#4ADE80" : "rgba(255,255,255,0.15)" }}>
+            <div className="absolute top-0.5 w-5 h-5 rounded-full transition-all" style={{ left: energy.chargeWhenCheap ? "calc(100% - 22px)" : "2px", background: energy.chargeWhenCheap ? "#050A14" : "rgba(255,255,255,0.5)" }} />
+          </button>
+        </div>
       </div>
 
       {/* Off-grid */}

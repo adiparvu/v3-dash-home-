@@ -16,9 +16,15 @@ const CONFIGURED = Boolean(
 
 type Row = { solar: number; home: number; vehicle: number; battery: number; grid: number };
 export type Autonomy = { total: number; solar: number; battery: number; grid: number };
-export type EnergyHistory = { solar: number[]; home: number[]; autonomy: Autonomy; source: "synced" | "demo" };
+export type EnergyHistory = { solar: number[]; home: number[]; forecast: number[]; autonomy: Autonomy; source: "synced" | "demo" };
 
 const r1 = (v: number) => Math.round(v * 10) / 10;
+
+// Clear-sky solar forecast (theoretical max per hour) — predicted vs actual.
+const PEAK_SOLAR = 6.8;
+export const SOLAR_FORECAST: number[] = Array.from({ length: 24 }, (_, h) =>
+  r1(Math.max(0, Math.sin(((h - 6) / 12) * Math.PI)) ** 1.15 * PEAK_SOLAR),
+);
 
 // Deterministic 24-hour demo day with a simple power balance (no randomness).
 function buildDemoDay(): Row[] {
@@ -61,6 +67,7 @@ const DEMO_ROWS = buildDemoDay();
 const DEMO: EnergyHistory = {
   solar: DEMO_ROWS.map((r) => r.solar),
   home: DEMO_ROWS.map((r) => r.home),
+  forecast: SOLAR_FORECAST,
   autonomy: autonomyOf(DEMO_ROWS),
   source: "demo",
 };
@@ -83,7 +90,7 @@ export function useEnergyHistory(): EnergyHistory {
           battery: Number(r.battery) || 0,
           grid: Number(r.grid) || 0,
         }));
-        setData({ solar: rows.map((r) => r.solar), home: rows.map((r) => r.home), autonomy: autonomyOf(rows), source: "synced" });
+        setData({ solar: rows.map((r) => r.solar), home: rows.map((r) => r.home), forecast: SOLAR_FORECAST, autonomy: autonomyOf(rows), source: "synced" });
       })
       .catch(() => {});
     return () => { cancelled = true; };
