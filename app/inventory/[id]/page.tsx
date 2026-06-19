@@ -5,6 +5,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import StatusBar from "../../components/layout/StatusBar";
 import { useStore } from "../../lib/store";
+import { useAssets } from "../../lib/useAssets";
 
 const assetData: Record<string, {
   name: string;
@@ -150,6 +151,10 @@ export default function InventoryDetailPage({ params }: { params: { id: string }
   const router = useRouter();
 
   const custom = findAsset(params.id);
+  const { assets: liveAssets, source: assetsSource } = useAssets();
+  const remote = liveAssets.find((a) => a.href === `/inventory/${params.id}`);
+  const synced = !custom && !assetData[params.id] && !!remote && assetsSource === "remote";
+
   const asset = custom
     ? {
         ...defaultAsset,
@@ -167,7 +172,26 @@ export default function InventoryDetailPage({ params }: { params: { id: string }
         purchaseDate: "—",
         warranty: "—",
       }
-    : assetData[params.id] ?? defaultAsset;
+    : assetData[params.id]
+    ? assetData[params.id]
+    : synced && remote
+    ? {
+        ...defaultAsset,
+        name: remote.name,
+        category: remote.category,
+        location: remote.location,
+        status: remote.status,
+        statusColor: remote.statusColor,
+        icon: remote.icon,
+        accentColor: remote.accentColor,
+        assetId: params.id.toUpperCase().slice(0, 10),
+        brand: "—",
+        model: "—",
+        serial: "—",
+        purchaseDate: "—",
+        warranty: "—",
+      }
+    : defaultAsset;
 
   return (
     <div className="min-h-screen" style={{ background: "var(--bg-1)" }}>
@@ -247,7 +271,14 @@ export default function InventoryDetailPage({ params }: { params: { id: string }
       >
         {/* Asset name + status */}
         <div className="flex items-start justify-between mb-1">
-          <h1 className="font-bold text-2xl leading-tight" style={{ color: "var(--text-1)" }}>{asset.name}</h1>
+          <div className="flex items-center gap-2">
+            <h1 className="font-bold text-2xl leading-tight" style={{ color: "var(--text-1)" }}>{asset.name}</h1>
+            <span className="text-[10px] font-semibold px-2 py-0.5 rounded-full" style={synced
+              ? { background: "rgba(74,222,128,0.15)", color: "#4ADE80", border: "1px solid rgba(74,222,128,0.25)" }
+              : { background: "rgba(255,255,255,0.06)", color: "#9CA3AF", border: "1px solid rgba(255,255,255,0.12)" }}>
+              {synced ? "Synced" : "Demo"}
+            </span>
+          </div>
           <span
             className="mt-1 px-3 py-1 rounded-full text-xs font-semibold flex-shrink-0"
             style={{

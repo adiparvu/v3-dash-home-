@@ -2,7 +2,9 @@
 
 import { useState } from "react";
 import Link from "next/link";
+import { useParams } from "next/navigation";
 import StatusBar from "../../components/layout/StatusBar";
+import { useProperty } from "../../lib/useProperty";
 
 const quickStats = [
   { label: "Property Value", value: "€2.4M", color: "#4ADE80", sub: "+33% since purchase" },
@@ -74,6 +76,10 @@ function sparkline(points: { value: number }[], w: number, h: number, pad = 4) {
 
 export default function PropertyDetailPage() {
   const [activeTab, setActiveTab] = useState("Overview");
+  const params = useParams();
+  const id = typeof params?.id === "string" ? params.id : Array.isArray(params?.id) ? params.id[0] : undefined;
+  const { source, property } = useProperty(id);
+  const locationLine = property.areaHa != null ? `${property.location} · ${property.areaHa} ha` : property.location;
 
   return (
     <div className="min-h-screen" style={{ background: "#050A14" }}>
@@ -153,7 +159,7 @@ export default function PropertyDetailPage() {
           <div className="flex items-end justify-between">
             <div>
               <p className="text-[rgba(255,255,255,0.5)] text-xs mb-1">Private Estate</p>
-              <h1 className="text-white font-bold text-3xl">Prvio Estate</h1>
+              <h1 className="text-white font-bold text-3xl">{property.name}</h1>
             </div>
             {/* Mini health ring */}
             <svg width="52" height="52" viewBox="0 0 52 52">
@@ -193,19 +199,29 @@ export default function PropertyDetailPage() {
         <div className="px-5 pt-1 pb-3 flex items-start justify-between">
           <div>
             <div className="flex items-center gap-2 mb-1">
-              <h2 className="text-white font-bold text-xl">Prvio Estate</h2>
+              <h2 className="text-white font-bold text-xl">{property.name}</h2>
+              {property.active && (
+                <span
+                  className="text-[10px] font-semibold px-2 py-0.5 rounded-full"
+                  style={{ background: "rgba(74,222,128,0.15)", color: "#4ADE80", border: "1px solid rgba(74,222,128,0.25)" }}
+                >
+                  Active
+                </span>
+              )}
               <span
                 className="text-[10px] font-semibold px-2 py-0.5 rounded-full"
-                style={{ background: "rgba(74,222,128,0.15)", color: "#4ADE80", border: "1px solid rgba(74,222,128,0.25)" }}
+                style={source === "remote"
+                  ? { background: "rgba(74,222,128,0.15)", color: "#4ADE80", border: "1px solid rgba(74,222,128,0.25)" }
+                  : { background: "rgba(255,255,255,0.06)", color: "#9CA3AF", border: "1px solid rgba(255,255,255,0.12)" }}
               >
-                Active
+                {source === "remote" ? "Synced" : "Demo"}
               </span>
             </div>
             <div className="flex items-center gap-1.5">
               <svg width="12" height="12" viewBox="0 0 24 24" fill="none">
                 <path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z" fill="#9CA3AF" />
               </svg>
-              <p className="text-[#9CA3AF] text-sm">Cluj-Napoca, România · 45 ha</p>
+              <p className="text-[#9CA3AF] text-sm">{locationLine}</p>
             </div>
           </div>
         </div>
