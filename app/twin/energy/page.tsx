@@ -99,13 +99,14 @@ function LiveTab({ onGoTab }: { onGoTab: (t: Tab) => void }) {
   ];
   // Leader lines, in % of the image (preserveAspectRatio none → coords map 1:1).
   const LINES: [number, number, number, number][] = [
-    // Uniform leader lines: start a consistent gap from the text, all the same
-    // length (10% of image height). Top labels drop down; bottom labels rise up.
-    [52.5, 25.0, 52.5, 35.0],   // solar (down)
-    [83.65, 30.6, 83.65, 40.6], // home (down)
-    [52.4, 60.6, 52.4, 70.6],   // battery (up)
-    [83.45, 60.6, 83.45, 70.6], // grid (up)
-    [13, 52.2, 22.2, 52.2],     // porsche (to charger)
+    // Each line connects its label to the component it points to (measured from
+    // the reference render): HOME → window, BATTERY → Powerwall, GRID → meter,
+    // SOLAR → roof panel, car battery → charger.
+    [52.5, 25.2, 52.5, 42.5],   // solar → roof panel
+    [83.4, 30.7, 83.4, 51.8],   // home → window
+    [52.4, 65.3, 52.4, 70.9],   // battery → powerwall unit
+    [83.4, 66.3, 83.4, 70.9],   // grid → meter
+    [13, 52.2, 22.2, 52.2],     // porsche → charger
   ];
 
   const drawText = (t: { c: [number, number]; align: Align; fs: number; color?: string; w?: number; ls?: number; node: React.ReactNode }, key: string) => (
