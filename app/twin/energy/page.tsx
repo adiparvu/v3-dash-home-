@@ -440,10 +440,27 @@ function NodeSheet({ node, s, carPct, onClose }: { node: string; s: EnergyState;
           <p className="text-4xl font-bold" style={{ color: "var(--text-1)" }}>{Math.round(carPct)}%</p>
           <p className="text-sm font-semibold" style={{ color: s.vehicle > 0.1 ? GREEN : "var(--text-3)" }}>{s.vehicle > 0.1 ? `Se încarcă · ${kw(s.vehicle)}` : "Inactiv"}</p>
         </div>
-        <div className="mb-4 relative">
+        <div className="mb-3 relative">
           <FillBar pct={carPct} />
           {s.vehicle > 0.1 && <div className="charge-pulse" />}
         </div>
+        {s.vehicle > 0.1 && (() => {
+          // Projected charge curve from now → full (tapers near the top, like a real EV).
+          const n = 14;
+          const curve = Array.from({ length: n }, (_, i) => {
+            const t = i / (n - 1);
+            return carPct + (100 - carPct) * (1 - Math.pow(1 - t, 2));
+          });
+          return (
+            <>
+              <p className="text-[11px] mb-1" style={{ color: "var(--text-3)" }}>Curbă de încărcare · acum → plin</p>
+              <svg viewBox="0 0 300 60" className="w-full mb-3" style={{ height: 60 }} preserveAspectRatio="none">
+                <path d={`${scaledPath(curve, 300, 60, 4, 100)} L296,56 L4,56 Z`} fill="rgba(74,222,128,0.14)" stroke="none" />
+                <path d={scaledPath(curve, 300, 60, 4, 100)} fill="none" stroke={GREEN} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+              </svg>
+            </>
+          );
+        })()}
         <SheetRow label="Vehicul" value="Porsche 911 GT3 RS" />
         <SheetRow label="Viteză încărcare" value={s.vehicle > 0.1 ? kw(s.vehicle) : "—"} accent={s.vehicle > 0.1} />
         <SheetRow label="Timp până la 100%" value={fmtH(eta)} />
@@ -470,10 +487,24 @@ function NodeSheet({ node, s, carPct, onClose }: { node: string; s: EnergyState;
       { n: "Hol & exterior", f: 0.12, icon: "🌳" },
     ];
     const rows = houseView === "consumers" ? consumers : rooms;
+    const hmax = Math.max(1, ...hist.home);
     body = (
       <>
-        <p className="text-4xl font-bold mb-1" style={{ color: "var(--text-1)" }}>{kw(load)}</p>
-        <p className="text-xs mb-3" style={{ color: "var(--text-3)" }}>Consum casă acum</p>
+        <div className="flex items-start justify-between">
+          <div>
+            <p className="text-4xl font-bold" style={{ color: "var(--text-1)" }}>{kw(load)}</p>
+            <p className="text-xs mb-3" style={{ color: "var(--text-3)" }}>Consum casă acum</p>
+          </div>
+          <span className="flex items-center gap-1.5 text-[11px] font-semibold mt-1" style={{ color: hist.source === "synced" ? GREEN : "var(--text-3)" }}>
+            <span style={{ width: 7, height: 7, borderRadius: 999, background: hist.source === "synced" ? GREEN : "#9CA3AF" }} />
+            {hist.source === "synced" ? "Sincronizat" : "Demo"}
+          </span>
+        </div>
+        <p className="text-[11px] mb-1" style={{ color: "var(--text-3)" }}>Consum azi · pe oră</p>
+        <svg viewBox="0 0 300 60" className="w-full mb-3" style={{ height: 60 }} preserveAspectRatio="none">
+          <path d={`${scaledPath(hist.home, 300, 60, 4, hmax)} L296,56 L4,56 Z`} fill="rgba(34,211,238,0.14)" stroke="none" />
+          <path d={scaledPath(hist.home, 300, 60, 4, hmax)} fill="none" stroke="#22D3EE" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+        </svg>
         <div className="flex gap-1 p-1 rounded-2xl mb-3" style={{ background: "rgba(255,255,255,0.05)" }}>
           {([["consumers", "Consumatori"], ["rooms", "Camere"]] as const).map(([k, lbl]) => (
             <button key={k} onClick={() => setHouseView(k)} className="flex-1 py-1.5 rounded-xl text-xs font-medium transition-all"
