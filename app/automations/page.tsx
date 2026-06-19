@@ -177,11 +177,18 @@ export default function AutomationsPage() {
                 </button>
               ))}
             </div>
-            <Link href="/automations/new">
-              <button className="w-full mt-3 rounded-2xl py-2.5 text-sm font-medium" style={{ background: "linear-gradient(135deg, #4ADE80, #22D3EE)", color: "#050A14" }}>
-                Build Custom Automation
-              </button>
-            </Link>
+            <div className="flex gap-2 mt-3">
+              <Link href="/automations/new" className="flex-1">
+                <button className="w-full rounded-2xl py-2.5 text-sm font-medium" style={{ background: "rgba(255,255,255,0.07)", border: "1px solid var(--glass-border)", color: "var(--text-1)" }}>
+                  Wizard
+                </button>
+              </Link>
+              <Link href="/automations/builder" className="flex-1">
+                <button className="w-full rounded-2xl py-2.5 text-sm font-medium" style={{ background: "linear-gradient(135deg, #4ADE80, #22D3EE)", color: "#050A14" }}>
+                  Builder vizual
+                </button>
+              </Link>
+            </div>
           </div>
         </div>
       )}
