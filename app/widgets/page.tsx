@@ -5,6 +5,10 @@ import Link from "next/link";
 import StatusBar from "../components/layout/StatusBar";
 import BottomNav from "../components/layout/BottomNav";
 import { useStore } from "../lib/store";
+import { useEnergyLive } from "../lib/twin/energyLive";
+import { useCameras } from "../lib/useCameras";
+import { useWeather } from "../lib/useWeather";
+import { deriveAlerts } from "../lib/twin/alerts";
 import {
   buildWidget,
   buildLockWidgets,
@@ -23,20 +27,34 @@ import {
  */
 
 function useSnapshot(): EstateSnapshot {
-  const { estateName, addedZones } = useStore();
+  const { estateName, addedZones, addedAssets, energy, security } = useStore();
+  const { s, carPct } = useEnergyLive();
+  const { cameras } = useCameras();
+  const weather = useWeather();
+
+  // Live alert count from the same engine that feeds the notifications center.
+  const alerts = deriveAlerts(s, carPct, {
+    backupReserve: energy.backupReserve,
+    offGrid: energy.offGrid,
+    stormWatch: energy.stormWatch,
+  }).filter((a) => a.severity === "alert" || a.severity === "warn").length;
+
+  const camerasOnline = cameras.filter((c) => c.online).length;
+  const openDoors = energy.doorsLocked ? 0 : 1;
+
   return {
     estateName: estateName || "Prvio Estate",
     healthScore: 87,
     zones: 26 + addedZones.length,
-    objects: 142,
+    objects: 142 + addedAssets.length,
     openTasks: 7,
-    alerts: 3,
+    alerts,
     maintenanceDue: 1,
     nextMaintenanceDays: 3,
     propertyValue: 2_400_000,
     appreciationPct: 4.2,
-    weather: { tempC: 22, condition: "Clear", icon: "☀️", high: 26, low: 14 },
-    security: { armed: true, cameras: 8, camerasOnline: 7, openDoors: 0 },
+    weather: { tempC: weather.tempC, condition: weather.condition, icon: weather.icon, high: weather.high, low: weather.low },
+    security: { armed: security.passcodeLock || security.faceId, cameras: cameras.length, camerasOnline, openDoors },
     month: new Date().getMonth(),
   };
 }
