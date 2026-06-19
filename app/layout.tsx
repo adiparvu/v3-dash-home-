@@ -2,6 +2,7 @@ import type { Metadata, Viewport } from "next";
 import "./globals.css";
 import { ThemeProvider } from "./components/ThemeProvider";
 import { StoreProvider } from "./lib/store";
+import ServiceWorkerRegistrar from "./components/ServiceWorkerRegistrar";
 
 export const metadata: Metadata = {
   title: "PRVIO EARTH",
@@ -25,6 +26,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
       </head>
       <body className="antialiased prvio-bg">
+        <ServiceWorkerRegistrar />
         <ThemeProvider>
          <StoreProvider>
           <div className="min-h-screen flex items-start justify-center md:py-8 prvio-bg">

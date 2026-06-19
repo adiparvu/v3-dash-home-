@@ -9,6 +9,20 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 ### Added
+- **Widget gallery & PWA offline shell** — a new **Widget Gallery**
+  (`/widgets`, linked from More) previews the native iOS widget set described in
+  the spec: **Home Screen** widgets at Small/Medium/Large (Property Status,
+  Tasks, Weather, Maintenance Due, Property Value, Security, Seasonal Checklist)
+  via a size segmented control, **Lock Screen** complications, and **Live
+  Activities** (maintenance, deliveries, inspections, plus an open-door alert)
+  with progress bars. All content is derived from a framework-free, unit-tested
+  model (`app/lib/widgets.ts`, 11 tests) so the same shapes can drive WidgetKit
+  timelines in the SwiftUI client (Phase 8). The **PWA** gained an offline app
+  shell: the service worker now precaches the shell and serves a cached response
+  or an `/offline` fallback when disconnected (push handlers retained), the
+  worker is registered on load via `ServiceWorkerRegistrar`, and the manifest
+  adds app **shortcuts** (AI, Energy, Notifications, Widgets), `id`, `scope`,
+  `categories` and a maskable icon entry.
 - **Platform hardening & connect-up** — wired the new smart-home surfaces to the
   live feed and persisted their controls: the **floorplan** now derives room
   power from the live house load (Live/Simulat badge) and HVAC/lights/doors/music

@@ -26,6 +26,7 @@ const sections = [
   {
     title: "Account",
     items: [
+      { href: "/widgets", label: "Widgets", icon: "🧩", desc: "Home, Lock Screen & Live Activities", badge: "New" },
       { href: "/settings", label: "Settings", icon: "⚙️", desc: "Preferences & security", badge: null },
       { href: "/settings/security", label: "Security", icon: "🔒", desc: "Face ID, sessions & audit log", badge: null },
       { href: "/settings/privacy", label: "Privacy & Data", icon: "🛡️", desc: "GDPR, exports & deletion", badge: null },
