@@ -374,6 +374,7 @@ function FillBar({ pct, color = GREEN }: { pct: number; color?: string }) {
 
 function NodeSheet({ node, s, carPct, onClose }: { node: string; s: EnergyState; carPct: number; onClose: () => void }) {
   const [houseView, setHouseView] = useState<"consumers" | "rooms">("consumers");
+  const hist = useEnergyHistory();
   const meta: Record<string, { t: string; icon: string }> = {
     solar: { t: "Solar", icon: "☀️" },
     battery: { t: "Powerwall", icon: "🔋" },
@@ -386,14 +387,30 @@ function NodeSheet({ node, s, carPct, onClose }: { node: string; s: EnergyState;
 
   let body: React.ReactNode = null;
   if (node === "solar") {
+    const peak = hist.solar.length ? Math.max(...hist.solar) : s.solar;
+    const kwh = hist.solar.length ? (hist.solar.reduce((a, b) => a + b, 0) / hist.solar.length) * 24 : 0;
+    const hmax = Math.max(1, ...hist.solar);
     body = (
       <>
-        <p className="text-4xl font-bold mb-1" style={{ color: "var(--text-1)" }}>{kw(s.solar)}</p>
-        <p className="text-xs mb-4" style={{ color: "var(--text-3)" }}>Producție în acest moment</p>
-        <SheetRow label="Generat azi" value="34.6 kWh" />
-        <SheetRow label="Vârf azi" value="6.2 kW" />
+        <div className="flex items-start justify-between">
+          <div>
+            <p className="text-4xl font-bold" style={{ color: "var(--text-1)" }}>{kw(s.solar)}</p>
+            <p className="text-xs mb-3" style={{ color: "var(--text-3)" }}>Producție în acest moment</p>
+          </div>
+          <span className="flex items-center gap-1.5 text-[11px] font-semibold mt-1" style={{ color: hist.source === "synced" ? GREEN : "var(--text-3)" }}>
+            <span style={{ width: 7, height: 7, borderRadius: 999, background: hist.source === "synced" ? GREEN : "#9CA3AF" }} />
+            {hist.source === "synced" ? "Sincronizat" : "Demo"}
+          </span>
+        </div>
+        <p className="text-[11px] mb-1" style={{ color: "var(--text-3)" }}>Producție azi · pe oră</p>
+        <svg viewBox="0 0 300 70" className="w-full mb-3" style={{ height: 70 }} preserveAspectRatio="none">
+          <path d={`${scaledPath(hist.solar, 300, 70, 4, hmax)} L296,66 L4,66 Z`} fill="rgba(245,158,11,0.14)" stroke="none" />
+          <path d={scaledPath(hist.solar, 300, 70, 4, hmax)} fill="none" stroke="#F59E0B" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+        </svg>
+        <SheetRow label="Generat azi" value={`${kwh.toFixed(1)} kWh`} accent />
+        <SheetRow label="Vârf azi" value={`${peak.toFixed(1)} kW`} />
         <SheetRow label="Capacitate instalată" value="7.2 kWp" />
-        <SheetRow label="Panouri" value="18 · funcționale" accent />
+        <SheetRow label="Panouri" value="18 · funcționale" />
         <SheetRow label="Stare invertor" value="Optimal" accent />
       </>
     );
