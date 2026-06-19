@@ -481,4 +481,14 @@
     border-radius: 999px; pointer-events: none;
     animation: chargePulse 1.6s ease-in-out infinite;
   }
+
+  /* Pairwise energy route — a stream of light dots flowing source → destination. */
+  @keyframes flowStream { from { background-position-x: 0; } to { background-position-x: 13px; } }
+  .flow-stream {
+    background-image: radial-gradient(circle at center, #ffffff 1px, rgba(74,222,128,0.75) 1.7px, rgba(74,222,128,0) 2.5px);
+    background-size: 13px 100%;
+    background-repeat: repeat-x;
+    background-position: center;
+    animation: flowStream linear infinite;
+  }
 }

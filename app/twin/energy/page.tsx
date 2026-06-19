@@ -153,6 +153,19 @@ function LiveTab({ onGoTab }: { onGoTab: (t: Tab) => void }) {
 
       {node && <NodeSheet node={node} s={s} carPct={carPct} onClose={() => setNode(null)} />}
 
+      {/* Pairwise flow routing — decomposed source → destination streams */}
+      <div className="px-4 mb-3">
+        <div className="rounded-3xl p-4 liquid-glass">
+          <p className="text-sm font-semibold mb-2" style={{ color: "var(--text-1)" }}>Rutare flux · live</p>
+          {(() => {
+            const routes = decomposeRoutes(s);
+            return routes.length ? routes.map((r) => <FlowRow key={r.id} route={r} />) : (
+              <p className="text-xs py-2" style={{ color: "var(--text-3)" }}>Sistem echilibrat — fără transfer activ.</p>
+            );
+          })()}
+        </div>
+      </div>
+
       {/* shortcuts */}
       <div className="px-4 space-y-2">
         {[
@@ -271,6 +284,71 @@ function FlowCanvas({ flows }: { flows: Flow[] }) {
   }, []);
 
   return <canvas ref={canvasRef} className="absolute inset-0 w-full h-full" style={{ zIndex: 1, pointerEvents: "none" }} />;
+}
+
+// ── Pairwise flow routing (decomposed source → destination streams) ───────────
+const NODE_META: Record<string, { icon: string; label: string }> = {
+  solar: { icon: "☀️", label: "Solar" },
+  battery: { icon: "🔋", label: "Powerwall" },
+  house: { icon: "🏠", label: "Casă" },
+  ev: { icon: "🏎️", label: "Porsche" },
+  grid: { icon: "🔌", label: "Rețea" },
+};
+
+type Route = { id: string; from: string; to: string; kw: number };
+
+/** Decompose the live power balance into pairwise flows (solar→house, etc.). */
+function decomposeRoutes(s: EnergyState): Route[] {
+  let solarLeft = s.solar;
+  let houseRem = s.home;
+  let evRem = s.vehicle;
+  const battCharge = Math.max(0, s.battery);
+  const battDischarge = Math.max(0, -s.battery);
+  const gridImport = Math.max(0, s.grid);
+
+  const solarToHouse = Math.min(solarLeft, houseRem); solarLeft -= solarToHouse; houseRem -= solarToHouse;
+  const solarToEV = Math.min(solarLeft, evRem); solarLeft -= solarToEV; evRem -= solarToEV;
+  let battChargeRem = battCharge;
+  const solarToBattery = Math.min(solarLeft, battChargeRem); solarLeft -= solarToBattery; battChargeRem -= solarToBattery;
+  const solarToGrid = Math.max(0, solarLeft);
+
+  let battLeft = battDischarge;
+  const batteryToHouse = Math.min(battLeft, houseRem); battLeft -= batteryToHouse; houseRem -= batteryToHouse;
+  const batteryToEV = Math.min(battLeft, evRem); battLeft -= batteryToEV; evRem -= batteryToEV;
+
+  let gridLeft = gridImport;
+  const gridToHouse = Math.min(gridLeft, houseRem); gridLeft -= gridToHouse; houseRem -= gridToHouse;
+  const gridToEV = Math.min(gridLeft, evRem); gridLeft -= gridToEV; evRem -= gridToEV;
+  const gridToBattery = Math.min(gridLeft, battChargeRem); gridLeft -= gridToBattery;
+
+  return [
+    { id: "s-h", from: "solar", to: "house", kw: solarToHouse },
+    { id: "s-b", from: "solar", to: "battery", kw: solarToBattery },
+    { id: "s-e", from: "solar", to: "ev", kw: solarToEV },
+    { id: "s-g", from: "solar", to: "grid", kw: solarToGrid },
+    { id: "b-h", from: "battery", to: "house", kw: batteryToHouse },
+    { id: "b-e", from: "battery", to: "ev", kw: batteryToEV },
+    { id: "g-h", from: "grid", to: "house", kw: gridToHouse },
+    { id: "g-e", from: "grid", to: "ev", kw: gridToEV },
+    { id: "g-b", from: "grid", to: "battery", kw: gridToBattery },
+  ].filter((r) => r.kw > 0.05);
+}
+
+function FlowRow({ route }: { route: Route }) {
+  const from = NODE_META[route.from];
+  const to = NODE_META[route.to];
+  const dur = Math.max(0.5, 2.4 - route.kw * 0.32); // faster with more power
+  const op = Math.min(1, 0.5 + route.kw * 0.12);     // brighter with more power
+  return (
+    <div className="flex items-center gap-2.5 py-1.5">
+      <span className="text-base w-5 text-center" title={from.label}>{from.icon}</span>
+      <div className="flex-1 h-4 rounded-full overflow-hidden relative" style={{ background: "rgba(255,255,255,0.05)" }}>
+        <div className="flow-stream absolute inset-0" style={{ animationDuration: `${dur}s`, opacity: op }} />
+      </div>
+      <span className="text-base w-5 text-center" title={to.label}>{to.icon}</span>
+      <span className="text-xs font-semibold w-14 text-right" style={{ color: "var(--text-1)" }}>{route.kw.toFixed(1)} kW</span>
+    </div>
+  );
 }
 
 // ── Animated utility exchange (Grid sheet) ────────────────────────────────────
@@ -444,6 +522,19 @@ function NodeSheet({ node, s, carPct, onClose }: { node: string; s: EnergyState;
           <FillBar pct={carPct} />
           {s.vehicle > 0.1 && <div className="charge-pulse" />}
         </div>
+        {s.vehicle > 0.1 && (
+          <div className="rounded-2xl p-3 mb-3" style={{ background: "rgba(255,255,255,0.05)" }}>
+            <div className="flex items-center justify-between text-sm mb-1" style={{ color: "var(--text-1)" }}>
+              <span>🔌 Încărcător</span>
+              <span>🏎️ Mașină</span>
+            </div>
+            <svg viewBox="0 0 300 46" className="w-full" style={{ height: 46 }} preserveAspectRatio="none">
+              <path d="M12,30 C 70,30 70,14 120,14 C 180,14 150,30 210,30 C 255,30 250,18 288,18" fill="none" stroke="rgba(74,222,128,0.22)" strokeWidth="3" strokeLinecap="round" />
+              <path d="M12,30 C 70,30 70,14 120,14 C 180,14 150,30 210,30 C 255,30 250,18 288,18" className="energy-flow" fill="none" stroke={GREEN} strokeWidth="3" strokeLinecap="round" />
+            </svg>
+            <p className="text-center text-[11px] font-semibold" style={{ color: GREEN }}>Energie în transfer · {kw(s.vehicle)}</p>
+          </div>
+        )}
         {s.vehicle > 0.1 && (() => {
           // Projected charge curve from now → full (tapers near the top, like a real EV).
           const n = 14;
