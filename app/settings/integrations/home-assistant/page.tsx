@@ -3,25 +3,13 @@
 import { useState } from "react";
 import Link from "next/link";
 import StatusBar from "../../../components/layout/StatusBar";
+import { useDevices, type Protocol } from "../../../lib/useDevices";
 
 /**
  * Home Assistant / IoT integration gateway (spec: Digital Twin Layer →
  * "Synchronizes with Home Assistant and IoT integrations through backend-managed
  * contracts"; Backend Layer → integration gateways).
  */
-
-type Protocol = "Matter" | "Thread" | "Zigbee" | "Z-Wave" | "Wi-Fi";
-type Device = { id: string; name: string; domain: string; zone: string; icon: string; lastSeen: string; online: boolean; protocol: Protocol; local: boolean };
-
-const DEVICES: Device[] = [
-  { id: "d1", name: "Greenhouse Climate Controller", domain: "climate", zone: "Greenhouse", icon: "🌡️", lastSeen: "2s ago", online: true, protocol: "Matter", local: true },
-  { id: "d2", name: "Lake Pump Relay", domain: "switch", zone: "Lake", icon: "💧", lastSeen: "5s ago", online: true, protocol: "Zigbee", local: true },
-  { id: "d3", name: "Orchard Soil Probe", domain: "sensor", zone: "Orchard", icon: "🌱", lastSeen: "3s ago", online: true, protocol: "Thread", local: true },
-  { id: "d4", name: "Driveway Gate", domain: "cover", zone: "Driveway", icon: "🚧", lastSeen: "1m ago", online: true, protocol: "Z-Wave", local: true },
-  { id: "d5", name: "Pond Aerator", domain: "switch", zone: "Smart Pond", icon: "🐟", lastSeen: "8s ago", online: true, protocol: "Zigbee", local: true },
-  { id: "d6", name: "House Energy Meter", domain: "sensor", zone: "House", icon: "⚡", lastSeen: "2s ago", online: true, protocol: "Matter", local: true },
-  { id: "d7", name: "Forest Weather Station", domain: "weather", zone: "Forest", icon: "🌤️", lastSeen: "12m ago", online: false, protocol: "Wi-Fi", local: false },
-];
 
 const PROTOCOL_COLOR: Record<Protocol, string> = {
   Matter: "#4ADE80", Thread: "#22D3EE", Zigbee: "#F59E0B", "Z-Wave": "#7C3AED", "Wi-Fi": "#9CA3AF",
@@ -35,6 +23,7 @@ export default function HomeAssistantGatewayPage() {
   const [enabled, setEnabled] = useState(true);
   const [syncing, setSyncing] = useState(false);
   const [lastSync, setLastSync] = useState("2m ago");
+  const { source, devices: DEVICES } = useDevices();
 
   const online = DEVICES.filter((d) => d.online).length;
 
@@ -105,7 +94,14 @@ export default function HomeAssistantGatewayPage() {
 
         {/* Devices */}
         <div>
-          <p className="text-text-secondary text-xs font-medium uppercase tracking-wide mb-2 px-1">Connected Devices ({DEVICES.length})</p>
+          <div className="flex items-center justify-between mb-2 px-1">
+            <p className="text-text-secondary text-xs font-medium uppercase tracking-wide">Connected Devices ({DEVICES.length})</p>
+            <span className="text-[10px] font-semibold px-2 py-0.5 rounded-full" style={source === "remote"
+              ? { background: "rgba(74,222,128,0.15)", color: "#4ADE80" }
+              : { background: "rgba(255,255,255,0.06)", color: "#9CA3AF" }}>
+              {source === "remote" ? "Synced" : "Demo"}
+            </span>
+          </div>
           <div className="rounded-2xl overflow-hidden" style={{ background: "rgba(255,255,255,0.04)", border: "0.5px solid var(--glass-border)" }}>
             {DEVICES.map((d, i) => (
               <div key={d.id} className="flex items-center gap-3 px-4 py-3" style={{ borderBottom: i < DEVICES.length - 1 ? "1px solid rgba(255,255,255,0.06)" : undefined, opacity: enabled ? 1 : 0.5 }}>
