@@ -9,6 +9,19 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 ### Added
+- **Platform hardening & connect-up** — wired the new smart-home surfaces to the
+  live feed and persisted their controls: the **floorplan** now derives room
+  power from the live house load (Live/Simulat badge) and HVAC/lights/doors/music
+  controls persist in the store (shared with the House sheet). The AI summarizer
+  now **actually calls a bring-your-own model** server-side (moderated, on-device
+  fallback). Added migration **006** (`device_registry`, `presence_events`,
+  `automation_schedules`, RLS) with a DAL + `GET /api/v1/twin/devices`. A **live
+  alerts pipeline** (`deriveAlerts`) surfaces energy/twin alerts in the
+  notifications center, and a **visual automation builder** (`/automations/builder`)
+  composes When→Where→Then rules with a live preview. Quality: **vitest unit
+  tests + GitHub Actions CI**, a refreshed **architecture diagram set** (Energy &
+  Smart-Home) and a **STRIDE threat model**. The app is now an installable **PWA**
+  (manifest + icon) and the Energie tab can **export a CSV** energy report.
 - **Home-Assistant-inspired smart-home features** — a batch of additions drawn
   from the awesome-home-assistant ecosystem: **interactive floorplan**
   (`/twin/floorplan`) with live per-room overlays (power, temperature,
