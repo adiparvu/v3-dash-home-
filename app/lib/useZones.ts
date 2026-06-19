@@ -26,16 +26,21 @@ export const SEED_ZONES: Zone[] = [
   { href: "/zones/house", name: "House", subtitle: "Main Residence", type: "Built", status: "Good", statusColor: "#7C3AED", health: 90, icon: "🏠", accentColor: "#7C3AED", metrics: [{ label: "Rooms", value: "8" }, { label: "Temp", value: "22.1°C" }] },
   { href: "/zones/driveway", name: "Driveway", subtitle: "Gate & Access Control", type: "Built", status: "Secured", statusColor: "#9CA3AF", health: 100, icon: "🚗", accentColor: "#9CA3AF", metrics: [{ label: "Cameras", value: "4" }, { label: "Gate", value: "Closed" }] },
   { href: "/zones/smart-home", name: "Smart Home", subtitle: "Home Automation Hub", type: "Built", status: "Active", statusColor: "#4ADE80", health: 97, icon: "🤖", accentColor: "#4ADE80", metrics: [{ label: "Devices", value: "12" }, { label: "Active", value: "8" }] },
+  { href: "/zones/pool", name: "Pool", subtitle: "Swimming Pool", type: "Built", status: "Optimal", statusColor: "#38BDF8", health: 96, icon: "🏊", accentColor: "#38BDF8", metrics: [{ label: "Temp", value: "27.5°C" }, { label: "pH", value: "7.4" }] },
+  { href: "/zones/garage", name: "Garage", subtitle: "Vehicles & Tools", type: "Built", status: "Secured", statusColor: "#22D3EE", health: 100, icon: "🚙", accentColor: "#22D3EE", metrics: [{ label: "Vehicles", value: "2" }, { label: "Temp", value: "16.5°C" }] },
+  { href: "/zones/cellar", name: "Cellar", subtitle: "Wine · Workshop · Storage", type: "Built", status: "Good", statusColor: "#A78BFA", health: 94, icon: "🍷", accentColor: "#A78BFA", metrics: [{ label: "Temp", value: "12.5°C" }, { label: "Humidity", value: "68%" }] },
 ];
 
 const TYPE_TO_FILTER: Record<string, string> = {
   forest: "Natural", lake: "Natural", garden: "Natural",
   greenhouse: "Agriculture", orchard: "Agriculture",
-  driveway: "Infrastructure", house: "Built", smart_home: "Built", custom: "Natural",
+  driveway: "Infrastructure", house: "Built", smart_home: "Built",
+  pool: "Built", garage: "Built", cellar: "Built", custom: "Natural",
 };
 const TYPE_ICON: Record<string, string> = {
   forest: "🌲", lake: "💧", garden: "🌿", greenhouse: "🏡", orchard: "🍎",
-  driveway: "🚗", house: "🏠", smart_home: "🤖", custom: "📍",
+  driveway: "🚗", house: "🏠", smart_home: "🤖",
+  pool: "🏊", garage: "🚙", cellar: "🍷", custom: "📍",
 };
 
 /* eslint-disable @typescript-eslint/no-explicit-any */
