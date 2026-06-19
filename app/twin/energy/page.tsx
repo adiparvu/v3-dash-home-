@@ -80,8 +80,8 @@ function LiveTab({ onGoTab }: { onGoTab: (t: Tab) => void }) {
   // Static labels: [x, y] center (%), align, font size (cqw), color, weight, tracking, node
   const LABELS: { id: string; c: [number, number]; align: Align; fs: number; color: string; w: number; ls?: number; node: React.ReactNode }[] = [
     { id: "solarL", c: [52.5, 21.9], align: "center", fs: 2.0, color: GREY, w: 500, ls: 0.12, node: "SOLAR" },
-    { id: "homeL", c: [83.65, 27.5], align: "center", fs: 2.0, color: GREY, w: 500, ls: 0.12, node: "HOME" },
-    { id: "pwL", c: [52.4, 72.0], align: "center", fs: 2.0, color: GREY, w: 500, ls: 0.12, node: "BATTERY" },
+    { id: "homeL", c: [85.7, 27.5], align: "center", fs: 2.0, color: GREY, w: 500, ls: 0.12, node: "HOME" },
+    { id: "pwL", c: [54.1, 72.0], align: "center", fs: 2.0, color: GREY, w: 500, ls: 0.12, node: "BATTERY" },
     { id: "gridL", c: [83.45, 72.0], align: "center", fs: 2.0, color: GREY, w: 500, ls: 0.12, node: "GRID" },
     { id: "porTitle", c: [7.3, 43.7], align: "left", fs: 2.5, color: "rgba(236,238,241,0.96)", w: 600, node: "PORSCHE" },
     { id: "porTitle2", c: [7.3, 45.2], align: "left", fs: 2.5, color: "rgba(236,238,241,0.96)", w: 600, node: "911 GT3 RS" },
@@ -91,8 +91,8 @@ function LiveTab({ onGoTab }: { onGoTab: (t: Tab) => void }) {
   // Live values: [x, y] center (%), align, font size (cqw), node
   const VALUES: { id: string; c: [number, number]; align: Align; fs: number; node: React.ReactNode }[] = [
     { id: "solar", c: [52.5, 23.7], align: "center", fs: 3.5, node: <>{kw(s.solar)}</> },
-    { id: "home", c: [83.65, 29.3], align: "center", fs: 3.5, node: <>{kw(s.home)}</> },
-    { id: "battery", c: [52.4, 73.8], align: "center", fs: 3.5, node: <>{kw(s.battery)} <span style={{ color: GREEN }}>▲</span> {Math.round(s.batteryPct)}%</> },
+    { id: "home", c: [85.7, 29.3], align: "center", fs: 3.5, node: <>{kw(s.home)}</> },
+    { id: "battery", c: [54.1, 73.8], align: "center", fs: 3.5, node: <>{kw(s.battery)} <span style={{ color: GREEN }}>▲</span> {Math.round(s.batteryPct)}%</> },
     { id: "grid", c: [83.45, 73.8], align: "center", fs: 3.5, node: <>{Math.round(Math.abs(s.grid))} kW</> },
     { id: "vch", c: [7.3, 48.7], align: "left", fs: 3.5, node: <span style={{ color: GREEN }}>{kw(s.vehicle)}</span> },
     { id: "vb", c: [7.3, 52.3], align: "left", fs: 3.1, node: <>{Math.round(carPct)}%</> },
@@ -103,11 +103,11 @@ function LiveTab({ onGoTab }: { onGoTab: (t: Tab) => void }) {
     // the reference render): HOME → window, BATTERY → Powerwall, GRID → meter,
     // SOLAR → roof panel, car battery → charger.
     [52.5, 25.2, 52.5, 42.5],   // solar → roof panel
-    [83.4, 30.7, 83.4, 55.9],   // home → window (to its centre)
-    [52.4, 65.3, 52.4, 70.9],   // battery → powerwall unit
-    [83.4, 66.3, 83.4, 70.9],   // grid → meter
-    [13.5, 52.3, 21, 52.3],     // car battery → across
-    [21, 52.3, 21, 55],         // car battery → down into the charger
+    [85.7, 30.7, 85.7, 55.9],   // home → window centre
+    [54.1, 64.1, 54.1, 70.6],   // battery → powerwall unit
+    [83.45, 66.3, 83.45, 70.6], // grid → meter
+    [13.5, 52.3, 22, 52.3],     // car battery → across
+    [22, 52.3, 22, 55.1],       // car battery → down into the charger
   ];
 
   const drawText = (t: { c: [number, number]; align: Align; fs: number; color?: string; w?: number; ls?: number; node: React.ReactNode }, key: string) => (
