@@ -106,7 +106,8 @@ function LiveTab({ onGoTab }: { onGoTab: (t: Tab) => void }) {
     [83.4, 30.7, 83.4, 55.9],   // home → window (to its centre)
     [52.4, 65.3, 52.4, 70.9],   // battery → powerwall unit
     [83.4, 66.3, 83.4, 70.9],   // grid → meter
-    [13, 52.2, 22.2, 52.2],     // porsche → charger
+    [13.5, 52.3, 21, 52.3],     // car battery → across
+    [21, 52.3, 21, 55],         // car battery → down into the charger
   ];
 
   const drawText = (t: { c: [number, number]; align: Align; fs: number; color?: string; w?: number; ls?: number; node: React.ReactNode }, key: string) => (
