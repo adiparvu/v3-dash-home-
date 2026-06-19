@@ -749,16 +749,34 @@ function EnergieTab() {
   const histMax = Math.max(1, ...hist.solar, ...hist.home);
   const solarToday = (hist.solar.reduce((a, b) => a + b, 0) / hist.solar.length).toFixed(1);
   const homeToday = (hist.home.reduce((a, b) => a + b, 0) / hist.home.length).toFixed(1);
+
+  const exportCsv = () => {
+    const rows = [["hour", "solar_kw", "home_kw", "forecast_kw"]];
+    for (let h = 0; h < hist.solar.length; h++) {
+      rows.push([String(h), String(hist.solar[h] ?? ""), String(hist.home[h] ?? ""), String(hist.forecast[h] ?? "")]);
+    }
+    const csv = rows.map((r) => r.join(",")).join("\n");
+    const blob = new Blob([csv], { type: "text/csv" });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = `prvio-energy-${new Date().toISOString().slice(0, 10)}.csv`;
+    a.click();
+    URL.revokeObjectURL(url);
+  };
   return (
     <div className="px-4 space-y-4">
       {/* Intraday solar vs consumption — live history with demo fallback */}
       <div className="rounded-3xl p-4 liquid-glass">
         <div className="flex items-center justify-between mb-1">
           <p className="text-sm font-semibold" style={{ color: "var(--text-1)" }}>Azi · Solar vs Consum</p>
-          <span className="flex items-center gap-1.5 text-[11px] font-semibold" style={{ color: hist.source === "synced" ? GREEN : "var(--text-3)" }}>
-            <span style={{ width: 7, height: 7, borderRadius: 999, background: hist.source === "synced" ? GREEN : "#9CA3AF" }} />
-            {hist.source === "synced" ? "Sincronizat" : "Demo"}
-          </span>
+          <div className="flex items-center gap-2">
+            <button onClick={exportCsv} className="text-[10px] font-semibold px-2 py-0.5 rounded-full" style={{ background: "rgba(34,211,238,0.12)", color: "#22D3EE", border: "1px solid rgba(34,211,238,0.25)" }}>Export CSV</button>
+            <span className="flex items-center gap-1.5 text-[11px] font-semibold" style={{ color: hist.source === "synced" ? GREEN : "var(--text-3)" }}>
+              <span style={{ width: 7, height: 7, borderRadius: 999, background: hist.source === "synced" ? GREEN : "#9CA3AF" }} />
+              {hist.source === "synced" ? "Sincronizat" : "Demo"}
+            </span>
+          </div>
         </div>
         <div className="flex gap-6 mb-2">
           <div><p className="text-text-tertiary text-[11px]">Solar · medie</p><p className="text-base font-bold" style={{ color: "#4ADE80" }}>{solarToday} kW</p></div>
