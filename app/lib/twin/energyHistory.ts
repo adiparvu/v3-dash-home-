@@ -8,7 +8,7 @@
  * energy-autonomy split; otherwise — or when empty / signed out — it falls back
  * to a deterministic demo day. A `source` flag ("synced" | "demo") badges which.
  */
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 
 const CONFIGURED = Boolean(
   process.env.NEXT_PUBLIC_SUPABASE_URL && process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY,
@@ -72,28 +72,65 @@ const DEMO: EnergyHistory = {
   source: "demo",
 };
 
+const MAX_ROWS = 96;
+const toRow = (r: Partial<Row>): Row => ({
+  solar: Number(r.solar) || 0,
+  home: Number(r.home) || 0,
+  vehicle: Number(r.vehicle) || 0,
+  battery: Number(r.battery) || 0,
+  grid: Number(r.grid) || 0,
+});
+const deriveHistory = (rows: Row[]): EnergyHistory => ({
+  solar: rows.map((r) => r.solar),
+  home: rows.map((r) => r.home),
+  forecast: SOLAR_FORECAST,
+  autonomy: autonomyOf(rows),
+  source: "synced",
+});
+
 export function useEnergyHistory(): EnergyHistory {
   const [data, setData] = useState<EnergyHistory>(DEMO);
+  // Oldest→newest rows backing the charts; realtime INSERTs append here.
+  const rowsRef = useRef<Row[]>([]);
 
   useEffect(() => {
     if (!CONFIGURED) return;
     let cancelled = false;
+    let unsubscribe: (() => void) | undefined;
+
     fetch("/api/v1/twin/energy?history&limit=96")
       .then((res) => (res.ok ? res.json() : null))
       .then((j) => {
         const readings: Array<Partial<Row>> | undefined = j?.data?.readings;
         if (cancelled || !readings || readings.length < 2) return;
-        const rows: Row[] = [...readings].reverse().map((r) => ({
-          solar: Number(r.solar) || 0,
-          home: Number(r.home) || 0,
-          vehicle: Number(r.vehicle) || 0,
-          battery: Number(r.battery) || 0,
-          grid: Number(r.grid) || 0,
-        }));
-        setData({ solar: rows.map((r) => r.solar), home: rows.map((r) => r.home), forecast: SOLAR_FORECAST, autonomy: autonomyOf(rows), source: "synced" });
+        const rows = [...readings].reverse().map(toRow); // API is newest-first
+        rowsRef.current = rows;
+        setData(deriveHistory(rows));
       })
       .catch(() => {});
-    return () => { cancelled = true; };
+
+    // Live-append new readings (migration 007 publishes energy_readings) so the
+    // Energie / Impact charts grow without re-polling.
+    (async () => {
+      const { createClient } = await import("../../../lib/supabase/client");
+      const supabase = createClient();
+      const channel = supabase
+        .channel("energy-history")
+        .on(
+          "postgres_changes",
+          { event: "INSERT", schema: "public", table: "energy_readings" },
+          (msg: { new?: Partial<Row> }) => {
+            if (cancelled || !msg.new) return;
+            const next = [...rowsRef.current, toRow(msg.new)].slice(-MAX_ROWS);
+            rowsRef.current = next;
+            if (next.length >= 2) setData(deriveHistory(next));
+          },
+        )
+        .subscribe();
+      unsubscribe = () => { supabase.removeChannel(channel); };
+    })();
+
+    return () => { cancelled = true; unsubscribe?.(); };
   }, []);
 
   return data;
