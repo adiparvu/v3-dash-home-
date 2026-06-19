@@ -7,6 +7,7 @@ import BottomNav from "../../components/layout/BottomNav";
 import { useStore } from "../../lib/store";
 import { seriesPath } from "../../lib/twin/telemetry";
 import { useEnergyLive } from "../../lib/twin/energyLive";
+import { useEnergyHistory } from "../../lib/twin/energyHistory";
 import {
   EnergyState, kw,
   MONTHLY_USAGE, MONTH_LABELS, ENERGY_SOURCES, AUTONOMY, TOU_PERIODS,
@@ -437,11 +438,45 @@ function NodeSheet({ node, s, carPct, onClose }: { node: string; s: EnergyState;
 }
 
 // ── Energie tab ──────────────────────────────────────────────────────────────
+// Shared-scale series path (0..maxVal) for overlaying two series on one chart.
+function scaledPath(values: number[], w: number, h: number, pad: number, maxVal: number): string {
+  if (values.length < 2) return "";
+  const stepX = (w - pad * 2) / (values.length - 1);
+  return values
+    .map((v, i) => `${i === 0 ? "M" : "L"}${(pad + i * stepX).toFixed(1)},${(pad + (h - pad * 2) * (1 - Math.min(1, v / maxVal))).toFixed(1)}`)
+    .join(" ");
+}
+
 function EnergieTab() {
   const total = MONTHLY_USAGE.reduce((s, v) => s + v, 0);
   const max = Math.max(...MONTHLY_USAGE);
+  const hist = useEnergyHistory();
+  const histMax = Math.max(1, ...hist.solar, ...hist.home);
+  const solarToday = (hist.solar.reduce((a, b) => a + b, 0) / hist.solar.length).toFixed(1);
+  const homeToday = (hist.home.reduce((a, b) => a + b, 0) / hist.home.length).toFixed(1);
   return (
     <div className="px-4 space-y-4">
+      {/* Intraday solar vs consumption — live history with demo fallback */}
+      <div className="rounded-3xl p-4 liquid-glass">
+        <div className="flex items-center justify-between mb-1">
+          <p className="text-sm font-semibold" style={{ color: "var(--text-1)" }}>Azi · Solar vs Consum</p>
+          <span className="flex items-center gap-1.5 text-[11px] font-semibold" style={{ color: hist.source === "synced" ? GREEN : "var(--text-3)" }}>
+            <span style={{ width: 7, height: 7, borderRadius: 999, background: hist.source === "synced" ? GREEN : "#9CA3AF" }} />
+            {hist.source === "synced" ? "Sincronizat" : "Demo"}
+          </span>
+        </div>
+        <div className="flex gap-6 mb-2">
+          <div><p className="text-text-tertiary text-[11px]">Solar · medie</p><p className="text-base font-bold" style={{ color: "#4ADE80" }}>{solarToday} kW</p></div>
+          <div><p className="text-text-tertiary text-[11px]">Consum · medie</p><p className="text-base font-bold" style={{ color: "#22D3EE" }}>{homeToday} kW</p></div>
+        </div>
+        <svg viewBox="0 0 300 80" className="w-full" style={{ height: 80 }} preserveAspectRatio="none">
+          <path d={`${scaledPath(hist.solar, 300, 80, 4, histMax)} L296,76 L4,76 Z`} fill="rgba(74,222,128,0.12)" stroke="none" />
+          <path d={scaledPath(hist.solar, 300, 80, 4, histMax)} fill="none" stroke="#4ADE80" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+          <path d={scaledPath(hist.home, 300, 80, 4, histMax)} fill="none" stroke="#22D3EE" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+        </svg>
+        <div className="flex justify-between text-text-tertiary text-[10px] mt-1"><span>00:00</span><span>12:00</span><span>24:00</span></div>
+      </div>
+
       <div className="rounded-3xl p-4 liquid-glass">
         <p className="text-text-secondary text-[11px] mb-0.5">Total utilizat · anul acesta</p>
         <p className="font-bold text-3xl" style={{ color: "var(--text-1)" }}>{total.toFixed(1)} <span className="text-lg" style={{ color: "var(--text-3)" }}>MWh</span></p>
