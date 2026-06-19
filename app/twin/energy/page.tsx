@@ -105,7 +105,7 @@ function LiveTab({ onGoTab }: { onGoTab: (t: Tab) => void }) {
     [52.5, 25.2, 52.5, 42.5],   // solar → roof panel
     [85.7, 30.7, 85.7, 55.9],   // home → window centre
     [53.5, 66.2, 53.5, 70.6],   // battery → powerwall unit (stops at its base)
-    [83.45, 66.3, 83.45, 70.6], // grid → meter
+    [83.45, 67.5, 83.45, 70.6], // grid → floor power cable
     [13.5, 52.3, 21.5, 52.3],   // car battery → across
     [21.5, 52.3, 21.5, 55.2],   // car battery → down into the charger centre
   ];
