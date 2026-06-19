@@ -34,7 +34,7 @@ function makeQuery(result: Result) {
     return Promise.resolve(result);
   };
   // Awaiting the builder directly (list queries) resolves to the result.
-  (builder as unknown as PromiseLike<Result>).then = (onFulfilled: (r: Result) => unknown) =>
+  (builder as unknown as PromiseLike<Result>).then = (onFulfilled) =>
     Promise.resolve(result).then(onFulfilled);
   return { builder, calls };
 }

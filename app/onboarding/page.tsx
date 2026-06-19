@@ -28,8 +28,16 @@ export default function OnboardingPage() {
   const [focused, setFocused] = useState(false);
 
   const finish = () => {
-    setEstateName(estate.trim() || "My Property");
+    const name = estate.trim() || "My Property";
+    setEstateName(name);
     setOnboarded(true);
+    // Best-effort: provision a real, owned estate in Supabase when signed in.
+    // No-ops (503) in demo mode, so local onboarding is unchanged.
+    void fetch("/api/v1/onboarding/provision", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ name, zones }),
+    }).catch(() => {});
     router.push("/");
   };
   const skip = () => {
