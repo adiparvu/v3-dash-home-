@@ -9,6 +9,20 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 ### Added
+- **Home-Assistant-inspired smart-home features** — a batch of additions drawn
+  from the awesome-home-assistant ecosystem: **interactive floorplan**
+  (`/twin/floorplan`) with live per-room overlays (power, temperature,
+  **presence** avatars), **mushroom-style quick-control chips** and tap-a-room
+  detail; **solar forecast** (clear-sky predicted vs actual on the Solar sheet);
+  **dynamic tariff** with a cheapest-window highlight and a **"charge when
+  cheap"** toggle (`energy.chargeWhenCheap`); an **OCPP charging-session** card
+  on the EV node (connector, energy delivered, duration, cost); **Powercalc**
+  virtual per-device wattage in the House breakdown; **HVAC + heat-pump climate
+  control** (setpoint, mode, schedule) in the House sheet; **protocol + Local/
+  Cloud badges** (Matter/Thread/Zigbee/Z-Wave/Wi-Fi) on the Home Assistant
+  gateway device list; and an Automations **scheduler timeline** + **area
+  grouping** filter.
+
 - **Live detail screens & device trust (Phase 2)** — the **Property** detail
   (`/properties/[id]`) now loads the live record via a new `useProperty(id)` hook
   (name, location, area, active) with a **Synced/Demo** badge; the **Zone**
