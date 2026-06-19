@@ -7,6 +7,7 @@ import { useEnergyLive } from "../lib/twin/energyLive";
 import { useStore } from "../lib/store";
 import { deriveAlerts } from "../lib/twin/alerts";
 import { useNotifications } from "../lib/useSmartHome";
+import { usePush } from "../lib/usePush";
 
 const SEV_COLOR: Record<string, string> = { alert: "#F97316", warn: "#F59E0B", info: "#22D3EE", ok: "#4ADE80" };
 const KIND_ICON: Record<string, string> = { alert: "⚠️", task: "✅", automation: "⚡", system: "🌿", security: "🔒", maintenance: "🔧" };
@@ -54,6 +55,8 @@ export default function NotificationsPage() {
   const { energy } = useStore();
   const liveAlerts = deriveAlerts(s, carPct, { backupReserve: energy.backupReserve, offGrid: energy.offGrid, stormWatch: energy.stormWatch });
   const remoteNotifs = useNotifications();
+  const push = usePush();
+  const pushAvailable = push.status !== "unsupported" && push.status !== "unconfigured";
 
   useEffect(() => {
     setMounted(true);
@@ -99,6 +102,22 @@ export default function NotificationsPage() {
           {unreadCount > 0 && <p className="text-text-secondary text-xs">{unreadCount} unread</p>}
         </div>
         <div className="flex items-center gap-3">
+          {mounted && pushAvailable && (
+            <button
+              onClick={() => (push.subscribed ? push.unsubscribe() : push.subscribe())}
+              disabled={push.busy}
+              className="flex items-center gap-1.5 text-xs font-medium px-2.5 py-1 rounded-full"
+              style={{
+                background: push.subscribed ? "rgba(74,222,128,0.15)" : "var(--glass-bg)",
+                border: `1px solid ${push.subscribed ? "rgba(74,222,128,0.35)" : "var(--glass-border)"}`,
+                color: push.subscribed ? "#4ADE80" : "var(--text-2)",
+                opacity: push.busy ? 0.6 : 1,
+              }}
+            >
+              <span>{push.subscribed ? "🔔" : "🔕"}</span>
+              {push.busy ? "…" : push.subscribed ? "Push on" : push.status === "denied" ? "Blocked" : "Enable push"}
+            </button>
+          )}
           {unreadCount > 0 && (
             <button onClick={markAllRead} className="text-accent-green text-xs font-medium">Mark all read</button>
           )}

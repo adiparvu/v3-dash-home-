@@ -1155,6 +1155,36 @@ export type Database = {
         }
         Relationships: []
       }
+      push_subscriptions: {
+        Row: {
+          id: string
+          user_id: string
+          endpoint: string
+          p256dh: string
+          auth: string
+          user_agent: string | null
+          created_at: string
+        }
+        Insert: {
+          id?: string
+          user_id: string
+          endpoint: string
+          p256dh: string
+          auth: string
+          user_agent?: string | null
+          created_at?: string
+        }
+        Update: {
+          id?: string
+          user_id?: string
+          endpoint?: string
+          p256dh?: string
+          auth?: string
+          user_agent?: string | null
+          created_at?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
@@ -1271,6 +1301,7 @@ export type EnergyReading = Tables<'energy_readings'>
 export type DeviceRegistryRow = Tables<'device_registry'>
 export type PresenceEventRow = Tables<'presence_events'>
 export type AutomationScheduleRow = Tables<'automation_schedules'>
+export type PushSubscriptionRow = Tables<'push_subscriptions'>
 export type NotificationRow = Tables<'notifications'>
 export type ProfileSocialLink = Tables<'profile_social_links'>
 export type TrustedPerson = Tables<'trusted_persons'>
