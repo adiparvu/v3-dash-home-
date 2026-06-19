@@ -35,3 +35,9 @@ export const GREENHOUSE: MetricSpec[] = [
   { key: "ph", label: "pH nutrienți", icon: "🧪", demo: 6.0, decimals: 1, okMin: 5.5, okMax: 6.5, warnMin: 5.0, warnMax: 7.0 },
   { key: "ec", label: "EC nutrienți", unit: "mS/cm", icon: "⚡", demo: 1.8, decimals: 1, okMin: 1.2, okMax: 2.4, warnMin: 0.8, warnMax: 3.0 },
 ];
+
+// Garaj — ambient climate for the vehicle bay (TeslaMate covers the vehicles).
+export const GARAGE: MetricSpec[] = [
+  { key: "temperature", label: "Temperatură", unit: "°C", icon: "🌡️", demo: 16.5, decimals: 1, okMin: 5, okMax: 30, warnMin: 0, warnMax: 38 },
+  { key: "humidity", label: "Umiditate", unit: "%", icon: "💧", demo: 52, decimals: 0, okMin: 30, okMax: 65, warnMin: 20, warnMax: 80 },
+];
