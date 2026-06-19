@@ -1216,6 +1216,9 @@ export type Database = {
         | 'house'
         | 'driveway'
         | 'smart_home'
+        | 'pool'
+        | 'cellar'
+        | 'garage'
         | 'custom'
       asset_category:
         | 'device'
@@ -1236,6 +1239,13 @@ export type Database = {
         | 'door'
         | 'light'
         | 'water_level'
+        | 'ph'
+        | 'dissolved_oxygen'
+        | 'salinity'
+        | 'ec'
+        | 'water_flow'
+        | 'turbidity'
+        | 'pressure'
         | 'custom'
       social_platform:
         | 'facebook'
