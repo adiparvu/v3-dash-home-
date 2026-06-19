@@ -1,7 +1,7 @@
 # PRVIO Earth — Architecture Diagram Set
 
 **Version:** v1.0.0
-**Last updated:** 2026-06-18
+**Last updated:** 2026-06-19
 **Author:** PRVIO Earth Architecture
 
 The mandated diagram set covering each platform layer plus cross-layer event flow.
@@ -272,3 +272,69 @@ graph LR
   class IOTP,CLIENTS external;
   class DLQ,AUDIT store;
 ```
+
+---
+
+## 6. Energy & Smart-Home Architecture
+
+The Energy module and the Home-Assistant-fed smart-home surfaces. Readings flow
+over a real event bus (`prvio-energy` Supabase Realtime broadcast) and persist to
+the `energy_readings` time-series; clients subscribe via `useEnergyLive` and
+degrade to an on-device simulation. The HA gateway brokers all IoT — clients
+never talk to devices directly.
+
+```mermaid
+graph TD
+  subgraph Producers["Producers"]
+    GW["Home Assistant gateway<br/>(Matter/Thread/Zigbee/Z-Wave/Wi-Fi)"]
+    PUB["energy-publisher.mjs / cron"]
+    API["POST /api/v1/twin/energy"]
+  end
+
+  subgraph BackendBoundary["Backend trust boundary"]
+    CH["prvio-energy<br/>Realtime broadcast channel"]
+    ER[("energy_readings<br/>time-series · RLS")]
+    AISUM["POST /api/v1/ai/summarize<br/>(guardrails + audit)"]
+  end
+
+  subgraph ClientBoundary["Client trust boundary"]
+    HOOK["useEnergyLive / useEnergyHistory"]
+    SIM["on-device simulation<br/>(fallback)"]
+    LIVE["Energy → Live<br/>flow particles + pairwise routes"]
+    PW["Powerwall · live card"]
+    FP["Floorplan<br/>rooms · presence · chips"]
+    DOC["Documents → AI Summary"]
+    BYO["Assistant → bring-your-own-model"]
+  end
+
+  GW --> CH
+  PUB --> CH
+  API --> CH
+  API --> ER
+  CH -->|"broadcast state"| HOOK
+  ER -->|"?history"| HOOK
+  HOOK -->|"no live data"| SIM
+  HOOK --> LIVE
+  HOOK --> PW
+  HOOK --> FP
+  GW -.->|"telemetry"| ER
+  DOC -->|"prefer backend"| AISUM
+  AISUM -.->|"503 → fallback"| DOC
+  BYO -.->|"custom endpoint/key"| AISUM
+
+  classDef backend fill:#D6F5E3,stroke:#15803D,color:#06301B;
+  classDef client fill:#D7E8FF,stroke:#2563EB,color:#0A1F44;
+  classDef external fill:#ECEDF2,stroke:#64748B,color:#1E293B;
+  classDef store fill:#FAD9E6,stroke:#BE185D,color:#3F0A22;
+  class CH,AISUM backend;
+  class HOOK,SIM,LIVE,PW,FP,DOC,BYO client;
+  class GW,PUB,API external;
+  class ER store;
+```
+
+**Notes**
+- **Source badges** — every surface shows Live/Simulat (energy), Synced/Demo
+  (history) or Backend AI / On-device (summaries) so the active feed is explicit.
+- **Dynamic tariff** — `chargeWhenCheap` schedules EV/Powerwall charging into the
+  cheapest tariff window; OCPP-style sessions track delivered energy on the EV.
+- **Powercalc** — per-device wattage in the House breakdown is virtual (no meters).
