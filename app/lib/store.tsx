@@ -245,6 +245,12 @@ export type EnergyPrefs = {
   stormWatch: boolean;
   /** Charge the EV / Powerwall during the cheapest tariff window. */
   chargeWhenCheap: boolean;
+  /** Home controls (persisted, shared by the floorplan + House sheet). */
+  hvacSetpoint: number;
+  hvacMode: string;
+  lightsOn: boolean;
+  doorsLocked: boolean;
+  musicOn: boolean;
 };
 
 const defaultEnergy: EnergyPrefs = {
@@ -253,6 +259,11 @@ const defaultEnergy: EnergyPrefs = {
   offGrid: false,
   stormWatch: true,
   chargeWhenCheap: true,
+  hvacSetpoint: 21,
+  hvacMode: "Auto",
+  lightsOn: true,
+  doorsLocked: true,
+  musicOn: false,
 };
 
 /** An ownership-transfer record (spec: Property & Estate Management → Property Transfer). */

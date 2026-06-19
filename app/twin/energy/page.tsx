@@ -466,8 +466,9 @@ function FillBar({ pct, color = GREEN }: { pct: number; color?: string }) {
 
 function NodeSheet({ node, s, carPct, evSession, onClose }: { node: string; s: EnergyState; carPct: number; evSession: { active: boolean; energyKwh: number; minutes: number }; onClose: () => void }) {
   const [houseView, setHouseView] = useState<"consumers" | "rooms">("consumers");
-  const [setpoint, setSetpoint] = useState(21);
-  const [climateMode, setClimateMode] = useState("Auto");
+  const { energy, setEnergy } = useStore();
+  const setpoint = energy.hvacSetpoint;
+  const climateMode = energy.hvacMode;
   const hist = useEnergyHistory();
   const meta: Record<string, { t: string; icon: string }> = {
     solar: { t: "Solar", icon: "☀️" },
@@ -643,13 +644,13 @@ function NodeSheet({ node, s, carPct, evSession, onClose }: { node: string; s: E
             <span className="text-[10px]" style={{ color: climateMode === "Off" ? "var(--text-3)" : "#4ADE80" }}>{climateMode === "Off" ? "Oprit" : "Activ"}</span>
           </div>
           <div className="flex items-center justify-between mb-3">
-            <button onClick={() => setSetpoint((v) => Math.max(15, Math.round((v - 0.5) * 10) / 10))} className="w-9 h-9 rounded-full text-lg font-bold" style={{ background: "rgba(255,255,255,0.08)", color: "var(--text-1)" }}>−</button>
+            <button onClick={() => setEnergy({ hvacSetpoint: Math.max(15, Math.round((setpoint - 0.5) * 10) / 10) })} className="w-9 h-9 rounded-full text-lg font-bold" style={{ background: "rgba(255,255,255,0.08)", color: "var(--text-1)" }}>−</button>
             <span className="text-3xl font-bold" style={{ color: "var(--text-1)" }}>{setpoint}°C</span>
-            <button onClick={() => setSetpoint((v) => Math.min(28, Math.round((v + 0.5) * 10) / 10))} className="w-9 h-9 rounded-full text-lg font-bold" style={{ background: "rgba(255,255,255,0.08)", color: "var(--text-1)" }}>+</button>
+            <button onClick={() => setEnergy({ hvacSetpoint: Math.min(28, Math.round((setpoint + 0.5) * 10) / 10) })} className="w-9 h-9 rounded-full text-lg font-bold" style={{ background: "rgba(255,255,255,0.08)", color: "var(--text-1)" }}>+</button>
           </div>
           <div className="flex gap-1 mb-2">
             {["Auto", "Heat", "Cool", "Off"].map((m) => (
-              <button key={m} onClick={() => setClimateMode(m)} className="flex-1 py-1.5 rounded-xl text-xs font-medium transition-all"
+              <button key={m} onClick={() => setEnergy({ hvacMode: m })} className="flex-1 py-1.5 rounded-xl text-xs font-medium transition-all"
                 style={climateMode === m ? { background: GREEN, color: "#05210F" } : { background: "rgba(255,255,255,0.06)", color: "var(--text-3)" }}>{m}</button>
             ))}
           </div>

@@ -12,6 +12,8 @@ import { useEffect, useState } from "react";
 import Link from "next/link";
 import StatusBar from "../../components/layout/StatusBar";
 import BottomNav from "../../components/layout/BottomNav";
+import { useStore } from "../../lib/store";
+import { useEnergyLive } from "../../lib/twin/energyLive";
 
 type Person = { name: string; initial: string; color: string };
 const PEOPLE: Record<string, Person> = {
@@ -47,15 +49,19 @@ const jit = (v: number, f: number, seed: number) => v * (1 + (Math.sin(seed) * f
 export default function FloorplanPage() {
   const [tick, setTick] = useState(0);
   const [selected, setSelected] = useState<string | null>(null);
-  const [chips, setChips] = useState({ lights: true, climate: true, doors: true, music: false });
+  const { energy, setEnergy } = useStore();
+  const { s, source } = useEnergyLive();
 
   useEffect(() => {
     const id = setInterval(() => setTick((t) => t + 1), 3000);
     return () => clearInterval(id);
   }, []);
 
+  // Distribute the live house load across rooms by their base share.
+  const totalBase = ROOMS.reduce((sum, r) => sum + r.baseW, 0);
+  const liveTotalW = Math.max(0, s.home * 1000);
   const live = (r: Room) => ({
-    watts: Math.max(0, Math.round(jit(r.baseW, 0.12, tick + r.id.length))),
+    watts: Math.round(jit((r.baseW / totalBase) * liveTotalW, 0.1, tick + r.id.length)),
     temp: Math.round(jit(r.baseTemp, 0.01, tick * 1.3 + r.name.length) * 10) / 10,
   });
 
@@ -63,11 +69,12 @@ export default function FloorplanPage() {
   const occupied = ROOMS.filter((r) => r.people.length > 0);
   const sel = ROOMS.find((r) => r.id === selected);
 
-  const CHIPS: { id: keyof typeof chips; on: string; off: string; icon: string; label: string }[] = [
-    { id: "lights", on: "8 aprinse", off: "Stinse", icon: "💡", label: "Lumini" },
-    { id: "climate", on: "21°C", off: "Oprit", icon: "❄️", label: "Climă" },
-    { id: "doors", on: "Încuiat", off: "Descuiat", icon: "🔒", label: "Uși" },
-    { id: "music", on: "Redă", off: "Oprit", icon: "🎵", label: "Muzică" },
+  const climateOn = energy.hvacMode !== "Off";
+  const CHIPS: { id: string; state: boolean; on: string; off: string; icon: string; label: string; toggle: () => void }[] = [
+    { id: "lights", state: energy.lightsOn, on: "Aprinse", off: "Stinse", icon: "💡", label: "Lumini", toggle: () => setEnergy({ lightsOn: !energy.lightsOn }) },
+    { id: "climate", state: climateOn, on: `${energy.hvacSetpoint}°C`, off: "Oprit", icon: "❄️", label: "Climă", toggle: () => setEnergy({ hvacMode: climateOn ? "Off" : "Auto" }) },
+    { id: "doors", state: energy.doorsLocked, on: "Încuiat", off: "Descuiat", icon: "🔒", label: "Uși", toggle: () => setEnergy({ doorsLocked: !energy.doorsLocked }) },
+    { id: "music", state: energy.musicOn, on: "Redă", off: "Oprit", icon: "🎵", label: "Muzică", toggle: () => setEnergy({ musicOn: !energy.musicOn }) },
   ];
 
   return (
@@ -78,17 +85,17 @@ export default function FloorplanPage() {
           <svg width="18" height="18" viewBox="0 0 24 24" fill="none"><path d="M19 12H5M12 5l-7 7 7 7" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" /></svg>
         </Link>
         <h1 className="font-bold text-2xl flex-1" style={{ color: "var(--text-1)" }}>Floorplan</h1>
-        <span className="flex items-center gap-1.5 text-[11px] font-semibold" style={{ color: "#9CA3AF" }}>
-          <span style={{ width: 7, height: 7, borderRadius: 999, background: "#9CA3AF" }} /> Demo
+        <span className="flex items-center gap-1.5 text-[11px] font-semibold" style={{ color: source === "live" ? "#4ADE80" : "#9CA3AF" }}>
+          <span style={{ width: 7, height: 7, borderRadius: 999, background: source === "live" ? "#4ADE80" : "#9CA3AF" }} /> {source === "live" ? "Live" : "Simulat"}
         </span>
       </div>
 
       {/* Quick-control chips (mushroom-style) */}
       <div className="px-4 mb-3 flex gap-2 overflow-x-auto scrollbar-hide">
         {CHIPS.map((c) => {
-          const on = chips[c.id];
+          const on = c.state;
           return (
-            <button key={c.id} onClick={() => setChips((p) => ({ ...p, [c.id]: !p[c.id] }))}
+            <button key={c.id} onClick={c.toggle}
               className="flex items-center gap-2 px-3 py-2 rounded-2xl flex-shrink-0 transition-all"
               style={on ? { background: "rgba(74,222,128,0.14)", border: "1px solid rgba(74,222,128,0.3)" } : { background: "rgba(255,255,255,0.05)", border: "1px solid var(--glass-border)" }}>
               <span className="w-7 h-7 rounded-full flex items-center justify-center text-sm" style={{ background: on ? "rgba(74,222,128,0.2)" : "rgba(255,255,255,0.06)" }}>{c.icon}</span>
