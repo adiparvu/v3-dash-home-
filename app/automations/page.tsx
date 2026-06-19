@@ -99,6 +99,7 @@ export default function AutomationsPage() {
   const [overrides, setOverrides] = useState<Record<string, boolean>>({});
   const [mounted, setMounted] = useState(false);
   const [showTemplates, setShowTemplates] = useState(false);
+  const [areaFilter, setAreaFilter] = useState("All");
 
   useEffect(() => {
     setMounted(true);
@@ -212,9 +213,42 @@ export default function AutomationsPage() {
         </div>
       </div>
 
+      {/* Scheduler — time-triggered automations on a timeline */}
+      {(() => {
+        const scheduled = items
+          .map((a) => ({ ...a, t: (a.trigger.match(/(\d{1,2}):(\d{2})/) ? a.trigger.match(/(\d{1,2}):(\d{2})/)![0] : a.trigger.includes("Sunset") ? "20:30" : a.trigger.includes("Sunrise") ? "06:15" : null) }))
+          .filter((a) => a.t)
+          .sort((a, b) => (a.t! < b.t! ? -1 : 1));
+        if (!scheduled.length) return null;
+        return (
+          <div className="px-4 mb-3">
+            <p className="text-text-secondary text-xs font-medium uppercase tracking-wide mb-2 px-1">Scheduler · azi</p>
+            <div className="rounded-2xl p-3 liquid-glass space-y-2">
+              {scheduled.map((a) => (
+                <div key={a.id} className="flex items-center gap-3">
+                  <span className="text-xs font-bold w-12 flex-shrink-0" style={{ color: a.accentColor }}>{a.t}</span>
+                  <span className="text-sm flex-1 truncate" style={{ color: "var(--text-1)" }}>{a.icon} {a.name}</span>
+                  <span className="text-[10px]" style={{ color: a.active ? "#4ADE80" : "var(--text-3)" }}>{a.active ? "armat" : "oprit"}</span>
+                </div>
+              ))}
+            </div>
+          </div>
+        );
+      })()}
+
+      {/* Area filter (group automations by zone) */}
+      <div className="px-4 mb-3 flex gap-2 overflow-x-auto scrollbar-hide">
+        {["All", ...Array.from(new Set(automations.map((a) => a.zone)))].map((area) => (
+          <button key={area} onClick={() => setAreaFilter(area)} className="px-3.5 py-1.5 rounded-full text-xs font-medium whitespace-nowrap flex-shrink-0 transition-all"
+            style={areaFilter === area ? { background: "var(--accent)", color: "#050A14" } : { background: "rgba(255,255,255,0.07)", color: "var(--text-3)", border: "1px solid rgba(255,255,255,0.09)" }}>
+            {area === "All" ? "Toate zonele" : area}
+          </button>
+        ))}
+      </div>
+
       {/* List */}
       <div className="px-4 space-y-2.5">
-        {items.map((auto) => (
+        {items.filter((a) => areaFilter === "All" || a.zone === areaFilter).map((auto) => (
           <Link key={auto.id} href={`/automations/${auto.id}`}>
             <div
               className="rounded-2xl p-4 active:scale-[0.98] transition-transform"
