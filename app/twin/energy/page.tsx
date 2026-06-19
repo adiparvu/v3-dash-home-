@@ -80,9 +80,9 @@ function LiveTab({ onGoTab }: { onGoTab: (t: Tab) => void }) {
   // Static labels: [x, y] center (%), align, font size (cqw), color, weight, tracking, node
   const LABELS: { id: string; c: [number, number]; align: Align; fs: number; color: string; w: number; ls?: number; node: React.ReactNode }[] = [
     { id: "solarL", c: [52.5, 21.9], align: "center", fs: 2.0, color: GREY, w: 500, ls: 0.12, node: "SOLAR" },
-    { id: "homeL", c: [83.65, 27.5], align: "center", fs: 2.0, color: GREY, w: 500, ls: 0.12, node: "ACASĂ" },
-    { id: "pwL", c: [52.4, 72.0], align: "center", fs: 2.0, color: GREY, w: 500, ls: 0.12, node: "POWERWALL" },
-    { id: "gridL", c: [83.45, 72.0], align: "center", fs: 2.0, color: GREY, w: 500, ls: 0.12, node: "GRILĂ" },
+    { id: "homeL", c: [83.65, 27.5], align: "center", fs: 2.0, color: GREY, w: 500, ls: 0.12, node: "HOME" },
+    { id: "pwL", c: [52.4, 72.0], align: "center", fs: 2.0, color: GREY, w: 500, ls: 0.12, node: "BATTERY" },
+    { id: "gridL", c: [83.45, 72.0], align: "center", fs: 2.0, color: GREY, w: 500, ls: 0.12, node: "GRID" },
     { id: "porTitle", c: [7.3, 43.7], align: "left", fs: 2.5, color: "rgba(236,238,241,0.96)", w: 600, node: "PORSCHE" },
     { id: "porTitle2", c: [7.3, 45.2], align: "left", fs: 2.5, color: "rgba(236,238,241,0.96)", w: 600, node: "911 GT3 RS" },
     { id: "chL", c: [7.3, 47.3], align: "left", fs: 2.1, color: GREY, w: 500, node: "Încărcare" },
