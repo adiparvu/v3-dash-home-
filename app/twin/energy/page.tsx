@@ -10,7 +10,7 @@ import { useEnergyLive } from "../../lib/twin/energyLive";
 import { useEnergyHistory } from "../../lib/twin/energyHistory";
 import {
   EnergyState, kw,
-  MONTHLY_USAGE, MONTH_LABELS, ENERGY_SOURCES, AUTONOMY, TOU_PERIODS,
+  MONTHLY_USAGE, MONTH_LABELS, ENERGY_SOURCES, TOU_PERIODS,
   SOLAR_VALUE, SOLAR_VALUE_TOTAL, OFFSET, BACKUP_EVENTS, BACKUP_SUMMARY,
   TARIFF_SERIES, TARIFF,
 } from "../../lib/twin/energy";
@@ -514,11 +514,13 @@ function EnergieTab() {
 function ImpactTab() {
   const [touIdx, setTouIdx] = useState(0);
   const tou = TOU_PERIODS[touIdx];
+  const hist = useEnergyHistory();
+  const auto = hist.autonomy;
   const r = 42, c = 2 * Math.PI * r;
   const segs = [
-    { v: AUTONOMY.solar, color: "#F59E0B" },
-    { v: AUTONOMY.battery, color: "#4ADE80" },
-    { v: AUTONOMY.grid, color: "#6B7280" },
+    { v: auto.solar, color: "#F59E0B" },
+    { v: auto.battery, color: "#4ADE80" },
+    { v: auto.grid, color: "#6B7280" },
   ];
   let acc = 0;
   const maxVal = Math.max(...SOLAR_VALUE);
@@ -527,7 +529,13 @@ function ImpactTab() {
     <div className="px-4 space-y-4">
       {/* Autonomy donut */}
       <div className="rounded-3xl p-4 liquid-glass">
-        <p className="text-sm font-semibold mb-3" style={{ color: "var(--text-1)" }}>Autonomie energetică</p>
+        <div className="flex items-center justify-between mb-3">
+          <p className="text-sm font-semibold" style={{ color: "var(--text-1)" }}>Autonomie energetică</p>
+          <span className="flex items-center gap-1.5 text-[11px] font-semibold" style={{ color: hist.source === "synced" ? GREEN : "var(--text-3)" }}>
+            <span style={{ width: 7, height: 7, borderRadius: 999, background: hist.source === "synced" ? GREEN : "#9CA3AF" }} />
+            {hist.source === "synced" ? "Sincronizat" : "Demo"}
+          </span>
+        </div>
         <div className="flex items-center gap-5">
           <svg width="110" height="110" viewBox="0 0 110 110" className="flex-shrink-0">
             <circle cx="55" cy="55" r={r} fill="none" stroke="rgba(255,255,255,0.08)" strokeWidth="9" />
@@ -540,11 +548,11 @@ function ImpactTab() {
               acc += len;
               return el;
             })}
-            <text x="55" y="52" textAnchor="middle" fontSize="22" fontWeight="bold" fill="#fff">{AUTONOMY.total}</text>
+            <text x="55" y="52" textAnchor="middle" fontSize="22" fontWeight="bold" fill="#fff">{auto.total}</text>
             <text x="55" y="68" textAnchor="middle" fontSize="10" fill="#9CA3AF">% autonom</text>
           </svg>
           <div className="space-y-2">
-            {[{ l: "Solar", v: AUTONOMY.solar, c: "#F59E0B" }, { l: "Powerwall", v: AUTONOMY.battery, c: "#4ADE80" }, { l: "Grilă", v: AUTONOMY.grid, c: "#6B7280" }].map((x) => (
+            {[{ l: "Solar", v: auto.solar, c: "#F59E0B" }, { l: "Powerwall", v: auto.battery, c: "#4ADE80" }, { l: "Grilă", v: auto.grid, c: "#6B7280" }].map((x) => (
               <div key={x.l} className="flex items-center gap-2">
                 <span className="w-2.5 h-2.5 rounded-full" style={{ background: x.c }} />
                 <span className="text-sm font-semibold" style={{ color: "var(--text-1)" }}>{x.v}%</span>

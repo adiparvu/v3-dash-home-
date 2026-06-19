@@ -1,12 +1,12 @@
 "use client";
 
 /**
- * Intraday energy history for the Energie tab.
+ * Intraday energy history for the Energie / Impact tabs.
  *
  * When Supabase is configured it pulls the durable `energy_readings` time-series
- * (GET /api/v1/twin/energy?history) and exposes the solar/home series; otherwise
- * — or when empty / signed out — it falls back to a deterministic demo day. A
- * `source` flag ("synced" | "demo") lets the UI badge which is shown.
+ * (GET /api/v1/twin/energy?history) and derives the solar/home series plus the
+ * energy-autonomy split; otherwise — or when empty / signed out — it falls back
+ * to a deterministic demo day. A `source` flag ("synced" | "demo") badges which.
  */
 import { useEffect, useState } from "react";
 
@@ -14,28 +14,76 @@ const CONFIGURED = Boolean(
   process.env.NEXT_PUBLIC_SUPABASE_URL && process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY,
 );
 
-export type EnergyHistory = { solar: number[]; home: number[]; source: "synced" | "demo" };
+type Row = { solar: number; home: number; vehicle: number; battery: number; grid: number };
+export type Autonomy = { total: number; solar: number; battery: number; grid: number };
+export type EnergyHistory = { solar: number[]; home: number[]; autonomy: Autonomy; source: "synced" | "demo" };
 
-// Deterministic 24-hour demo day (no randomness → no hydration mismatch).
-const HOURS = Array.from({ length: 24 }, (_, h) => h);
-const DEMO_SOLAR = HOURS.map((h) => Math.round(Math.max(0, Math.sin(((h - 6) / 12) * Math.PI)) * 6.5 * 10) / 10);
-const DEMO_HOME = HOURS.map((h) => Math.round((0.45 + 0.8 * Math.exp(-((h - 8) ** 2) / 5) + 1.1 * Math.exp(-((h - 20) ** 2) / 6)) * 10) / 10);
+const r1 = (v: number) => Math.round(v * 10) / 10;
 
-type Row = { solar: number; home: number };
+// Deterministic 24-hour demo day with a simple power balance (no randomness).
+function buildDemoDay(): Row[] {
+  let pct = 58;
+  const rows: Row[] = [];
+  for (let h = 0; h < 24; h++) {
+    const solar = r1(Math.max(0, Math.sin(((h - 6) / 12) * Math.PI)) * 6.5);
+    const home = r1(0.45 + 0.8 * Math.exp(-((h - 8) ** 2) / 5) + 1.1 * Math.exp(-((h - 20) ** 2) / 6));
+    const vehicle = h >= 10 && h <= 15 && solar > 2 ? 1.4 : 0;
+    const consumption = home + vehicle;
+    const net = solar - consumption;
+    let battery = 0;
+    if (net > 0) {
+      const c = pct < 100 ? Math.min(net, 5) : 0;
+      battery = c; pct = Math.min(100, pct + c * 1.5);
+    } else if (net < 0) {
+      const d = pct > 20 ? Math.min(-net, 5) : 0;
+      battery = -d; pct = Math.max(0, pct - d * 1.5);
+    }
+    rows.push({ solar, home, vehicle, battery, grid: r1(consumption - solar + battery) });
+  }
+  return rows;
+}
+
+function autonomyOf(rows: Row[]): Autonomy {
+  let cons = 0, gridIn = 0, batt = 0;
+  for (const r of rows) {
+    cons += r.home + r.vehicle;
+    gridIn += Math.max(0, r.grid);
+    batt += Math.max(0, -r.battery);
+  }
+  if (cons <= 0) return { total: 0, solar: 0, battery: 0, grid: 0 };
+  const grid = Math.round((gridIn / cons) * 100);
+  const battery = Math.min(100 - grid, Math.round((batt / cons) * 100));
+  const solar = Math.max(0, 100 - grid - battery);
+  return { total: 100 - grid, solar, battery, grid };
+}
+
+const DEMO_ROWS = buildDemoDay();
+const DEMO: EnergyHistory = {
+  solar: DEMO_ROWS.map((r) => r.solar),
+  home: DEMO_ROWS.map((r) => r.home),
+  autonomy: autonomyOf(DEMO_ROWS),
+  source: "demo",
+};
 
 export function useEnergyHistory(): EnergyHistory {
-  const [data, setData] = useState<EnergyHistory>({ solar: DEMO_SOLAR, home: DEMO_HOME, source: "demo" });
+  const [data, setData] = useState<EnergyHistory>(DEMO);
 
   useEffect(() => {
     if (!CONFIGURED) return;
     let cancelled = false;
-    fetch("/api/v1/twin/energy?history&limit=48")
-      .then((r) => (r.ok ? r.json() : null))
+    fetch("/api/v1/twin/energy?history&limit=96")
+      .then((res) => (res.ok ? res.json() : null))
       .then((j) => {
-        const readings: Row[] | undefined = j?.data?.readings;
+        const readings: Array<Partial<Row>> | undefined = j?.data?.readings;
         if (cancelled || !readings || readings.length < 2) return;
-        const rows = [...readings].reverse(); // API returns newest-first → chronological
-        setData({ solar: rows.map((r) => r.solar), home: rows.map((r) => r.home), source: "synced" });
+        const rows: Row[] = [...readings].reverse().map((r) => ({
+          solar: Number(r.solar) || 0,
+          home: Number(r.home) || 0,
+          vehicle: Number(r.vehicle) || 0,
+          battery: Number(r.battery) || 0,
+          grid: Number(r.grid) || 0,
+        }));
+        setData({ solar: rows.map((r) => r.solar), home: rows.map((r) => r.home), autonomy: autonomyOf(rows), source: "synced" });
       })
       .catch(() => {});
     return () => { cancelled = true; };
