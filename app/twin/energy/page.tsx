@@ -6,6 +6,8 @@ import StatusBar from "../../components/layout/StatusBar";
 import BottomNav from "../../components/layout/BottomNav";
 import { useStore } from "../../lib/store";
 import { seriesPath } from "../../lib/twin/telemetry";
+import { smoothPath } from "../../lib/charts";
+import RevolutChart from "../../components/charts/RevolutChart";
 import { useEnergyLive } from "../../lib/twin/energyLive";
 import { useEnergyHistory } from "../../lib/twin/energyHistory";
 import {
@@ -35,7 +37,7 @@ export default function EnergyPage() {
       <StatusBar />
 
       <div className="px-5 pt-1 pb-3 flex items-center gap-3">
-        <Link href="/twin" className="w-9 h-9 rounded-2xl flex items-center justify-center flex-shrink-0 liquid-glass" style={{ color: "var(--text-1)" }}>
+        <Link href="/more" className="w-9 h-9 rounded-2xl flex items-center justify-center flex-shrink-0 liquid-glass" style={{ color: "var(--text-1)" }}>
           <svg width="18" height="18" viewBox="0 0 24 24" fill="none"><path d="M19 12H5M12 5l-7 7 7 7" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" /></svg>
         </Link>
         <h1 className="font-bold text-2xl flex-1" style={{ color: "var(--text-1)" }}>Energy</h1>
@@ -506,9 +508,15 @@ function NodeSheet({ node, s, carPct, evSession, onClose }: { node: string; s: E
           </span>
         </div>
         <svg viewBox="0 0 300 70" className="w-full mb-3" style={{ height: 70 }} preserveAspectRatio="none">
-          <path d={`${scaledPath(hist.solar, 300, 70, 4, hmax)} L296,66 L4,66 Z`} fill="rgba(245,158,11,0.14)" stroke="none" />
+          <defs>
+            <linearGradient id="sheet-solar-fill" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0%" stopColor="#F59E0B" stopOpacity="0.28" />
+              <stop offset="100%" stopColor="#F59E0B" stopOpacity="0" />
+            </linearGradient>
+          </defs>
+          <path d={`${scaledPath(hist.solar, 300, 70, 4, hmax)} L296,66 L4,66 Z`} fill="url(#sheet-solar-fill)" stroke="none" />
           <path d={scaledPath(hist.forecast, 300, 70, 4, hmax)} fill="none" stroke="#9CA3AF" strokeWidth="1.5" strokeDasharray="4 4" strokeLinecap="round" strokeLinejoin="round" />
-          <path d={scaledPath(hist.solar, 300, 70, 4, hmax)} fill="none" stroke="#F59E0B" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+          <path d={scaledPath(hist.solar, 300, 70, 4, hmax)} fill="none" stroke="#F59E0B" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ filter: "drop-shadow(0 0 4px rgba(245,158,11,0.4))" }} />
         </svg>
         <SheetRow label="Generat azi" value={`${kwh.toFixed(1)} kWh`} accent />
         <SheetRow label="Prognoză azi" value={`${forecastKwh.toFixed(1)} kWh`} />
@@ -572,8 +580,14 @@ function NodeSheet({ node, s, carPct, evSession, onClose }: { node: string; s: E
             <>
               <p className="text-[11px] mb-1" style={{ color: "var(--text-3)" }}>Curbă de încărcare · acum → plin</p>
               <svg viewBox="0 0 300 60" className="w-full mb-3" style={{ height: 60 }} preserveAspectRatio="none">
-                <path d={`${scaledPath(curve, 300, 60, 4, 100)} L296,56 L4,56 Z`} fill="rgba(74,222,128,0.14)" stroke="none" />
-                <path d={scaledPath(curve, 300, 60, 4, 100)} fill="none" stroke={GREEN} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+                <defs>
+                  <linearGradient id="ev-curve-fill" x1="0" y1="0" x2="0" y2="1">
+                    <stop offset="0%" stopColor={GREEN} stopOpacity="0.28" />
+                    <stop offset="100%" stopColor={GREEN} stopOpacity="0" />
+                  </linearGradient>
+                </defs>
+                <path d={`${scaledPath(curve, 300, 60, 4, 100)} L296,56 L4,56 Z`} fill="url(#ev-curve-fill)" stroke="none" />
+                <path d={scaledPath(curve, 300, 60, 4, 100)} fill="none" stroke={GREEN} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ filter: `drop-shadow(0 0 4px ${GREEN}66)` }} />
               </svg>
             </>
           );
@@ -634,8 +648,14 @@ function NodeSheet({ node, s, carPct, evSession, onClose }: { node: string; s: E
         </div>
         <p className="text-[11px] mb-1" style={{ color: "var(--text-3)" }}>Consum azi · pe oră</p>
         <svg viewBox="0 0 300 60" className="w-full mb-3" style={{ height: 60 }} preserveAspectRatio="none">
-          <path d={`${scaledPath(hist.home, 300, 60, 4, hmax)} L296,56 L4,56 Z`} fill="rgba(34,211,238,0.14)" stroke="none" />
-          <path d={scaledPath(hist.home, 300, 60, 4, hmax)} fill="none" stroke="#22D3EE" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+          <defs>
+            <linearGradient id="sheet-home-fill" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0%" stopColor="#22D3EE" stopOpacity="0.28" />
+              <stop offset="100%" stopColor="#22D3EE" stopOpacity="0" />
+            </linearGradient>
+          </defs>
+          <path d={`${scaledPath(hist.home, 300, 60, 4, hmax)} L296,56 L4,56 Z`} fill="url(#sheet-home-fill)" stroke="none" />
+          <path d={scaledPath(hist.home, 300, 60, 4, hmax)} fill="none" stroke="#22D3EE" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ filter: "drop-shadow(0 0 4px rgba(34,211,238,0.4))" }} />
         </svg>
         {/* Climate control — HVAC + heat pump */}
         <div className="rounded-2xl p-3 mb-3" style={{ background: "rgba(255,255,255,0.05)" }}>
@@ -678,7 +698,7 @@ function NodeSheet({ node, s, carPct, evSession, onClose }: { node: string; s: E
           </div>
         ))}
         <p className="text-[11px] mt-3" style={{ color: "var(--text-3)" }}>
-          {houseView === "rooms" ? "Energie pe cameră, sincronizat cu Digital Twin." : "Putere virtuală estimată (Powercalc) — dispozitive fără contor individual."}
+          {houseView === "rooms" ? "Energie pe cameră, măsurată live." : "Putere virtuală estimată (Powercalc) — dispozitive fără contor individual."}
         </p>
       </>
     );
@@ -736,10 +756,8 @@ function cheapestWindow(series: number[], len = 4): { start: number; end: number
 // Shared-scale series path (0..maxVal) for overlaying two series on one chart.
 function scaledPath(values: number[], w: number, h: number, pad: number, maxVal: number): string {
   if (values.length < 2) return "";
-  const stepX = (w - pad * 2) / (values.length - 1);
-  return values
-    .map((v, i) => `${i === 0 ? "M" : "L"}${(pad + i * stepX).toFixed(1)},${(pad + (h - pad * 2) * (1 - Math.min(1, v / maxVal))).toFixed(1)}`)
-    .join(" ");
+  // Revolut-style smooth curve, scaled 0..maxVal (see app/lib/charts.ts).
+  return smoothPath(values, w, h, pad, maxVal);
 }
 
 function EnergieTab() {
@@ -782,11 +800,16 @@ function EnergieTab() {
           <div><p className="text-text-tertiary text-[11px]">Solar · medie</p><p className="text-base font-bold" style={{ color: "#4ADE80" }}>{solarToday} kW</p></div>
           <div><p className="text-text-tertiary text-[11px]">Consum · medie</p><p className="text-base font-bold" style={{ color: "#22D3EE" }}>{homeToday} kW</p></div>
         </div>
-        <svg viewBox="0 0 300 80" className="w-full" style={{ height: 80 }} preserveAspectRatio="none">
-          <path d={`${scaledPath(hist.solar, 300, 80, 4, histMax)} L296,76 L4,76 Z`} fill="rgba(74,222,128,0.12)" stroke="none" />
-          <path d={scaledPath(hist.solar, 300, 80, 4, histMax)} fill="none" stroke="#4ADE80" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
-          <path d={scaledPath(hist.home, 300, 80, 4, histMax)} fill="none" stroke="#22D3EE" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
-        </svg>
+        <RevolutChart
+          height={92}
+          max={histMax}
+          series={[
+            { values: hist.solar, color: "#4ADE80", label: "Solar" },
+            { values: hist.home, color: "#22D3EE", label: "Consum" },
+          ]}
+          formatValue={(v) => `${v.toFixed(1)} kW`}
+          formatX={(i) => `${String(Math.round((i / Math.max(1, hist.solar.length - 1)) * 24)).padStart(2, "0")}:00`}
+        />
         <div className="flex justify-between text-text-tertiary text-[10px] mt-1"><span>00:00</span><span>12:00</span><span>24:00</span></div>
       </div>
 
@@ -1031,10 +1054,16 @@ function PowerwallTab() {
           <div><p className="text-text-tertiary text-[11px]">Fereastră ieftină</p><p className="text-base font-bold" style={{ color: "#4ADE80" }}>{cheap.start}:00–{cheap.end}:00</p></div>
         </div>
         <svg viewBox="0 0 300 70" className="w-full" style={{ height: 70 }} preserveAspectRatio="none">
+          <defs>
+            <linearGradient id="tariff-fill" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0%" stopColor="#4ADE80" stopOpacity="0.28" />
+              <stop offset="100%" stopColor="#4ADE80" stopOpacity="0" />
+            </linearGradient>
+          </defs>
           {/* cheapest-window highlight band */}
           <rect x={4 + (cheap.start / 24) * 292} y={2} width={((cheap.end - cheap.start) / 24) * 292} height={66} fill="rgba(74,222,128,0.14)" />
-          <path d={`${seriesPath(TARIFF_SERIES, 300, 70, 4)} L296,66 L4,66 Z`} fill="rgba(74,222,128,0.08)" stroke="none" />
-          <path d={seriesPath(TARIFF_SERIES, 300, 70, 4)} fill="none" stroke="#4ADE80" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+          <path d={`${seriesPath(TARIFF_SERIES, 300, 70, 4)} L296,66 L4,66 Z`} fill="url(#tariff-fill)" stroke="none" />
+          <path d={seriesPath(TARIFF_SERIES, 300, 70, 4)} fill="none" stroke="#4ADE80" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ filter: "drop-shadow(0 0 4px rgba(74,222,128,0.4))" }} />
         </svg>
         <div className="flex justify-between text-text-tertiary text-[10px] mt-1 mb-3"><span>0:00</span><span>12:00</span><span>24:00</span></div>
         <div className="flex items-center justify-between pt-3" style={{ borderTop: "1px solid rgba(255,255,255,0.06)" }}>

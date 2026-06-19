@@ -1,11 +1,12 @@
 /**
- * Digital Twin spatial & telemetry model (spec: Digital Twin Layer).
+ * Spatial & telemetry model.
  *
  * A framework-free representation of the estate's spatial layout, asset/sensor
  * mapping and live telemetry. In the platform these come from backend-brokered
  * contracts synchronized with Home Assistant / IoT; here they are simulated on
  * device so the twin visualization, time-series and state-event flow are real.
  */
+import { smoothPath } from "../charts";
 
 export type TwinZone = {
   id: string;
@@ -99,15 +100,6 @@ export function tick(s: TwinSensor): number {
 /** Build an SVG polyline path for a time-series within a w×h box. */
 export function seriesPath(values: number[], w: number, h: number, pad = 2): string {
   if (values.length < 2) return "";
-  const min = Math.min(...values);
-  const max = Math.max(...values);
-  const span = max - min || 1;
-  const stepX = (w - pad * 2) / (values.length - 1);
-  return values
-    .map((v, i) => {
-      const x = pad + i * stepX;
-      const y = pad + (h - pad * 2) * (1 - (v - min) / span);
-      return `${i === 0 ? "M" : "L"}${x.toFixed(1)},${y.toFixed(1)}`;
-    })
-    .join(" ");
+  // Revolut-style smooth curve (see app/lib/charts.ts).
+  return smoothPath(values, w, h, pad);
 }

@@ -475,8 +475,8 @@ export default function PropertyDetailPage() {
               </svg>
             </div>
             <p className="text-white font-semibold text-base mb-1">{activeTab}</p>
-            <p className="text-[#6B7280] text-sm text-center mb-4">Explore zones and parcels spatially in the Digital Twin.</p>
-            <Link href="/twin" className="px-4 py-2.5 rounded-2xl text-sm font-semibold" style={{ background: "#4ADE80", color: "#050A14" }}>Open Digital Twin</Link>
+            <p className="text-[#6B7280] text-sm text-center mb-4">Explore your rooms live on the floorplan.</p>
+            <Link href="/twin/floorplan" className="px-4 py-2.5 rounded-2xl text-sm font-semibold" style={{ background: "#4ADE80", color: "#050A14" }}>Open Floorplan</Link>
           </div>
         )}
 

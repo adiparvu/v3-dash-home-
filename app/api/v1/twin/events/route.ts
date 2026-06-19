@@ -1,5 +1,5 @@
 /**
- * GET  /api/v1/twin/events — recent Digital Twin state events for the owner.
+ * GET  /api/v1/twin/events — recent live state events for the owner.
  * POST /api/v1/twin/events — append a state-change event (system-of-record).
  *
  * RLS-scoped to the property owner; events are published over Supabase Realtime

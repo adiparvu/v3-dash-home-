@@ -56,7 +56,7 @@ const TEMPLATES: Record<string, (d: DocInput) => { summary: string; keyPoints: s
     summary: `“${d.name}” is a technical document for the ${d.zone} zone, dated ${d.date}. It describes infrastructure, layout or specifications useful for maintenance and the digital-twin model.`,
     keyPoints: [
       "Describes infrastructure / layout / specifications",
-      "Useful for maintenance planning and the digital twin",
+      "Useful for maintenance planning and live monitoring",
       "Cross-reference with related assets and sensors",
     ],
   }),

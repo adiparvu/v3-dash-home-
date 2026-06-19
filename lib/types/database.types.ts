@@ -1185,6 +1185,84 @@ export type Database = {
         }
         Relationships: []
       }
+      cameras: {
+        Row: {
+          id: string
+          property_id: string
+          name: string
+          zone: string | null
+          stream_url: string | null
+          snapshot_url: string | null
+          vendor: string | null
+          ai_enabled: boolean
+          is_online: boolean
+          last_event_at: string | null
+          created_at: string
+        }
+        Insert: {
+          id?: string
+          property_id: string
+          name: string
+          zone?: string | null
+          stream_url?: string | null
+          snapshot_url?: string | null
+          vendor?: string | null
+          ai_enabled?: boolean
+          is_online?: boolean
+          last_event_at?: string | null
+          created_at?: string
+        }
+        Update: {
+          id?: string
+          property_id?: string
+          name?: string
+          zone?: string | null
+          stream_url?: string | null
+          snapshot_url?: string | null
+          vendor?: string | null
+          ai_enabled?: boolean
+          is_online?: boolean
+          last_event_at?: string | null
+          created_at?: string
+        }
+        Relationships: []
+      }
+      camera_events: {
+        Row: {
+          id: string
+          property_id: string
+          camera_id: string
+          object: string
+          label: string | null
+          confidence: number | null
+          zone: string | null
+          snapshot_url: string | null
+          recorded_at: string
+        }
+        Insert: {
+          id?: string
+          property_id: string
+          camera_id: string
+          object: string
+          label?: string | null
+          confidence?: number | null
+          zone?: string | null
+          snapshot_url?: string | null
+          recorded_at?: string
+        }
+        Update: {
+          id?: string
+          property_id?: string
+          camera_id?: string
+          object?: string
+          label?: string | null
+          confidence?: number | null
+          zone?: string | null
+          snapshot_url?: string | null
+          recorded_at?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
@@ -1216,6 +1294,9 @@ export type Database = {
         | 'house'
         | 'driveway'
         | 'smart_home'
+        | 'pool'
+        | 'cellar'
+        | 'garage'
         | 'custom'
       asset_category:
         | 'device'
@@ -1236,6 +1317,13 @@ export type Database = {
         | 'door'
         | 'light'
         | 'water_level'
+        | 'ph'
+        | 'dissolved_oxygen'
+        | 'salinity'
+        | 'ec'
+        | 'water_flow'
+        | 'turbidity'
+        | 'pressure'
         | 'custom'
       social_platform:
         | 'facebook'
@@ -1302,6 +1390,8 @@ export type DeviceRegistryRow = Tables<'device_registry'>
 export type PresenceEventRow = Tables<'presence_events'>
 export type AutomationScheduleRow = Tables<'automation_schedules'>
 export type PushSubscriptionRow = Tables<'push_subscriptions'>
+export type Camera = Tables<'cameras'>
+export type CameraEvent = Tables<'camera_events'>
 export type NotificationRow = Tables<'notifications'>
 export type ProfileSocialLink = Tables<'profile_social_links'>
 export type TrustedPerson = Tables<'trusted_persons'>

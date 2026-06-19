@@ -6,9 +6,9 @@ import StatusBar from "../../../components/layout/StatusBar";
 import { useDevices, type Protocol } from "../../../lib/useDevices";
 
 /**
- * Home Assistant / IoT integration gateway (spec: Digital Twin Layer →
- * "Synchronizes with Home Assistant and IoT integrations through backend-managed
- * contracts"; Backend Layer → integration gateways).
+ * Home Assistant / IoT integration gateway: synchronizes with Home Assistant and
+ * IoT integrations through backend-managed contracts (Backend Layer → integration
+ * gateways).
  */
 
 const PROTOCOL_COLOR: Record<Protocol, string> = {
@@ -66,7 +66,7 @@ export default function HomeAssistantGatewayPage() {
           </div>
           <p className="text-text-tertiary text-[11px] leading-relaxed">
             Devices are synchronized through backend-managed contracts — the client never
-            talks to IoT devices directly. Telemetry flows into the Digital Twin and the
+            talks to IoT devices directly. Telemetry flows into the live dashboard and the
             event bus; commands are policy-validated before dispatch.
           </p>
         </div>
@@ -74,7 +74,7 @@ export default function HomeAssistantGatewayPage() {
         {/* Sync flow */}
         <div className="rounded-2xl p-4" style={{ background: "rgba(255,255,255,0.04)", border: "0.5px solid var(--glass-border)" }}>
           <div className="flex items-center justify-between text-[11px] mb-3" style={{ color: "var(--text-2)" }}>
-            {["IoT / HA", "Gateway", "Backend", "Digital Twin"].map((n, i, arr) => (
+            {["IoT / HA", "Gateway", "Backend", "Dashboard"].map((n, i, arr) => (
               <div key={n} className="flex items-center gap-1">
                 <span className="px-2 py-1 rounded-lg" style={{ background: "var(--glass-bg)", border: "0.5px solid var(--glass-border)" }}>{n}</span>
                 {i < arr.length - 1 && <span style={{ color: "var(--accent)" }}>→</span>}
@@ -125,8 +125,8 @@ export default function HomeAssistantGatewayPage() {
           </div>
         </div>
 
-        <Link href="/twin" className="block w-full text-center py-3.5 rounded-2xl font-semibold text-sm" style={{ background: "var(--accent)", color: "#08111E" }}>
-          Open Digital Twin
+        <Link href="/twin/floorplan" className="block w-full text-center py-3.5 rounded-2xl font-semibold text-sm" style={{ background: "var(--accent)", color: "#08111E" }}>
+          Open Floorplan
         </Link>
       </div>
     </div>
