@@ -15,3 +15,13 @@ export const POND_WATER: MetricSpec[] = [
   { key: "turbidity", label: "Turbiditate", unit: "NTU", icon: "🌫️", demo: 8, decimals: 0, okMax: 15, warnMax: 30 },
   { key: "salinity", label: "Salinitate", unit: "ppt", icon: "🧂", demo: 0.3, decimals: 1, okMax: 1.0, warnMax: 2.0 },
 ];
+
+// Livada (orchard) — soil + microclimate + irrigation (farmOS-style agronomy).
+export const ORCHARD: MetricSpec[] = [
+  { key: "moisture", label: "Umiditate sol", unit: "%", icon: "💧", demo: 48, decimals: 0, okMin: 35, okMax: 65, warnMin: 25, warnMax: 75 },
+  { key: "temperature", label: "Temperatură", unit: "°C", icon: "🌡️", demo: 21, decimals: 1, okMin: 10, okMax: 28, warnMin: 4, warnMax: 34 },
+  { key: "humidity", label: "Umiditate aer", unit: "%", icon: "💨", demo: 62, decimals: 0, okMin: 45, okMax: 75, warnMin: 30, warnMax: 88 },
+  { key: "ph", label: "pH sol", icon: "🧪", demo: 6.6, decimals: 1, okMin: 6.0, okMax: 7.5, warnMin: 5.5, warnMax: 8.0 },
+  { key: "light", label: "Luminozitate", unit: "klx", icon: "☀️", demo: 64, decimals: 0 },
+  { key: "water_flow", label: "Debit irigare", unit: "L/min", icon: "🚿", demo: 12, decimals: 0, okMax: 30, warnMax: 45 },
+];
