@@ -468,4 +468,17 @@
   .animate-pulse-glow{ animation: pulseGlow 2s ease-in-out infinite; }
   .animate-scanline  { animation: scanline 2.2s ease-in-out infinite; }
   .energy-flow       { stroke-dasharray: 5 11; animation: energyFlow 0.9s linear infinite; }
+
+  /* EV charging pulse — a sweeping highlight over the battery fill bar. */
+  @keyframes chargePulse {
+    0%   { transform: translateX(-30%); opacity: 0; }
+    40%  { opacity: 0.9; }
+    100% { transform: translateX(330%); opacity: 0; }
+  }
+  .charge-pulse {
+    position: absolute; inset: 0; top: 0; height: 100%; width: 30%;
+    background: linear-gradient(90deg, transparent, rgba(255,255,255,0.55), transparent);
+    border-radius: 999px; pointer-events: none;
+    animation: chargePulse 1.6s ease-in-out infinite;
+  }
 }

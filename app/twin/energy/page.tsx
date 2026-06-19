@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import Link from "next/link";
 import StatusBar from "../../components/layout/StatusBar";
 import BottomNav from "../../components/layout/BottomNav";
@@ -24,6 +24,9 @@ const START: EnergyState = { solar: 6.5, home: 0.8, vehicle: 2.2, battery: 4.9, 
 // is no image compositing and therefore no mask seams ("chenare"). Positions are
 // in % of the 853×1844 image, measured from the reference render.
 const GREEN = "#4ADE80";
+
+// A directional energy flow for the animation; pts are source→destination (% of image).
+type Flow = { id: string; kw: number; pts: [number, number][] };
 
 export default function EnergyPage() {
   const [tab, setTab] = useState<Tab>("Live");
@@ -63,6 +66,7 @@ export default function EnergyPage() {
 function LiveTab({ onGoTab }: { onGoTab: (t: Tab) => void }) {
   const [s, setS] = useState<EnergyState>(START);
   const [carPct, setCarPct] = useState(69);
+  const [node, setNode] = useState<string | null>(null);
 
   useEffect(() => {
     const id = setInterval(() => {
@@ -97,17 +101,23 @@ function LiveTab({ onGoTab }: { onGoTab: (t: Tab) => void }) {
     { id: "vch", c: [7.3, 48.7], align: "left", fs: 3.5, node: <span style={{ color: GREEN }}>{kw(s.vehicle)}</span> },
     { id: "vb", c: [7.3, 52.3], align: "left", fs: 3.1, node: <>{Math.round(carPct)}%</> },
   ];
-  // Leader lines, in % of the image (preserveAspectRatio none → coords map 1:1).
-  const LINES: [number, number, number, number][] = [
-    // Each line connects its label to the component it points to (measured from
-    // the reference render): HOME → window, BATTERY → Powerwall, GRID → meter,
-    // SOLAR → roof panel, car battery → charger.
-    [52.5, 25.2, 52.5, 42.5],   // solar → roof panel
-    [85.7, 30.7, 85.7, 55.9],   // home → window centre
-    [53.5, 66.2, 53.5, 70.6],   // battery → powerwall unit (stops at its base)
-    [83.45, 67.5, 83.45, 70.6], // grid → floor power cable
-    [13.5, 52.3, 21.5, 52.3],   // car battery → across
-    [21.5, 52.3, 21.5, 55.2],   // car battery → down into the charger centre
+  // Directional live flows (source → destination order drives particle travel).
+  const charging = s.battery > 0.05;       // + charging, − discharging
+  const importing = s.grid > 0.05;         // + importing, − exporting
+  const flows: Flow[] = [
+    { id: "solar", kw: s.solar, pts: [[52.5, 42.5], [52.5, 25.2]] },                                  // panel → reading (supplies)
+    { id: "house", kw: s.home, pts: [[85.7, 30.7], [85.7, 55.9]] },                                   // reading → window (consumes)
+    { id: "battery", kw: Math.abs(s.battery), pts: charging ? [[53.5, 70.6], [53.5, 66.2]] : [[53.5, 66.2], [53.5, 70.6]] },
+    { id: "grid", kw: Math.abs(s.grid), pts: importing ? [[83.45, 67.5], [83.45, 70.6]] : [[83.45, 70.6], [83.45, 67.5]] },
+    { id: "ev", kw: s.vehicle, pts: [[13.5, 52.3], [21.5, 52.3], [21.5, 55.2]] },                     // reading → charger (consumes)
+  ];
+  // Tap targets over each node's readout.
+  const ZONES: { id: string; r: [number, number, number, number] }[] = [
+    { id: "solar", r: [37, 18, 31, 9] },
+    { id: "house", r: [75, 23, 24, 11] },
+    { id: "battery", r: [39, 69, 30, 8] },
+    { id: "grid", r: [75, 69, 18, 8] },
+    { id: "ev", r: [0, 42, 27, 15] },
   ];
 
   const drawText = (t: { c: [number, number]; align: Align; fs: number; color?: string; w?: number; ls?: number; node: React.ReactNode }, key: string) => (
@@ -126,18 +136,26 @@ function LiveTab({ onGoTab }: { onGoTab: (t: Tab) => void }) {
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img src="/estate-house.png" alt="PRVIO Estate — energy" className="absolute inset-0 w-full h-full" style={{ objectFit: "cover" }} draggable={false} />
 
-          {/* leader lines */}
-          <svg viewBox="0 0 100 100" preserveAspectRatio="none" className="absolute inset-0 w-full h-full" style={{ zIndex: 1 }}>
-            {LINES.map((l, i) => (
-              <line key={i} x1={l[0]} y1={l[1]} x2={l[2]} y2={l[3]} stroke="rgba(255,255,255,0.32)" strokeWidth={1} vectorEffect="non-scaling-stroke" />
-            ))}
-          </svg>
+          {/* animated energy flow: connection lines + light particles */}
+          <FlowCanvas flows={flows} />
 
           {/* labels + live values */}
           {LABELS.map((t) => drawText(t, t.id))}
           {VALUES.map((t) => drawText(t, t.id))}
+
+          {/* tap targets → node detail sheet */}
+          {ZONES.map((z) => (
+            <button
+              key={z.id}
+              aria-label={z.id}
+              onClick={() => setNode(z.id)}
+              style={{ position: "absolute", left: `${z.r[0]}%`, top: `${z.r[1]}%`, width: `${z.r[2]}%`, height: `${z.r[3]}%`, zIndex: 3, background: "transparent", border: "none", padding: 0, cursor: "pointer" }}
+            />
+          ))}
         </div>
       </div>
+
+      {node && <NodeSheet node={node} s={s} carPct={carPct} onClose={() => setNode(null)} />}
 
       {/* shortcuts */}
       <div className="px-4 space-y-2">
@@ -155,6 +173,248 @@ function LiveTab({ onGoTab }: { onGoTab: (t: Tab) => void }) {
             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" style={{ opacity: 0.45 }}><path d="M9 18l6-6-6-6" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round" /></svg>
           </button>
         ))}
+      </div>
+    </div>
+  );
+}
+
+// ── Energy-flow animation (canvas: lines + light particles) ───────────────────
+function FlowCanvas({ flows }: { flows: Flow[] }) {
+  const canvasRef = useRef<HTMLCanvasElement>(null);
+  const flowsRef = useRef(flows);
+  flowsRef.current = flows;
+
+  useEffect(() => {
+    const canvas = canvasRef.current;
+    if (!canvas) return;
+    const ctx = canvas.getContext("2d");
+    if (!ctx) return;
+    const dpr = Math.min(2, window.devicePixelRatio || 1);
+    let raf = 0;
+    let last = performance.now();
+    const phases = new Map<string, number>();
+
+    const resize = () => {
+      const r = canvas.getBoundingClientRect();
+      canvas.width = Math.max(1, Math.round(r.width * dpr));
+      canvas.height = Math.max(1, Math.round(r.height * dpr));
+    };
+    resize();
+    const ro = new ResizeObserver(resize);
+    ro.observe(canvas);
+
+    const frame = (now: number) => {
+      const dt = Math.min(0.05, (now - last) / 1000);
+      last = now;
+      const W = canvas.width, H = canvas.height;
+      ctx.clearRect(0, 0, W, H);
+
+      for (const f of flowsRef.current) {
+        const pts = f.pts.map(([x, y]) => [(x / 100) * W, (y / 100) * H] as [number, number]);
+        const segLen: number[] = [];
+        let total = 0;
+        for (let i = 1; i < pts.length; i++) {
+          const d = Math.hypot(pts[i][0] - pts[i - 1][0], pts[i][1] - pts[i - 1][1]);
+          segLen.push(d);
+          total += d;
+        }
+        const active = f.kw > 0.15;
+
+        // connection line — dim when idle, brighter when flowing
+        ctx.lineCap = "round";
+        ctx.lineWidth = 1.1 * dpr;
+        ctx.strokeStyle = active ? "rgba(255,255,255,0.30)" : "rgba(255,255,255,0.10)";
+        ctx.beginPath();
+        ctx.moveTo(pts[0][0], pts[0][1]);
+        for (let i = 1; i < pts.length; i++) ctx.lineTo(pts[i][0], pts[i][1]);
+        ctx.stroke();
+        if (!active || total === 0) continue;
+
+        // particles: count, speed and brightness all scale with power
+        const count = Math.max(2, Math.min(9, Math.round(f.kw * 1.3)));
+        const speed = Math.min(0.6, 0.12 + f.kw * 0.05); // path-cycles / sec
+        const bright = Math.min(1, 0.45 + f.kw * 0.09);
+        let ph = (phases.get(f.id) ?? 0) + dt * speed;
+        ph -= Math.floor(ph);
+        phases.set(f.id, ph);
+
+        for (let k = 0; k < count; k++) {
+          const u = (ph + k / count) % 1;
+          let dist = u * total;
+          let px = pts[0][0], py = pts[0][1];
+          for (let i = 0; i < segLen.length; i++) {
+            if (dist <= segLen[i]) {
+              const t = segLen[i] === 0 ? 0 : dist / segLen[i];
+              px = pts[i][0] + (pts[i + 1][0] - pts[i][0]) * t;
+              py = pts[i][1] + (pts[i + 1][1] - pts[i][1]) * t;
+              break;
+            }
+            dist -= segLen[i];
+            px = pts[i + 1][0];
+            py = pts[i + 1][1];
+          }
+          const rad = 7 * dpr;
+          const g = ctx.createRadialGradient(px, py, 0, px, py, rad);
+          g.addColorStop(0, `rgba(200,255,215,${bright})`);
+          g.addColorStop(0.45, `rgba(74,222,128,${bright * 0.45})`);
+          g.addColorStop(1, "rgba(74,222,128,0)");
+          ctx.fillStyle = g;
+          ctx.beginPath();
+          ctx.arc(px, py, rad, 0, Math.PI * 2);
+          ctx.fill();
+          ctx.fillStyle = `rgba(255,255,255,${bright})`;
+          ctx.beginPath();
+          ctx.arc(px, py, 1.6 * dpr, 0, Math.PI * 2);
+          ctx.fill();
+        }
+      }
+      raf = requestAnimationFrame(frame);
+    };
+    raf = requestAnimationFrame(frame);
+    return () => { cancelAnimationFrame(raf); ro.disconnect(); };
+  }, []);
+
+  return <canvas ref={canvasRef} className="absolute inset-0 w-full h-full" style={{ zIndex: 1, pointerEvents: "none" }} />;
+}
+
+// ── Node detail sheet (tap a node on the Live diagram) ────────────────────────
+function SheetRow({ label, value, accent }: { label: string; value: React.ReactNode; accent?: boolean }) {
+  return (
+    <div className="flex items-center justify-between py-2.5" style={{ borderBottom: "1px solid rgba(255,255,255,0.06)" }}>
+      <span className="text-sm" style={{ color: "var(--text-3)" }}>{label}</span>
+      <span className="text-sm font-semibold" style={{ color: accent ? GREEN : "var(--text-1)" }}>{value}</span>
+    </div>
+  );
+}
+
+function FillBar({ pct, color = GREEN }: { pct: number; color?: string }) {
+  return (
+    <div className="w-full h-3 rounded-full overflow-hidden" style={{ background: "rgba(255,255,255,0.08)" }}>
+      <div style={{ width: `${Math.max(0, Math.min(100, pct))}%`, height: "100%", background: `linear-gradient(90deg, ${color}, #22D3EE)`, borderRadius: 999, transition: "width 1.8s ease-in-out" }} />
+    </div>
+  );
+}
+
+function NodeSheet({ node, s, carPct, onClose }: { node: string; s: EnergyState; carPct: number; onClose: () => void }) {
+  const meta: Record<string, { t: string; icon: string }> = {
+    solar: { t: "Solar", icon: "☀️" },
+    battery: { t: "Powerwall", icon: "🔋" },
+    ev: { t: "Porsche 911 GT3 RS", icon: "🏎️" },
+    house: { t: "Casă", icon: "🏠" },
+    grid: { t: "Rețea", icon: "🔌" },
+  };
+  const m = meta[node];
+  const fmtH = (h: number) => (!isFinite(h) || h <= 0 ? "—" : `${Math.floor(h)}h ${Math.round((h % 1) * 60)}m`);
+
+  let body: React.ReactNode = null;
+  if (node === "solar") {
+    body = (
+      <>
+        <p className="text-4xl font-bold mb-1" style={{ color: "var(--text-1)" }}>{kw(s.solar)}</p>
+        <p className="text-xs mb-4" style={{ color: "var(--text-3)" }}>Producție în acest moment</p>
+        <SheetRow label="Generat azi" value="34.6 kWh" />
+        <SheetRow label="Vârf azi" value="6.2 kW" />
+        <SheetRow label="Capacitate instalată" value="7.2 kWp" />
+        <SheetRow label="Panouri" value="18 · funcționale" accent />
+        <SheetRow label="Stare invertor" value="Optimal" accent />
+      </>
+    );
+  } else if (node === "battery") {
+    const cap = 13.5;
+    const runtime = (cap * s.batteryPct / 100) / Math.max(0.3, s.home);
+    body = (
+      <>
+        <div className="flex items-end justify-between mb-2">
+          <p className="text-4xl font-bold" style={{ color: "var(--text-1)" }}>{Math.round(s.batteryPct)}%</p>
+          <p className="text-sm font-semibold" style={{ color: GREEN }}>{s.battery >= 0 ? "Se încarcă" : "Descărcare"} · {kw(s.battery)}</p>
+        </div>
+        <div className="mb-4"><FillBar pct={s.batteryPct} /></div>
+        <SheetRow label="Putere" value={`${s.battery >= 0 ? "+" : "−"}${kw(s.battery)}`} accent />
+        <SheetRow label="Autonomie rămasă" value={fmtH(runtime)} />
+        <SheetRow label="Capacitate" value={`${(cap * s.batteryPct / 100).toFixed(1)} / ${cap} kWh`} />
+        <SheetRow label="Temperatură" value="24°C" />
+        <SheetRow label="Stare de sănătate" value="97%" accent />
+      </>
+    );
+  } else if (node === "ev") {
+    const cap = 93;
+    const eta = s.vehicle > 0.1 ? ((100 - carPct) / 100 * cap) / s.vehicle : Infinity;
+    body = (
+      <>
+        <div className="flex items-end justify-between mb-2">
+          <p className="text-4xl font-bold" style={{ color: "var(--text-1)" }}>{Math.round(carPct)}%</p>
+          <p className="text-sm font-semibold" style={{ color: s.vehicle > 0.1 ? GREEN : "var(--text-3)" }}>{s.vehicle > 0.1 ? `Se încarcă · ${kw(s.vehicle)}` : "Inactiv"}</p>
+        </div>
+        <div className="mb-4 relative">
+          <FillBar pct={carPct} />
+          {s.vehicle > 0.1 && <div className="charge-pulse" />}
+        </div>
+        <SheetRow label="Vehicul" value="Porsche 911 GT3 RS" />
+        <SheetRow label="Viteză încărcare" value={s.vehicle > 0.1 ? kw(s.vehicle) : "—"} accent={s.vehicle > 0.1} />
+        <SheetRow label="Timp până la 100%" value={fmtH(eta)} />
+        <SheetRow label="Autonomie adăugată" value={`+${Math.round(carPct * 4.6)} km`} />
+        <SheetRow label="Capacitate baterie" value={`${cap} kWh`} />
+      </>
+    );
+  } else if (node === "house") {
+    const load = s.home;
+    const consumers = [
+      { n: "HVAC", f: 0.32, icon: "❄️" },
+      { n: "Pompă de căldură", f: 0.24, icon: "♨️" },
+      { n: "Piscină", f: 0.14, icon: "🏊" },
+      { n: "Iluminat", f: 0.12, icon: "💡" },
+      { n: "Electrocasnice", f: 0.18, icon: "🔌" },
+    ];
+    body = (
+      <>
+        <p className="text-4xl font-bold mb-1" style={{ color: "var(--text-1)" }}>{kw(load)}</p>
+        <p className="text-xs mb-4" style={{ color: "var(--text-3)" }}>Consum casă acum</p>
+        {consumers.map((c) => (
+          <div key={c.n} className="py-2" style={{ borderBottom: "1px solid rgba(255,255,255,0.06)" }}>
+            <div className="flex items-center justify-between mb-1.5">
+              <span className="text-sm" style={{ color: "var(--text-1)" }}>{c.icon} {c.n}</span>
+              <span className="text-sm font-semibold" style={{ color: "var(--text-1)" }}>{(load * c.f).toFixed(2)} kW</span>
+            </div>
+            <FillBar pct={c.f * 100} color="#22D3EE" />
+          </div>
+        ))}
+        <p className="text-[11px] mt-3" style={{ color: "var(--text-3)" }}>Atinge o cameră în Digital Twin pentru detalii pe zonă.</p>
+      </>
+    );
+  } else if (node === "grid") {
+    const imp = Math.max(0, s.grid);
+    const exp = Math.max(0, -s.grid);
+    body = (
+      <>
+        <div className="grid grid-cols-2 gap-3 mb-4">
+          <div className="rounded-2xl p-3" style={{ background: "rgba(255,255,255,0.05)" }}>
+            <p className="text-[11px]" style={{ color: "var(--text-3)" }}>Import</p>
+            <p className="text-2xl font-bold" style={{ color: imp > 0 ? "#F59E0B" : "var(--text-1)" }}>{imp.toFixed(1)} kW</p>
+          </div>
+          <div className="rounded-2xl p-3" style={{ background: "rgba(255,255,255,0.05)" }}>
+            <p className="text-[11px]" style={{ color: "var(--text-3)" }}>Export</p>
+            <p className="text-2xl font-bold" style={{ color: exp > 0 ? GREEN : "var(--text-1)" }}>{exp.toFixed(1)} kW</p>
+          </div>
+        </div>
+        <SheetRow label="Preț curent" value={`${TARIFF.buy.toFixed(2)} ${TARIFF.currency}/kWh`} />
+        <SheetRow label="Preț export" value={`${TARIFF.sell.toFixed(2)} ${TARIFF.currency}/kWh`} />
+        <SheetRow label="Furnizor" value={TARIFF.provider} accent />
+        <SheetRow label="Vârf de consum azi" value="4.2 kW · 18:30" />
+        <SheetRow label="Stare rețea" value={imp > 0 ? "Import activ" : exp > 0 ? "Export activ" : "Echilibrat"} accent />
+      </>
+    );
+  }
+
+  return (
+    <div className="fixed inset-0 z-50 flex items-end" onClick={onClose} style={{ background: "rgba(0,0,0,0.55)", backdropFilter: "blur(3px)" }}>
+      <div onClick={(e) => e.stopPropagation()} className="w-full rounded-t-3xl p-5 pb-28" style={{ background: "#0d1320", border: "1px solid rgba(255,255,255,0.10)", maxHeight: "82vh", overflowY: "auto" }}>
+        <div className="w-10 h-1 rounded-full mx-auto mb-4" style={{ background: "rgba(255,255,255,0.22)" }} />
+        <div className="flex items-center gap-2.5 mb-4">
+          <span className="text-2xl">{m.icon}</span>
+          <h2 className="text-lg font-bold flex-1" style={{ color: "var(--text-1)" }}>{m.t}</h2>
+          <button onClick={onClose} className="w-8 h-8 rounded-full flex items-center justify-center" style={{ background: "rgba(255,255,255,0.08)", color: "var(--text-1)" }}>✕</button>
+        </div>
+        {body}
       </div>
     </div>
   );
