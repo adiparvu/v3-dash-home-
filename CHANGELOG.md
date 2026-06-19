@@ -9,6 +9,21 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 ### Added
+- **Energy flow animation, node analytics & live event bus** — the `/twin/energy`
+  **Live** diagram now animates real-time power flows: a canvas streams glowing
+  particles along each connection with count, speed and brightness ∝ kW and
+  direction from the live state (solar supplies, house/EV consume, battery
+  charge/discharge, grid import/export); idle flows dim and stop. Each node is
+  tappable → a detail sheet (Solar production; Powerwall SOC + animated fill,
+  charge/discharge, runtime, temperature, health; Porsche EV % + charging pulse,
+  speed, time-to-full; House load with consumer **and room-level** breakdowns;
+  Grid import/export, price, peak, tariff). Readings are wired to a real event
+  bus: `useEnergyLive` subscribes to the **`prvio-energy` Supabase Realtime**
+  broadcast channel (falling back to the on-device simulation; a Live/Simulat
+  badge shows the source), `POST /api/v1/twin/energy` publishes to it and
+  appends to a durable **`energy_readings`** time-series (migration `005`, RLS),
+  `GET …?history` returns it, and `scripts/energy-publisher.mjs` simulates the
+  gateway. The Powerwall sub-tab shows a live status card from the same feed.
 - **Energy module (Tesla-style)** — a new `/twin/energy` surface modelled on the
   Tesla app's energy section, with four sub-tabs: **Live** (a photoreal 3D render
   of the estate energy system — solar roof, Powerwall, Porsche EV under carport

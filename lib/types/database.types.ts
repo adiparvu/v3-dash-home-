@@ -1038,6 +1038,45 @@ export type Database = {
         }
         Relationships: []
       }
+      energy_readings: {
+        Row: {
+          id: string
+          property_id: string
+          solar: number
+          home: number
+          vehicle: number
+          battery: number
+          grid: number
+          battery_pct: number
+          car_pct: number | null
+          recorded_at: string
+        }
+        Insert: {
+          id?: string
+          property_id: string
+          solar: number
+          home: number
+          vehicle: number
+          battery: number
+          grid: number
+          battery_pct: number
+          car_pct?: number | null
+          recorded_at?: string
+        }
+        Update: {
+          id?: string
+          property_id?: string
+          solar?: number
+          home?: number
+          vehicle?: number
+          battery?: number
+          grid?: number
+          battery_pct?: number
+          car_pct?: number | null
+          recorded_at?: string
+        }
+        Relationships: []
+      }
       twin_events: {
         Row: {
           id: string
@@ -1180,6 +1219,7 @@ export type Notification = Tables<'notifications'>
 export type ChatMessage = Tables<'chat_messages'>
 export type KnowledgeChunk = Tables<'knowledge_chunks'>
 export type TwinEvent = Tables<'twin_events'>
+export type EnergyReading = Tables<'energy_readings'>
 export type ProfileSocialLink = Tables<'profile_social_links'>
 export type TrustedPerson = Tables<'trusted_persons'>
 export type UserSession = Tables<'user_sessions'>

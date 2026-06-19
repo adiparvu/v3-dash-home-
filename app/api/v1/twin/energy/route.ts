@@ -11,6 +11,7 @@
 import { NextResponse } from "next/server";
 import { currentUserId, writeAudit } from "@/lib/data/profile";
 import { listProperties } from "@/lib/data/estate";
+import { appendEnergyReading, listEnergyReadings } from "@/lib/data/energy";
 import { isSupabaseConfigured } from "@/lib/supabase/middleware";
 import { initialEnergyState, simulate, SCENARIOS, type EnergyState } from "@/app/lib/twin/energy";
 
@@ -47,7 +48,30 @@ async function broadcast(topic: string, event: string, payload: unknown): Promis
   return res.ok;
 }
 
-export async function GET() {
+export async function GET(request: Request) {
+  const { searchParams } = new URL(request.url);
+
+  // ?history → durable time-series for the Energie / Impact charts (auth + RLS).
+  if (searchParams.has("history")) {
+    if (!isSupabaseConfigured()) {
+      return NextResponse.json({ apiVersion: API_VERSION, error: "realtime_unconfigured" }, { status: 503 });
+    }
+    const userId = await currentUserId();
+    if (!userId) {
+      return NextResponse.json({ apiVersion: API_VERSION, error: "unauthorized" }, { status: 401 });
+    }
+    const limit = Math.min(Math.max(Number(searchParams.get("limit")) || 96, 1), 500);
+    try {
+      const property = (await listProperties())[0];
+      if (!property) return NextResponse.json({ apiVersion: API_VERSION, data: { readings: [] } });
+      const readings = await listEnergyReadings(property.id, limit);
+      return NextResponse.json({ apiVersion: API_VERSION, data: { readings } });
+    } catch (err) {
+      return NextResponse.json({ apiVersion: API_VERSION, error: err instanceof Error ? err.message : "failed" }, { status: 500 });
+    }
+  }
+
+  // Default: a freshly simulated reading (for pollers / testing).
   const reading = buildReading({});
   return NextResponse.json({ apiVersion: API_VERSION, data: { ...reading.state, carPct: 69 } });
 }
@@ -79,6 +103,23 @@ export async function POST(request: Request) {
     }
     const properties = await listProperties();
     const property = properties[0];
+    // Persist to the durable time-series (history for the Energie / Impact charts).
+    if (property) {
+      try {
+        await appendEnergyReading({
+          property_id: property.id,
+          solar: state.solar,
+          home: state.home,
+          vehicle: state.vehicle,
+          battery: state.battery,
+          grid: state.grid,
+          battery_pct: state.batteryPct,
+          car_pct: carPct ?? null,
+        });
+      } catch {
+        /* broadcast already succeeded; history insert is best-effort */
+      }
+    }
     await writeAudit({
       user_id: userId,
       property_id: property?.id ?? null,
