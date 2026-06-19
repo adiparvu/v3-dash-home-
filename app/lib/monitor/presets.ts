@@ -25,3 +25,13 @@ export const ORCHARD: MetricSpec[] = [
   { key: "light", label: "Luminozitate", unit: "klx", icon: "☀️", demo: 64, decimals: 0 },
   { key: "water_flow", label: "Debit irigare", unit: "L/min", icon: "🚿", demo: 12, decimals: 0, okMax: 30, warnMax: 45 },
 ];
+
+// Greenhouse — Mycodo-style climate + hydroponics nutrient control.
+export const GREENHOUSE: MetricSpec[] = [
+  { key: "temperature", label: "Temperatură", unit: "°C", icon: "🌡️", demo: 24.3, decimals: 1, okMin: 18, okMax: 28, warnMin: 14, warnMax: 34 },
+  { key: "humidity", label: "Umiditate", unit: "%", icon: "💧", demo: 65, decimals: 0, okMin: 50, okMax: 75, warnMin: 40, warnMax: 88 },
+  { key: "co2", label: "CO₂", unit: "ppm", icon: "🌫️", demo: 800, decimals: 0, okMin: 400, okMax: 1000, warnMin: 350, warnMax: 1400 },
+  { key: "light", label: "Lumină", unit: "%", icon: "☀️", demo: 60, decimals: 0, okMin: 40, okMax: 100 },
+  { key: "ph", label: "pH nutrienți", icon: "🧪", demo: 6.0, decimals: 1, okMin: 5.5, okMax: 6.5, warnMin: 5.0, warnMax: 7.0 },
+  { key: "ec", label: "EC nutrienți", unit: "mS/cm", icon: "⚡", demo: 1.8, decimals: 1, okMin: 1.2, okMax: 2.4, warnMin: 0.8, warnMax: 3.0 },
+];
