@@ -5,21 +5,31 @@
  * value with its unit, a status dot coloured by threshold band, and a sparkline
  * of recent readings. Purely presentational — fed by useZoneSensors.
  */
+import { useId } from "react";
 import { type MetricReading, STATUS_COLOR } from "../../lib/monitor/types";
+import { smoothPath, smoothAreaPath, lastPoint } from "../../lib/charts";
 
+// Revolut-style mini sparkline: smooth curve, gradient fade, endpoint dot.
 function Sparkline({ series, color }: { series: number[]; color: string }) {
+  const gid = useId().replace(/[:]/g, "");
   if (series.length < 2) return null;
-  const min = Math.min(...series);
-  const max = Math.max(...series);
-  const span = max - min || 1;
   const w = 100;
   const h = 28;
-  const pts = series
-    .map((v, i) => `${(i / (series.length - 1)) * w},${h - ((v - min) / span) * (h - 4) - 2}`)
-    .join(" ");
+  const pad = 2;
+  const line = smoothPath(series, w, h, pad);
+  const area = smoothAreaPath(series, w, h, pad);
+  const end = lastPoint(series, w, h, pad);
   return (
-    <svg viewBox={`0 0 ${w} ${h}`} preserveAspectRatio="none" className="w-full h-7 mt-2">
-      <polyline points={pts} fill="none" stroke={color} strokeWidth="1.5" strokeLinejoin="round" strokeLinecap="round" opacity="0.9" />
+    <svg viewBox={`0 0 ${w} ${h}`} preserveAspectRatio="none" className="w-full h-7 mt-2" style={{ overflow: "visible" }}>
+      <defs>
+        <linearGradient id={`spark-${gid}`} x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0%" stopColor={color} stopOpacity="0.30" />
+          <stop offset="100%" stopColor={color} stopOpacity="0" />
+        </linearGradient>
+      </defs>
+      <path d={area} fill={`url(#spark-${gid})`} stroke="none" />
+      <path d={line} fill="none" stroke={color} strokeWidth="1.75" strokeLinejoin="round" strokeLinecap="round" style={{ filter: `drop-shadow(0 0 3px ${color}55)` }} />
+      {end && <circle cx={end[0]} cy={end[1]} r="1.8" fill={color} />}
     </svg>
   );
 }
