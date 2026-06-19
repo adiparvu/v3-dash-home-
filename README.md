@@ -47,3 +47,18 @@ Apply them to a Supabase project with the [Supabase CLI](https://supabase.com/do
 - `npm run dev` — start the dev server
 - `npm run build` — production build
 - `npm run lint` — lint
+
+### Energy event-bus test publisher
+
+Simulate the backend / Home Assistant gateway feeding the **Energy → Live**
+diagram. It broadcasts an `EnergyState` on the `prvio-energy` Supabase Realtime
+channel every couple of seconds; the Live diagram (`useEnergyLive`) picks it up
+and shows the green **Live** badge.
+
+```bash
+NEXT_PUBLIC_SUPABASE_URL=... NEXT_PUBLIC_SUPABASE_ANON_KEY=... \
+  node scripts/energy-publisher.mjs [intervalSeconds]
+```
+
+The app's own `POST /api/v1/twin/energy` (auth-gated) publishes to the same
+channel; `GET /api/v1/twin/energy` returns a freshly simulated reading.
