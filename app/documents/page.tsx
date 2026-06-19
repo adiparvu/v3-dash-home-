@@ -36,7 +36,7 @@ const catColor: Record<string, string> = { Legal: "#7C3AED", Technical: "#22D3EE
 const catIcon: Record<string, string> = { Legal: "📄", Technical: "📐", Financial: "💰", Manuals: "📖" };
 
 export default function DocumentsPage() {
-  const { logAiDecision } = useStore();
+  const { logAiDecision, assistant } = useStore();
   const [category, setCategory] = useState("All");
   const [search, setSearch] = useState("");
   const [customDocs, setCustomDocs] = useState<Doc[]>([]);
@@ -73,10 +73,13 @@ export default function DocumentsPage() {
     (async () => {
       if (aiConfigured) {
         try {
+          const byo = assistant.model === "byo" && assistant.byoEndpoint && assistant.byoModelName && assistant.byoApiKey
+            ? { endpoint: assistant.byoEndpoint, model: assistant.byoModelName, apiKey: assistant.byoApiKey }
+            : undefined;
           const res = await fetch("/api/v1/ai/summarize", {
             method: "POST",
             headers: { "Content-Type": "application/json" },
-            body: JSON.stringify(input),
+            body: JSON.stringify(byo ? { ...input, byo } : input),
           });
           if (res.ok) {
             const json = await res.json();

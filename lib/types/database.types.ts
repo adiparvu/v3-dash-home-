@@ -1038,6 +1038,42 @@ export type Database = {
         }
         Relationships: []
       }
+      device_registry: {
+        Row: {
+          id: string
+          property_id: string
+          name: string
+          domain: string
+          zone: string | null
+          protocol: string
+          is_local: boolean
+          is_online: boolean
+          last_seen_at: string
+        }
+        Insert: {
+          id?: string
+          property_id: string
+          name: string
+          domain: string
+          zone?: string | null
+          protocol: string
+          is_local?: boolean
+          is_online?: boolean
+          last_seen_at?: string
+        }
+        Update: {
+          id?: string
+          property_id?: string
+          name?: string
+          domain?: string
+          zone?: string | null
+          protocol?: string
+          is_local?: boolean
+          is_online?: boolean
+          last_seen_at?: string
+        }
+        Relationships: []
+      }
       energy_readings: {
         Row: {
           id: string
@@ -1220,6 +1256,7 @@ export type ChatMessage = Tables<'chat_messages'>
 export type KnowledgeChunk = Tables<'knowledge_chunks'>
 export type TwinEvent = Tables<'twin_events'>
 export type EnergyReading = Tables<'energy_readings'>
+export type DeviceRegistryRow = Tables<'device_registry'>
 export type ProfileSocialLink = Tables<'profile_social_links'>
 export type TrustedPerson = Tables<'trusted_persons'>
 export type UserSession = Tables<'user_sessions'>
