@@ -273,6 +273,87 @@ function FlowCanvas({ flows }: { flows: Flow[] }) {
   return <canvas ref={canvasRef} className="absolute inset-0 w-full h-full" style={{ zIndex: 1, pointerEvents: "none" }} />;
 }
 
+// ── Animated utility exchange (Grid sheet) ────────────────────────────────────
+function GridExchange({ grid }: { grid: number }) {
+  const canvasRef = useRef<HTMLCanvasElement>(null);
+  const state = useRef({ kw: Math.abs(grid), dir: grid > 0.05 ? 1 : grid < -0.05 ? -1 : 0 });
+  state.current = { kw: Math.abs(grid), dir: grid > 0.05 ? 1 : grid < -0.05 ? -1 : 0 };
+
+  useEffect(() => {
+    const canvas = canvasRef.current;
+    if (!canvas) return;
+    const ctx = canvas.getContext("2d");
+    if (!ctx) return;
+    const dpr = Math.min(2, window.devicePixelRatio || 1);
+    let raf = 0;
+    let last = performance.now();
+    let phase = 0;
+    const resize = () => {
+      const r = canvas.getBoundingClientRect();
+      canvas.width = Math.max(1, Math.round(r.width * dpr));
+      canvas.height = Math.max(1, Math.round(r.height * dpr));
+    };
+    resize();
+    const ro = new ResizeObserver(resize);
+    ro.observe(canvas);
+
+    const frame = (now: number) => {
+      const dt = Math.min(0.05, (now - last) / 1000);
+      last = now;
+      const W = canvas.width, H = canvas.height, y = H / 2;
+      const x0 = 0.12 * W, x1 = 0.88 * W, len = x1 - x0;
+      const { kw, dir } = state.current;
+      const active = kw > 0.05 && dir !== 0;
+      const color = dir >= 0 ? "245,158,11" : "74,222,128"; // import amber, export green
+      ctx.clearRect(0, 0, W, H);
+      ctx.lineCap = "round";
+      ctx.lineWidth = 1.2 * dpr;
+      ctx.strokeStyle = active ? `rgba(${color},0.45)` : "rgba(255,255,255,0.12)";
+      ctx.beginPath();
+      ctx.moveTo(x0, y);
+      ctx.lineTo(x1, y);
+      ctx.stroke();
+      if (active) {
+        const count = Math.max(2, Math.min(7, Math.round(kw * 1.5)));
+        const speed = Math.min(0.7, 0.18 + kw * 0.06);
+        const bright = Math.min(1, 0.5 + kw * 0.1);
+        phase = (phase + dt * speed) % 1;
+        for (let k = 0; k < count; k++) {
+          let u = (phase + k / count) % 1;
+          if (dir < 0) u = 1 - u;
+          const px = x0 + u * len;
+          const rad = 6 * dpr;
+          const g = ctx.createRadialGradient(px, y, 0, px, y, rad);
+          g.addColorStop(0, `rgba(255,255,255,${bright})`);
+          g.addColorStop(0.4, `rgba(${color},${bright * 0.6})`);
+          g.addColorStop(1, `rgba(${color},0)`);
+          ctx.fillStyle = g;
+          ctx.beginPath();
+          ctx.arc(px, y, rad, 0, Math.PI * 2);
+          ctx.fill();
+        }
+      }
+      raf = requestAnimationFrame(frame);
+    };
+    raf = requestAnimationFrame(frame);
+    return () => { cancelAnimationFrame(raf); ro.disconnect(); };
+  }, []);
+
+  const kw = Math.abs(grid);
+  const label = grid > 0.05 ? `Import · ${kw.toFixed(1)} kW` : grid < -0.05 ? `Export · ${kw.toFixed(1)} kW` : "Echilibrat";
+  const labelColor = grid > 0.05 ? "#F59E0B" : grid < -0.05 ? GREEN : "var(--text-3)";
+  return (
+    <div className="rounded-2xl p-3 mb-4" style={{ background: "rgba(255,255,255,0.05)" }}>
+      <div className="flex items-center justify-between text-sm" style={{ color: "var(--text-1)" }}>
+        <span>🏭 Rețea</span>
+        <span>🏠 Casă</span>
+      </div>
+      <canvas ref={canvasRef} style={{ width: "100%", height: 38, display: "block" }} />
+      <p className="text-center text-xs font-semibold" style={{ color: labelColor }}>{label}</p>
+    </div>
+  );
+}
+
 // ── Node detail sheet (tap a node on the Live diagram) ────────────────────────
 function SheetRow({ label, value, accent }: { label: string; value: React.ReactNode; accent?: boolean }) {
   return (
@@ -403,6 +484,7 @@ function NodeSheet({ node, s, carPct, onClose }: { node: string; s: EnergyState;
     const exp = Math.max(0, -s.grid);
     body = (
       <>
+        <GridExchange grid={s.grid} />
         <div className="grid grid-cols-2 gap-3 mb-4">
           <div className="rounded-2xl p-3" style={{ background: "rgba(255,255,255,0.05)" }}>
             <p className="text-[11px]" style={{ color: "var(--text-3)" }}>Import</p>
