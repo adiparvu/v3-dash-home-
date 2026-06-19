@@ -35,7 +35,7 @@ export default function EnergyPage() {
       <StatusBar />
 
       <div className="px-5 pt-1 pb-3 flex items-center gap-3">
-        <Link href="/twin" className="w-9 h-9 rounded-2xl flex items-center justify-center flex-shrink-0 liquid-glass" style={{ color: "var(--text-1)" }}>
+        <Link href="/more" className="w-9 h-9 rounded-2xl flex items-center justify-center flex-shrink-0 liquid-glass" style={{ color: "var(--text-1)" }}>
           <svg width="18" height="18" viewBox="0 0 24 24" fill="none"><path d="M19 12H5M12 5l-7 7 7 7" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" /></svg>
         </Link>
         <h1 className="font-bold text-2xl flex-1" style={{ color: "var(--text-1)" }}>Energy</h1>
@@ -678,7 +678,7 @@ function NodeSheet({ node, s, carPct, evSession, onClose }: { node: string; s: E
           </div>
         ))}
         <p className="text-[11px] mt-3" style={{ color: "var(--text-3)" }}>
-          {houseView === "rooms" ? "Energie pe cameră, sincronizat cu Digital Twin." : "Putere virtuală estimată (Powercalc) — dispozitive fără contor individual."}
+          {houseView === "rooms" ? "Energie pe cameră, măsurată live." : "Putere virtuală estimată (Powercalc) — dispozitive fără contor individual."}
         </p>
       </>
     );

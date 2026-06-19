@@ -1,5 +1,5 @@
 /**
- * Digital Twin spatial & telemetry model (spec: Digital Twin Layer).
+ * Spatial & telemetry model.
  *
  * A framework-free representation of the estate's spatial layout, asset/sensor
  * mapping and live telemetry. In the platform these come from backend-brokered
