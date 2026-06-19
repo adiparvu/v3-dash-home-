@@ -591,13 +591,35 @@ function ImpactTab() {
 // ── Powerwall tab ────────────────────────────────────────────────────────────
 function PowerwallTab() {
   const { energy, setEnergy } = useStore();
+  const { s, source } = useEnergyLive();
   const reserve = energy.backupReserve;
   const reserveLabel = reserve <= 20 ? "scăzută" : reserve >= 100 ? "maximă" : "echilibrată";
   // Rough off-grid runtime estimate from reserve %.
   const hours = Math.max(1, Math.round((reserve / 100) * 13.5 + 2));
+  const charging = s.battery >= 0;
 
   return (
     <div className="px-4 space-y-4">
+      {/* Live Powerwall status (from the energy event bus, falls back to sim) */}
+      <div className="rounded-3xl p-4 liquid-glass">
+        <div className="flex items-center justify-between mb-3">
+          <p className="text-sm font-semibold" style={{ color: "var(--text-1)" }}>Powerwall · live</p>
+          <span className="flex items-center gap-1.5 text-[11px] font-semibold" style={{ color: source === "live" ? GREEN : "var(--text-3)" }}>
+            <span style={{ width: 7, height: 7, borderRadius: 999, background: source === "live" ? GREEN : "#9CA3AF", boxShadow: source === "live" ? `0 0 6px ${GREEN}` : "none" }} />
+            {source === "live" ? "Live" : "Simulat"}
+          </span>
+        </div>
+        <div className="flex items-end justify-between mb-2">
+          <p className="text-4xl font-bold" style={{ color: "var(--text-1)" }}>{Math.round(s.batteryPct)}%</p>
+          <p className="text-sm font-semibold" style={{ color: GREEN }}>{charging ? "Se încarcă" : "Descărcare"} · {kw(s.battery)}</p>
+        </div>
+        <FillBar pct={s.batteryPct} />
+        <div className="flex justify-between mt-2 text-[11px]" style={{ color: "var(--text-3)" }}>
+          <span>{(13.5 * s.batteryPct / 100).toFixed(1)} / 13.5 kWh</span>
+          <span>Rezervă {reserve}%</span>
+        </div>
+      </div>
+
       {/* Backup reserve */}
       <div className="rounded-3xl p-4 liquid-glass">
         <p className="text-sm font-semibold" style={{ color: "var(--text-1)" }}>Rezervă backup</p>
