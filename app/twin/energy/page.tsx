@@ -6,8 +6,9 @@ import StatusBar from "../../components/layout/StatusBar";
 import BottomNav from "../../components/layout/BottomNav";
 import { useStore } from "../../lib/store";
 import { seriesPath } from "../../lib/twin/telemetry";
+import { useEnergyLive } from "../../lib/twin/energyLive";
 import {
-  SCENARIOS, simulate, EnergyState, kw,
+  EnergyState, kw,
   MONTHLY_USAGE, MONTH_LABELS, ENERGY_SOURCES, AUTONOMY, TOU_PERIODS,
   SOLAR_VALUE, SOLAR_VALUE_TOTAL, OFFSET, BACKUP_EVENTS, BACKUP_SUMMARY,
   TARIFF_SERIES, TARIFF,
@@ -15,9 +16,6 @@ import {
 
 const TABS = ["Live", "Energie", "Impact", "Powerwall"] as const;
 type Tab = (typeof TABS)[number];
-
-// Starts at the render's values, then drifts live.
-const START: EnergyState = { solar: 6.5, home: 0.8, vehicle: 2.2, battery: 4.9, grid: 0, batteryPct: 89 };
 
 // Clean clone: a pristine 3D render of the estate (no text at all) is the base,
 // and every label, leader line and value is drawn as a crisp overlay — so there
@@ -64,17 +62,8 @@ export default function EnergyPage() {
 
 // ── Live tab ─────────────────────────────────────────────────────────────────
 function LiveTab({ onGoTab }: { onGoTab: (t: Tab) => void }) {
-  const [s, setS] = useState<EnergyState>(START);
-  const [carPct, setCarPct] = useState(69);
+  const { s, carPct, source } = useEnergyLive();
   const [node, setNode] = useState<string | null>(null);
-
-  useEffect(() => {
-    const id = setInterval(() => {
-      setS((prev) => simulate(prev, SCENARIOS[0], "self_powered", 20));
-      setCarPct((p) => Math.min(100, Math.round((p + 0.4) * 10) / 10));
-    }, 2000);
-    return () => clearInterval(id);
-  }, []);
 
   // System font (SF Pro on iOS) to match the render's baked text.
   const ff = '-apple-system, BlinkMacSystemFont, "SF Pro Display", "Helvetica Neue", Helvetica, Arial, sans-serif';
@@ -135,6 +124,12 @@ function LiveTab({ onGoTab }: { onGoTab: (t: Tab) => void }) {
           {/* base: clean 3D estate render (no text) */}
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img src="/estate-house.png" alt="PRVIO Estate — energy" className="absolute inset-0 w-full h-full" style={{ objectFit: "cover" }} draggable={false} />
+
+          {/* live-feed source badge */}
+          <div style={{ position: "absolute", top: "2.5%", right: "3.5%", zIndex: 4, display: "flex", alignItems: "center", gap: "5px", padding: "4px 9px", borderRadius: 999, fontSize: "2.7cqw", fontWeight: 600, fontFamily: ff, color: source === "live" ? "#fff" : "rgba(214,218,224,0.85)", background: "rgba(10,14,22,0.55)", border: "1px solid rgba(255,255,255,0.12)", backdropFilter: "blur(6px)" }}>
+            <span style={{ width: "1.6cqw", height: "1.6cqw", borderRadius: 999, background: source === "live" ? GREEN : "#9CA3AF", boxShadow: source === "live" ? `0 0 6px ${GREEN}` : "none" }} />
+            {source === "live" ? "Live" : "Simulat"}
+          </div>
 
           {/* animated energy flow: connection lines + light particles */}
           <FlowCanvas flows={flows} />
