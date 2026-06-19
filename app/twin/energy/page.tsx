@@ -296,6 +296,7 @@ function FillBar({ pct, color = GREEN }: { pct: number; color?: string }) {
 }
 
 function NodeSheet({ node, s, carPct, onClose }: { node: string; s: EnergyState; carPct: number; onClose: () => void }) {
+  const [houseView, setHouseView] = useState<"consumers" | "rooms">("consumers");
   const meta: Record<string, { t: string; icon: string }> = {
     solar: { t: "Solar", icon: "☀️" },
     battery: { t: "Powerwall", icon: "🔋" },
@@ -365,11 +366,29 @@ function NodeSheet({ node, s, carPct, onClose }: { node: string; s: EnergyState;
       { n: "Iluminat", f: 0.12, icon: "💡" },
       { n: "Electrocasnice", f: 0.18, icon: "🔌" },
     ];
+    const rooms = [
+      { n: "Living", f: 0.22, icon: "🛋️" },
+      { n: "Bucătărie", f: 0.20, icon: "🍳" },
+      { n: "Dormitor principal", f: 0.14, icon: "🛏️" },
+      { n: "Birou", f: 0.12, icon: "💻" },
+      { n: "Garaj", f: 0.10, icon: "🚗" },
+      { n: "Baie & spa", f: 0.10, icon: "🛁" },
+      { n: "Hol & exterior", f: 0.12, icon: "🌳" },
+    ];
+    const rows = houseView === "consumers" ? consumers : rooms;
     body = (
       <>
         <p className="text-4xl font-bold mb-1" style={{ color: "var(--text-1)" }}>{kw(load)}</p>
-        <p className="text-xs mb-4" style={{ color: "var(--text-3)" }}>Consum casă acum</p>
-        {consumers.map((c) => (
+        <p className="text-xs mb-3" style={{ color: "var(--text-3)" }}>Consum casă acum</p>
+        <div className="flex gap-1 p-1 rounded-2xl mb-3" style={{ background: "rgba(255,255,255,0.05)" }}>
+          {([["consumers", "Consumatori"], ["rooms", "Camere"]] as const).map(([k, lbl]) => (
+            <button key={k} onClick={() => setHouseView(k)} className="flex-1 py-1.5 rounded-xl text-xs font-medium transition-all"
+              style={houseView === k ? { background: GREEN, color: "#05210F" } : { color: "var(--text-3)" }}>
+              {lbl}
+            </button>
+          ))}
+        </div>
+        {rows.map((c) => (
           <div key={c.n} className="py-2" style={{ borderBottom: "1px solid rgba(255,255,255,0.06)" }}>
             <div className="flex items-center justify-between mb-1.5">
               <span className="text-sm" style={{ color: "var(--text-1)" }}>{c.icon} {c.n}</span>
@@ -378,7 +397,9 @@ function NodeSheet({ node, s, carPct, onClose }: { node: string; s: EnergyState;
             <FillBar pct={c.f * 100} color="#22D3EE" />
           </div>
         ))}
-        <p className="text-[11px] mt-3" style={{ color: "var(--text-3)" }}>Atinge o cameră în Digital Twin pentru detalii pe zonă.</p>
+        <p className="text-[11px] mt-3" style={{ color: "var(--text-3)" }}>
+          {houseView === "rooms" ? "Energie pe cameră, sincronizat cu Digital Twin." : "Comută pe „Camere” pentru consumul pe zonă."}
+        </p>
       </>
     );
   } else if (node === "grid") {
