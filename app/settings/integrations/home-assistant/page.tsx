@@ -10,17 +10,22 @@ import StatusBar from "../../../components/layout/StatusBar";
  * contracts"; Backend Layer → integration gateways).
  */
 
-type Device = { id: string; name: string; domain: string; zone: string; icon: string; lastSeen: string; online: boolean };
+type Protocol = "Matter" | "Thread" | "Zigbee" | "Z-Wave" | "Wi-Fi";
+type Device = { id: string; name: string; domain: string; zone: string; icon: string; lastSeen: string; online: boolean; protocol: Protocol; local: boolean };
 
 const DEVICES: Device[] = [
-  { id: "d1", name: "Greenhouse Climate Controller", domain: "climate", zone: "Greenhouse", icon: "🌡️", lastSeen: "2s ago", online: true },
-  { id: "d2", name: "Lake Pump Relay", domain: "switch", zone: "Lake", icon: "💧", lastSeen: "5s ago", online: true },
-  { id: "d3", name: "Orchard Soil Probe", domain: "sensor", zone: "Orchard", icon: "🌱", lastSeen: "3s ago", online: true },
-  { id: "d4", name: "Driveway Gate", domain: "cover", zone: "Driveway", icon: "🚧", lastSeen: "1m ago", online: true },
-  { id: "d5", name: "Pond Aerator", domain: "switch", zone: "Smart Pond", icon: "🐟", lastSeen: "8s ago", online: true },
-  { id: "d6", name: "House Energy Meter", domain: "sensor", zone: "House", icon: "⚡", lastSeen: "2s ago", online: true },
-  { id: "d7", name: "Forest Weather Station", domain: "weather", zone: "Forest", icon: "🌤️", lastSeen: "12m ago", online: false },
+  { id: "d1", name: "Greenhouse Climate Controller", domain: "climate", zone: "Greenhouse", icon: "🌡️", lastSeen: "2s ago", online: true, protocol: "Matter", local: true },
+  { id: "d2", name: "Lake Pump Relay", domain: "switch", zone: "Lake", icon: "💧", lastSeen: "5s ago", online: true, protocol: "Zigbee", local: true },
+  { id: "d3", name: "Orchard Soil Probe", domain: "sensor", zone: "Orchard", icon: "🌱", lastSeen: "3s ago", online: true, protocol: "Thread", local: true },
+  { id: "d4", name: "Driveway Gate", domain: "cover", zone: "Driveway", icon: "🚧", lastSeen: "1m ago", online: true, protocol: "Z-Wave", local: true },
+  { id: "d5", name: "Pond Aerator", domain: "switch", zone: "Smart Pond", icon: "🐟", lastSeen: "8s ago", online: true, protocol: "Zigbee", local: true },
+  { id: "d6", name: "House Energy Meter", domain: "sensor", zone: "House", icon: "⚡", lastSeen: "2s ago", online: true, protocol: "Matter", local: true },
+  { id: "d7", name: "Forest Weather Station", domain: "weather", zone: "Forest", icon: "🌤️", lastSeen: "12m ago", online: false, protocol: "Wi-Fi", local: false },
 ];
+
+const PROTOCOL_COLOR: Record<Protocol, string> = {
+  Matter: "#4ADE80", Thread: "#22D3EE", Zigbee: "#F59E0B", "Z-Wave": "#7C3AED", "Wi-Fi": "#9CA3AF",
+};
 
 const domainColor: Record<string, string> = {
   climate: "#F59E0B", switch: "#4ADE80", sensor: "#22D3EE", cover: "#9CA3AF", weather: "#7C3AED",
@@ -108,6 +113,12 @@ export default function HomeAssistantGatewayPage() {
                 <div className="flex-1 min-w-0">
                   <p className="text-sm font-medium leading-tight truncate" style={{ color: "var(--text-1)" }}>{d.name}</p>
                   <p className="text-text-secondary text-[11px]">{d.zone} · <span style={{ color: domainColor[d.domain] }}>{d.domain}</span></p>
+                  <div className="flex items-center gap-1.5 mt-1">
+                    <span className="text-[9px] font-semibold px-1.5 py-0.5 rounded-full" style={{ background: `${PROTOCOL_COLOR[d.protocol]}22`, color: PROTOCOL_COLOR[d.protocol], border: `1px solid ${PROTOCOL_COLOR[d.protocol]}40` }}>{d.protocol}</span>
+                    <span className="text-[9px] font-semibold px-1.5 py-0.5 rounded-full" style={d.local
+                      ? { background: "rgba(74,222,128,0.12)", color: "#4ADE80" }
+                      : { background: "rgba(245,158,11,0.12)", color: "#F59E0B" }}>{d.local ? "Local" : "Cloud"}</span>
+                  </div>
                 </div>
                 <div className="text-right flex-shrink-0">
                   <span className="text-[10px] font-medium px-2 py-0.5 rounded-full" style={{ background: d.online ? "rgba(74,222,128,0.12)" : "rgba(239,68,68,0.12)", color: d.online ? "#4ADE80" : "#EF4444" }}>{d.online ? "online" : "offline"}</span>
