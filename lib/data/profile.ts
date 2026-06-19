@@ -140,6 +140,17 @@ export async function revokeSession(userId: string, id: string): Promise<void> {
   if (error) throw new Error(error.message);
 }
 
+/** Mark a session/device as trusted (or untrusted). */
+export async function setSessionTrust(userId: string, id: string, trusted: boolean): Promise<void> {
+  const supabase = await createClient();
+  const { error } = await supabase
+    .from("user_sessions")
+    .update({ is_trusted: trusted })
+    .eq("id", id)
+    .eq("user_id", userId);
+  if (error) throw new Error(error.message);
+}
+
 /** Revoke every session except the one marked current. */
 export async function revokeOtherSessions(userId: string): Promise<void> {
   const supabase = await createClient();

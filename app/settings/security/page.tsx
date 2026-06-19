@@ -7,7 +7,7 @@ import { useSecurity } from "../../lib/useSecurity";
 import { useStore, AUTO_LOCK_OPTIONS, autoLockLabel } from "../../lib/store";
 
 export default function SecurityPage() {
-  const { source, sessions, auditLog, revokeSession, revokeOthers } = useSecurity();
+  const { source, sessions, auditLog, revokeSession, revokeOthers, toggleTrust } = useSecurity();
   const { security, setSecurity } = useStore();
   const [autoLockOpen, setAutoLockOpen] = useState(false);
 
@@ -104,18 +104,31 @@ export default function SecurityPage() {
                   </svg>
                 </div>
                 <div className="flex-1 min-w-0">
-                  <div className="flex items-center gap-2">
+                  <div className="flex items-center gap-2 flex-wrap">
                     <p className="text-sm font-medium leading-tight" style={{ color: "var(--text-1)" }}>{s.device}</p>
                     {s.current && <span className="text-[9px] font-medium px-1.5 py-0.5 rounded-full" style={{ background: "rgba(74,222,128,0.15)", color: "#4ADE80" }}>This device</span>}
+                    {s.trusted && <span className="text-[9px] font-medium px-1.5 py-0.5 rounded-full" style={{ background: "rgba(34,211,238,0.15)", color: "#22D3EE" }}>Trusted</span>}
                   </div>
                   <p className="text-text-secondary text-xs">{s.platform} · {s.location}</p>
                   <p className="text-text-tertiary text-[10px]">{s.lastActive}</p>
                 </div>
-                {!s.current && (
-                  <button onClick={() => revokeSession(s.id)} className="text-xs px-2.5 py-1 rounded-full flex-shrink-0" style={{ background: "rgba(239,68,68,0.10)", border: "1px solid rgba(239,68,68,0.20)", color: "#EF4444" }}>
-                    Revoke
+                <div className="flex flex-col items-end gap-1.5 flex-shrink-0">
+                  <button
+                    onClick={() => toggleTrust(s.id)}
+                    aria-label={s.trusted ? "Untrust device" : "Trust device"}
+                    className="text-xs px-2.5 py-1 rounded-full"
+                    style={s.trusted
+                      ? { background: "rgba(34,211,238,0.10)", border: "1px solid rgba(34,211,238,0.25)", color: "#22D3EE" }
+                      : { background: "rgba(255,255,255,0.06)", border: "1px solid var(--glass-border)", color: "var(--text-2)" }}
+                  >
+                    {s.trusted ? "Untrust" : "Trust"}
                   </button>
-                )}
+                  {!s.current && (
+                    <button onClick={() => revokeSession(s.id)} className="text-xs px-2.5 py-1 rounded-full" style={{ background: "rgba(239,68,68,0.10)", border: "1px solid rgba(239,68,68,0.20)", color: "#EF4444" }}>
+                      Revoke
+                    </button>
+                  )}
+                </div>
               </div>
             ))}
           </div>

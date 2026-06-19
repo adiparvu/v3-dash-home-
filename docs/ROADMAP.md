@@ -54,8 +54,8 @@ future track that reuses the same versioned backend contracts.
 | Estate API: `/api/v1/properties` (list/create/detail/update) + nested zones & assets (list/create) | ✅ |
 | Properties list UI wired to Supabase (RLS) with demo fallback | ✅ |
 | Zones & Inventory UI wired to the estate API (first property) with demo fallback | ✅ |
-| Property / zone / asset **detail** screens wired to live records | ⏳ |
-| Active session management + device trust + revocation (live) | ⏳ |
+| Property / zone / asset **detail** screens wired to live records | ✅ |
+| Active session management + device trust + revocation (live) | ✅ |
 
 ## Phase 3 — Data Privacy, Ownership & Compliance
 

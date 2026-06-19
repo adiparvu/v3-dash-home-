@@ -20,6 +20,7 @@ export type UISession = {
   location: string;
   lastActive: string;
   current: boolean;
+  trusted: boolean;
 };
 
 export type UIAuditEntry = {
@@ -33,9 +34,9 @@ export type UIAuditEntry = {
 type Source = "demo" | "loading" | "remote";
 
 const DEMO_SESSIONS: UISession[] = [
-  { id: "d1", device: "iPhone 16 Pro", platform: "iOS 26", location: "Cluj-Napoca, RO", lastActive: "Active now", current: true },
-  { id: "d2", device: "MacBook Pro", platform: "macOS Tahoe", location: "Cluj-Napoca, RO", lastActive: "2h ago", current: false },
-  { id: "d3", device: "iPad Pro", platform: "iPadOS 26", location: "Bucharest, RO", lastActive: "3d ago", current: false },
+  { id: "d1", device: "iPhone 16 Pro", platform: "iOS 26", location: "Cluj-Napoca, RO", lastActive: "Active now", current: true, trusted: true },
+  { id: "d2", device: "MacBook Pro", platform: "macOS Tahoe", location: "Cluj-Napoca, RO", lastActive: "2h ago", current: false, trusted: true },
+  { id: "d3", device: "iPad Pro", platform: "iPadOS 26", location: "Bucharest, RO", lastActive: "3d ago", current: false, trusted: false },
 ];
 
 const DEMO_AUDIT: UIAuditEntry[] = [
@@ -76,6 +77,7 @@ function mapSession(s: any): UISession {
     location: s.location ?? "",
     lastActive: s.is_current ? "Active now" : relativeTime(s.last_active_at),
     current: Boolean(s.is_current),
+    trusted: Boolean(s.is_trusted),
   };
 }
 
@@ -96,6 +98,7 @@ export interface UseSecurity {
   auditLog: UIAuditEntry[];
   revokeSession: (id: string) => void;
   revokeOthers: () => void;
+  toggleTrust: (id: string) => void;
 }
 
 export function useSecurity(): UseSecurity {
@@ -143,5 +146,19 @@ export function useSecurity(): UseSecurity {
     if (configured) void fetch("/api/v1/profile/sessions", { method: "DELETE" });
   }, []);
 
-  return { source, sessions, auditLog, revokeSession, revokeOthers };
+  const toggleTrust = useCallback((id: string) => {
+    let next = false;
+    setSessions((prev) => prev.map((s) => {
+      if (s.id !== id) return s;
+      next = !s.trusted;
+      return { ...s, trusted: next };
+    }));
+    if (configured) void fetch(`/api/v1/profile/sessions/${id}`, {
+      method: "PATCH",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ trusted: next }),
+    });
+  }, []);
+
+  return { source, sessions, auditLog, revokeSession, revokeOthers, toggleTrust };
 }
