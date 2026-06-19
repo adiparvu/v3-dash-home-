@@ -3,6 +3,9 @@
 import { useState, useEffect } from "react";
 import StatusBar from "../components/layout/StatusBar";
 import BottomNav from "../components/layout/BottomNav";
+import { useEnergyLive } from "../lib/twin/energyLive";
+import { useStore } from "../lib/store";
+import { deriveAlerts } from "../lib/twin/alerts";
 
 const NOTIF_STATE_KEY = "prvio-notif-state-v1";
 
@@ -43,6 +46,9 @@ export default function NotificationsPage() {
   const [readIds, setReadIds] = useState<number[]>([]);
   const [dismissedIds, setDismissedIds] = useState<number[]>([]);
   const [mounted, setMounted] = useState(false);
+  const { s, carPct, source } = useEnergyLive();
+  const { energy } = useStore();
+  const liveAlerts = deriveAlerts(s, carPct, { backupReserve: energy.backupReserve, offGrid: energy.offGrid, stormWatch: energy.stormWatch });
 
   useEffect(() => {
     setMounted(true);
@@ -96,6 +102,30 @@ export default function NotificationsPage() {
           )}
         </div>
       </div>
+
+      {mounted && liveAlerts.length > 0 && (
+        <div className="px-4 mb-3">
+          <div className="flex items-center gap-2 mb-2 px-1">
+            <p className="text-text-secondary text-xs font-medium uppercase tracking-wide">Alerte live</p>
+            <span className="flex items-center gap-1 text-[10px] font-semibold" style={{ color: source === "live" ? "#4ADE80" : "#9CA3AF" }}>
+              <span className="w-1.5 h-1.5 rounded-full animate-pulse-glow" style={{ background: source === "live" ? "#4ADE80" : "#9CA3AF" }} />
+              {source === "live" ? "Live" : "Simulat"}
+            </span>
+          </div>
+          <div className="space-y-2">
+            {liveAlerts.map((a) => (
+              <div key={a.id} className="w-full rounded-2xl p-3.5 flex items-start gap-3" style={{ background: `${a.color}10`, border: `1px solid ${a.color}30` }}>
+                <div className="w-9 h-9 rounded-xl flex items-center justify-center text-base flex-shrink-0 mt-0.5" style={{ background: `${a.color}1f`, border: `1px solid ${a.color}33` }}>{a.icon}</div>
+                <div className="flex-1 min-w-0">
+                  <p className="text-sm font-medium leading-tight" style={{ color: "var(--text-1)" }}>{a.title}</p>
+                  <p className="text-xs mt-0.5" style={{ color: "var(--text-2)" }}>{a.desc}</p>
+                </div>
+                <span className="text-[9px] font-semibold px-1.5 py-0.5 rounded-full flex-shrink-0" style={{ background: `${a.color}22`, color: a.color }}>acum</span>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
 
       {items.length === 0 ? (
         <div className="flex flex-col items-center justify-center px-8 text-center mt-32">
