@@ -9,6 +9,25 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 ### Added
+- **Live detail screens & device trust (Phase 2)** — the **Property** detail
+  (`/properties/[id]`) now loads the live record via a new `useProperty(id)` hook
+  (name, location, area, active) with a **Synced/Demo** badge; the **Zone**
+  (`/zones/[slug]`) and **Asset** (`/inventory/[id]`) detail screens resolve
+  remote records via `useZones`/`useAssets` so API-loaded items open (no more
+  404), each badged Synced/Demo with seed/store fallback. Active sessions gain
+  **device trust**: `setSessionTrust` + `PATCH /api/v1/profile/sessions/[id]`
+  (`{ trusted }`, audited), surfaced in the Security screen as a Trusted badge
+  and a Trust/Untrust toggle alongside Revoke / Sign out all.
+- **AI document orchestrator & bring-your-own-model (Phase 6)** — a backend
+  document-understanding orchestrator (`POST /api/v1/ai/summarize`) produces the
+  grounded, schema-validated summary server-side under guardrails with audit;
+  the Documents AI Summary sheet prefers it and falls back to the on-device
+  summarizer (Backend AI / On-device badge). **Bring-your-own-model** is now
+  supported end to end: the assistant config persists a custom endpoint, model
+  name and API key (on device); the assistant settings show a BYO panel with a
+  readiness indicator, and the AI chat header shows the active model
+  (`via …` + setup-needed hint).
+
 - **Energy flow animation, node analytics & live event bus** — the `/twin/energy`
   **Live** diagram now animates real-time power flows: a canvas streams glowing
   particles along each connection with count, speed and brightness ∝ kW and
