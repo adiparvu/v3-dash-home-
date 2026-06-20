@@ -16,9 +16,15 @@ import {
   SOLAR_VALUE, SOLAR_VALUE_TOTAL, OFFSET, BACKUP_EVENTS, BACKUP_SUMMARY,
   TARIFF_SERIES, TARIFF,
 } from "../../lib/twin/energy";
+import { useT, type MessageKey } from "../../lib/i18n";
 
 const TABS = ["Live", "Energie", "Impact", "Powerwall"] as const;
 type Tab = (typeof TABS)[number];
+const TAB_KEY: Record<Tab, MessageKey> = { Live: "enr.tabLive", Energie: "enr.tabEnergy", Impact: "enr.tabImpact", Powerwall: "enr.tabPowerwall" };
+// Display maps for framework-free data-lib values (keyed by stable ids).
+const SRC_KEY: Record<string, MessageKey> = { battery: "enr.srcPowerwall", solar: "enr.srcSolar", grid: "enr.srcGrid" };
+const TOU_KEY: Record<string, MessageKey> = { peak: "enr.touPeak", partial: "enr.touPartial", offpeak: "enr.touOffpeak" };
+const BDUR_KEY: MessageKey[] = ["enr.bDur1", "enr.bDur2", "enr.bDur3"];
 
 // Clean clone: a pristine 3D render of the estate (no text at all) is the base,
 // and every label, leader line and value is drawn as a crisp overlay — so there
@@ -30,6 +36,7 @@ const GREEN = "#4ADE80";
 type Flow = { id: string; kw: number; pts: [number, number][] };
 
 export default function EnergyPage() {
+  const t = useT();
   const [tab, setTab] = useState<Tab>("Live");
 
   return (
@@ -40,15 +47,15 @@ export default function EnergyPage() {
         <Link href="/more" className="w-9 h-9 rounded-2xl flex items-center justify-center flex-shrink-0 liquid-glass" style={{ color: "var(--text-1)" }}>
           <svg width="18" height="18" viewBox="0 0 24 24" fill="none"><path d="M19 12H5M12 5l-7 7 7 7" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" /></svg>
         </Link>
-        <h1 className="font-bold text-2xl flex-1" style={{ color: "var(--text-1)" }}>Energy</h1>
+        <h1 className="font-bold text-2xl flex-1" style={{ color: "var(--text-1)" }}>{t("enr.title")}</h1>
       </div>
 
       {/* Sub-tabs */}
       <div className="px-4 mb-4 flex gap-2 overflow-x-auto scrollbar-hide">
-        {TABS.map((t) => (
-          <button key={t} onClick={() => setTab(t)} className="px-4 py-1.5 rounded-full text-sm font-medium whitespace-nowrap flex-shrink-0 transition-all"
-            style={tab === t ? { background: "var(--accent)", color: "#050A14" } : { background: "rgba(255,255,255,0.07)", color: "var(--text-3)", border: "1px solid rgba(255,255,255,0.09)" }}>
-            {t}
+        {TABS.map((tb) => (
+          <button key={tb} onClick={() => setTab(tb)} className="px-4 py-1.5 rounded-full text-sm font-medium whitespace-nowrap flex-shrink-0 transition-all"
+            style={tab === tb ? { background: "var(--accent)", color: "#050A14" } : { background: "rgba(255,255,255,0.07)", color: "var(--text-3)", border: "1px solid rgba(255,255,255,0.09)" }}>
+            {t(TAB_KEY[tb])}
           </button>
         ))}
       </div>
@@ -65,6 +72,7 @@ export default function EnergyPage() {
 
 // ── Live tab ─────────────────────────────────────────────────────────────────
 function LiveTab({ onGoTab }: { onGoTab: (t: Tab) => void }) {
+  const t = useT();
   const { s, carPct, source } = useEnergyLive();
   const [node, setNode] = useState<string | null>(null);
 
@@ -89,14 +97,14 @@ function LiveTab({ onGoTab }: { onGoTab: (t: Tab) => void }) {
   type Align = "center" | "left";
   // Static labels: [x, y] center (%), align, font size (cqw), color, weight, tracking, node
   const LABELS: { id: string; c: [number, number]; align: Align; fs: number; color: string; w: number; ls?: number; node: React.ReactNode }[] = [
-    { id: "solarL", c: [52.5, 21.9], align: "center", fs: 2.0, color: GREY, w: 500, ls: 0.12, node: "SOLAR" },
-    { id: "homeL", c: [85.7, 27.5], align: "center", fs: 2.0, color: GREY, w: 500, ls: 0.12, node: "HOME" },
-    { id: "pwL", c: [53.5, 72.0], align: "center", fs: 2.0, color: GREY, w: 500, ls: 0.12, node: "BATTERY" },
-    { id: "gridL", c: [83.45, 72.0], align: "center", fs: 2.0, color: GREY, w: 500, ls: 0.12, node: "GRID" },
+    { id: "solarL", c: [52.5, 21.9], align: "center", fs: 2.0, color: GREY, w: 500, ls: 0.12, node: t("enr.lblSolar") },
+    { id: "homeL", c: [85.7, 27.5], align: "center", fs: 2.0, color: GREY, w: 500, ls: 0.12, node: t("enr.lblHome") },
+    { id: "pwL", c: [53.5, 72.0], align: "center", fs: 2.0, color: GREY, w: 500, ls: 0.12, node: t("enr.lblBattery") },
+    { id: "gridL", c: [83.45, 72.0], align: "center", fs: 2.0, color: GREY, w: 500, ls: 0.12, node: t("enr.lblGrid") },
     { id: "porTitle", c: [7.3, 43.7], align: "left", fs: 2.5, color: "rgba(236,238,241,0.96)", w: 600, node: "PORSCHE" },
     { id: "porTitle2", c: [7.3, 45.2], align: "left", fs: 2.5, color: "rgba(236,238,241,0.96)", w: 600, node: "911 GT3 RS" },
-    { id: "chL", c: [7.3, 47.3], align: "left", fs: 2.1, color: GREY, w: 500, node: "Charging" },
-    { id: "batL", c: [7.3, 50.9], align: "left", fs: 2.1, color: GREY, w: 500, node: "Car battery" },
+    { id: "chL", c: [7.3, 47.3], align: "left", fs: 2.1, color: GREY, w: 500, node: t("enr.charging") },
+    { id: "batL", c: [7.3, 50.9], align: "left", fs: 2.1, color: GREY, w: 500, node: t("enr.carBattery") },
   ];
   // Live values: [x, y] center (%), align, font size (cqw), node
   const VALUES: { id: string; c: [number, number]; align: Align; fs: number; node: React.ReactNode }[] = [
@@ -145,7 +153,7 @@ function LiveTab({ onGoTab }: { onGoTab: (t: Tab) => void }) {
           {/* live-feed source badge */}
           <div style={{ position: "absolute", top: "2.5%", right: "3.5%", zIndex: 4, display: "flex", alignItems: "center", gap: "5px", padding: "4px 9px", borderRadius: 999, fontSize: "2.7cqw", fontWeight: 600, fontFamily: ff, color: source === "live" ? "#fff" : "rgba(214,218,224,0.85)", background: "rgba(10,14,22,0.55)", border: "1px solid rgba(255,255,255,0.12)", backdropFilter: "blur(6px)" }}>
             <span style={{ width: "1.6cqw", height: "1.6cqw", borderRadius: 999, background: source === "live" ? GREEN : "#9CA3AF", boxShadow: source === "live" ? `0 0 6px ${GREEN}` : "none" }} />
-            {source === "live" ? "Live" : "Simulat"}
+            {source === "live" ? t("enr.live") : t("enr.simulated")}
           </div>
 
           {/* animated energy flow: connection lines + light particles */}
@@ -172,11 +180,11 @@ function LiveTab({ onGoTab }: { onGoTab: (t: Tab) => void }) {
       {/* Pairwise flow routing — decomposed source → destination streams */}
       <div className="px-4 mb-3">
         <div className="rounded-3xl p-4 liquid-glass">
-          <p className="text-sm font-semibold mb-2" style={{ color: "var(--text-1)" }}>Rutare flux · live</p>
+          <p className="text-sm font-semibold mb-2" style={{ color: "var(--text-1)" }}>{t("enr.flowRouting")}</p>
           {(() => {
             const routes = decomposeRoutes(s);
             return routes.length ? routes.map((r) => <FlowRow key={r.id} route={r} />) : (
-              <p className="text-xs py-2" style={{ color: "var(--text-3)" }}>Sistem echilibrat — fără transfer activ.</p>
+              <p className="text-xs py-2" style={{ color: "var(--text-3)" }}>{t("enr.balanced")}</p>
             );
           })()}
         </div>
@@ -185,15 +193,15 @@ function LiveTab({ onGoTab }: { onGoTab: (t: Tab) => void }) {
       {/* shortcuts */}
       <div className="px-4 space-y-2">
         {[
-          { label: "Energie", desc: "Generare & consum", icon: "📈", go: () => onGoTab("Energie") },
-          { label: "Impact", desc: "Autonomie & economii", icon: "🌿", go: () => onGoTab("Impact") },
-          { label: "Powerwall & rețea", desc: "Rezervă, mod, tarife, off-grid", icon: "🔋", go: () => onGoTab("Powerwall") },
-        ].map((s, i, arr) => (
-          <button key={s.label} onClick={s.go} className="w-full flex items-center gap-3 px-4 py-3.5 rounded-2xl text-left liquid-glass" style={{ marginBottom: i === arr.length - 1 ? 0 : undefined }}>
-            <span className="text-xl w-7 text-center flex-shrink-0">{s.icon}</span>
+          { label: t("enr.scEnergy"), desc: t("enr.scEnergyDesc"), icon: "📈", go: () => onGoTab("Energie") },
+          { label: t("enr.scImpact"), desc: t("enr.scImpactDesc"), icon: "🌿", go: () => onGoTab("Impact") },
+          { label: t("enr.scPowerwall"), desc: t("enr.scPowerwallDesc"), icon: "🔋", go: () => onGoTab("Powerwall") },
+        ].map((sc, i, arr) => (
+          <button key={sc.label} onClick={sc.go} className="w-full flex items-center gap-3 px-4 py-3.5 rounded-2xl text-left liquid-glass" style={{ marginBottom: i === arr.length - 1 ? 0 : undefined }}>
+            <span className="text-xl w-7 text-center flex-shrink-0">{sc.icon}</span>
             <div className="flex-1">
-              <p className="text-sm font-medium" style={{ color: "var(--text-1)" }}>{s.label}</p>
-              <p className="text-text-secondary text-xs">{s.desc}</p>
+              <p className="text-sm font-medium" style={{ color: "var(--text-1)" }}>{sc.label}</p>
+              <p className="text-text-secondary text-xs">{sc.desc}</p>
             </div>
             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" style={{ opacity: 0.45 }}><path d="M9 18l6-6-6-6" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round" /></svg>
           </button>
@@ -303,12 +311,12 @@ function FlowCanvas({ flows }: { flows: Flow[] }) {
 }
 
 // ── Pairwise flow routing (decomposed source → destination streams) ───────────
-const NODE_META: Record<string, { icon: string; label: string }> = {
-  solar: { icon: "☀️", label: "Solar" },
-  battery: { icon: "🔋", label: "Powerwall" },
-  house: { icon: "🏠", label: "Casă" },
-  ev: { icon: "🏎️", label: "Porsche" },
-  grid: { icon: "🔌", label: "Rețea" },
+const NODE_META: Record<string, { icon: string; labelKey: MessageKey }> = {
+  solar: { icon: "☀️", labelKey: "enr.nSolar" },
+  battery: { icon: "🔋", labelKey: "enr.nPowerwall" },
+  house: { icon: "🏠", labelKey: "enr.nHouse" },
+  ev: { icon: "🏎️", labelKey: "enr.nPorsche" },
+  grid: { icon: "🔌", labelKey: "enr.nGrid" },
 };
 
 type Route = { id: string; from: string; to: string; kw: number };
@@ -351,17 +359,18 @@ function decomposeRoutes(s: EnergyState): Route[] {
 }
 
 function FlowRow({ route }: { route: Route }) {
+  const t = useT();
   const from = NODE_META[route.from];
   const to = NODE_META[route.to];
   const dur = Math.max(0.5, 2.4 - route.kw * 0.32); // faster with more power
   const op = Math.min(1, 0.5 + route.kw * 0.12);     // brighter with more power
   return (
     <div className="flex items-center gap-2.5 py-1.5">
-      <span className="text-base w-5 text-center" title={from.label}>{from.icon}</span>
+      <span className="text-base w-5 text-center" title={t(from.labelKey)}>{from.icon}</span>
       <div className="flex-1 h-4 rounded-full overflow-hidden relative" style={{ background: "rgba(255,255,255,0.05)" }}>
         <div className="flow-stream absolute inset-0" style={{ animationDuration: `${dur}s`, opacity: op }} />
       </div>
-      <span className="text-base w-5 text-center" title={to.label}>{to.icon}</span>
+      <span className="text-base w-5 text-center" title={t(to.labelKey)}>{to.icon}</span>
       <span className="text-xs font-semibold w-14 text-right" style={{ color: "var(--text-1)" }}>{route.kw.toFixed(1)} kW</span>
     </div>
   );
@@ -369,6 +378,7 @@ function FlowRow({ route }: { route: Route }) {
 
 // ── Animated utility exchange (Grid sheet) ────────────────────────────────────
 function GridExchange({ grid }: { grid: number }) {
+  const t = useT();
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const state = useRef({ kw: Math.abs(grid), dir: grid > 0.05 ? 1 : grid < -0.05 ? -1 : 0 });
   state.current = { kw: Math.abs(grid), dir: grid > 0.05 ? 1 : grid < -0.05 ? -1 : 0 };
@@ -434,13 +444,13 @@ function GridExchange({ grid }: { grid: number }) {
   }, []);
 
   const kw = Math.abs(grid);
-  const label = grid > 0.05 ? `Import · ${kw.toFixed(1)} kW` : grid < -0.05 ? `Export · ${kw.toFixed(1)} kW` : "Echilibrat";
+  const label = grid > 0.05 ? `${t("enr.import")} · ${kw.toFixed(1)} kW` : grid < -0.05 ? `${t("enr.export")} · ${kw.toFixed(1)} kW` : t("enr.balancedShort");
   const labelColor = grid > 0.05 ? "#F59E0B" : grid < -0.05 ? GREEN : "var(--text-3)";
   return (
     <div className="rounded-2xl p-3 mb-4" style={{ background: "rgba(255,255,255,0.05)" }}>
       <div className="flex items-center justify-between text-sm" style={{ color: "var(--text-1)" }}>
-        <span>🏭 Rețea</span>
-        <span>🏠 Casă</span>
+        <span>🏭 {t("enr.gridNode")}</span>
+        <span>🏠 {t("enr.homeNode")}</span>
       </div>
       <canvas ref={canvasRef} style={{ width: "100%", height: 38, display: "block" }} />
       <p className="text-center text-xs font-semibold" style={{ color: labelColor }}>{label}</p>
@@ -467,17 +477,18 @@ function FillBar({ pct, color = GREEN }: { pct: number; color?: string }) {
 }
 
 function NodeSheet({ node, s, carPct, evSession, onClose }: { node: string; s: EnergyState; carPct: number; evSession: { active: boolean; energyKwh: number; minutes: number }; onClose: () => void }) {
+  const t = useT();
   const [houseView, setHouseView] = useState<"consumers" | "rooms">("consumers");
   const { energy, setEnergy } = useStore();
   const setpoint = energy.hvacSetpoint;
   const climateMode = energy.hvacMode;
   const hist = useEnergyHistory();
   const meta: Record<string, { t: string; icon: string }> = {
-    solar: { t: "Solar", icon: "☀️" },
-    battery: { t: "Powerwall", icon: "🔋" },
-    ev: { t: "Porsche 911 GT3 RS", icon: "🏎️" },
-    house: { t: "Casă", icon: "🏠" },
-    grid: { t: "Rețea", icon: "🔌" },
+    solar: { t: t("enr.nSolar"), icon: "☀️" },
+    battery: { t: t("enr.nPowerwall"), icon: "🔋" },
+    ev: { t: t("enr.evPorsche"), icon: "🏎️" },
+    house: { t: t("enr.nHouse"), icon: "🏠" },
+    grid: { t: t("enr.nGrid"), icon: "🔌" },
   };
   const m = meta[node];
   const fmtH = (h: number) => (!isFinite(h) || h <= 0 ? "—" : `${Math.floor(h)}h ${Math.round((h % 1) * 60)}m`);
@@ -493,18 +504,18 @@ function NodeSheet({ node, s, carPct, evSession, onClose }: { node: string; s: E
         <div className="flex items-start justify-between">
           <div>
             <p className="text-4xl font-bold" style={{ color: "var(--text-1)" }}>{kw(s.solar)}</p>
-            <p className="text-xs mb-3" style={{ color: "var(--text-3)" }}>Producție în acest moment</p>
+            <p className="text-xs mb-3" style={{ color: "var(--text-3)" }}>{t("enr.solarProdNow")}</p>
           </div>
           <span className="flex items-center gap-1.5 text-[11px] font-semibold mt-1" style={{ color: hist.source === "synced" ? GREEN : "var(--text-3)" }}>
             <span style={{ width: 7, height: 7, borderRadius: 999, background: hist.source === "synced" ? GREEN : "#9CA3AF" }} />
-            {hist.source === "synced" ? "Sincronizat" : "Demo"}
+            {hist.source === "synced" ? t("enr.synced") : t("enr.demo")}
           </span>
         </div>
         <div className="flex items-center justify-between mb-1">
-          <p className="text-[11px]" style={{ color: "var(--text-3)" }}>Producție azi · pe oră</p>
+          <p className="text-[11px]" style={{ color: "var(--text-3)" }}>{t("enr.solarTodayHourly")}</p>
           <span className="flex items-center gap-3 text-[10px]">
-            <span style={{ color: "#F59E0B" }}>● Realizat</span>
-            <span style={{ color: "#9CA3AF" }}>┄ Prognoză</span>
+            <span style={{ color: "#F59E0B" }}>● {t("enr.realized")}</span>
+            <span style={{ color: "#9CA3AF" }}>┄ {t("enr.forecast")}</span>
           </span>
         </div>
         <svg viewBox="0 0 300 70" className="w-full mb-3" style={{ height: 70 }} preserveAspectRatio="none">
@@ -518,12 +529,12 @@ function NodeSheet({ node, s, carPct, evSession, onClose }: { node: string; s: E
           <path d={scaledPath(hist.forecast, 300, 70, 4, hmax)} fill="none" stroke="#9CA3AF" strokeWidth="1.5" strokeDasharray="4 4" strokeLinecap="round" strokeLinejoin="round" />
           <path d={scaledPath(hist.solar, 300, 70, 4, hmax)} fill="none" stroke="#F59E0B" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ filter: "drop-shadow(0 0 4px rgba(245,158,11,0.4))" }} />
         </svg>
-        <SheetRow label="Generat azi" value={`${kwh.toFixed(1)} kWh`} accent />
-        <SheetRow label="Prognoză azi" value={`${forecastKwh.toFixed(1)} kWh`} />
-        <SheetRow label="Vârf azi" value={`${peak.toFixed(1)} kW`} />
-        <SheetRow label="Capacitate instalată" value="7.2 kWp" />
-        <SheetRow label="Panouri" value="18 · funcționale" />
-        <SheetRow label="Stare invertor" value="Optimal" accent />
+        <SheetRow label={t("enr.genToday")} value={`${kwh.toFixed(1)} kWh`} accent />
+        <SheetRow label={t("enr.forecastToday")} value={`${forecastKwh.toFixed(1)} kWh`} />
+        <SheetRow label={t("enr.peakToday")} value={`${peak.toFixed(1)} kW`} />
+        <SheetRow label={t("enr.installedCap")} value="7.2 kWp" />
+        <SheetRow label={t("enr.panels")} value={t("enr.panelsVal")} />
+        <SheetRow label={t("enr.inverterStatus")} value={t("enr.optimal")} accent />
       </>
     );
   } else if (node === "battery") {
@@ -533,14 +544,14 @@ function NodeSheet({ node, s, carPct, evSession, onClose }: { node: string; s: E
       <>
         <div className="flex items-end justify-between mb-2">
           <p className="text-4xl font-bold" style={{ color: "var(--text-1)" }}>{Math.round(s.batteryPct)}%</p>
-          <p className="text-sm font-semibold" style={{ color: GREEN }}>{s.battery >= 0 ? "Se încarcă" : "Descărcare"} · {kw(s.battery)}</p>
+          <p className="text-sm font-semibold" style={{ color: GREEN }}>{s.battery >= 0 ? t("enr.charging2") : t("enr.discharging")} · {kw(s.battery)}</p>
         </div>
         <div className="mb-4"><FillBar pct={s.batteryPct} /></div>
-        <SheetRow label="Putere" value={`${s.battery >= 0 ? "+" : "−"}${kw(s.battery)}`} accent />
-        <SheetRow label="Autonomie rămasă" value={fmtH(runtime)} />
-        <SheetRow label="Capacitate" value={`${(cap * s.batteryPct / 100).toFixed(1)} / ${cap} kWh`} />
-        <SheetRow label="Temperatură" value="24°C" />
-        <SheetRow label="Stare de sănătate" value="97%" accent />
+        <SheetRow label={t("enr.power")} value={`${s.battery >= 0 ? "+" : "−"}${kw(s.battery)}`} accent />
+        <SheetRow label={t("enr.runtimeLeft")} value={fmtH(runtime)} />
+        <SheetRow label={t("enr.capacity")} value={`${(cap * s.batteryPct / 100).toFixed(1)} / ${cap} kWh`} />
+        <SheetRow label={t("enr.temperature")} value="24°C" />
+        <SheetRow label={t("enr.healthState")} value="97%" accent />
       </>
     );
   } else if (node === "ev") {
@@ -550,7 +561,7 @@ function NodeSheet({ node, s, carPct, evSession, onClose }: { node: string; s: E
       <>
         <div className="flex items-end justify-between mb-2">
           <p className="text-4xl font-bold" style={{ color: "var(--text-1)" }}>{Math.round(carPct)}%</p>
-          <p className="text-sm font-semibold" style={{ color: s.vehicle > 0.1 ? GREEN : "var(--text-3)" }}>{s.vehicle > 0.1 ? `Se încarcă · ${kw(s.vehicle)}` : "Inactiv"}</p>
+          <p className="text-sm font-semibold" style={{ color: s.vehicle > 0.1 ? GREEN : "var(--text-3)" }}>{s.vehicle > 0.1 ? `${t("enr.charging2")} · ${kw(s.vehicle)}` : t("enr.idle")}</p>
         </div>
         <div className="mb-3 relative">
           <FillBar pct={carPct} />
@@ -559,14 +570,14 @@ function NodeSheet({ node, s, carPct, evSession, onClose }: { node: string; s: E
         {s.vehicle > 0.1 && (
           <div className="rounded-2xl p-3 mb-3" style={{ background: "rgba(255,255,255,0.05)" }}>
             <div className="flex items-center justify-between text-sm mb-1" style={{ color: "var(--text-1)" }}>
-              <span>🔌 Încărcător</span>
-              <span>🏎️ Mașină</span>
+              <span>🔌 {t("enr.evCharger")}</span>
+              <span>🏎️ {t("enr.evCar")}</span>
             </div>
             <svg viewBox="0 0 300 46" className="w-full" style={{ height: 46 }} preserveAspectRatio="none">
               <path d="M12,30 C 70,30 70,14 120,14 C 180,14 150,30 210,30 C 255,30 250,18 288,18" fill="none" stroke="rgba(74,222,128,0.22)" strokeWidth="3" strokeLinecap="round" />
               <path d="M12,30 C 70,30 70,14 120,14 C 180,14 150,30 210,30 C 255,30 250,18 288,18" className="energy-flow" fill="none" stroke={GREEN} strokeWidth="3" strokeLinecap="round" />
             </svg>
-            <p className="text-center text-[11px] font-semibold" style={{ color: GREEN }}>Energie în transfer · {kw(s.vehicle)}</p>
+            <p className="text-center text-[11px] font-semibold" style={{ color: GREEN }}>{t("enr.energyTransfer")} {kw(s.vehicle)}</p>
           </div>
         )}
         {s.vehicle > 0.1 && (() => {
@@ -578,7 +589,7 @@ function NodeSheet({ node, s, carPct, evSession, onClose }: { node: string; s: E
           });
           return (
             <>
-              <p className="text-[11px] mb-1" style={{ color: "var(--text-3)" }}>Curbă de încărcare · acum → plin</p>
+              <p className="text-[11px] mb-1" style={{ color: "var(--text-3)" }}>{t("enr.chargeCurve")}</p>
               <svg viewBox="0 0 300 60" className="w-full mb-3" style={{ height: 60 }} preserveAspectRatio="none">
                 <defs>
                   <linearGradient id="ev-curve-fill" x1="0" y1="0" x2="0" y2="1">
@@ -592,45 +603,45 @@ function NodeSheet({ node, s, carPct, evSession, onClose }: { node: string; s: E
             </>
           );
         })()}
-        <SheetRow label="Vehicul" value="Porsche 911 GT3 RS" />
-        <SheetRow label="Viteză încărcare" value={s.vehicle > 0.1 ? kw(s.vehicle) : "—"} accent={s.vehicle > 0.1} />
-        <SheetRow label="Timp până la 100%" value={fmtH(eta)} />
-        <SheetRow label="Autonomie adăugată" value={`+${Math.round(carPct * 4.6)} km`} />
-        <SheetRow label="Capacitate baterie" value={`${cap} kWh`} />
+        <SheetRow label={t("enr.vehicle")} value="Porsche 911 GT3 RS" />
+        <SheetRow label={t("enr.chargeSpeed")} value={s.vehicle > 0.1 ? kw(s.vehicle) : "—"} accent={s.vehicle > 0.1} />
+        <SheetRow label={t("enr.timeToFull")} value={fmtH(eta)} />
+        <SheetRow label={t("enr.rangeAdded")} value={`+${Math.round(carPct * 4.6)} km`} />
+        <SheetRow label={t("enr.batteryCap")} value={`${cap} kWh`} />
         {/* OCPP-style charging session */}
         <div className="mt-3 rounded-2xl p-3" style={{ background: "rgba(255,255,255,0.05)" }}>
           <div className="flex items-center justify-between mb-2">
-            <p className="text-xs font-semibold uppercase tracking-wide" style={{ color: "var(--text-3)" }}>Sesiune încărcare · OCPP</p>
+            <p className="text-xs font-semibold uppercase tracking-wide" style={{ color: "var(--text-3)" }}>{t("enr.chargeSession")}</p>
             <span className="text-[10px] font-semibold px-2 py-0.5 rounded-full" style={evSession.active
               ? { background: "rgba(74,222,128,0.15)", color: "#4ADE80" }
               : { background: "rgba(255,255,255,0.06)", color: "#9CA3AF" }}>
-              {evSession.active ? "Charging" : "Idle"}
+              {evSession.active ? t("enr.charging2") : t("enr.idle")}
             </span>
           </div>
-          <SheetRow label="Conector" value="Type 2 · CCS" />
-          <SheetRow label="Energie livrată" value={`${evSession.energyKwh.toFixed(1)} kWh`} accent={evSession.active} />
-          <SheetRow label="Durată sesiune" value={evSession.active ? `${Math.floor(evSession.minutes / 60)}h ${Math.round(evSession.minutes % 60)}m` : "—"} />
-          <SheetRow label="Cost sesiune" value={`${(evSession.energyKwh * TARIFF.buy).toFixed(2)} ${TARIFF.currency}`} />
+          <SheetRow label={t("enr.connector")} value="Type 2 · CCS" />
+          <SheetRow label={t("enr.energyDelivered")} value={`${evSession.energyKwh.toFixed(1)} kWh`} accent={evSession.active} />
+          <SheetRow label={t("enr.sessionDuration")} value={evSession.active ? `${Math.floor(evSession.minutes / 60)}h ${Math.round(evSession.minutes % 60)}m` : "—"} />
+          <SheetRow label={t("enr.sessionCost")} value={`${(evSession.energyKwh * TARIFF.buy).toFixed(2)} ${TARIFF.currency}`} />
         </div>
       </>
     );
   } else if (node === "house") {
     const load = s.home;
     const consumers = [
-      { n: "HVAC", f: 0.32, icon: "❄️" },
-      { n: "Pompă de căldură", f: 0.24, icon: "♨️" },
-      { n: "Piscină", f: 0.14, icon: "🏊" },
-      { n: "Iluminat", f: 0.12, icon: "💡" },
-      { n: "Electrocasnice", f: 0.18, icon: "🔌" },
+      { n: t("enr.cHvac"), f: 0.32, icon: "❄️" },
+      { n: t("enr.cHeatPump"), f: 0.24, icon: "♨️" },
+      { n: t("enr.cPool"), f: 0.14, icon: "🏊" },
+      { n: t("enr.cLighting"), f: 0.12, icon: "💡" },
+      { n: t("enr.cAppliances"), f: 0.18, icon: "🔌" },
     ];
     const rooms = [
-      { n: "Living", f: 0.22, icon: "🛋️" },
-      { n: "Bucătărie", f: 0.20, icon: "🍳" },
-      { n: "Dormitor principal", f: 0.14, icon: "🛏️" },
-      { n: "Birou", f: 0.12, icon: "💻" },
-      { n: "Garaj", f: 0.10, icon: "🚗" },
-      { n: "Baie & spa", f: 0.10, icon: "🛁" },
-      { n: "Hol & exterior", f: 0.12, icon: "🌳" },
+      { n: t("enr.rLiving"), f: 0.22, icon: "🛋️" },
+      { n: t("enr.rKitchen"), f: 0.20, icon: "🍳" },
+      { n: t("enr.rBedroom"), f: 0.14, icon: "🛏️" },
+      { n: t("enr.rOffice"), f: 0.12, icon: "💻" },
+      { n: t("enr.rGarage"), f: 0.10, icon: "🚗" },
+      { n: t("enr.rBath"), f: 0.10, icon: "🛁" },
+      { n: t("enr.rHall"), f: 0.12, icon: "🌳" },
     ];
     const rows = houseView === "consumers" ? consumers : rooms;
     const hmax = Math.max(1, ...hist.home);
@@ -639,14 +650,14 @@ function NodeSheet({ node, s, carPct, evSession, onClose }: { node: string; s: E
         <div className="flex items-start justify-between">
           <div>
             <p className="text-4xl font-bold" style={{ color: "var(--text-1)" }}>{kw(load)}</p>
-            <p className="text-xs mb-3" style={{ color: "var(--text-3)" }}>Consum casă acum</p>
+            <p className="text-xs mb-3" style={{ color: "var(--text-3)" }}>{t("enr.homeUsageNow")}</p>
           </div>
           <span className="flex items-center gap-1.5 text-[11px] font-semibold mt-1" style={{ color: hist.source === "synced" ? GREEN : "var(--text-3)" }}>
             <span style={{ width: 7, height: 7, borderRadius: 999, background: hist.source === "synced" ? GREEN : "#9CA3AF" }} />
-            {hist.source === "synced" ? "Sincronizat" : "Demo"}
+            {hist.source === "synced" ? t("enr.synced") : t("enr.demo")}
           </span>
         </div>
-        <p className="text-[11px] mb-1" style={{ color: "var(--text-3)" }}>Consum azi · pe oră</p>
+        <p className="text-[11px] mb-1" style={{ color: "var(--text-3)" }}>{t("enr.homeTodayHourly")}</p>
         <svg viewBox="0 0 300 60" className="w-full mb-3" style={{ height: 60 }} preserveAspectRatio="none">
           <defs>
             <linearGradient id="sheet-home-fill" x1="0" y1="0" x2="0" y2="1">
@@ -660,8 +671,8 @@ function NodeSheet({ node, s, carPct, evSession, onClose }: { node: string; s: E
         {/* Climate control — HVAC + heat pump */}
         <div className="rounded-2xl p-3 mb-3" style={{ background: "rgba(255,255,255,0.05)" }}>
           <div className="flex items-center justify-between mb-2">
-            <span className="text-sm font-medium" style={{ color: "var(--text-1)" }}>♨️ Climat · HVAC + pompă</span>
-            <span className="text-[10px]" style={{ color: climateMode === "Off" ? "var(--text-3)" : "#4ADE80" }}>{climateMode === "Off" ? "Oprit" : "Activ"}</span>
+            <span className="text-sm font-medium" style={{ color: "var(--text-1)" }}>♨️ {t("enr.climate")}</span>
+            <span className="text-[10px]" style={{ color: climateMode === "Off" ? "var(--text-3)" : "#4ADE80" }}>{climateMode === "Off" ? t("enr.off") : t("enr.active")}</span>
           </div>
           <div className="flex items-center justify-between mb-3">
             <button onClick={() => setEnergy({ hvacSetpoint: Math.max(15, Math.round((setpoint - 0.5) * 10) / 10) })} className="w-9 h-9 rounded-full text-lg font-bold" style={{ background: "rgba(255,255,255,0.08)", color: "var(--text-1)" }}>−</button>
@@ -674,11 +685,11 @@ function NodeSheet({ node, s, carPct, evSession, onClose }: { node: string; s: E
                 style={climateMode === m ? { background: GREEN, color: "#05210F" } : { background: "rgba(255,255,255,0.06)", color: "var(--text-3)" }}>{m}</button>
             ))}
           </div>
-          <p className="text-[11px]" style={{ color: "var(--text-3)" }}>Program: 21° zi · 18° noapte (22:00–06:00)</p>
+          <p className="text-[11px]" style={{ color: "var(--text-3)" }}>{t("enr.schedule")}</p>
         </div>
 
         <div className="flex gap-1 p-1 rounded-2xl mb-3" style={{ background: "rgba(255,255,255,0.05)" }}>
-          {([["consumers", "Consumatori"], ["rooms", "Camere"]] as const).map(([k, lbl]) => (
+          {([["consumers", t("enr.consumers")], ["rooms", t("enr.rooms")]] as const).map(([k, lbl]) => (
             <button key={k} onClick={() => setHouseView(k)} className="flex-1 py-1.5 rounded-xl text-xs font-medium transition-all"
               style={houseView === k ? { background: GREEN, color: "#05210F" } : { color: "var(--text-3)" }}>
               {lbl}
@@ -691,14 +702,14 @@ function NodeSheet({ node, s, carPct, evSession, onClose }: { node: string; s: E
               <span className="text-sm" style={{ color: "var(--text-1)" }}>{c.icon} {c.n}</span>
               <span className="text-sm font-semibold flex items-center gap-1.5" style={{ color: "var(--text-1)" }}>
                 {Math.round(load * c.f * 1000)} W
-                <span className="text-[9px] font-medium px-1.5 py-0.5 rounded-full" style={{ background: "rgba(124,58,237,0.18)", color: "#A78BFA" }}>est.</span>
+                <span className="text-[9px] font-medium px-1.5 py-0.5 rounded-full" style={{ background: "rgba(124,58,237,0.18)", color: "#A78BFA" }}>{t("enr.estBadge")}</span>
               </span>
             </div>
             <FillBar pct={c.f * 100} color="#22D3EE" />
           </div>
         ))}
         <p className="text-[11px] mt-3" style={{ color: "var(--text-3)" }}>
-          {houseView === "rooms" ? "Energie pe cameră, măsurată live." : "Putere virtuală estimată (Powercalc) — dispozitive fără contor individual."}
+          {houseView === "rooms" ? t("enr.roomsNote") : t("enr.consumersNote")}
         </p>
       </>
     );
@@ -710,19 +721,19 @@ function NodeSheet({ node, s, carPct, evSession, onClose }: { node: string; s: E
         <GridExchange grid={s.grid} />
         <div className="grid grid-cols-2 gap-3 mb-4">
           <div className="rounded-2xl p-3" style={{ background: "rgba(255,255,255,0.05)" }}>
-            <p className="text-[11px]" style={{ color: "var(--text-3)" }}>Import</p>
+            <p className="text-[11px]" style={{ color: "var(--text-3)" }}>{t("enr.import")}</p>
             <p className="text-2xl font-bold" style={{ color: imp > 0 ? "#F59E0B" : "var(--text-1)" }}>{imp.toFixed(1)} kW</p>
           </div>
           <div className="rounded-2xl p-3" style={{ background: "rgba(255,255,255,0.05)" }}>
-            <p className="text-[11px]" style={{ color: "var(--text-3)" }}>Export</p>
+            <p className="text-[11px]" style={{ color: "var(--text-3)" }}>{t("enr.export")}</p>
             <p className="text-2xl font-bold" style={{ color: exp > 0 ? GREEN : "var(--text-1)" }}>{exp.toFixed(1)} kW</p>
           </div>
         </div>
-        <SheetRow label="Preț curent" value={`${TARIFF.buy.toFixed(2)} ${TARIFF.currency}/kWh`} />
-        <SheetRow label="Preț export" value={`${TARIFF.sell.toFixed(2)} ${TARIFF.currency}/kWh`} />
-        <SheetRow label="Furnizor" value={TARIFF.provider} accent />
-        <SheetRow label="Vârf de consum azi" value="4.2 kW · 18:30" />
-        <SheetRow label="Stare rețea" value={imp > 0 ? "Import activ" : exp > 0 ? "Export activ" : "Echilibrat"} accent />
+        <SheetRow label={t("enr.priceNow")} value={`${TARIFF.buy.toFixed(2)} ${TARIFF.currency}/kWh`} />
+        <SheetRow label={t("enr.priceExport")} value={`${TARIFF.sell.toFixed(2)} ${TARIFF.currency}/kWh`} />
+        <SheetRow label={t("enr.provider")} value={TARIFF.provider} accent />
+        <SheetRow label={t("enr.peakUsageToday")} value="4.2 kW · 18:30" />
+        <SheetRow label={t("enr.gridStatus")} value={imp > 0 ? t("enr.importActive") : exp > 0 ? t("enr.exportActive") : t("enr.balancedShort")} accent />
       </>
     );
   }
@@ -761,6 +772,7 @@ function scaledPath(values: number[], w: number, h: number, pad: number, maxVal:
 }
 
 function EnergieTab() {
+  const t = useT();
   const total = MONTHLY_USAGE.reduce((s, v) => s + v, 0);
   const max = Math.max(...MONTHLY_USAGE);
   const hist = useEnergyHistory();
@@ -787,25 +799,25 @@ function EnergieTab() {
       {/* Intraday solar vs consumption — live history with demo fallback */}
       <div className="rounded-3xl p-4 liquid-glass">
         <div className="flex items-center justify-between mb-1">
-          <p className="text-sm font-semibold" style={{ color: "var(--text-1)" }}>Azi · Solar vs Consum</p>
+          <p className="text-sm font-semibold" style={{ color: "var(--text-1)" }}>{t("enr.todaySolarVsHome")}</p>
           <div className="flex items-center gap-2">
-            <button onClick={exportCsv} className="text-[10px] font-semibold px-2 py-0.5 rounded-full" style={{ background: "rgba(34,211,238,0.12)", color: "#22D3EE", border: "1px solid rgba(34,211,238,0.25)" }}>Export CSV</button>
+            <button onClick={exportCsv} className="text-[10px] font-semibold px-2 py-0.5 rounded-full" style={{ background: "rgba(34,211,238,0.12)", color: "#22D3EE", border: "1px solid rgba(34,211,238,0.25)" }}>{t("enr.exportCsv")}</button>
             <span className="flex items-center gap-1.5 text-[11px] font-semibold" style={{ color: hist.source === "synced" ? GREEN : "var(--text-3)" }}>
               <span style={{ width: 7, height: 7, borderRadius: 999, background: hist.source === "synced" ? GREEN : "#9CA3AF" }} />
-              {hist.source === "synced" ? "Sincronizat" : "Demo"}
+              {hist.source === "synced" ? t("enr.synced") : t("enr.demo")}
             </span>
           </div>
         </div>
         <div className="flex gap-6 mb-2">
-          <div><p className="text-text-tertiary text-[11px]">Solar · medie</p><p className="text-base font-bold" style={{ color: "#4ADE80" }}>{solarToday} kW</p></div>
-          <div><p className="text-text-tertiary text-[11px]">Consum · medie</p><p className="text-base font-bold" style={{ color: "#22D3EE" }}>{homeToday} kW</p></div>
+          <div><p className="text-text-tertiary text-[11px]">{t("enr.solarAvg")}</p><p className="text-base font-bold" style={{ color: "#4ADE80" }}>{solarToday} kW</p></div>
+          <div><p className="text-text-tertiary text-[11px]">{t("enr.homeAvg")}</p><p className="text-base font-bold" style={{ color: "#22D3EE" }}>{homeToday} kW</p></div>
         </div>
         <RevolutChart
           height={92}
           max={histMax}
           series={[
-            { values: hist.solar, color: "#4ADE80", label: "Solar" },
-            { values: hist.home, color: "#22D3EE", label: "Consum" },
+            { values: hist.solar, color: "#4ADE80", label: t("enr.srcSolar") },
+            { values: hist.home, color: "#22D3EE", label: t("enr.consumption") },
           ]}
           formatValue={(v) => `${v.toFixed(1)} kW`}
           formatX={(i) => `${String(Math.round((i / Math.max(1, hist.solar.length - 1)) * 24)).padStart(2, "0")}:00`}
@@ -814,7 +826,7 @@ function EnergieTab() {
       </div>
 
       <div className="rounded-3xl p-4 liquid-glass">
-        <p className="text-text-secondary text-[11px] mb-0.5">Total utilizat · anul acesta</p>
+        <p className="text-text-secondary text-[11px] mb-0.5">{t("enr.totalUsedYear")}</p>
         <p className="font-bold text-3xl" style={{ color: "var(--text-1)" }}>{total.toFixed(1)} <span className="text-lg" style={{ color: "var(--text-3)" }}>MWh</span></p>
         <div className="flex items-end justify-between gap-1 mt-4 h-32">
           {MONTHLY_USAGE.map((v, i) => (
@@ -827,12 +839,12 @@ function EnergieTab() {
       </div>
 
       <div>
-        <p className="text-text-secondary text-xs font-medium uppercase tracking-wide mb-2 px-1">Flux de energie · Utilizat din</p>
+        <p className="text-text-secondary text-xs font-medium uppercase tracking-wide mb-2 px-1">{t("enr.energyFlowUsedFrom")}</p>
         <div className="rounded-2xl overflow-hidden" style={{ background: "rgba(255,255,255,0.04)", border: "0.5px solid var(--glass-border)" }}>
           {ENERGY_SOURCES.map((s, i) => (
             <div key={s.id} className="px-4 py-3" style={{ borderBottom: i < ENERGY_SOURCES.length - 1 ? "1px solid rgba(255,255,255,0.06)" : undefined }}>
               <div className="flex items-center justify-between mb-1.5">
-                <span className="text-sm font-medium flex items-center gap-2" style={{ color: "var(--text-1)" }}><span>{s.icon}</span>{s.label}</span>
+                <span className="text-sm font-medium flex items-center gap-2" style={{ color: "var(--text-1)" }}><span>{s.icon}</span>{SRC_KEY[s.id] ? t(SRC_KEY[s.id]) : s.label}</span>
                 <span className="text-sm" style={{ color: "var(--text-2)" }}>{s.pct}% · {s.mwh} MWh</span>
               </div>
               <div className="h-1.5 rounded-full overflow-hidden" style={{ background: "rgba(255,255,255,0.08)" }}>
@@ -848,6 +860,7 @@ function EnergieTab() {
 
 // ── Impact tab ───────────────────────────────────────────────────────────────
 function ImpactTab() {
+  const t = useT();
   const [touIdx, setTouIdx] = useState(0);
   const tou = TOU_PERIODS[touIdx];
   const hist = useEnergyHistory();
@@ -866,10 +879,10 @@ function ImpactTab() {
       {/* Autonomy donut */}
       <div className="rounded-3xl p-4 liquid-glass">
         <div className="flex items-center justify-between mb-3">
-          <p className="text-sm font-semibold" style={{ color: "var(--text-1)" }}>Autonomie energetică</p>
+          <p className="text-sm font-semibold" style={{ color: "var(--text-1)" }}>{t("enr.energyAutonomy")}</p>
           <span className="flex items-center gap-1.5 text-[11px] font-semibold" style={{ color: hist.source === "synced" ? GREEN : "var(--text-3)" }}>
             <span style={{ width: 7, height: 7, borderRadius: 999, background: hist.source === "synced" ? GREEN : "#9CA3AF" }} />
-            {hist.source === "synced" ? "Sincronizat" : "Demo"}
+            {hist.source === "synced" ? t("enr.synced") : t("enr.demo")}
           </span>
         </div>
         <div className="flex items-center gap-5">
@@ -885,10 +898,10 @@ function ImpactTab() {
               return el;
             })}
             <text x="55" y="52" textAnchor="middle" fontSize="22" fontWeight="bold" fill="#fff">{auto.total}</text>
-            <text x="55" y="68" textAnchor="middle" fontSize="10" fill="#9CA3AF">% autonom</text>
+            <text x="55" y="68" textAnchor="middle" fontSize="10" fill="#9CA3AF">{t("enr.autonomous")}</text>
           </svg>
           <div className="space-y-2">
-            {[{ l: "Solar", v: auto.solar, c: "#F59E0B" }, { l: "Powerwall", v: auto.battery, c: "#4ADE80" }, { l: "Grilă", v: auto.grid, c: "#6B7280" }].map((x) => (
+            {[{ l: t("enr.srcSolar"), v: auto.solar, c: "#F59E0B" }, { l: t("enr.srcPowerwall"), v: auto.battery, c: "#4ADE80" }, { l: t("enr.grid"), v: auto.grid, c: "#6B7280" }].map((x) => (
               <div key={x.l} className="flex items-center gap-2">
                 <span className="w-2.5 h-2.5 rounded-full" style={{ background: x.c }} />
                 <span className="text-sm font-semibold" style={{ color: "var(--text-1)" }}>{x.v}%</span>
@@ -901,16 +914,16 @@ function ImpactTab() {
 
       {/* Time of use */}
       <div className="rounded-3xl p-4 liquid-glass">
-        <p className="text-sm font-semibold mb-3" style={{ color: "var(--text-1)" }}>Durata utilizării</p>
+        <p className="text-sm font-semibold mb-3" style={{ color: "var(--text-1)" }}>{t("enr.timeOfUse")}</p>
         <div className="flex gap-2 mb-3">
           {TOU_PERIODS.map((p, i) => (
             <button key={p.id} onClick={() => setTouIdx(i)} className="flex-1 rounded-xl py-2 text-center transition-all" style={touIdx === i ? { background: "rgba(74,222,128,0.12)", border: "1px solid rgba(74,222,128,0.3)" } : { background: "var(--glass-bg)", border: "0.5px solid var(--glass-border)" }}>
-              <p className="text-[11px]" style={{ color: "var(--text-2)" }}>{p.label}</p>
+              <p className="text-[11px]" style={{ color: "var(--text-2)" }}>{TOU_KEY[p.id] ? t(TOU_KEY[p.id]) : p.label}</p>
               <p className="text-sm font-bold" style={{ color: touIdx === i ? "var(--accent)" : "var(--text-1)" }}>{p.mwh} MWh</p>
             </button>
           ))}
         </div>
-        {[{ l: "Solar", v: tou.solar, c: "#F59E0B" }, { l: "Powerwall", v: tou.battery, c: "#4ADE80" }, { l: "Grilă", v: tou.grid, c: "#6B7280" }].map((x) => (
+        {[{ l: t("enr.srcSolar"), v: tou.solar, c: "#F59E0B" }, { l: t("enr.srcPowerwall"), v: tou.battery, c: "#4ADE80" }, { l: t("enr.grid"), v: tou.grid, c: "#6B7280" }].map((x) => (
           <div key={x.l} className="mb-2 last:mb-0">
             <div className="flex items-center justify-between mb-1"><span className="text-sm" style={{ color: "var(--text-1)" }}>{x.l}</span><span className="text-sm" style={{ color: "var(--text-2)" }}>{x.v}%</span></div>
             <div className="h-1.5 rounded-full overflow-hidden" style={{ background: "rgba(255,255,255,0.08)" }}><div className="h-full rounded-full" style={{ width: `${x.v}%`, background: x.c }} /></div>
@@ -920,7 +933,7 @@ function ImpactTab() {
 
       {/* Solar value */}
       <div className="rounded-3xl p-4 liquid-glass">
-        <p className="text-sm font-semibold mb-3" style={{ color: "var(--text-1)" }}>Valoare solară</p>
+        <p className="text-sm font-semibold mb-3" style={{ color: "var(--text-1)" }}>{t("enr.solarValue")}</p>
         <div className="flex items-end justify-between gap-1 h-28">
           {SOLAR_VALUE.map((v, i) => (
             <div key={i} className="flex-1 flex flex-col items-center gap-1">
@@ -930,14 +943,14 @@ function ImpactTab() {
           ))}
         </div>
         <p className="text-center font-bold text-2xl mt-2" style={{ color: "#4ADE80" }}>{SOLAR_VALUE_TOTAL.toLocaleString()} $</p>
-        <p className="text-center text-text-tertiary text-[11px]">Anul acesta · estimare {TARIFF.provider}</p>
+        <p className="text-center text-text-tertiary text-[11px]">{t("enr.thisYear")} {TARIFF.provider}</p>
       </div>
 
       {/* Solar offset */}
       <div className="rounded-3xl p-4 liquid-glass">
-        <p className="text-sm font-semibold mb-3" style={{ color: "var(--text-1)" }}>Compensare cu energie solară</p>
+        <p className="text-sm font-semibold mb-3" style={{ color: "var(--text-1)" }}>{t("enr.solarOffset")}</p>
         <div className="flex items-end justify-center gap-10 h-32">
-          {[{ l: "Solar", v: OFFSET.solarMwh, c: "#F59E0B" }, { l: "Acasă", v: OFFSET.homeMwh, c: "#3B82F6" }].map((x) => (
+          {[{ l: t("enr.srcSolar"), v: OFFSET.solarMwh, c: "#F59E0B" }, { l: t("enr.home2"), v: OFFSET.homeMwh, c: "#3B82F6" }].map((x) => (
             <div key={x.l} className="flex flex-col items-center justify-end h-full">
               <div className="w-14 rounded-t-lg" style={{ height: `${(x.v / OFFSET.solarMwh) * 100}%`, background: x.c }} />
               <p className="text-sm font-semibold mt-1.5" style={{ color: "var(--text-1)" }}>{x.v} MWh</p>
@@ -945,20 +958,20 @@ function ImpactTab() {
             </div>
           ))}
         </div>
-        <p className="text-center text-sm mt-2" style={{ color: "var(--text-2)" }}><b style={{ color: "var(--accent)" }}>{OFFSET.pct}%</b> compensare energie</p>
+        <p className="text-center text-sm mt-2" style={{ color: "var(--text-2)" }}><b style={{ color: "var(--accent)" }}>{OFFSET.pct}%</b> {t("enr.offsetEnergy")}</p>
       </div>
 
       {/* Backup history */}
       <div>
         <div className="flex items-center justify-between mb-2 px-1">
-          <p className="text-text-secondary text-xs font-medium uppercase tracking-wide">Istoric rezervă</p>
-          <span className="text-text-tertiary text-[10px]">{BACKUP_SUMMARY.events} ev · {BACKUP_SUMMARY.total} · max {BACKUP_SUMMARY.longest}</span>
+          <p className="text-text-secondary text-xs font-medium uppercase tracking-wide">{t("enr.backupHistory")}</p>
+          <span className="text-text-tertiary text-[10px]">{BACKUP_SUMMARY.events} {t("enr.events")} · {t("enr.bsTotal")} · {t("enr.max")} {t("enr.bsLongest")}</span>
         </div>
         <div className="rounded-2xl overflow-hidden" style={{ background: "rgba(255,255,255,0.04)", border: "0.5px solid var(--glass-border)" }}>
           {BACKUP_EVENTS.map((e, i) => (
             <div key={e.date} className="flex items-center justify-between px-4 py-3" style={{ borderBottom: i < BACKUP_EVENTS.length - 1 ? "1px solid rgba(255,255,255,0.06)" : undefined }}>
               <div><p className="text-sm font-medium" style={{ color: "var(--text-1)" }}>{e.date}</p><p className="text-text-tertiary text-[11px]">{e.window}</p></div>
-              <span className="text-text-secondary text-xs">{e.duration}</span>
+              <span className="text-text-secondary text-xs">{BDUR_KEY[i] ? t(BDUR_KEY[i]) : e.duration}</span>
             </div>
           ))}
         </div>
@@ -969,10 +982,11 @@ function ImpactTab() {
 
 // ── Powerwall tab ────────────────────────────────────────────────────────────
 function PowerwallTab() {
+  const t = useT();
   const { energy, setEnergy } = useStore();
   const { s, source } = useEnergyLive();
   const reserve = energy.backupReserve;
-  const reserveLabel = reserve <= 20 ? "scăzută" : reserve >= 100 ? "maximă" : "echilibrată";
+  const reserveLabel = reserve <= 20 ? t("enr.resLow") : reserve >= 100 ? t("enr.resMax") : t("enr.resBalanced");
   // Rough off-grid runtime estimate from reserve %.
   const hours = Math.max(1, Math.round((reserve / 100) * 13.5 + 2));
   const charging = s.battery >= 0;
@@ -983,30 +997,30 @@ function PowerwallTab() {
       {/* Live Powerwall status (from the energy event bus, falls back to sim) */}
       <div className="rounded-3xl p-4 liquid-glass">
         <div className="flex items-center justify-between mb-3">
-          <p className="text-sm font-semibold" style={{ color: "var(--text-1)" }}>Powerwall · live</p>
+          <p className="text-sm font-semibold" style={{ color: "var(--text-1)" }}>{t("enr.powerwallLive")}</p>
           <span className="flex items-center gap-1.5 text-[11px] font-semibold" style={{ color: source === "live" ? GREEN : "var(--text-3)" }}>
             <span style={{ width: 7, height: 7, borderRadius: 999, background: source === "live" ? GREEN : "#9CA3AF", boxShadow: source === "live" ? `0 0 6px ${GREEN}` : "none" }} />
-            {source === "live" ? "Live" : "Simulat"}
+            {source === "live" ? t("enr.live") : t("enr.simulated")}
           </span>
         </div>
         <div className="flex items-end justify-between mb-2">
           <p className="text-4xl font-bold" style={{ color: "var(--text-1)" }}>{Math.round(s.batteryPct)}%</p>
-          <p className="text-sm font-semibold" style={{ color: GREEN }}>{charging ? "Se încarcă" : "Descărcare"} · {kw(s.battery)}</p>
+          <p className="text-sm font-semibold" style={{ color: GREEN }}>{charging ? t("enr.charging2") : t("enr.discharging")} · {kw(s.battery)}</p>
         </div>
         <FillBar pct={s.batteryPct} />
         <div className="flex justify-between mt-2 text-[11px]" style={{ color: "var(--text-3)" }}>
           <span>{(13.5 * s.batteryPct / 100).toFixed(1)} / 13.5 kWh</span>
-          <span>Rezervă {reserve}%</span>
+          <span>{t("enr.reserveShort")} {reserve}%</span>
         </div>
       </div>
 
       {/* Backup reserve */}
       <div className="rounded-3xl p-4 liquid-glass">
-        <p className="text-sm font-semibold" style={{ color: "var(--text-1)" }}>Rezervă backup</p>
-        <p className="text-text-secondary text-xs mb-3">Rezervare energie pentru pene de curent</p>
+        <p className="text-sm font-semibold" style={{ color: "var(--text-1)" }}>{t("enr.backupReserve")}</p>
+        <p className="text-text-secondary text-xs mb-3">{t("enr.reserveDesc")}</p>
         <div className="flex items-center justify-between mb-2">
-          <span className="text-sm font-bold" style={{ color: "#F59E0B" }}>{reserve}% rezervă</span>
-          <span className="text-sm font-bold" style={{ color: "#3B82F6" }}>{100 - reserve}% utilizare zilnică</span>
+          <span className="text-sm font-bold" style={{ color: "#F59E0B" }}>{reserve}% {t("enr.reserveWord")}</span>
+          <span className="text-sm font-bold" style={{ color: "#3B82F6" }}>{100 - reserve}% {t("enr.dailyUse")}</span>
         </div>
         <div className="relative h-3 rounded-full overflow-hidden mb-1" style={{ background: "rgba(255,255,255,0.08)" }}>
           <div className="absolute inset-y-0 left-0 rounded-full" style={{ width: `${reserve}%`, background: "#F59E0B" }} />
@@ -1014,21 +1028,21 @@ function PowerwallTab() {
           <input
             type="range" min={0} max={100} step={5} value={reserve}
             onChange={(e) => setEnergy({ backupReserve: Number(e.target.value) })}
-            aria-label="Rezervă backup"
+            aria-label={t("enr.backupReserve")}
             className="absolute inset-0 w-full opacity-0 cursor-pointer"
           />
         </div>
-        <p className="text-text-tertiary text-[11px]">Rezervă {reserveLabel} · Powerwall păstrează {reserve}% pentru pene de curent.</p>
-        <button onClick={() => setEnergy({ backupReserve: 100 })} className="w-full mt-3 py-2.5 rounded-xl text-sm font-medium" style={{ background: "rgba(245,158,11,0.12)", border: "1px solid rgba(245,158,11,0.25)", color: "#F59E0B" }}>Inițiați Rezervă maximă</button>
+        <p className="text-text-tertiary text-[11px]">{t("enr.reserveCap")} {reserveLabel} {t("enr.pwKeeps")} {reserve}% {t("enr.forOutages")}</p>
+        <button onClick={() => setEnergy({ backupReserve: 100 })} className="w-full mt-3 py-2.5 rounded-xl text-sm font-medium" style={{ background: "rgba(245,158,11,0.12)", border: "1px solid rgba(245,158,11,0.25)", color: "#F59E0B" }}>{t("enr.initMaxReserve")}</button>
       </div>
 
       {/* Operational mode */}
       <div>
-        <p className="text-text-secondary text-xs font-medium uppercase tracking-wide mb-2 px-1">Mod operațional</p>
+        <p className="text-text-secondary text-xs font-medium uppercase tracking-wide mb-2 px-1">{t("enr.opMode")}</p>
         <div className="rounded-2xl overflow-hidden" style={{ background: "rgba(255,255,255,0.04)", border: "0.5px solid var(--glass-border)" }}>
           {[
-            { id: "self_powered" as const, label: "Autonomie energetică", desc: "Utilizați energia stocată pentru a alimenta locuința după asfințit. Reduce dependența de rețea." },
-            { id: "time_based" as const, label: "Control temporizat", desc: "Utilizați energia pentru economii maxime, pe baza planului tarifar la utilitate." },
+            { id: "self_powered" as const, label: t("enr.modeSelfTitle"), desc: t("enr.modeSelfDesc") },
+            { id: "time_based" as const, label: t("enr.modeTimeTitle"), desc: t("enr.modeTimeDesc") },
           ].map((m, i) => (
             <button key={m.id} onClick={() => setEnergy({ mode: m.id })} className="w-full flex items-start gap-3 px-4 py-3.5 text-left" style={{ borderBottom: i === 0 ? "1px solid rgba(255,255,255,0.06)" : undefined }}>
               <div className="flex-1">
@@ -1046,12 +1060,12 @@ function PowerwallTab() {
       {/* Tariff plan + dynamic charging */}
       <div className="rounded-3xl p-4 liquid-glass">
         <div className="flex items-center justify-between mb-1">
-          <p className="text-sm font-semibold" style={{ color: "var(--text-1)" }}>Plan tarifar dinamic · {TARIFF.provider}</p>
-          <span className="text-text-tertiary text-[11px]">azi</span>
+          <p className="text-sm font-semibold" style={{ color: "var(--text-1)" }}>{t("enr.dynamicTariff")} {TARIFF.provider}</p>
+          <span className="text-text-tertiary text-[11px]">{t("enr.todayShort")}</span>
         </div>
         <div className="flex gap-6 mb-3">
-          <div><p className="text-text-tertiary text-[11px]">Preț achiziție</p><p className="text-base font-bold" style={{ color: "var(--text-1)" }}>{TARIFF.buy.toFixed(2)} {TARIFF.currency}</p></div>
-          <div><p className="text-text-tertiary text-[11px]">Fereastră ieftină</p><p className="text-base font-bold" style={{ color: "#4ADE80" }}>{cheap.start}:00–{cheap.end}:00</p></div>
+          <div><p className="text-text-tertiary text-[11px]">{t("enr.buyPrice")}</p><p className="text-base font-bold" style={{ color: "var(--text-1)" }}>{TARIFF.buy.toFixed(2)} {TARIFF.currency}</p></div>
+          <div><p className="text-text-tertiary text-[11px]">{t("enr.cheapWindowLbl")}</p><p className="text-base font-bold" style={{ color: "#4ADE80" }}>{cheap.start}:00–{cheap.end}:00</p></div>
         </div>
         <svg viewBox="0 0 300 70" className="w-full" style={{ height: 70 }} preserveAspectRatio="none">
           <defs>
@@ -1068,10 +1082,10 @@ function PowerwallTab() {
         <div className="flex justify-between text-text-tertiary text-[10px] mt-1 mb-3"><span>0:00</span><span>12:00</span><span>24:00</span></div>
         <div className="flex items-center justify-between pt-3" style={{ borderTop: "1px solid rgba(255,255,255,0.06)" }}>
           <div className="flex-1 pr-3">
-            <p className="text-sm font-medium" style={{ color: "var(--text-1)" }}>Încarcă când e ieftin</p>
-            <p className="text-text-secondary text-xs">{energy.chargeWhenCheap ? `EV & Powerwall se încarcă la ${cheap.start}:00–${cheap.end}:00 (~${cheap.avg.toFixed(2)} ${TARIFF.currency}/kWh)` : "Încărcare oricând e nevoie"}</p>
+            <p className="text-sm font-medium" style={{ color: "var(--text-1)" }}>{t("enr.chargeWhenCheap")}</p>
+            <p className="text-text-secondary text-xs">{energy.chargeWhenCheap ? `${t("enr.chargeCheapPre")} ${cheap.start}:00–${cheap.end}:00 (~${cheap.avg.toFixed(2)} ${TARIFF.currency}/kWh)` : t("enr.chargeCheapOff")}</p>
           </div>
-          <button onClick={() => setEnergy({ chargeWhenCheap: !energy.chargeWhenCheap })} aria-label="Charge when cheap" className="w-11 h-6 rounded-full relative transition-all flex-shrink-0" style={{ background: energy.chargeWhenCheap ? "#4ADE80" : "rgba(255,255,255,0.15)" }}>
+          <button onClick={() => setEnergy({ chargeWhenCheap: !energy.chargeWhenCheap })} aria-label={t("enr.chargeWhenCheap")} className="w-11 h-6 rounded-full relative transition-all flex-shrink-0" style={{ background: energy.chargeWhenCheap ? "#4ADE80" : "rgba(255,255,255,0.15)" }}>
             <div className="absolute top-0.5 w-5 h-5 rounded-full transition-all" style={{ left: energy.chargeWhenCheap ? "calc(100% - 22px)" : "2px", background: energy.chargeWhenCheap ? "#050A14" : "rgba(255,255,255,0.5)" }} />
           </button>
         </div>
@@ -1080,20 +1094,20 @@ function PowerwallTab() {
       {/* Off-grid */}
       <div className="rounded-3xl p-4" style={{ background: energy.offGrid ? "rgba(245,158,11,0.07)" : "rgba(255,255,255,0.04)", border: energy.offGrid ? "1px solid rgba(245,158,11,0.22)" : "0.5px solid var(--glass-border)" }}>
         <div className="flex items-center justify-between mb-2">
-          <p className="text-sm font-semibold" style={{ color: "var(--text-1)" }}>Ieșire din rețea</p>
-          <button onClick={() => setEnergy({ offGrid: !energy.offGrid })} aria-label="Off-grid" className="w-11 h-6 rounded-full relative transition-all flex-shrink-0" style={{ background: energy.offGrid ? "#F59E0B" : "rgba(255,255,255,0.15)" }}>
+          <p className="text-sm font-semibold" style={{ color: "var(--text-1)" }}>{t("enr.offGrid")}</p>
+          <button onClick={() => setEnergy({ offGrid: !energy.offGrid })} aria-label={t("enr.offGrid")} className="w-11 h-6 rounded-full relative transition-all flex-shrink-0" style={{ background: energy.offGrid ? "#F59E0B" : "rgba(255,255,255,0.15)" }}>
             <div className="absolute top-0.5 w-5 h-5 rounded-full transition-all" style={{ left: energy.offGrid ? "calc(100% - 22px)" : "2px", background: "#050A14" }} />
           </button>
         </div>
-        <p className="text-text-secondary text-xs mb-3">Energie de rezervă rămasă: ~{hours} ore la rezerva curentă.</p>
-        <div className="flex items-center justify-between text-[11px] mb-1"><span style={{ color: "var(--text-2)" }}>Limită energie sistem</span><span style={{ color: "var(--text-3)" }}>5.0 kW max</span></div>
+        <p className="text-text-secondary text-xs mb-3">{t("enr.offGridPre")}{hours} {t("enr.offGridPost")}</p>
+        <div className="flex items-center justify-between text-[11px] mb-1"><span style={{ color: "var(--text-2)" }}>{t("enr.systemPowerLimit")}</span><span style={{ color: "var(--text-3)" }}>{t("enr.kwMax")}</span></div>
         <div className="h-2 rounded-full overflow-hidden" style={{ background: "rgba(255,255,255,0.08)" }}><div className="h-full rounded-full" style={{ width: "62%", background: "#EF4444" }} /></div>
       </div>
 
       {/* Storm watch */}
       <div className="rounded-2xl px-4 py-3.5 flex items-center justify-between" style={{ background: "rgba(255,255,255,0.04)", border: "0.5px solid var(--glass-border)" }}>
-        <div><p className="text-sm font-medium" style={{ color: "var(--text-1)" }}>Alerte furtuni</p><p className="text-text-secondary text-xs">Încarcă Powerwall înaintea furtunilor</p></div>
-        <button onClick={() => setEnergy({ stormWatch: !energy.stormWatch })} aria-label="Storm watch" className="w-11 h-6 rounded-full relative transition-all flex-shrink-0" style={{ background: energy.stormWatch ? "#4ADE80" : "rgba(255,255,255,0.15)" }}>
+        <div><p className="text-sm font-medium" style={{ color: "var(--text-1)" }}>{t("enr.stormAlerts")}</p><p className="text-text-secondary text-xs">{t("enr.stormDesc")}</p></div>
+        <button onClick={() => setEnergy({ stormWatch: !energy.stormWatch })} aria-label={t("enr.stormAlerts")} className="w-11 h-6 rounded-full relative transition-all flex-shrink-0" style={{ background: energy.stormWatch ? "#4ADE80" : "rgba(255,255,255,0.15)" }}>
           <div className="absolute top-0.5 w-5 h-5 rounded-full transition-all" style={{ left: energy.stormWatch ? "calc(100% - 22px)" : "2px", background: energy.stormWatch ? "#050A14" : "rgba(255,255,255,0.5)" }} />
         </button>
       </div>
