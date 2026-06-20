@@ -13,6 +13,7 @@ import {
   type TrustedPerson,
 } from "../../lib/store";
 import { useProfile } from "../../lib/useProfile";
+import { useT, type MessageKey } from "../../lib/i18n";
 
 function uid() {
   return Math.random().toString(36).slice(2, 10);
@@ -25,6 +26,13 @@ const TRUSTED_PERMISSIONS = [
   "Estate continuity",
 ];
 
+const PERM_KEYS: Record<string, MessageKey> = {
+  "Emergency access": "prof.perm.emergency",
+  "Ownership transfer": "prof.perm.ownership",
+  "Recovery approvals": "prof.perm.recovery",
+  "Estate continuity": "prof.perm.continuity",
+};
+
 export default function ProfilePage() {
   const {
     profile,
@@ -35,6 +43,7 @@ export default function ProfilePage() {
     addTrustedPerson,
     removeTrustedPerson,
   } = useProfile();
+  const t = useT();
 
   const [saved, setSaved] = useState(false);
 
@@ -95,7 +104,7 @@ export default function ProfilePage() {
         <Link href="/settings" className="w-9 h-9 rounded-2xl flex items-center justify-center flex-shrink-0 liquid-glass">
           <svg width="18" height="18" viewBox="0 0 24 24" fill="none"><path d="M19 12H5M12 5l-7 7 7 7" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" /></svg>
         </Link>
-        <h1 className="font-bold text-xl" style={{ color: "var(--text-1)" }}>Edit Profile</h1>
+        <h1 className="font-bold text-xl" style={{ color: "var(--text-1)" }}>{t("set.editProfile")}</h1>
         <span
           className="ml-auto text-[10px] font-medium px-2 py-1 rounded-full"
           style={
@@ -131,7 +140,7 @@ export default function ProfilePage() {
 
         {/* Avatar ring color */}
         <div>
-          <p className="text-text-secondary text-xs font-medium uppercase tracking-wide mb-2 px-1">Avatar Ring</p>
+          <p className="text-text-secondary text-xs font-medium uppercase tracking-wide mb-2 px-1">{t("prof.avatarRing")}</p>
           <div className="flex gap-3 px-1">
             {RING_COLORS.map((c, i) => (
               <button
@@ -151,14 +160,14 @@ export default function ProfilePage() {
 
         {/* Fields */}
         <div>
-          <p className="text-text-secondary text-xs font-medium uppercase tracking-wide mb-2 px-1">Personal Info</p>
+          <p className="text-text-secondary text-xs font-medium uppercase tracking-wide mb-2 px-1">{t("prof.personalInfo")}</p>
           <div className="space-y-2">
             {[
-              { label: "First Name", value: profile.firstName, key: "firstName" as const, placeholder: "First name" },
-              { label: "Last Name", value: profile.lastName, key: "lastName" as const, placeholder: "Last name" },
-              { label: "Display Name", value: profile.displayName, key: "displayName" as const, placeholder: "Display name" },
-              { label: "Email", value: profile.email, key: "email" as const, placeholder: "Email address", type: "email" },
-              { label: "Phone", value: profile.phone, key: "phone" as const, placeholder: "Phone number", type: "tel" },
+              { label: t("prof.firstName"), value: profile.firstName, key: "firstName" as const, placeholder: t("prof.firstName.ph") },
+              { label: t("prof.lastName"), value: profile.lastName, key: "lastName" as const, placeholder: t("prof.lastName.ph") },
+              { label: t("prof.displayName"), value: profile.displayName, key: "displayName" as const, placeholder: t("prof.displayName.ph") },
+              { label: t("prof.email"), value: profile.email, key: "email" as const, placeholder: t("prof.email.ph"), type: "email" },
+              { label: t("prof.phone"), value: profile.phone, key: "phone" as const, placeholder: t("prof.phone.ph"), type: "tel" },
             ].map((field) => (
               <div key={field.label} className="rounded-2xl px-4 py-3 liquid-glass">
                 <p className="text-text-secondary text-[10px] mb-1 uppercase tracking-wide">{field.label}</p>
@@ -173,12 +182,12 @@ export default function ProfilePage() {
               </div>
             ))}
             <div className="rounded-2xl px-4 py-3 liquid-glass">
-              <p className="text-text-secondary text-[10px] mb-1 uppercase tracking-wide">Notes</p>
+              <p className="text-text-secondary text-[10px] mb-1 uppercase tracking-wide">{t("prof.notes")}</p>
               <textarea
                 value={profile.notes}
                 onChange={(e) => setProfile({ notes: e.target.value })}
                 rows={2}
-                placeholder="Notes…"
+                placeholder={t("prof.notes.ph")}
                 className="w-full bg-transparent text-sm outline-none resize-none"
                 style={{ caretColor: "var(--accent)", color: "var(--text-1)" }}
               />
@@ -189,7 +198,7 @@ export default function ProfilePage() {
         {/* Social media links */}
         <div>
           <div className="flex items-center justify-between mb-2 px-1">
-            <p className="text-text-secondary text-xs font-medium uppercase tracking-wide">Social Links</p>
+            <p className="text-text-secondary text-xs font-medium uppercase tracking-wide">{t("prof.socialLinks")}</p>
             <button
               onClick={() => setSocialOpen(true)}
               className="flex items-center gap-1 text-xs font-medium"
@@ -198,12 +207,12 @@ export default function ProfilePage() {
               <span className="w-5 h-5 rounded-full flex items-center justify-center" style={{ background: "rgba(74,222,128,0.15)" }}>
                 <svg width="12" height="12" viewBox="0 0 24 24" fill="none"><path d="M12 5v14M5 12h14" stroke="var(--accent)" strokeWidth="2.2" strokeLinecap="round" /></svg>
               </span>
-              Add
+              {t("prof.add")}
             </button>
           </div>
           <div className="rounded-2xl overflow-hidden liquid-glass">
             {profile.socialLinks.length === 0 ? (
-              <p className="text-text-tertiary text-xs px-4 py-3.5">No social links yet. Tap “Add” to link an account.</p>
+              <p className="text-text-tertiary text-xs px-4 py-3.5">{t("prof.noSocial")}</p>
             ) : (
               profile.socialLinks.map((l, i) => {
                 const meta = SOCIAL_PLATFORMS.find((p) => p.id === l.platform) ?? SOCIAL_PLATFORMS[SOCIAL_PLATFORMS.length - 1];
@@ -216,7 +225,7 @@ export default function ProfilePage() {
                     </div>
                     <button
                       onClick={() => removeSocialLink(l.id)}
-                      aria-label="Remove link"
+                      aria-label={t("prof.removeLink")}
                       className="w-6 h-6 rounded-full flex items-center justify-center flex-shrink-0"
                       style={{ background: "rgba(239,68,68,0.10)" }}
                     >
@@ -232,7 +241,7 @@ export default function ProfilePage() {
         {/* Trusted persons */}
         <div>
           <div className="flex items-center justify-between mb-2 px-1">
-            <p className="text-text-secondary text-xs font-medium uppercase tracking-wide">Trusted Persons</p>
+            <p className="text-text-secondary text-xs font-medium uppercase tracking-wide">{t("prof.trustedPersons")}</p>
             <button
               onClick={() => setTrustedOpen(true)}
               className="flex items-center gap-1 text-xs font-medium"
@@ -241,41 +250,41 @@ export default function ProfilePage() {
               <span className="w-5 h-5 rounded-full flex items-center justify-center" style={{ background: "rgba(74,222,128,0.15)" }}>
                 <svg width="12" height="12" viewBox="0 0 24 24" fill="none"><path d="M12 5v14M5 12h14" stroke="var(--accent)" strokeWidth="2.2" strokeLinecap="round" /></svg>
               </span>
-              Add
+              {t("prof.add")}
             </button>
           </div>
           <p className="text-text-tertiary text-[11px] px-1 mb-2">
-            Trusted persons may receive emergency access, ownership transfer, recovery approvals and estate continuity permissions.
+            {t("prof.trustedNote")}
           </p>
           <div className="space-y-2">
             {profile.trustedPersons.length === 0 ? (
               <div className="rounded-2xl px-4 py-3.5 liquid-glass">
-                <p className="text-text-tertiary text-xs">No trusted persons assigned yet.</p>
+                <p className="text-text-tertiary text-xs">{t("prof.noTrusted")}</p>
               </div>
             ) : (
-              profile.trustedPersons.map((t) => (
-                <div key={t.id} className="rounded-2xl p-3.5 liquid-glass flex items-start gap-3">
+              profile.trustedPersons.map((tp) => (
+                <div key={tp.id} className="rounded-2xl p-3.5 liquid-glass flex items-start gap-3">
                   <div className="w-10 h-10 rounded-full flex items-center justify-center flex-shrink-0" style={{ background: "linear-gradient(135deg, #7C3AED, #22D3EE)" }}>
-                    <span className="text-bg font-bold text-sm" style={{ color: "#050A14" }}>{initials(t.name)}</span>
+                    <span className="text-bg font-bold text-sm" style={{ color: "#050A14" }}>{initials(tp.name)}</span>
                   </div>
                   <div className="flex-1 min-w-0">
-                    <p className="text-sm font-medium" style={{ color: "var(--text-1)" }}>{t.name}</p>
-                    <p className="text-text-secondary text-xs">{t.relationship}{t.email ? ` · ${t.email}` : ""}</p>
-                    {t.permissions.length > 0 && (
+                    <p className="text-sm font-medium" style={{ color: "var(--text-1)" }}>{tp.name}</p>
+                    <p className="text-text-secondary text-xs">{tp.relationship}{tp.email ? ` · ${tp.email}` : ""}</p>
+                    {tp.permissions.length > 0 && (
                       <div className="flex flex-wrap gap-1 mt-1.5">
-                        {t.permissions.map((p) => (
-                          <span key={p} className="text-[9px] px-1.5 py-0.5 rounded-full" style={{ background: "rgba(124,58,237,0.15)", color: "var(--accent-purple)" }}>{p}</span>
+                        {tp.permissions.map((p) => (
+                          <span key={p} className="text-[9px] px-1.5 py-0.5 rounded-full" style={{ background: "rgba(124,58,237,0.15)", color: "var(--accent-purple)" }}>{PERM_KEYS[p] ? t(PERM_KEYS[p]) : p}</span>
                         ))}
                       </div>
                     )}
                   </div>
                   <button
-                    onClick={() => removeTrustedPerson(t.id)}
-                    aria-label="Remove trusted person"
+                    onClick={() => removeTrustedPerson(tp.id)}
+                    aria-label={t("prof.removeTrusted")}
                     className="text-xs px-2.5 py-1 rounded-full flex-shrink-0"
                     style={{ background: "rgba(239,68,68,0.10)", border: "1px solid rgba(239,68,68,0.20)", color: "#EF4444" }}
                   >
-                    Remove
+                    {t("prof.remove")}
                   </button>
                 </div>
               ))
@@ -285,13 +294,13 @@ export default function ProfilePage() {
 
         {/* Membership */}
         <div>
-          <p className="text-text-secondary text-xs font-medium uppercase tracking-wide mb-2 px-1">Membership</p>
+          <p className="text-text-secondary text-xs font-medium uppercase tracking-wide mb-2 px-1">{t("prof.membership")}</p>
           <div className="rounded-2xl overflow-hidden liquid-glass">
             {[
-              { label: "Role", value: "Owner" },
-              { label: "Account Created", value: new Date(profile.createdAt).toLocaleDateString("en-US", { day: "numeric", month: "long", year: "numeric" }) },
-              { label: "Member Since", value: memberSince(profile.createdAt) },
-              { label: "Total Time Using PRVIO", value: totalTimeUsing(profile.createdAt) },
+              { label: t("prof.role"), value: t("prof.owner") },
+              { label: t("prof.accountCreated"), value: new Date(profile.createdAt).toLocaleDateString("en-US", { day: "numeric", month: "long", year: "numeric" }) },
+              { label: t("prof.memberSince"), value: memberSince(profile.createdAt) },
+              { label: t("prof.totalTime"), value: totalTimeUsing(profile.createdAt) },
             ].map((row, i, arr) => (
               <div key={row.label} className="flex items-center justify-between px-4 py-3 gap-3" style={{ borderBottom: i < arr.length - 1 ? "1px solid var(--glass-border)" : undefined }}>
                 <p className="text-text-secondary text-sm flex-shrink-0">{row.label}</p>
@@ -301,7 +310,7 @@ export default function ProfilePage() {
           </div>
           <div className="flex justify-center mt-3">
             <span className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-medium" style={{ background: "rgba(74,222,128,0.12)", border: "1px solid rgba(74,222,128,0.30)", color: "var(--accent)" }}>
-              <span>🏅</span> Member since {memberSince(profile.createdAt)}
+              <span>🏅</span> {t("prof.memberSinceShort")} {memberSince(profile.createdAt)}
             </span>
           </div>
         </div>
@@ -316,14 +325,14 @@ export default function ProfilePage() {
             border: saved ? "1px solid rgba(74,222,128,0.4)" : undefined,
           }}
         >
-          {saved ? "✓ Saved!" : "Save Changes"}
+          {saved ? t("prof.saved") : t("prof.saveChanges")}
         </button>
       </div>
 
       {/* Add social link sheet */}
       {socialOpen && (
-        <Sheet title="Add Social Link" onClose={() => setSocialOpen(false)}>
-          <p className="text-text-secondary text-[10px] uppercase tracking-wide mb-2 px-1">Platform</p>
+        <Sheet title={t("prof.addSocialLink")} onClose={() => setSocialOpen(false)}>
+          <p className="text-text-secondary text-[10px] uppercase tracking-wide mb-2 px-1">{t("prof.platform")}</p>
           <div className="flex flex-wrap gap-2 mb-4">
             {SOCIAL_PLATFORMS.map((p) => (
               <button
@@ -341,7 +350,7 @@ export default function ProfilePage() {
             ))}
           </div>
           <div className="rounded-2xl px-4 py-3 liquid-glass mb-4">
-            <p className="text-text-secondary text-[10px] mb-1 uppercase tracking-wide">URL or Handle</p>
+            <p className="text-text-secondary text-[10px] mb-1 uppercase tracking-wide">{t("prof.urlHandle")}</p>
             <input
               autoFocus
               value={socialUrl}
@@ -358,19 +367,19 @@ export default function ProfilePage() {
             className="w-full py-3 rounded-2xl text-sm font-semibold"
             style={socialUrl.trim() ? { background: "linear-gradient(135deg, #4ADE80, #22D3EE)", color: "#050A14" } : { background: "var(--glass-bg)", border: "0.5px solid var(--glass-border)", color: "var(--text-3)" }}
           >
-            Add Link
+            {t("prof.addLink")}
           </button>
         </Sheet>
       )}
 
       {/* Add trusted person sheet */}
       {trustedOpen && (
-        <Sheet title="Add Trusted Person" onClose={() => setTrustedOpen(false)}>
+        <Sheet title={t("prof.addTrustedPerson")} onClose={() => setTrustedOpen(false)}>
           <div className="space-y-2 mb-4">
             {[
-              { label: "Name", value: tpName, set: setTpName, placeholder: "Full name" },
-              { label: "Relationship", value: tpRelationship, set: setTpRelationship, placeholder: "e.g. Spouse, Attorney" },
-              { label: "Email", value: tpEmail, set: setTpEmail, placeholder: "Email address" },
+              { label: t("prof.name"), value: tpName, set: setTpName, placeholder: t("prof.name.ph") },
+              { label: t("prof.relationship"), value: tpRelationship, set: setTpRelationship, placeholder: t("prof.relationship.ph") },
+              { label: t("prof.email"), value: tpEmail, set: setTpEmail, placeholder: t("prof.email.ph") },
             ].map((f) => (
               <div key={f.label} className="rounded-2xl px-4 py-3 liquid-glass">
                 <p className="text-text-secondary text-[10px] mb-1 uppercase tracking-wide">{f.label}</p>
@@ -384,7 +393,7 @@ export default function ProfilePage() {
               </div>
             ))}
           </div>
-          <p className="text-text-secondary text-[10px] uppercase tracking-wide mb-2 px-1">Permissions</p>
+          <p className="text-text-secondary text-[10px] uppercase tracking-wide mb-2 px-1">{t("prof.permissions")}</p>
           <div className="flex flex-wrap gap-2 mb-4">
             {TRUSTED_PERMISSIONS.map((p) => (
               <button
@@ -397,7 +406,7 @@ export default function ProfilePage() {
                     : { background: "var(--glass-bg)", border: "0.5px solid var(--glass-border)", color: "var(--text-2)" }
                 }
               >
-                {p}
+                {PERM_KEYS[p] ? t(PERM_KEYS[p]) : p}
               </button>
             ))}
           </div>
@@ -407,7 +416,7 @@ export default function ProfilePage() {
             className="w-full py-3 rounded-2xl text-sm font-semibold"
             style={tpName.trim() ? { background: "linear-gradient(135deg, #4ADE80, #22D3EE)", color: "#050A14" } : { background: "var(--glass-bg)", border: "0.5px solid var(--glass-border)", color: "var(--text-3)" }}
           >
-            Add Trusted Person
+            {t("prof.addTrustedPerson")}
           </button>
         </Sheet>
       )}
