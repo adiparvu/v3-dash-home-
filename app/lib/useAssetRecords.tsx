@@ -14,10 +14,11 @@ const MAX_DATAURL = 1_500_000; // ~1.5MB cap before we store metadata only
 export type MaintRec = { id: string; title: string; date: string; done: boolean };
 export type DocRec = { id: string; name: string; size: string; dataUrl?: string };
 export type Loan = { borrower: string; contact?: string; since: string; note?: string };
-type Records = { maintenance: MaintRec[]; documents: DocRec[]; loan?: Loan | null };
+export type LoanHistoryEntry = Loan & { returnedAt: string };
+type Records = { maintenance: MaintRec[]; documents: DocRec[]; loan?: Loan | null; loanHistory?: LoanHistoryEntry[] };
 type AllRecords = Record<string, Records>;
 
-const EMPTY: Records = { maintenance: [], documents: [], loan: null };
+const EMPTY: Records = { maintenance: [], documents: [], loan: null, loanHistory: [] };
 
 function readAll(): AllRecords {
   if (typeof window === "undefined") return {};
@@ -85,7 +86,16 @@ export function useAssetRecords(slug: string) {
     [mutate],
   );
   const setLoan = useCallback((loan: Loan) => mutate((cur) => ({ ...cur, loan })), [mutate]);
-  const clearLoan = useCallback(() => mutate((cur) => ({ ...cur, loan: null })), [mutate]);
+  const clearLoan = useCallback(
+    () =>
+      mutate((cur) => {
+        if (!cur.loan) return { ...cur, loan: null };
+        // On return, archive the active loan into history (who/when).
+        const entry: LoanHistoryEntry = { ...cur.loan, returnedAt: new Date().toISOString().slice(0, 10) };
+        return { ...cur, loan: null, loanHistory: [entry, ...(cur.loanHistory ?? [])] };
+      }),
+    [mutate],
+  );
 
   return { records, addMaintenance, toggleMaintenance, removeMaintenance, addDocument, removeDocument, setLoan, clearLoan };
 }

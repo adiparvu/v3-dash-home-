@@ -10,8 +10,9 @@ import { useSchedules } from "../lib/useSmartHome";
 import { useConditions } from "../lib/useConditions";
 import { evaluateRules } from "../lib/automationRules";
 import { useT, type MessageKey } from "../lib/i18n";
+import { readCustomAutomations, type CustomAutomation } from "../lib/customAutomations";
 
-type Automation = (typeof automations)[number];
+type Automation = CustomAutomation;
 
 const AUTO_KEY = "prvio-automations-v1";
 
@@ -105,6 +106,7 @@ const automations = [
 
 export default function AutomationsPage() {
   const [overrides, setOverrides] = useState<Record<string, boolean>>({});
+  const [customAutos, setCustomAutos] = useState<CustomAutomation[]>([]);
   const [mounted, setMounted] = useState(false);
   const [showTemplates, setShowTemplates] = useState(false);
   const [areaFilter, setAreaFilter] = useState("All");
@@ -117,6 +119,7 @@ export default function AutomationsPage() {
 
   useEffect(() => {
     setMounted(true);
+    setCustomAutos(readCustomAutomations());
     try {
       const raw = localStorage.getItem(AUTO_KEY);
       if (raw) setOverrides(JSON.parse(raw));
@@ -134,14 +137,16 @@ export default function AutomationsPage() {
     }
   }, [overrides, mounted]);
 
-  const items = automations.map((a) => ({
+  const allAutomations: Automation[] = [...customAutos, ...automations];
+
+  const items = allAutomations.map((a) => ({
     ...a,
     active: a.id in overrides ? overrides[a.id] : a.active,
   }));
 
   const toggle = (id: string) =>
     setOverrides((o) => {
-      const current = id in o ? o[id] : automations.find((a) => a.id === id)?.active ?? false;
+      const current = id in o ? o[id] : allAutomations.find((a) => a.id === id)?.active ?? false;
       return { ...o, [id]: !current };
     });
 
@@ -290,7 +295,7 @@ export default function AutomationsPage() {
 
       {/* Area filter (group automations by zone) */}
       <div className="px-4 mb-3 flex gap-2 overflow-x-auto scrollbar-hide">
-        {["All", ...Array.from(new Set(automations.map((a) => a.zone)))].map((area) => (
+        {["All", ...Array.from(new Set(allAutomations.map((a) => a.zone)))].map((area) => (
           <button key={area} onClick={() => setAreaFilter(area)} className="px-3.5 py-1.5 rounded-full text-xs font-medium whitespace-nowrap flex-shrink-0 transition-all"
             style={areaFilter === area ? { background: "var(--accent)", color: "#050A14" } : { background: "rgba(255,255,255,0.07)", color: "var(--text-3)", border: "1px solid rgba(255,255,255,0.09)" }}>
             {area === "All" ? t("auto.allZones") : area}

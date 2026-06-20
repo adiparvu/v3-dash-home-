@@ -2,8 +2,10 @@
 
 import { useState } from "react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import StatusBar from "../../components/layout/StatusBar";
 import { useT, type MessageKey } from "../../lib/i18n";
+import { addCustomAutomation } from "../../lib/customAutomations";
 
 const triggerTypes: { value: string; labelKey: MessageKey; icon: string; descKey: MessageKey }[] = [
   { value: "schedule", labelKey: "anew.trigSchedule", icon: "⏰", descKey: "anew.trigScheduleDesc" },
@@ -29,8 +31,29 @@ const ZONE_KEY: Record<string, MessageKey> = {
 
 const STEP_KEYS: MessageKey[] = ["anew.stepNameZone", "anew.stepTrigger", "anew.stepAction"];
 
+// Readable English summaries stored with the created automation (the list
+// renders these strings directly, mirroring the seeded examples).
+const TRIGGER_TEXT: Record<string, string> = {
+  schedule: "On a schedule",
+  sensor: "When a sensor reading crosses a threshold",
+  event: "When an event occurs",
+  manual: "Manually triggered",
+};
+const ACTION_TEXT: Record<string, string> = {
+  notification: "Send a notification",
+  irrigation: "Start irrigation",
+  ventilation: "Adjust ventilation",
+  report: "Generate a report",
+  email: "Send an email summary",
+  task: "Create a task",
+};
+const ACTION_ICON: Record<string, string> = {
+  notification: "🔔", irrigation: "💧", ventilation: "💨", report: "📊", email: "📧", task: "✅",
+};
+
 export default function NewAutomationPage() {
   const t = useT();
+  const router = useRouter();
   const [step, setStep] = useState(1);
   const [name, setName] = useState("");
   const [selectedZone, setSelectedZone] = useState("");
@@ -42,6 +65,24 @@ export default function NewAutomationPage() {
     selectedZone && selectedTrigger,
     selectedAction,
   ];
+
+  const handleCreate = () => {
+    if (!canProceed[2]) return;
+    addCustomAutomation({
+      id: `custom-${Date.now()}`,
+      name: name.trim(),
+      trigger: TRIGGER_TEXT[selectedTrigger] ?? selectedTrigger,
+      action: ACTION_TEXT[selectedAction] ?? selectedAction,
+      zone: selectedZone,
+      active: true,
+      icon: ACTION_ICON[selectedAction] ?? "⚙️",
+      accentColor: "#4ADE80",
+      lastRun: "—",
+      runsToday: 0,
+      successRate: 100,
+    });
+    router.push("/automations");
+  };
 
   return (
     <div className="min-h-screen pb-10" style={{ background: "#050A14" }}>
@@ -179,7 +220,7 @@ export default function NewAutomationPage() {
             </button>
           )}
           <button
-            onClick={() => step < 3 ? setStep((s) => s + 1) : undefined}
+            onClick={() => (step < 3 ? setStep((s) => s + 1) : handleCreate())}
             disabled={!canProceed[step - 1]}
             className="flex-1 rounded-2xl py-3.5 text-sm font-semibold transition-all"
             style={

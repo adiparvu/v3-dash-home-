@@ -2,8 +2,10 @@
 
 import { useState } from "react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import StatusBar from "../../components/layout/StatusBar";
 import { useT } from "../../lib/i18n";
+import { addCustomProperty, slugifyProperty } from "../../lib/customProperties";
 
 const fields = [
   { key: "name", labelKey: "pnew.name", phKey: "pnew.namePh", type: "text" },
@@ -15,6 +17,7 @@ const fields = [
 
 export default function NewPropertyPage() {
   const t = useT();
+  const router = useRouter();
   const [form, setForm] = useState<Record<string, string>>({
     name: "",
     address: "",
@@ -30,7 +33,21 @@ export default function NewPropertyPage() {
   };
 
   const handleSubmit = () => {
-    // Placeholder — would call API
+    const name = form.name.trim();
+    if (!name) return;
+    const areaSqm = parseFloat(form.area);
+    const areaHa = Number.isFinite(areaSqm) && areaSqm > 0 ? Math.round((areaSqm / 10000) * 10) / 10 : null;
+    addCustomProperty({
+      id: slugifyProperty(name),
+      name,
+      location: [form.city.trim(), form.country.trim()].filter(Boolean).join(", ") || "—",
+      areaHa,
+      zones: null,
+      objects: null,
+      health: null,
+      valueLabel: "—",
+    });
+    router.push("/properties");
   };
 
   return (

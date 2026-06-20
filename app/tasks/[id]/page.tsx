@@ -2,17 +2,16 @@
 
 import Link from "next/link";
 import { useState } from "react";
+import { useParams, useRouter } from "next/navigation";
 import StatusBar from "../../components/layout/StatusBar";
 import { useT } from "../../lib/i18n";
+import { useTasks } from "../../lib/useTasks";
 
-const taskData = {
-  id: "1",
+// Static metadata not modelled on the task record (prototype placeholders).
+const taskMeta = {
   assignedTo: "James Thornton",
   createdBy: "Sarah Mitchell",
   createdAt: "Jun 14, 2026",
-  priority: "high",
-  status: "pending",
-  progress: 0,
 };
 
 const BackIcon = () => (
@@ -48,11 +47,18 @@ const NoteEmptyIcon = () => (
 
 export default function TaskDetailPage() {
   const t = useT();
-  const task = taskData; // In a real app, look up by params.id
-  const [status, setStatus] = useState<"pending" | "in_progress" | "completed">(
-    task.status as "pending" | "in_progress" | "completed"
-  );
-  const [progress, setProgress] = useState(task.progress);
+  const params = useParams();
+  const router = useRouter();
+  const { mounted, findTask, setStatus: setTaskStatus, notesMap, addNote, removeTask } = useTasks();
+  const taskId = Number(params.id);
+  const task = findTask(taskId);
+
+  const status = (task?.status ?? "pending") as "pending" | "in_progress" | "completed";
+  const progress = status === "completed" ? 100 : status === "in_progress" ? 40 : 0;
+  const notes = notesMap[taskId] ?? [];
+
+  const [noteOpen, setNoteOpen] = useState(false);
+  const [noteText, setNoteText] = useState("");
 
   const priorityConfig = {
     high: { label: t("prio.high"), color: "#EF4444", bg: "rgba(239,68,68,0.14)", border: "rgba(239,68,68,0.25)" },
@@ -66,26 +72,52 @@ export default function TaskDetailPage() {
     completed: { label: t("tdet.statusCompleted"), color: "#4ADE80", bg: "rgba(74,222,128,0.14)", border: "rgba(74,222,128,0.25)" },
   };
 
-  const pCfg = priorityConfig[task.priority as keyof typeof priorityConfig];
-  const sCfg = statusConfig[status];
+  if (!task) {
+    if (!mounted) return null;
+    return (
+      <div className="min-h-screen pb-10 flex flex-col" style={{ background: "var(--bg-1)" }}>
+        <StatusBar />
+        <div className="flex-1 flex flex-col items-center justify-center gap-3 px-8 text-center">
+          <NoteEmptyIcon />
+          <p className="font-bold text-base" style={{ color: "var(--text-1)" }}>{t("tdet.notFound")}</p>
+          <p className="text-sm" style={{ color: "var(--text-3)" }}>{t("tdet.notFoundHint")}</p>
+          <Link
+            href="/tasks"
+            className="mt-2 px-4 py-2 rounded-xl text-sm font-semibold"
+            style={{ background: "rgba(74,222,128,0.14)", color: "#4ADE80", border: "1px solid rgba(74,222,128,0.25)" }}
+          >
+            {t("tdet.backToTasks")}
+          </Link>
+        </div>
+      </div>
+    );
+  }
 
-  const handleMarkInProgress = () => {
-    setStatus("in_progress");
-    setProgress(40);
+  const pCfg = priorityConfig[task.priority as keyof typeof priorityConfig] ?? priorityConfig.normal;
+  const sCfg = statusConfig[status];
+  const zoneHref = `/zones/${task.zone.toLowerCase().replace(/\s+/g, "-")}`;
+
+  const handleMarkInProgress = () => setTaskStatus(taskId, "in_progress");
+  const handleMarkComplete = () => setTaskStatus(taskId, "completed");
+
+  const handleSaveNote = () => {
+    addNote(taskId, noteText);
+    setNoteText("");
+    setNoteOpen(false);
   };
 
-  const handleMarkComplete = () => {
-    setStatus("completed");
-    setProgress(100);
+  const handleDelete = () => {
+    removeTask(taskId);
+    router.push("/tasks");
   };
 
   const detailRows = [
-    { label: t("tdet.rowZone"), value: t("tdet.zone"), isLink: true, href: "/zones/orchard" },
-    { label: t("tdet.rowCategory"), value: t("tdet.category") },
-    { label: t("tdet.rowDue"), value: t("tdet.due"), color: "#F59E0B" },
-    { label: t("tdet.rowAssigned"), value: task.assignedTo },
-    { label: t("tdet.rowCreatedBy"), value: task.createdBy },
-    { label: t("tdet.rowCreatedAt"), value: task.createdAt, color: "var(--text-3)" },
+    { label: t("tdet.rowZone"), value: task.zone, isLink: true, href: zoneHref },
+    { label: t("tdet.rowCategory"), value: task.category },
+    { label: t("tdet.rowDue"), value: task.due, color: task.dueColor },
+    { label: t("tdet.rowAssigned"), value: taskMeta.assignedTo },
+    { label: t("tdet.rowCreatedBy"), value: taskMeta.createdBy },
+    { label: t("tdet.rowCreatedAt"), value: taskMeta.createdAt, color: "var(--text-3)" },
   ];
 
   return (
@@ -101,7 +133,7 @@ export default function TaskDetailPage() {
         >
           <BackIcon />
         </Link>
-        <h1 className="font-bold text-lg truncate flex-1" style={{ color: "var(--text-1)" }}>{t("tdet.title")}</h1>
+        <h1 className="font-bold text-lg truncate flex-1" style={{ color: "var(--text-1)" }}>{task.title}</h1>
         <button
           className="w-9 h-9 rounded-2xl flex items-center justify-center flex-shrink-0"
           style={{ background: "rgba(255,255,255,0.06)", border: "0.5px solid var(--glass-border)" }}
@@ -144,9 +176,9 @@ export default function TaskDetailPage() {
               className="w-10 h-10 rounded-2xl flex items-center justify-center text-xl flex-shrink-0"
               style={{ background: "rgba(74,222,128,0.10)", border: "1px solid rgba(74,222,128,0.20)" }}
             >
-              💧
+              {task.icon}
             </div>
-            <h2 className="font-bold text-base leading-snug" style={{ color: "var(--text-1)" }}>{t("tdet.title")}</h2>
+            <h2 className="font-bold text-base leading-snug" style={{ color: "var(--text-1)" }}>{task.title}</h2>
           </div>
           <p className="text-sm leading-relaxed" style={{ color: "var(--text-2)" }}>
             {t("tdet.desc")}
@@ -261,6 +293,7 @@ export default function TaskDetailPage() {
               {t("tdet.notes")}
             </p>
             <button
+              onClick={() => setNoteOpen((v) => !v)}
               className="flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-medium active:scale-95 transition-transform"
               style={{ background: "rgba(255,255,255,0.07)", color: "var(--text-2)", border: "0.5px solid var(--glass-border)" }}
             >
@@ -268,14 +301,66 @@ export default function TaskDetailPage() {
               {t("tdet.addNote")}
             </button>
           </div>
-          {/* Empty state */}
-          <div className="flex flex-col items-center py-4 gap-2">
-            <NoteEmptyIcon />
-            <p className="text-sm" style={{ color: "var(--text-3)" }}>{t("tdet.noNotes")}</p>
-            <p className="text-xs text-center" style={{ color: "var(--text-3)" }}>
-              {t("tdet.noNotesHint")}
-            </p>
-          </div>
+
+          {/* Note composer */}
+          {noteOpen && (
+            <div className="mb-4">
+              <textarea
+                autoFocus
+                value={noteText}
+                onChange={(e) => setNoteText(e.target.value)}
+                placeholder={t("tdet.notePh")}
+                rows={3}
+                className="w-full rounded-xl px-3 py-2.5 text-sm outline-none resize-none"
+                style={{ background: "var(--glass-bg)", border: "0.5px solid var(--glass-border)", color: "var(--text-1)", caretColor: "var(--accent)" }}
+              />
+              <div className="flex gap-2 mt-2">
+                <button
+                  onClick={() => { setNoteOpen(false); setNoteText(""); }}
+                  className="flex-1 py-2 rounded-xl text-xs font-semibold"
+                  style={{ background: "var(--glass-bg)", color: "var(--text-3)", border: "0.5px solid var(--glass-border)" }}
+                >
+                  {t("tdet.cancel")}
+                </button>
+                <button
+                  onClick={handleSaveNote}
+                  disabled={!noteText.trim()}
+                  className="flex-1 py-2 rounded-xl text-xs font-semibold"
+                  style={noteText.trim()
+                    ? { background: "rgba(74,222,128,0.14)", color: "#4ADE80", border: "1px solid rgba(74,222,128,0.25)" }
+                    : { background: "var(--glass-bg)", color: "var(--text-3)", border: "0.5px solid var(--glass-border)" }}
+                >
+                  {t("tdet.saveNote")}
+                </button>
+              </div>
+            </div>
+          )}
+
+          {notes.length === 0 ? (
+            /* Empty state */
+            <div className="flex flex-col items-center py-4 gap-2">
+              <NoteEmptyIcon />
+              <p className="text-sm" style={{ color: "var(--text-3)" }}>{t("tdet.noNotes")}</p>
+              <p className="text-xs text-center" style={{ color: "var(--text-3)" }}>
+                {t("tdet.noNotesHint")}
+              </p>
+            </div>
+          ) : (
+            <div className="space-y-2">
+              {notes.map((n) => (
+                <div
+                  key={n.id}
+                  className="rounded-xl px-3 py-2.5"
+                  style={{ background: "rgba(255,255,255,0.04)", border: "1px solid rgba(255,255,255,0.07)" }}
+                >
+                  <p className="text-sm leading-snug" style={{ color: "var(--text-1)" }}>{n.text}</p>
+                  <p className="text-[10px] mt-1" style={{ color: "var(--text-3)" }}>
+                    {new Date(n.at).toLocaleString()}
+                  </p>
+                </div>
+              ))}
+            </div>
+          )}
         </div>
 
         {/* Related section */}
@@ -291,13 +376,13 @@ export default function TaskDetailPage() {
           </p>
           <div className="space-y-2">
             <Link
-              href="/zones/orchard"
+              href={zoneHref}
               className="flex items-center gap-3 py-2 rounded-xl px-3 active:scale-[0.98] transition-transform"
               style={{ background: "rgba(255,255,255,0.04)", border: "1px solid rgba(255,255,255,0.07)" }}
             >
-              <span className="text-lg">🍎</span>
+              <span className="text-lg">{task.icon}</span>
               <div className="flex-1">
-                <p className="text-sm font-medium" style={{ color: "var(--text-1)" }}>{t("tdet.orchardZone")}</p>
+                <p className="text-sm font-medium" style={{ color: "var(--text-1)" }}>{task.zone}</p>
                 <p className="text-xs" style={{ color: "var(--text-3)" }}>{t("tdet.viewZone")}</p>
               </div>
               <svg width="14" height="14" viewBox="0 0 24 24" fill="none">
@@ -322,6 +407,7 @@ export default function TaskDetailPage() {
 
         {/* Delete button */}
         <button
+          onClick={handleDelete}
           className="w-full py-3 rounded-2xl flex items-center justify-center gap-2 text-sm font-semibold active:scale-[0.98] transition-transform mt-2"
           style={{ border: "1px solid rgba(239,68,68,0.30)", color: "#EF4444", background: "rgba(239,68,68,0.06)" }}
         >

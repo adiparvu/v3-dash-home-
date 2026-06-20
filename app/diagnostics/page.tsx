@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Link from "next/link";
 import StatusBar from "../components/layout/StatusBar";
 import BottomNav from "../components/layout/BottomNav";
@@ -8,6 +8,7 @@ import DetailDisclosureButton from "../components/DetailDisclosureButton";
 import DetailSheet from "../components/DetailSheet";
 import { deriveFaults, faultSummary, SEVERITY_META, DEMO_READINGS, type PossibleFault, type FaultSeverity } from "../lib/diagnostics";
 import { useT, type MessageKey } from "../lib/i18n";
+import { takeScanContext } from "../lib/scanContext";
 
 const SEV_KEYS: Record<FaultSeverity, MessageKey> = { critical: "sev.critical", warning: "sev.warning", watch: "sev.watch" };
 
@@ -16,6 +17,13 @@ export default function DiagnosticsPage() {
   const faults = deriveFaults(DEMO_READINGS);
   const summary = faultSummary(faults);
   const [selected, setSelected] = useState<PossibleFault | null>(null);
+  const [scanAsset, setScanAsset] = useState<string | null>(null);
+
+  // Show context when arriving from a scanned asset's "Report Issue".
+  useEffect(() => {
+    const ctx = takeScanContext();
+    if (ctx) setScanAsset(ctx.assetName);
+  }, []);
 
   return (
     <div className="min-h-screen pb-28" style={{ background: "var(--bg-1)", color: "var(--text-1)" }}>
@@ -30,6 +38,22 @@ export default function DiagnosticsPage() {
           <p className="text-text-secondary text-xs">{summary.total} {t("diag.possibleFaultsWord")} {t("diag.detected")}</p>
         </div>
       </div>
+
+      {/* Scanned-asset context banner */}
+      {scanAsset && (
+        <div className="px-4 mb-4">
+          <div className="rounded-2xl px-4 py-3 flex items-center gap-2.5 liquid-glass" style={{ border: "1px solid rgba(34,211,238,0.30)" }}>
+            <span className="text-lg">🔗</span>
+            <div className="flex-1 min-w-0">
+              <p className="text-[10px] font-semibold uppercase tracking-widest" style={{ color: "var(--text-3)" }}>{t("diag.reportingFor")}</p>
+              <p className="text-sm font-medium truncate" style={{ color: "var(--text-1)" }}>{scanAsset}</p>
+            </div>
+            <button onClick={() => setScanAsset(null)} aria-label="Dismiss" className="w-7 h-7 rounded-full flex items-center justify-center flex-shrink-0" style={{ color: "var(--text-3)" }}>
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none"><path d="M18 6L6 18M6 6l12 12" stroke="currentColor" strokeWidth="2" strokeLinecap="round" /></svg>
+            </button>
+          </div>
+        </div>
+      )}
 
       {/* Severity summary */}
       <div className="px-4 mb-4 grid grid-cols-3 gap-2">

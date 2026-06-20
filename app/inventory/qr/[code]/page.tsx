@@ -8,6 +8,7 @@ import { useT, type MessageKey } from "../../../lib/i18n";
 import { useStore } from "../../../lib/store";
 import { useAssets } from "../../../lib/useAssets";
 import { useAssetRecords } from "../../../lib/useAssetRecords";
+import { setScanContext } from "../../../lib/scanContext";
 import QrPrinter from "../../../components/inventory/QrPrinter";
 
 // Translate stored (English) category/location/status values for display.
@@ -342,7 +343,10 @@ export default function QRResultPage() {
         </button>
 
         <button
-          onClick={() => router.push("/tasks")}
+          onClick={() => {
+            setScanContext({ assetName: resolved.name, location: resolved.location, assetId: resolved.assetId });
+            router.push("/tasks");
+          }}
           className="w-full py-3.5 rounded-2xl text-sm font-semibold mb-3 active:scale-[0.98] transition-transform"
           style={{
             background: "rgba(255,255,255,0.07)",
@@ -355,7 +359,10 @@ export default function QRResultPage() {
         </button>
 
         <button
-          onClick={() => router.push("/diagnostics")}
+          onClick={() => {
+            setScanContext({ assetName: resolved.name, location: resolved.location, assetId: resolved.assetId });
+            router.push("/diagnostics");
+          }}
           className="w-full py-3.5 rounded-2xl text-sm font-semibold mb-6 active:scale-[0.98] transition-transform"
           style={{
             background: "rgba(239,68,68,0.08)",

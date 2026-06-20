@@ -246,6 +246,10 @@ export default function InventoryDetailPage() {
   const extraValue = custom?.value?.trim() ?? "";
   const extraNotes = custom?.notes?.trim() ?? "";
 
+  // Sample maintenance/document rows are illustrative — only show them on the
+  // original demo seed assets, never on custom or synced/real ones.
+  const showSamples = !custom && !synced && !!assetData[params.id];
+
   return (
     <div className="min-h-screen" style={{ background: "var(--bg-1)" }}>
       {/* Hero Section */}
@@ -435,6 +439,27 @@ export default function InventoryDetailPage() {
               )}
             </div>
 
+            {/* Loan history — who borrowed it and when it came back */}
+            {(records.loanHistory?.length ?? 0) > 0 && (
+              <div className="liquid-glass rounded-2xl p-4 mb-4">
+                <p className="text-xs font-semibold uppercase tracking-widest mb-3" style={{ color: "var(--text-3)" }}>{t("loan.history")}</p>
+                <div className="space-y-3">
+                  {records.loanHistory!.map((h, i) => (
+                    <div key={`${h.borrower}-${h.returnedAt}-${i}`} className="flex items-start gap-3">
+                      <span className="text-base mt-0.5">↩️</span>
+                      <div className="flex-1 min-w-0">
+                        <p className="text-sm font-medium" style={{ color: "var(--text-1)" }}>{h.borrower}</p>
+                        <p className="text-xs mt-0.5" style={{ color: "var(--text-3)" }}>
+                          {h.since} → {t("loan.returned")} {h.returnedAt}
+                        </p>
+                        {h.note && <p className="text-xs mt-0.5" style={{ color: "var(--text-2)" }}>{h.note}</p>}
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+
             {/* Quick Actions */}
             <p className="text-xs font-semibold uppercase tracking-widest mb-3" style={{ color: "var(--text-3)" }}>
               {t("idet.quickActions")}
@@ -527,8 +552,8 @@ export default function InventoryDetailPage() {
                   </div>
                 );
               })}
-              {/* Sample maintenance history */}
-              {maintenanceItems.map((item, i) => (
+              {/* Sample maintenance history (demo seed assets only) */}
+              {showSamples && maintenanceItems.map((item, i) => (
                 <div
                   key={item.titleKey}
                   className="flex items-center justify-between px-4 py-4"
@@ -550,6 +575,12 @@ export default function InventoryDetailPage() {
                   </span>
                 </div>
               ))}
+              {/* Empty state when there is nothing to show */}
+              {records.maintenance.length === 0 && !showSamples && (
+                <div className="px-4 py-8 text-center">
+                  <p className="text-sm" style={{ color: "var(--text-3)" }}>{t("idet.noMaintenance")}</p>
+                </div>
+              )}
             </div>
 
             <button
@@ -598,8 +629,8 @@ export default function InventoryDetailPage() {
                   <button onClick={() => removeDoc(doc.id)} aria-label={t("idet.remove")} className="text-sm px-1 flex-shrink-0" style={{ color: "#EF4444" }}>✕</button>
                 </div>
               ))}
-              {/* Sample documents */}
-              {documents.map((doc, i) => (
+              {/* Sample documents (demo seed assets only) */}
+              {showSamples && documents.map((doc, i) => (
                 <div
                   key={doc.nameKey}
                   className="flex items-center gap-3.5 px-4 py-4"
@@ -612,6 +643,12 @@ export default function InventoryDetailPage() {
                   </div>
                 </div>
               ))}
+              {/* Empty state when there is nothing to show */}
+              {userDocs.length === 0 && !showSamples && (
+                <div className="px-4 py-8 text-center">
+                  <p className="text-sm" style={{ color: "var(--text-3)" }}>{t("idet.noDocuments")}</p>
+                </div>
+              )}
             </div>
 
             <input

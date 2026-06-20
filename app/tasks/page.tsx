@@ -1,95 +1,16 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import Link from "next/link";
 import StatusBar from "../components/layout/StatusBar";
 import BottomNav from "../components/layout/BottomNav";
 import { useT, type MessageKey } from "../lib/i18n";
+import { useTasks, type Task } from "../lib/useTasks";
+import { takeScanContext } from "../lib/scanContext";
 
 const filters = ["All", "Pending", "In Progress", "Completed"];
 const FILTER_KEYS: Record<string, MessageKey> = { All: "f.all", Pending: "f.pending", "In Progress": "f.inProgress", Completed: "f.completed" };
 const PRIO_KEYS: Record<string, MessageKey> = { high: "prio.high", normal: "prio.normal", low: "prio.low", medium: "prio.medium" };
-
-const TASKS_KEY = "prvio-tasks-done-v1";
-
-const seedTasks = [
-  {
-    id: 1,
-    title: "Irrigation System Maintenance",
-    zone: "Orchard",
-    priority: "high",
-    status: "pending",
-    due: "Today",
-    dueColor: "#EF4444",
-    category: "Maintenance",
-    icon: "💧",
-  },
-  {
-    id: 2,
-    title: "Greenhouse CO₂ Calibration",
-    zone: "Greenhouse",
-    priority: "high",
-    status: "in_progress",
-    due: "Today",
-    dueColor: "#F97316",
-    category: "Inspection",
-    icon: "🏡",
-  },
-  {
-    id: 3,
-    title: "Forest Health Survey",
-    zone: "Forest",
-    priority: "normal",
-    status: "pending",
-    due: "Tomorrow",
-    dueColor: "#9CA3AF",
-    category: "Survey",
-    icon: "🌲",
-  },
-  {
-    id: 4,
-    title: "Lake Water Quality Test",
-    zone: "Lake",
-    priority: "normal",
-    status: "pending",
-    due: "In 3 days",
-    dueColor: "#9CA3AF",
-    category: "Inspection",
-    icon: "💧",
-  },
-  {
-    id: 5,
-    title: "Orchard Pruning Season Prep",
-    zone: "Orchard",
-    priority: "low",
-    status: "pending",
-    due: "Next week",
-    dueColor: "#9CA3AF",
-    category: "Seasonal",
-    icon: "🍎",
-  },
-  {
-    id: 6,
-    title: "Security Camera Firmware Update",
-    zone: "Driveway",
-    priority: "normal",
-    status: "completed",
-    due: "Done",
-    dueColor: "#4ADE80",
-    category: "System",
-    icon: "📷",
-  },
-  {
-    id: 7,
-    title: "Lawn Mower Blade Replacement",
-    zone: "Garden",
-    priority: "normal",
-    status: "completed",
-    due: "Done",
-    dueColor: "#4ADE80",
-    category: "Maintenance",
-    icon: "🌿",
-  },
-];
 
 const priorityConfig = {
   high: { label: "High", color: "#EF4444", bg: "rgba(239,68,68,0.12)" },
@@ -97,56 +18,34 @@ const priorityConfig = {
   low: { label: "Low", color: "#6B7280", bg: "rgba(107,114,128,0.10)" },
 };
 
-const CUSTOM_KEY = "prvio-tasks-custom-v1";
 const zoneChoices = ["Lake", "Forest", "Greenhouse", "Orchard", "Garden", "House", "Driveway"];
 const zoneIcons: Record<string, string> = {
   Lake: "💧", Forest: "🌲", Greenhouse: "🏡", Orchard: "🍎", Garden: "🌿", House: "🏠", Driveway: "📷",
 };
 
-type Task = typeof seedTasks[number];
-
 export default function TasksPage() {
   const t = useT();
   const [activeFilter, setActiveFilter] = useState("All");
-  const [overrides, setOverrides] = useState<Record<number, boolean>>({});
-  const [customTasks, setCustomTasks] = useState<Task[]>([]);
-  const [mounted, setMounted] = useState(false);
+  const { tasks, setStatus, addTask: addTaskRecord } = useTasks();
 
   // Composer state
   const [composerOpen, setComposerOpen] = useState(false);
   const [newTitle, setNewTitle] = useState("");
   const [newZone, setNewZone] = useState("Lake");
   const [newPriority, setNewPriority] = useState<"high" | "normal" | "low">("normal");
+  const [fromScan, setFromScan] = useState(false);
 
+  // Prefill the composer when arriving from a scanned asset's "Add Task".
   useEffect(() => {
-    setMounted(true);
-    try {
-      const raw = localStorage.getItem(TASKS_KEY);
-      if (raw) setOverrides(JSON.parse(raw));
-      const rawC = localStorage.getItem(CUSTOM_KEY);
-      if (rawC) setCustomTasks(JSON.parse(rawC));
-    } catch {
-      /* ignore */
-    }
+    const ctx = takeScanContext();
+    if (!ctx) return;
+    setNewTitle(`${t("tasks.checkPrefix")} ${ctx.assetName}`);
+    const matchedZone = zoneChoices.find((z) => ctx.location.toLowerCase().includes(z.toLowerCase()));
+    if (matchedZone) setNewZone(matchedZone);
+    setFromScan(true);
+    setComposerOpen(true);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
-
-  useEffect(() => {
-    if (!mounted) return;
-    try {
-      localStorage.setItem(TASKS_KEY, JSON.stringify(overrides));
-    } catch {
-      /* ignore */
-    }
-  }, [overrides, mounted]);
-
-  useEffect(() => {
-    if (!mounted) return;
-    try {
-      localStorage.setItem(CUSTOM_KEY, JSON.stringify(customTasks));
-    } catch {
-      /* ignore */
-    }
-  }, [customTasks, mounted]);
 
   const addTask = () => {
     if (!newTitle.trim()) return;
@@ -161,33 +60,15 @@ export default function TasksPage() {
       category: "Custom",
       icon: zoneIcons[newZone] ?? "📋",
     };
-    setCustomTasks((c) => [task, ...c]);
+    addTaskRecord(task);
     setNewTitle("");
     setNewPriority("normal");
     setComposerOpen(false);
-  };
-
-  const statusOf = (t: (typeof seedTasks)[number]): string => {
-    if (t.id in overrides) {
-      if (overrides[t.id]) return "completed";
-      return t.status === "completed" ? "pending" : t.status;
-    }
-    return t.status;
+    setFromScan(false);
   };
 
   const toggle = (id: number, isDone: boolean) =>
-    setOverrides((o) => ({ ...o, [id]: !isDone }));
-
-  const tasks = [...customTasks, ...seedTasks].map((t) => {
-    const status = statusOf(t);
-    const done = status === "completed";
-    return {
-      ...t,
-      status,
-      due: done ? "Done" : t.due,
-      dueColor: done ? "#4ADE80" : t.dueColor,
-    };
-  });
+    setStatus(id, isDone ? "pending" : "completed");
 
   const filtered = tasks.filter((t) => {
     if (activeFilter === "All") return true;
@@ -280,7 +161,7 @@ export default function TasksPage() {
                 </button>
 
                 {/* Content */}
-                <div className="flex-1 min-w-0">
+                <Link href={`/tasks/${task.id}`} className="flex-1 min-w-0">
                   <p className={`text-sm font-medium leading-tight ${task.status === "completed" ? "line-through text-text-tertiary" : ""}`} style={task.status !== "completed" ? { color: "var(--text-1)" } : undefined}>
                     {task.title}
                   </p>
@@ -290,7 +171,7 @@ export default function TasksPage() {
                     <span className="text-text-tertiary text-[10px]">·</span>
                     <span className="text-[10px]" style={{ color: task.dueColor }}>{task.due}</span>
                   </div>
-                </div>
+                </Link>
 
                 {/* Priority badge */}
                 <span
@@ -323,7 +204,12 @@ export default function TasksPage() {
             onClick={(e) => e.stopPropagation()}
           >
             <div className="w-10 h-1 rounded-full mx-auto mb-4" style={{ background: "var(--glass-border)" }} />
-            <h2 className="font-bold text-lg mb-4" style={{ color: "var(--text-1)" }}>{t("tasks.new")}</h2>
+            <h2 className={`font-bold text-lg ${fromScan ? "mb-1" : "mb-4"}`} style={{ color: "var(--text-1)" }}>{t("tasks.new")}</h2>
+            {fromScan && (
+              <p className="text-xs mb-4 flex items-center gap-1.5" style={{ color: "var(--accent)" }}>
+                <span>🔗</span>{t("tasks.fromScan")}
+              </p>
+            )}
 
             <label className="text-xs font-medium block mb-1.5 px-1" style={{ color: "var(--text-2)" }}>{t("tasks.titleField")}</label>
             <div className="rounded-2xl overflow-hidden mb-4" style={{ background: "var(--glass-bg)", border: "0.5px solid var(--glass-border)" }}>
