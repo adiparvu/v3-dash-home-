@@ -24,6 +24,7 @@ const sections: { title: string; tkey: MessageKey; items: { href: string; label:
       { href: "/twin/energy", label: "Energy", icon: "⚡", desc: "Solar, Powerwall & grid flow", badge: "Live" },
       { href: "/twin/floorplan", label: "Floorplan", icon: "🏠", desc: "Live rooms · energy · presence", badge: "Live" },
       { href: "/sensors", label: "Sensors", icon: "📡", desc: "26 connected sensors", badge: "Live" },
+      { href: "/diagnostics", label: "Diagnostics", icon: "🩺", desc: "Possible faults & suggestions", badge: null },
       { href: "/maintenance", label: "Maintenance", icon: "🔧", desc: "Schedule & history", badge: "1 due" },
       { href: "/contractors", label: "Contractors", icon: "👷", desc: "Service providers", badge: null },
     ],

@@ -63,3 +63,17 @@ test("bottom nav deep-links to the tasks surface", async ({ page }) => {
   await page.getByRole("link", { name: "Tasks" }).click();
   await expect(page).toHaveURL(/\/tasks/);
 });
+
+test("diagnostics detail disclosure opens causes + suggestions", async ({ page }) => {
+  await page.goto("/diagnostics");
+  await expect(page.getByRole("heading", { name: "Diagnostics" })).toBeVisible();
+  // Open the first fault's detail sheet via its ⓘ button.
+  await page.getByRole("button", { name: /Details and suggestions for/ }).first().click();
+  const sheet = page.getByRole("dialog");
+  await expect(sheet).toBeVisible();
+  await expect(sheet.getByText("Likely causes")).toBeVisible();
+  await expect(sheet.getByText("Suggestions")).toBeVisible();
+  // Escape closes it.
+  await page.keyboard.press("Escape");
+  await expect(sheet).toBeHidden();
+});

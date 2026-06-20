@@ -522,3 +522,7 @@
     scroll-behavior: auto !important;
   }
 }
+
+/* Detail sheet (Detail Disclosure Button target). */
+@keyframes ddFade { from { opacity: 0; } to { opacity: 1; } }
+@keyframes ddSlideUp { from { transform: translateY(100%); } to { transform: translateY(0); } }

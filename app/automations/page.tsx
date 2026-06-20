@@ -4,7 +4,11 @@ import { useState, useEffect } from "react";
 import Link from "next/link";
 import StatusBar from "../components/layout/StatusBar";
 import BottomNav from "../components/layout/BottomNav";
+import DetailDisclosureButton from "../components/DetailDisclosureButton";
+import DetailSheet from "../components/DetailSheet";
 import { useSchedules } from "../lib/useSmartHome";
+
+type Automation = (typeof automations)[number];
 
 const AUTO_KEY = "prvio-automations-v1";
 
@@ -101,6 +105,7 @@ export default function AutomationsPage() {
   const [mounted, setMounted] = useState(false);
   const [showTemplates, setShowTemplates] = useState(false);
   const [areaFilter, setAreaFilter] = useState("All");
+  const [detail, setDetail] = useState<Automation | null>(null);
   const scheduleHook = useSchedules();
 
   useEffect(() => {
@@ -291,22 +296,80 @@ export default function AutomationsPage() {
                   <p className="text-text-secondary text-xs mt-0.5">→ {auto.action}</p>
                   <p className="text-text-tertiary text-[10px] mt-1">Last run: {auto.lastRun} · {auto.successRate}% success</p>
                 </div>
-                {/* Toggle */}
-                <button
-                  onClick={(e) => { e.preventDefault(); toggle(auto.id); }}
-                  className="w-11 h-6 rounded-full flex-shrink-0 relative transition-all duration-200 mt-1"
-                  style={{ background: auto.active ? "#4ADE80" : "rgba(255,255,255,0.15)" }}
-                >
-                  <div
-                    className="absolute top-0.5 w-5 h-5 rounded-full transition-all duration-200"
-                    style={{ left: auto.active ? "calc(100% - 22px)" : "2px", background: auto.active ? "#050A14" : "rgba(255,255,255,0.5)" }}
+                <div className="flex flex-col items-center gap-2.5 flex-shrink-0">
+                  {/* Toggle */}
+                  <button
+                    onClick={(e) => { e.preventDefault(); toggle(auto.id); }}
+                    aria-label={`${auto.active ? "Disable" : "Enable"} ${auto.name}`}
+                    className="w-11 h-6 rounded-full relative transition-all duration-200"
+                    style={{ background: auto.active ? "#4ADE80" : "rgba(255,255,255,0.15)" }}
+                  >
+                    <div
+                      className="absolute top-0.5 w-5 h-5 rounded-full transition-all duration-200"
+                      style={{ left: auto.active ? "calc(100% - 22px)" : "2px", background: auto.active ? "#050A14" : "rgba(255,255,255,0.5)" }}
+                    />
+                  </button>
+                  {/* Detail disclosure — opens the automation detail sheet */}
+                  <DetailDisclosureButton
+                    onPress={() => setDetail(auto)}
+                    label={`Details for ${auto.name}`}
+                    color={auto.accentColor}
+                    size={24}
                   />
-                </button>
+                </div>
               </div>
             </div>
           </Link>
         ))}
       </div>
+
+      {/* Automation detail sheet (Detail Disclosure Button target) */}
+      <DetailSheet
+        open={detail !== null}
+        onClose={() => setDetail(null)}
+        title={detail?.name ?? ""}
+        icon={detail?.icon}
+        accent={detail?.accentColor}
+      >
+        {detail && (
+          <div className="space-y-4">
+            <div className="flex items-center gap-2">
+              <span className="text-[10px] font-medium px-2 py-0.5 rounded-full" style={{ background: `${detail.accentColor}18`, color: detail.accentColor }}>{detail.zone}</span>
+              <span className="text-[10px] font-medium px-2 py-0.5 rounded-full" style={{ background: detail.active ? "rgba(74,222,128,0.15)" : "var(--glass-bg)", color: detail.active ? "#4ADE80" : "var(--text-3)" }}>{detail.active ? "Active" : "Paused"}</span>
+            </div>
+
+            <div className="rounded-2xl p-3.5 liquid-glass space-y-2.5">
+              <div>
+                <p className="text-text-secondary text-[11px] uppercase tracking-wide">Trigger</p>
+                <p className="text-sm" style={{ color: "var(--text-1)" }}>⚡ {detail.trigger}</p>
+              </div>
+              <div>
+                <p className="text-text-secondary text-[11px] uppercase tracking-wide">Action</p>
+                <p className="text-sm" style={{ color: "var(--text-1)" }}>→ {detail.action}</p>
+              </div>
+            </div>
+
+            <div className="grid grid-cols-3 gap-2">
+              {[
+                { label: "Last run", value: detail.lastRun },
+                { label: "Runs today", value: String(detail.runsToday) },
+                { label: "Success", value: `${detail.successRate}%` },
+              ].map((stat) => (
+                <div key={stat.label} className="rounded-2xl p-3 text-center liquid-glass">
+                  <p className="font-bold text-sm" style={{ color: "var(--text-1)" }}>{stat.value}</p>
+                  <p className="text-text-secondary text-[10px] mt-0.5">{stat.label}</p>
+                </div>
+              ))}
+            </div>
+
+            <Link href={`/automations/${detail.id}`} className="block">
+              <button className="w-full rounded-2xl py-3 text-sm font-medium" style={{ background: "var(--accent)", color: "var(--bg-1)" }}>
+                Open full automation
+              </button>
+            </Link>
+          </div>
+        )}
+      </DetailSheet>
 
       <BottomNav />
     </div>

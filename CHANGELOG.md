@@ -17,6 +17,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   in localStorage prototype mode.
 
 ### Added
+- **Detail Disclosure Buttons + Diagnostics** — added the iOS circled-"i"
+  affordance (`DetailDisclosureButton`) and a reusable `DetailSheet` bottom
+  sheet (backdrop/Escape close, role="dialog"). A new **Diagnostics** screen
+  (`/diagnostics`, in More → Monitoring) surfaces **possible faults** derived
+  from sensor readings by a framework-free engine (`app/lib/diagnostics.ts`,
+  8 tests) — each fault opens a sheet with **likely causes + suggestions**.
+  The disclosure button is also wired into **Automations** (rule trigger/action/
+  stats) and **Sensors** (reading/battery/last-seen) rows. E2E covers opening a
+  diagnostics detail sheet.
 - **Apple native client scaffold (Phase 8)** — a new `apple/` directory starts
   the SwiftUI client track: a Foundation-only **`PrvioKit`** Swift package with a
   versioned REST `APIClient` (`/api/v1`, bearer auth, `{ apiVersion, data }`

@@ -4,6 +4,8 @@ import { useState, useEffect, useRef } from "react";
 import Link from "next/link";
 import StatusBar from "../components/layout/StatusBar";
 import BottomNav from "../components/layout/BottomNav";
+import DetailDisclosureButton from "../components/DetailDisclosureButton";
+import DetailSheet from "../components/DetailSheet";
 
 const sensorCategories = ["All", "Water", "Air", "Soil", "Power"];
 
@@ -66,10 +68,13 @@ function Sparkline({ data, color }: { data: number[]; color: string }) {
   );
 }
 
+type Sensor = (typeof sensors)[number];
+
 export default function SensorsPage() {
   const [category, setCategory] = useState("All");
   const [search, setSearch] = useState("");
   const [series, setSeries] = useState<Record<string, number[]>>({});
+  const [detail, setDetail] = useState<Sensor | null>(null);
   const metaRef = useRef<Record<string, { num: number; decimals: number; unit: string }>>({});
 
   // Seed each sensor's history + start a gentle live random walk
@@ -202,9 +207,50 @@ export default function SensorsPage() {
                 </div>
               )}
             </div>
+            <DetailDisclosureButton onPress={() => setDetail(sensor)} label={`Details for ${sensor.name}`} color={sensor.color} size={22} />
           </div>
         ))}
       </div>
+
+      {/* Sensor detail sheet */}
+      <DetailSheet
+        open={detail !== null}
+        onClose={() => setDetail(null)}
+        title={detail?.name ?? ""}
+        icon={detail?.icon}
+        accent={detail?.color}
+      >
+        {detail && (
+          <div className="space-y-4">
+            <div className="flex items-center gap-2">
+              <span className="text-[10px] font-medium px-2 py-0.5 rounded-full" style={{ background: `${detail.color}18`, color: detail.color }}>{detail.zone}</span>
+              <span className="text-[10px] font-medium px-2 py-0.5 rounded-full" style={{ background: `${statusColors[detail.status]}18`, color: statusColors[detail.status] }}>{detail.status}</span>
+            </div>
+            <div className="grid grid-cols-2 gap-2">
+              {[
+                { label: "Current", value: detail.value },
+                { label: "Category", value: detail.category },
+                { label: "Battery", value: detail.battery === null ? "Mains" : `${detail.battery}%` },
+                { label: "Last seen", value: detail.lastSeen },
+              ].map((stat) => (
+                <div key={stat.label} className="rounded-2xl p-3 liquid-glass">
+                  <p className="text-text-secondary text-[10px]">{stat.label}</p>
+                  <p className="font-bold text-sm mt-0.5" style={{ color: "var(--text-1)" }}>{stat.value}</p>
+                </div>
+              ))}
+            </div>
+            <div className="rounded-2xl p-3.5 liquid-glass">
+              <p className="text-text-secondary text-[11px] uppercase tracking-wide mb-1">Reading</p>
+              <p className="text-sm" style={{ color: "var(--text-1)" }}>{detail.sub}</p>
+            </div>
+            <Link href="/diagnostics" className="block">
+              <button className="w-full rounded-2xl py-3 text-sm font-medium" style={{ background: "var(--accent)", color: "var(--bg-1)" }}>
+                Run diagnostics
+              </button>
+            </Link>
+          </div>
+        )}
+      </DetailSheet>
 
       <BottomNav />
     </div>
