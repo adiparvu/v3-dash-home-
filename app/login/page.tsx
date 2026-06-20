@@ -3,12 +3,14 @@
 import { Suspense, useState } from "react";
 import { useSearchParams } from "next/navigation";
 import { createClient } from "../../lib/supabase/client";
+import { useT } from "../lib/i18n";
 
 const supabaseConfigured = Boolean(
   process.env.NEXT_PUBLIC_SUPABASE_URL && process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
 );
 
 function LoginInner() {
+  const t = useT();
   const params = useSearchParams();
   const redirect = params.get("redirect") ?? "/";
 
@@ -20,7 +22,7 @@ function LoginInner() {
     if (!email.trim()) return;
     if (!supabaseConfigured) {
       setStatus("error");
-      setMessage("Supabase isn't configured yet. Add env vars to enable sign-in.");
+      setMessage(t("login.notConfigured"));
       return;
     }
     setStatus("sending");
@@ -32,17 +34,17 @@ function LoginInner() {
       });
       if (error) throw error;
       setStatus("sent");
-      setMessage(`We sent a sign-in link to ${email.trim()}.`);
+      setMessage(`${t("login.linkSentTo1")} ${email.trim()}.`);
     } catch (err) {
       setStatus("error");
-      setMessage(err instanceof Error ? err.message : "Could not send the link.");
+      setMessage(err instanceof Error ? err.message : t("login.couldNotSend"));
     }
   }
 
   async function oauth(provider: "google" | "apple") {
     if (!supabaseConfigured) {
       setStatus("error");
-      setMessage("Supabase isn't configured yet. Add env vars to enable sign-in.");
+      setMessage(t("login.notConfigured"));
       return;
     }
     const supabase = createClient();
@@ -63,24 +65,24 @@ function LoginInner() {
           🌍
         </div>
         <h1 className="font-bold text-2xl">PRVIO EARTH</h1>
-        <p className="text-text-secondary text-sm mt-1">Private Estate Operating System</p>
+        <p className="text-text-secondary text-sm mt-1">{t("login.tagline")}</p>
       </div>
 
       {!supabaseConfigured && (
         <div className="rounded-2xl px-4 py-3 mb-4 text-xs" style={{ background: "rgba(245,158,11,0.12)", border: "1px solid rgba(245,158,11,0.30)", color: "#F59E0B" }}>
-          Demo mode — Supabase isn’t configured. Sign-in activates once
-          <span className="font-medium"> NEXT_PUBLIC_SUPABASE_URL</span> and the anon key are set.
+          {t("login.demoNote1")}
+          <span className="font-medium"> NEXT_PUBLIC_SUPABASE_URL</span> {t("login.demoNote2")}
         </div>
       )}
 
       {/* Email magic link */}
       <div className="rounded-2xl px-4 py-3 liquid-glass mb-3">
-        <p className="text-text-secondary text-[10px] mb-1 uppercase tracking-wide">Email</p>
+        <p className="text-text-secondary text-[10px] mb-1 uppercase tracking-wide">{t("login.email")}</p>
         <input
           type="email"
           value={email}
           onChange={(e) => setEmail(e.target.value)}
-          placeholder="you@example.com"
+          placeholder={t("login.emailPh")}
           className="w-full bg-transparent text-sm outline-none"
           style={{ caretColor: "var(--accent)", color: "var(--text-1)" }}
           onKeyDown={(e) => { if (e.key === "Enter") sendMagicLink(); }}
@@ -93,7 +95,7 @@ function LoginInner() {
         className="w-full py-3.5 rounded-2xl text-sm font-semibold transition-all mb-3"
         style={email.trim() ? { background: "linear-gradient(135deg, #4ADE80, #22D3EE)", color: "#050A14" } : { background: "var(--glass-bg)", border: "0.5px solid var(--glass-border)", color: "var(--text-3)" }}
       >
-        {status === "sending" ? "Sending…" : status === "sent" ? "✓ Link sent" : "Send sign-in link"}
+        {status === "sending" ? t("login.sending") : status === "sent" ? t("login.linkSent") : t("login.sendLink")}
       </button>
 
       {message && (
@@ -103,7 +105,7 @@ function LoginInner() {
       {/* Divider */}
       <div className="flex items-center gap-3 my-3">
         <div className="flex-1 h-px" style={{ background: "var(--glass-border)" }} />
-        <span className="text-text-tertiary text-[11px]">or continue with</span>
+        <span className="text-text-tertiary text-[11px]">{t("login.orContinue")}</span>
         <div className="flex-1 h-px" style={{ background: "var(--glass-border)" }} />
       </div>
 
@@ -113,7 +115,7 @@ function LoginInner() {
       </div>
 
       <p className="text-text-tertiary text-center text-[11px] mt-8">
-        By continuing you agree to PRVIO Earth’s privacy-by-design data handling.
+        {t("login.privacy")}
       </p>
     </div>
   );

@@ -5,17 +5,19 @@ import Link from "next/link";
 import StatusBar from "../components/layout/StatusBar";
 import { useStore } from "../lib/store";
 import { searchIndex, type SearchEntry, type SearchKind } from "../lib/searchIndex";
+import { useT, type MessageKey } from "../lib/i18n";
 
-const kindMeta: Record<SearchKind, { label: string; color: string }> = {
-  Zone: { label: "Zones", color: "#4ADE80" },
-  Asset: { label: "Assets", color: "#22D3EE" },
-  Task: { label: "Tasks", color: "#F59E0B" },
-  Page: { label: "Pages", color: "#7C3AED" },
+const kindMeta: Record<SearchKind, { labelKey: MessageKey; kindKey: MessageKey; color: string }> = {
+  Zone: { labelKey: "search.zones", kindKey: "search.kZone", color: "#4ADE80" },
+  Asset: { labelKey: "search.assets", kindKey: "search.kAsset", color: "#22D3EE" },
+  Task: { labelKey: "search.tasks", kindKey: "search.kTask", color: "#F59E0B" },
+  Page: { labelKey: "search.pages", kindKey: "search.kPage", color: "#7C3AED" },
 };
 
 const order: SearchKind[] = ["Zone", "Asset", "Task", "Page"];
 
 export default function SearchPage() {
+  const t = useT();
   const [q, setQ] = useState("");
   const { addedZones, addedAssets } = useStore();
 
@@ -42,7 +44,7 @@ export default function SearchPage() {
 
       {/* Header with search field */}
       <div className="px-4 pt-1 pb-3 flex items-center gap-2">
-        <Link href="/zones" aria-label="Back" className="w-9 h-9 rounded-2xl flex items-center justify-center flex-shrink-0 liquid-glass" style={{ color: "var(--text-1)" }}>
+        <Link href="/zones" aria-label={t("search.back")} className="w-9 h-9 rounded-2xl flex items-center justify-center flex-shrink-0 liquid-glass" style={{ color: "var(--text-1)" }}>
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none"><path d="M15 18L9 12L15 6" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" /></svg>
         </Link>
         <div className="flex-1 rounded-2xl flex items-center gap-2 px-3.5 py-2.5" style={{ background: "var(--glass-bg)", border: "0.5px solid var(--glass-border)" }}>
@@ -54,12 +56,12 @@ export default function SearchPage() {
             autoFocus
             value={q}
             onChange={(e) => setQ(e.target.value)}
-            placeholder="Search zones, assets, pages…"
+            placeholder={t("search.placeholder")}
             className="flex-1 bg-transparent text-sm outline-none"
             style={{ color: "var(--text-1)", caretColor: "var(--accent)" }}
           />
           {q && (
-            <button onClick={() => setQ("")} aria-label="Clear" style={{ color: "var(--text-3)" }}>
+            <button onClick={() => setQ("")} aria-label={t("search.clear")} style={{ color: "var(--text-3)" }}>
               <svg width="16" height="16" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="9" fill="currentColor" fillOpacity="0.15" /><path d="M15 9l-6 6M9 9l6 6" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" /></svg>
             </button>
           )}
@@ -70,16 +72,16 @@ export default function SearchPage() {
       {!query && (
         <div className="flex flex-col items-center justify-center px-8 text-center mt-24">
           <span className="text-5xl mb-4">🔍</span>
-          <p className="text-base font-semibold mb-1" style={{ color: "var(--text-1)" }}>Search your estate</p>
-          <p className="text-sm" style={{ color: "var(--text-2)" }}>Find zones, assets, and any page instantly.</p>
+          <p className="text-base font-semibold mb-1" style={{ color: "var(--text-1)" }}>{t("search.emptyTitle")}</p>
+          <p className="text-sm" style={{ color: "var(--text-2)" }}>{t("search.emptyBody")}</p>
         </div>
       )}
 
       {query && grouped.length === 0 && (
         <div className="flex flex-col items-center justify-center px-8 text-center mt-24">
           <span className="text-5xl mb-4">🤷</span>
-          <p className="text-base font-semibold mb-1" style={{ color: "var(--text-1)" }}>No results</p>
-          <p className="text-sm" style={{ color: "var(--text-2)" }}>Nothing matches “{q}”.</p>
+          <p className="text-base font-semibold mb-1" style={{ color: "var(--text-1)" }}>{t("search.noResults")}</p>
+          <p className="text-sm" style={{ color: "var(--text-2)" }}>{t("search.noMatch")} “{q}”.</p>
         </div>
       )}
 
@@ -88,7 +90,7 @@ export default function SearchPage() {
           {grouped.map((g) => (
             <div key={g.kind}>
               <p className="text-xs font-medium uppercase tracking-wide mb-2 px-1" style={{ color: "var(--text-2)" }}>
-                {kindMeta[g.kind].label} · {g.items.length}
+                {t(kindMeta[g.kind].labelKey)} · {g.items.length}
               </p>
               <div className="liquid-glass rounded-2xl overflow-hidden">
                 {g.items.map((item, i) => (
@@ -100,7 +102,7 @@ export default function SearchPage() {
                         <p className="text-xs truncate" style={{ color: "var(--text-2)" }}>{item.subtitle}</p>
                       </div>
                       <span className="text-[9px] font-medium px-1.5 py-0.5 rounded-full flex-shrink-0" style={{ background: `${kindMeta[g.kind].color}1F`, color: kindMeta[g.kind].color }}>
-                        {g.kind}
+                        {t(kindMeta[g.kind].kindKey)}
                       </span>
                     </div>
                   </Link>
