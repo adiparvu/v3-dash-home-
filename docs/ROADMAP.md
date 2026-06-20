@@ -108,10 +108,18 @@ future track that reuses the same versioned backend contracts.
 
 | Item | Status |
 | --- | --- |
-| SwiftUI apps (iPhone, iPad, Mac, Watch, Vision Pro) on shared backend contracts | ⏳ |
+| **iPhone SwiftUI app foundation** (`apple/`) — XcodeGen project, shared layer (versioned `APIClient`, Codable models, GoTrue auth, Keychain), Overview / Properties / Profile screens, demo fallback | 🚧 |
+| Face ID / Touch ID unlock + Keychain session storage | 🚧 |
+| iPad / Mac / Apple Watch / Vision Pro targets on the shared layer | ⏳ |
 | Home / Lock screen / Notification Center widgets | ⏳ |
 | Live Activities (maintenance, deliveries, incidents, inspections) | ⏳ |
-| Face ID / Touch ID / Secure Enclave + Keychain | ⏳ |
+| Secure Enclave key handling for sensitive records | ⏳ |
+| **Backend enabler:** `/api/v1` accepts `Authorization: Bearer` (native token auth) | ⏳ |
+
+> **Increment 1 (current):** the iPhone app foundation lives under [`apple/`](../apple/).
+> It builds in Xcode on macOS (not compiled in the Linux CI). It authenticates via
+> Supabase and renders **demo data** for estate screens until the backend Bearer
+> enabler lands — see [`apple/README.md`](../apple/README.md).
 
 ---
 

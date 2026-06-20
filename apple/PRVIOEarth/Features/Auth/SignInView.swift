@@ -1,0 +1,59 @@
+import SwiftUI
+
+struct SignInView: View {
+    @Environment(AuthStore.self) private var auth
+    @State private var email = ""
+    @State private var password = ""
+
+    var body: some View {
+        VStack(spacing: 20) {
+            Spacer()
+            VStack(spacing: 8) {
+                Circle().fill(Theme.estateGradient).frame(width: 72, height: 72)
+                    .overlay(Image(systemName: "globe.europe.africa.fill").font(.title).foregroundStyle(Theme.bg1))
+                Text("PRVIO EARTH").font(.title.bold()).foregroundStyle(Theme.text1)
+                Text("Private estate operating system")
+                    .font(.subheadline).foregroundStyle(Theme.text2)
+            }
+
+            VStack(spacing: 12) {
+                TextField("you@example.com", text: $email)
+                    .textContentType(.emailAddress)
+                    .keyboardType(.emailAddress)
+                    .textInputAutocapitalization(.never)
+                    .autocorrectionDisabled()
+                    .padding(14).liquidGlass(cornerRadius: 14)
+
+                SecureField("Password", text: $password)
+                    .textContentType(.password)
+                    .padding(14).liquidGlass(cornerRadius: 14)
+
+                if let message = auth.errorMessage {
+                    Text(message).font(.caption).foregroundStyle(Theme.orange)
+                        .frame(maxWidth: .infinity, alignment: .leading)
+                }
+
+                Button {
+                    Task { await auth.signIn(email: email, password: password) }
+                } label: {
+                    HStack {
+                        if auth.isWorking { ProgressView().tint(Theme.bg1) }
+                        Text("Sign In")
+                    }
+                    .font(.headline).frame(maxWidth: .infinity).padding(.vertical, 15)
+                    .background(Theme.accent, in: RoundedRectangle(cornerRadius: 16, style: .continuous))
+                    .foregroundStyle(Theme.bg1)
+                }
+                .disabled(email.isEmpty || password.isEmpty || auth.isWorking)
+            }
+            .foregroundStyle(Theme.text1)
+
+            Spacer()
+            Button("Continue without signing in") { auth.continueInDemo() }
+                .font(.subheadline).foregroundStyle(Theme.text2)
+        }
+        .padding(24)
+        .frame(maxWidth: .infinity, maxHeight: .infinity)
+        .background(Theme.bg1.ignoresSafeArea())
+    }
+}

@@ -8,6 +8,18 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+- **Phase 8 — iPhone SwiftUI app foundation (`apple/`)** — the first native Apple
+  client, reusing the same versioned backend contracts as the web app. Includes an
+  XcodeGen project (`project.yml`), a shared layer (versioned `APIClient` that
+  decodes the `{ apiVersion, data }` envelope and sends `Authorization: Bearer`;
+  Codable models matching `/api/v1`; Supabase **GoTrue** sign-in; **Keychain**
+  session storage; **Face ID / Touch ID** unlock via `LocalAuthentication`), a
+  Liquid-Glass design system, and Overview / Properties / Profile screens with an
+  offline **demo-data** fallback. Built in Xcode on macOS (not compiled in the
+  Linux CI). Authenticates via Supabase today; reading live estate data needs the
+  deferred backend Bearer enabler. See [`apple/README.md`](apple/README.md).
+
 ### Changed
 - **Floorplan (spatial Digital Twin) disabled for now** — added a central feature
   flag (`app/lib/features.ts`, `FEATURES.floorplan = false`). The Floorplan entry
