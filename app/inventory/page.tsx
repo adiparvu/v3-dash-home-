@@ -6,6 +6,8 @@ import StatusBar from "../components/layout/StatusBar";
 import BottomNav from "../components/layout/BottomNav";
 import { useAssets } from "../lib/useAssets";
 import { useT, type MessageKey } from "../lib/i18n";
+import QrPrinter from "../components/inventory/QrPrinter";
+import { assetIdFromHref } from "../lib/printLabel";
 
 const categories = ["All", "Devices", "Plants", "Equipment", "Vehicles"];
 
@@ -24,6 +26,7 @@ export default function InventoryPage() {
   const tx = (map: Record<string, MessageKey>, v: string) => (map[v] ? t(map[v]) : v);
   const [activeCategory, setActiveCategory] = useState("All");
   const [search, setSearch] = useState("");
+  const [printTarget, setPrintTarget] = useState<{ href: string; name: string; location: string } | null>(null);
   const { assets, source } = useAssets();
 
   const filtered = assets.filter((a) => {
@@ -120,8 +123,8 @@ export default function InventoryPage() {
       {/* Assets list */}
       <div className="px-4 space-y-2.5">
         {filtered.map((asset) => (
-          <Link key={asset.href} href={asset.href}>
-            <div className="liquid-glass rounded-2xl p-3.5 flex items-center gap-3.5 active:scale-[0.98] transition-transform">
+          <div key={asset.href} className="liquid-glass rounded-2xl flex items-center active:scale-[0.98] transition-transform">
+            <Link href={asset.href} className="flex-1 flex items-center gap-3.5 p-3.5 min-w-0">
               {/* Icon */}
               <div
                 className="w-14 h-14 rounded-2xl flex items-center justify-center text-2xl flex-shrink-0"
@@ -140,12 +143,22 @@ export default function InventoryPage() {
               <div className="flex items-center gap-1.5 flex-shrink-0">
                 <span className="w-1.5 h-1.5 rounded-full" style={{ background: asset.statusColor }} />
                 <span className="text-xs font-medium" style={{ color: asset.statusColor }}>{tx(STATUS_KEY, asset.status)}</span>
-                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" style={{ opacity: 0.4 }}>
-                  <path d="M9 18l6-6-6-6" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round" />
-                </svg>
               </div>
-            </div>
-          </Link>
+            </Link>
+
+            {/* Print label */}
+            <button
+              onClick={() => setPrintTarget({ href: asset.href, name: asset.name, location: tx(LOC_KEY, asset.location) })}
+              aria-label={t("idet.printLabel")}
+              title={t("idet.printLabel")}
+              className="self-stretch px-4 flex items-center flex-shrink-0 active:scale-90 transition-transform"
+              style={{ borderLeft: "0.5px solid var(--glass-border)", color: "var(--text-3)" }}
+            >
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
+                <path d="M6 9V2h12v7M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2M6 14h12v8H6z" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round" />
+              </svg>
+            </button>
+          </div>
         ))}
       </div>
 
@@ -168,6 +181,16 @@ export default function InventoryPage() {
           </svg>
         </Link>
       </div>
+
+      {printTarget && (
+        <QrPrinter
+          path={printTarget.href}
+          name={printTarget.name}
+          assetId={assetIdFromHref(printTarget.href)}
+          location={printTarget.location}
+          onDone={() => setPrintTarget(null)}
+        />
+      )}
 
       <BottomNav />
     </div>
