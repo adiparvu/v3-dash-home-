@@ -21,6 +21,7 @@ const sections: { title: string; tkey: MessageKey; items: { href: string; label:
     title: "Monitoring",
     tkey: "more.monitoring",
     items: [
+      { href: "/insights", label: "Insights", icon: "💡", desc: "Proactive estate recommendations", badge: "New" },
       { href: "/twin/energy", label: "Energy", icon: "⚡", desc: "Solar, Powerwall & grid flow", badge: "Live" },
       { href: "/twin/floorplan", label: "Floorplan", icon: "🏠", desc: "Live rooms · energy · presence", badge: "Live" },
       { href: "/sensors", label: "Sensors", icon: "📡", desc: "26 connected sensors", badge: "Live" },
