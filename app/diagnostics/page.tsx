@@ -6,21 +6,10 @@ import StatusBar from "../components/layout/StatusBar";
 import BottomNav from "../components/layout/BottomNav";
 import DetailDisclosureButton from "../components/DetailDisclosureButton";
 import DetailSheet from "../components/DetailSheet";
-import { deriveFaults, faultSummary, SEVERITY_META, type SensorReading, type PossibleFault } from "../lib/diagnostics";
-
-// Demo readings (the prototype's stand-in for the live sensor feed). A few are
-// deliberately anomalous so the diagnostics engine surfaces possible faults.
-const READINGS: SensorReading[] = [
-  { id: "s1", name: "Lake Water Quality", zone: "Lake", category: "Water", status: "ok", battery: 92, lastSeenMins: 0 },
-  { id: "s3", name: "Greenhouse CO₂", zone: "Greenhouse", category: "Air", status: "warning", battery: 100, lastSeenMins: 0 },
-  { id: "s7", name: "Orchard Soil pH", zone: "Orchard", category: "Soil", status: "ok", battery: 12, lastSeenMins: 10 },
-  { id: "s10", name: "Smart Pond DO", zone: "Smart Pond", category: "Water", status: "ok", battery: 88, lastSeenMins: 95 },
-  { id: "s12", name: "Solar Inverter", zone: "Estate", category: "Power", status: "error", battery: null, lastSeenMins: 0 },
-  { id: "s15", name: "Driveway Gate Sensor", zone: "Driveway", category: "Power", status: "offline", battery: 40, lastSeenMins: 60 },
-];
+import { deriveFaults, faultSummary, SEVERITY_META, DEMO_READINGS, type PossibleFault } from "../lib/diagnostics";
 
 export default function DiagnosticsPage() {
-  const faults = deriveFaults(READINGS);
+  const faults = deriveFaults(DEMO_READINGS);
   const summary = faultSummary(faults);
   const [selected, setSelected] = useState<PossibleFault | null>(null);
 

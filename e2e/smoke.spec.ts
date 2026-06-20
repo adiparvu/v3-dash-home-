@@ -64,6 +64,19 @@ test("bottom nav deep-links to the tasks surface", async ({ page }) => {
   await expect(page).toHaveURL(/\/tasks/);
 });
 
+test("zone detail discloses faults + sensor recommendations", async ({ page }) => {
+  await page.goto("/zones");
+  // Open the first zone's detail sheet via its ⓘ button.
+  await page.getByRole("button", { name: /Details for/ }).first().click();
+  const sheet = page.getByRole("dialog");
+  await expect(sheet).toBeVisible();
+  await expect(sheet.getByText("Recommended sensors")).toBeVisible();
+  await expect(sheet.getByText("Possible faults")).toBeVisible();
+  // Expanding a sensor reveals connection steps.
+  await sheet.getByRole("button", { name: /How to connect/ }).first().click();
+  await expect(sheet.getByText(/How to connect ·/).first()).toBeVisible();
+});
+
 test("diagnostics detail disclosure opens causes + suggestions", async ({ page }) => {
   await page.goto("/diagnostics");
   await expect(page.getByRole("heading", { name: "Diagnostics" })).toBeVisible();

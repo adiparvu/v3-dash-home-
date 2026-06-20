@@ -17,6 +17,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   in localStorage prototype mode.
 
 ### Added
+- **Zone detail sheet + sensor advisor** — the Zones list now carries a Detail
+  Disclosure Button per zone that opens a sheet with health/status, metrics,
+  **possible faults in that zone** (via `faultsForZone`) and **recommended
+  sensors** to add/replace — each with a ⓘ that expands the reason + **how to
+  connect** it (protocol + step-by-step pairing through the Home Assistant
+  gateway). New framework-free `app/lib/sensorAdvisor.ts` (recommendations +
+  connection guide, 5 tests); diagnostics demo readings moved into the lib and
+  shared. E2E covers the zone sheet + connection steps.
 - **Detail Disclosure Buttons + Diagnostics** — added the iOS circled-"i"
   affordance (`DetailDisclosureButton`) and a reusable `DetailSheet` bottom
   sheet (backdrop/Escape close, role="dialog"). A new **Diagnostics** screen

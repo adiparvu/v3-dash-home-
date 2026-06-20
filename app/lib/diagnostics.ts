@@ -165,3 +165,22 @@ export function faultSummary(faults: PossibleFault[]): { critical: number; warni
     total: faults.length,
   };
 }
+
+/**
+ * Demo sensor readings (the prototype stand-in for the live feed). A few are
+ * deliberately anomalous so the diagnostics engine surfaces possible faults.
+ * Shared by the Diagnostics screen and the per-zone summary sheet.
+ */
+export const DEMO_READINGS: SensorReading[] = [
+  { id: "s1", name: "Lake Water Quality", zone: "Lake", category: "Water", status: "ok", battery: 92, lastSeenMins: 0 },
+  { id: "s3", name: "Greenhouse CO₂", zone: "Greenhouse", category: "Air", status: "warning", battery: 100, lastSeenMins: 0 },
+  { id: "s7", name: "Orchard Soil pH", zone: "Orchard", category: "Soil", status: "ok", battery: 12, lastSeenMins: 10 },
+  { id: "s10", name: "Smart Pond DO", zone: "Smart Pond", category: "Water", status: "ok", battery: 88, lastSeenMins: 95 },
+  { id: "s12", name: "Solar Inverter", zone: "Estate", category: "Power", status: "error", battery: null, lastSeenMins: 0 },
+  { id: "s15", name: "Driveway Gate Sensor", zone: "Driveway", category: "Power", status: "offline", battery: 40, lastSeenMins: 60 },
+];
+
+/** Possible faults for a single zone (matched by zone name). */
+export function faultsForZone(zoneName: string, sensors: SensorReading[] = DEMO_READINGS): PossibleFault[] {
+  return deriveFaults(sensors.filter((s) => s.zone.toLowerCase() === zoneName.toLowerCase()));
+}
