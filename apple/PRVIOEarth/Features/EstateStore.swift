@@ -39,9 +39,25 @@ final class EstateStore {
             // Keep demo data; stay browsable.
             source = .demo
         }
+        publishSnapshot()
     }
 
     var portfolioValue: Double {
         assets.compactMap(\.currentValue).reduce(0, +)
+    }
+
+    /// Publish a compact snapshot for the widget extension (App Group + WidgetKit).
+    private func publishSnapshot() {
+        SharedStore.save(
+            EstateSnapshot(
+                propertyName: properties.first?.name ?? "PRVIO Earth",
+                healthScore: 87,
+                zoneCount: zones.count,
+                objectCount: assets.count,
+                openTasks: 7,
+                nextMaintenance: "Irrigation service · in 3 days",
+                updatedAt: Date()
+            )
+        )
     }
 }

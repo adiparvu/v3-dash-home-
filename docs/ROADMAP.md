@@ -111,7 +111,7 @@ future track that reuses the same versioned backend contracts.
 | **iPhone SwiftUI app foundation** (`apple/`) — XcodeGen project, shared layer (versioned `APIClient`, Codable models, GoTrue auth, Keychain), Overview / Properties / Profile screens, demo fallback | 🚧 |
 | Face ID / Touch ID unlock + Keychain session storage | 🚧 |
 | iPad / Mac / Apple Watch / Vision Pro targets on the shared layer | ⏳ |
-| Home / Lock screen / Notification Center widgets | ⏳ |
+| Home / Lock screen widgets (WidgetKit: Property Status, Tasks) via App Group snapshot | 🚧 |
 | Live Activities (maintenance, deliveries, incidents, inspections) | ⏳ |
 | Secure Enclave key handling for sensitive records | ⏳ |
 | **Backend enabler:** `/api/v1` accepts `Authorization: Bearer` (native token auth) | ✅ |

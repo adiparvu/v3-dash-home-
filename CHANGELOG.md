@@ -9,6 +9,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 ### Added
+- **Phase 8 — WidgetKit extension (`apple/PRVIOEarthWidgets`)** — Home Screen
+  (`systemSmall`/`systemMedium`) and Lock Screen (`accessoryCircular`/
+  `accessoryRectangular`/`accessoryInline`) widgets: **Property Status** (health
+  ring, zones, objects) and **Tasks & Maintenance** (open tasks, next due). The app
+  publishes a compact `EstateSnapshot` to a shared **App Group**
+  (`group.earth.prvio.app`) via `SharedStore`, which triggers a WidgetKit reload;
+  the widget reads it with no network in-process. XcodeGen wires the extension
+  target, App Group entitlements and snapshot bridge.
 - **Bearer-token auth for `/api/v1` (native enabler)** — the backend now accepts
   `Authorization: Bearer <jwt>` in addition to the SSR cookie session, so the
   native Apple client (and any token-based client) uses the **same versioned API**

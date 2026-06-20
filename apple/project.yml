@@ -4,8 +4,8 @@
 #   brew install xcodegen
 #   cd apple && xcodegen generate && open PRVIOEarth.xcodeproj
 #
-# Phase 8, increment 1: iPhone SwiftUI app foundation. Widgets, Live
-# Activities, Watch / iPad / Mac / Vision targets are added in later increments.
+# Phase 8: iPhone SwiftUI app + WidgetKit extension. Live Activities and
+# Watch / iPad / Mac / Vision targets are added in later increments.
 name: PRVIOEarth
 options:
   bundleIdPrefix: earth.prvio
@@ -32,6 +32,9 @@ targets:
     platform: iOS
     sources:
       - path: PRVIOEarth
+      - path: Shared
+    dependencies:
+      - target: PRVIOEarthWidgets
     info:
       path: PRVIOEarth/Resources/Info.plist
       properties:
@@ -46,6 +49,11 @@ targets:
         SUPABASE_URL: $(SUPABASE_URL)
         SUPABASE_ANON_KEY: $(SUPABASE_ANON_KEY)
         API_BASE_URL: $(API_BASE_URL)
+    entitlements:
+      path: PRVIOEarth/Resources/PRVIOEarth.entitlements
+      properties:
+        com.apple.security.application-groups:
+          - group.earth.prvio.app
     settings:
       base:
         PRODUCT_BUNDLE_IDENTIFIER: earth.prvio.app
@@ -53,3 +61,27 @@ targets:
         TARGETED_DEVICE_FAMILY: "1" # iPhone
         ASSETCATALOG_COMPILER_APPICON_NAME: AppIcon
         ENABLE_PREVIEWS: YES
+
+  PRVIOEarthWidgets:
+    type: app-extension
+    platform: iOS
+    sources:
+      - path: PRVIOEarthWidgets
+      - path: Shared
+      - path: PRVIOEarth/DesignSystem/Theme.swift # reuse the palette
+    info:
+      path: PRVIOEarthWidgets/Info.plist
+      properties:
+        CFBundleDisplayName: PRVIO Widgets
+        NSExtension:
+          NSExtensionPointIdentifier: com.apple.widgetkit-extension
+    entitlements:
+      path: PRVIOEarthWidgets/PRVIOEarthWidgets.entitlements
+      properties:
+        com.apple.security.application-groups:
+          - group.earth.prvio.app
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: earth.prvio.app.widgets
+        GENERATE_INFOPLIST_FILE: NO
+        TARGETED_DEVICE_FAMILY: "1"
