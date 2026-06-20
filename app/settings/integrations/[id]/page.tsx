@@ -5,6 +5,8 @@ import Link from "next/link";
 import { useParams, useRouter } from "next/navigation";
 import StatusBar from "../../../components/layout/StatusBar";
 import { getIntegration, useIntegrations } from "../../../lib/integrations";
+import EnergyTariffPanel from "../../../components/integrations/EnergyTariffPanel";
+import AirQualityPanel from "../../../components/integrations/AirQualityPanel";
 
 /**
  * Integration detail — connect/disconnect (persisted) and, once connected, the
@@ -66,6 +68,10 @@ export default function IntegrationDetailPage() {
 
         {connected ? (
           <>
+            {/* Live data panel for real-API integrations */}
+            {integration.live === "energy-tariff" && <EnergyTariffPanel />}
+            {integration.live === "air-quality" && <AirQualityPanel />}
+
             {/* Metrics */}
             <div className="grid grid-cols-3 gap-2">
               {integration.metrics.map((m) => (

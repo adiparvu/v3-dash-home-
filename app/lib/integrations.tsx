@@ -31,6 +31,8 @@ export type Integration = {
   connectedBadge?: string;
   /** Verb on the connect button, e.g. "Connect", "Pair", "Scan a receipt". */
   connectLabel?: string;
+  /** Renders a real, live data panel on the detail screen when connected. */
+  live?: "energy-tariff" | "air-quality";
   /** Sold benefits, shown before connecting. */
   whatYouGet: string[];
   /** Headline numbers, shown once connected. */
@@ -146,11 +148,18 @@ export const INTEGRATIONS: Integration[] = [
 
   // ── Energy & Environment ──────────────────────────────────────────────────
   {
-    id: "energy", name: "Energy Provider", desc: "Import utility bills automatically from your supplier.", icon: "🔌", color: "#F59E0B",
-    category: "Energy & Environment", connectLabel: "Connect provider",
-    whatYouGet: ["Auto-import electricity bills", "Tariff & time-of-use data", "Cost trends per month"],
-    metrics: [{ label: "Last bill", value: "€186" }, { label: "Usage", value: "642 kWh" }, { label: "Tariff", value: "Tibber" }],
-    feed: [{ icon: "🧾", title: "June invoice · €186", sub: "Due Jul 5" }, { icon: "📉", title: "−12% vs May", sub: "Lower usage" }],
+    id: "energy", name: "Energy Tariff", desc: "Live day-ahead electricity prices for Belgium & Romania.", icon: "🔌", color: "#F59E0B",
+    category: "Energy & Environment", connectLabel: "Connect tariff",
+    live: "energy-tariff",
+    whatYouGet: ["Live day-ahead spot prices (BE & RO)", "Cheapest-hour detection", "Drives charge-when-cheap automations"],
+    metrics: [{ label: "Source", value: "Energy-Charts" }, { label: "Zones", value: "BE · RO" }, { label: "Update", value: "Hourly" }],
+  },
+  {
+    id: "airquality", name: "Air Quality", desc: "European AQI & pollutants for your current location.", icon: "🫧", color: "#4ADE80",
+    category: "Energy & Environment", connectLabel: "Connect air quality",
+    live: "air-quality",
+    whatYouGet: ["Real European AQI by location", "PM2.5 · PM10 · NO₂ · O₃ · SO₂", "Drives ventilation suggestions"],
+    metrics: [{ label: "Source", value: "Open-Meteo" }, { label: "Scope", value: "Location" }, { label: "Update", value: "Hourly" }],
   },
   {
     id: "solar", name: "Solar / PV System", desc: "Monitor solar panel output and energy savings.", icon: "☀️", color: "#F59E0B",
