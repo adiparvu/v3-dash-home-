@@ -5,9 +5,10 @@ import Link from "next/link";
 import StatusBar from "../components/layout/StatusBar";
 import BottomNav from "../components/layout/BottomNav";
 import CallMenu, { CallContact } from "../components/CallMenu";
-import { useT } from "../lib/i18n";
+import { useT, type MessageKey } from "../lib/i18n";
 
 const specialties = ["All", "Plumbing", "Electrical", "HVAC", "Landscaping", "Tech"];
+const SPEC_KEYS: Record<string, MessageKey> = { All: "f.all", Plumbing: "contractors.plumbing", Electrical: "contractors.electrical", HVAC: "contractors.hvac", Landscaping: "contractors.landscaping", Tech: "contractors.tech" };
 const CONTRACTORS_KEY = "prvio-contractors-v2";
 
 type InsuranceRecord = { provider: string; policyNo: string; expires: string };
@@ -174,7 +175,7 @@ export default function ContractorsPage() {
       <div className="px-4 mb-3">
         <div className="flex items-center gap-2 rounded-2xl px-3 py-2.5 liquid-glass">
           <svg width="14" height="14" viewBox="0 0 24 24" fill="none"><circle cx="11" cy="11" r="7" stroke="#6B7280" strokeWidth="1.75" /><path d="M16.5 16.5L21 21" stroke="#6B7280" strokeWidth="1.75" strokeLinecap="round" /></svg>
-          <input value={search} onChange={(e) => setSearch(e.target.value)} placeholder="Search contractors…" className="flex-1 bg-transparent text-sm placeholder-text-tertiary outline-none" style={{ color: "var(--text-1)" }} />
+          <input value={search} onChange={(e) => setSearch(e.target.value)} placeholder={t("contractors.search")} className="flex-1 bg-transparent text-sm placeholder-text-tertiary outline-none" style={{ color: "var(--text-1)" }} />
         </div>
       </div>
 
@@ -183,7 +184,7 @@ export default function ContractorsPage() {
         {specialties.map((s) => (
           <button key={s} onClick={() => setSpecialty(s)} className="px-4 py-1.5 rounded-full text-sm font-medium whitespace-nowrap flex-shrink-0 transition-all"
             style={specialty === s ? { background: "var(--accent)", color: "#050A14" } : { background: "rgba(255,255,255,0.07)", color: "var(--text-3)", border: "1px solid rgba(255,255,255,0.09)" }}>
-            {s}
+            {t(SPEC_KEYS[s])}
           </button>
         ))}
       </div>
@@ -200,20 +201,20 @@ export default function ContractorsPage() {
                 <div className="flex items-center gap-2">
                   <p className="font-semibold text-sm" style={{ color: "var(--text-1)" }}>{c.name}</p>
                   {c.verified && (
-                    <span className="text-[9px] font-medium px-1.5 py-0.5 rounded-full" style={{ background: "rgba(74,222,128,0.15)", color: "#4ADE80" }}>✓ Verified</span>
+                    <span className="text-[9px] font-medium px-1.5 py-0.5 rounded-full" style={{ background: "rgba(74,222,128,0.15)", color: "#4ADE80" }}>✓ {t("contractors.verified")}</span>
                   )}
                 </div>
                 <p className="text-text-secondary text-xs">{c.contact} · {c.specialty}</p>
                 <div className="flex items-center gap-2 mt-0.5">
                   <Stars n={c.rating} />
-                  <span className="text-text-secondary text-xs">{c.rating} · {c.jobs} jobs</span>
+                  <span className="text-text-secondary text-xs">{c.rating} · {c.jobs} {t("contractors.jobs")}</span>
                 </div>
               </div>
               <div className="flex flex-col items-end gap-1 flex-shrink-0">
                 <span className="text-[10px] px-2 py-0.5 rounded-full font-medium" style={{ background: c.status === "active" ? "rgba(74,222,128,0.15)" : "var(--glass-bg)", color: c.status === "active" ? "#4ADE80" : "var(--text-3)" }}>
-                  {c.status === "active" ? "Active" : "Inactive"}
+                  {c.status === "active" ? t("contractors.active") : t("contractors.inactive")}
                 </span>
-                <span className="text-text-tertiary text-[10px]">Last: {c.lastJob}</span>
+                <span className="text-text-tertiary text-[10px]">{t("contractors.last")}: {c.lastJob}</span>
               </div>
             </button>
 
@@ -228,13 +229,13 @@ export default function ContractorsPage() {
             <div className="flex gap-2">
               <button onClick={() => setCallContact({ name: c.name, phone: c.phone })} className="flex-1 py-2 rounded-xl text-xs font-medium text-center flex items-center justify-center gap-1.5" style={{ background: "rgba(74,222,128,0.12)", border: "1px solid rgba(74,222,128,0.25)", color: "#4ADE80" }}>
                 <svg width="12" height="12" viewBox="0 0 24 24" fill="none"><path d="M22 16.92v3a2 2 0 01-2.18 2 19.79 19.79 0 01-8.63-3.07A19.5 19.5 0 013.07 10a19.79 19.79 0 01-3.07-8.67A2 2 0 012 .18h3a2 2 0 012 1.72c.127.96.361 1.903.7 2.81a2 2 0 01-.45 2.11L6.09 7.91a16 16 0 006 6l1.27-1.27a2 2 0 012.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0122 14.92z" stroke="#4ADE80" strokeWidth="1.75" /></svg>
-                Call
+                {t("contractors.call")}
               </button>
               <a href={`mailto:${c.email}`} className="flex-1 py-2 rounded-xl text-xs font-medium text-center" style={{ background: "rgba(255,255,255,0.07)", border: "0.5px solid var(--glass-border)", color: "var(--text-1)" }}>
-                Email
+                {t("contractors.email")}
               </a>
               <button onClick={() => setDetail(c)} className="flex-1 py-2 rounded-xl text-xs font-medium" style={{ background: "rgba(255,255,255,0.07)", border: "0.5px solid var(--glass-border)", color: "var(--text-1)" }}>
-                Details
+                {t("contractors.details")}
               </button>
             </div>
           </div>
@@ -244,7 +245,7 @@ export default function ContractorsPage() {
       {/* Add FAB */}
       <button
         onClick={() => setOpen(true)}
-        aria-label="Add contractor"
+        aria-label={t("contractors.add")}
         className="fixed bottom-24 right-4 w-14 h-14 rounded-2xl flex items-center justify-center z-20 active:scale-90 transition-transform"
         style={{ background: "linear-gradient(135deg, #4ADE80 0%, #22D3EE 100%)", boxShadow: "0 4px 20px rgba(74,222,128,0.4)" }}
       >
@@ -258,17 +259,17 @@ export default function ContractorsPage() {
         <div className="fixed inset-0 z-[60] flex items-end justify-center" style={{ background: "rgba(0,0,0,0.45)" }} onClick={() => setOpen(false)}>
           <div className="w-full md:w-[390px] rounded-t-[28px] p-5 pb-8 animate-slide-up liquid-glass-strong max-h-[88vh] overflow-y-auto" onClick={(e) => e.stopPropagation()}>
             <div className="w-10 h-1 rounded-full mx-auto mb-4" style={{ background: "var(--glass-border)" }} />
-            <h2 className="font-bold text-lg mb-4" style={{ color: "var(--text-1)" }}>Add Contractor</h2>
+            <h2 className="font-bold text-lg mb-4" style={{ color: "var(--text-1)" }}>{t("contractors.add")}</h2>
             {[
-              { label: "Company / Name", val: fName, set: setFName, ph: "e.g. AquaTech Services" },
-              { label: "Contact Person", val: fContact, set: setFContact, ph: "e.g. Mihai Ionescu" },
-              { label: "Phone", val: fPhone, set: setFPhone, ph: "+40 ..." },
-              { label: "Email", val: fEmail, set: setFEmail, ph: "name@company.com" },
-              { label: "Website", val: fWebsite, set: setFWebsite, ph: "company.com" },
-              { label: "Services (comma-separated)", val: fServices, set: setFServices, ph: "Pumps, Irrigation" },
-              { label: "Insurance Provider", val: fInsurer, set: setFInsurer, ph: "e.g. Allianz" },
-              { label: "Insurance Expires", val: fInsExpires, set: setFInsExpires, ph: "e.g. Mar 2026" },
-              { label: "Notes", val: fNotes, set: setFNotes, ph: "Short description" },
+              { label: t("contractors.f.company"), val: fName, set: setFName, ph: "e.g. AquaTech Services" },
+              { label: t("contractors.f.contact"), val: fContact, set: setFContact, ph: "e.g. Mihai Ionescu" },
+              { label: t("contractors.f.phone"), val: fPhone, set: setFPhone, ph: "+40 ..." },
+              { label: t("contractors.f.email"), val: fEmail, set: setFEmail, ph: "name@company.com" },
+              { label: t("contractors.f.website"), val: fWebsite, set: setFWebsite, ph: "company.com" },
+              { label: t("contractors.f.services"), val: fServices, set: setFServices, ph: "Pumps, Irrigation" },
+              { label: t("contractors.f.insurer"), val: fInsurer, set: setFInsurer, ph: "e.g. Allianz" },
+              { label: t("contractors.f.insExpires"), val: fInsExpires, set: setFInsExpires, ph: "e.g. Mar 2026" },
+              { label: t("contractors.f.notes"), val: fNotes, set: setFNotes, ph: "Short description" },
             ].map((f) => (
               <div key={f.label} className="mb-3">
                 <label className="text-xs font-medium block mb-1.5 px-1" style={{ color: "var(--text-2)" }}>{f.label}</label>
@@ -277,13 +278,13 @@ export default function ContractorsPage() {
                 </div>
               </div>
             ))}
-            <label className="text-xs font-medium block mb-2 px-1 mt-1" style={{ color: "var(--text-2)" }}>Specialty</label>
+            <label className="text-xs font-medium block mb-2 px-1 mt-1" style={{ color: "var(--text-2)" }}>{t("contractors.specialty")}</label>
             <div className="flex flex-wrap gap-2 mb-6">
               {Object.keys(specialtyMeta).map((s) => (
                 <button key={s} onClick={() => setFSpec(s)} className="px-3 py-1.5 rounded-xl text-xs font-medium transition-all active:scale-95" style={fSpec === s ? { background: "var(--accent)", color: "var(--bg-1)" } : { background: "var(--glass-bg)", color: "var(--text-2)", border: "0.5px solid var(--glass-border)" }}>{s}</button>
               ))}
             </div>
-            <button onClick={addContractor} disabled={!fName.trim()} className="w-full py-3.5 rounded-2xl font-semibold text-base active:scale-[0.97] transition-transform" style={{ background: fName.trim() ? "linear-gradient(135deg, #4ADE80 0%, #22C55E 100%)" : "var(--glass-bg)", color: fName.trim() ? "#08111E" : "var(--text-3)", border: fName.trim() ? "none" : "0.5px solid var(--glass-border)" }}>Add Contractor</button>
+            <button onClick={addContractor} disabled={!fName.trim()} className="w-full py-3.5 rounded-2xl font-semibold text-base active:scale-[0.97] transition-transform" style={{ background: fName.trim() ? "linear-gradient(135deg, #4ADE80 0%, #22C55E 100%)" : "var(--glass-bg)", color: fName.trim() ? "#08111E" : "var(--text-3)", border: fName.trim() ? "none" : "0.5px solid var(--glass-border)" }}>{t("contractors.add")}</button>
           </div>
         </div>
       )}
@@ -300,27 +301,27 @@ export default function ContractorsPage() {
               <div className="flex-1 min-w-0">
                 <div className="flex items-center gap-2">
                   <h2 className="font-bold text-lg" style={{ color: "var(--text-1)" }}>{detail.name}</h2>
-                  {detail.verified && <span className="text-[9px] font-medium px-1.5 py-0.5 rounded-full" style={{ background: "rgba(74,222,128,0.15)", color: "#4ADE80" }}>✓ Verified</span>}
+                  {detail.verified && <span className="text-[9px] font-medium px-1.5 py-0.5 rounded-full" style={{ background: "rgba(74,222,128,0.15)", color: "#4ADE80" }}>✓ {t("contractors.verified")}</span>}
                 </div>
                 <p className="text-text-secondary text-xs">{detail.specialty}</p>
                 <div className="flex items-center gap-2 mt-1">
                   <Stars n={detail.rating} />
-                  <span className="text-text-secondary text-xs">{detail.rating} · {detail.jobs} jobs</span>
+                  <span className="text-text-secondary text-xs">{detail.rating} · {detail.jobs} {t("contractors.jobs")}</span>
                 </div>
               </div>
             </div>
 
             {/* Contact */}
             <div className="rounded-2xl overflow-hidden mb-4" style={{ background: "rgba(255,255,255,0.04)", border: "0.5px solid var(--glass-border)" }}>
-              <DetailRow label="Contact person" value={detail.contact} />
-              <DetailRow label="Phone" value={detail.phone} action={detail.phone !== "—" ? () => setCallContact({ name: detail.name, phone: detail.phone }) : undefined} actionLabel="Call" />
-              <DetailRow label="Email" value={detail.email} href={detail.email !== "—" ? `mailto:${detail.email}` : undefined} />
-              <DetailRow label="Website" value={detail.website} href={detail.website !== "—" ? `https://${detail.website.replace(/^https?:\/\//, "")}` : undefined} last />
+              <DetailRow label={t("contractors.f.contact")} value={detail.contact} />
+              <DetailRow label={t("contractors.f.phone")} value={detail.phone} action={detail.phone !== "—" ? () => setCallContact({ name: detail.name, phone: detail.phone }) : undefined} actionLabel={t("contractors.call")} />
+              <DetailRow label={t("contractors.f.email")} value={detail.email} href={detail.email !== "—" ? `mailto:${detail.email}` : undefined} />
+              <DetailRow label={t("contractors.f.website")} value={detail.website} href={detail.website !== "—" ? `https://${detail.website.replace(/^https?:\/\//, "")}` : undefined} last />
             </div>
 
             {/* Services */}
             {detail.services.length > 0 && (
-              <Section title="Services">
+              <Section title={t("contractors.sec.services")}>
                 <div className="flex flex-wrap gap-1.5">
                   {detail.services.map((s) => (
                     <span key={s} className="text-xs px-2.5 py-1 rounded-full" style={{ background: `${detail.color}12`, color: detail.color }}>{s}</span>
@@ -330,22 +331,22 @@ export default function ContractorsPage() {
             )}
 
             {/* Insurance */}
-            <Section title="Insurance Records">
+            <Section title={t("contractors.sec.insurance")}>
               {detail.insurance ? (
                 <div className="rounded-2xl p-3.5" style={{ background: "rgba(255,255,255,0.04)", border: "0.5px solid var(--glass-border)" }}>
                   <div className="flex items-center justify-between">
                     <p className="text-sm font-medium" style={{ color: "var(--text-1)" }}>{detail.insurance.provider}</p>
-                    <span className="text-[10px] font-medium px-2 py-0.5 rounded-full" style={{ background: "rgba(74,222,128,0.12)", color: "#4ADE80" }}>Valid → {detail.insurance.expires}</span>
+                    <span className="text-[10px] font-medium px-2 py-0.5 rounded-full" style={{ background: "rgba(74,222,128,0.12)", color: "#4ADE80" }}>{t("contractors.valid")} → {detail.insurance.expires}</span>
                   </div>
-                  <p className="text-text-tertiary text-[11px] mt-0.5">Policy {detail.insurance.policyNo}</p>
+                  <p className="text-text-tertiary text-[11px] mt-0.5">{t("contractors.policy")} {detail.insurance.policyNo}</p>
                 </div>
               ) : (
-                <p className="text-text-tertiary text-xs">No insurance on file.</p>
+                <p className="text-text-tertiary text-xs">{t("contractors.noInsurance")}</p>
               )}
             </Section>
 
             {/* Documents */}
-            <Section title="Documents">
+            <Section title={t("contractors.sec.documents")}>
               {detail.documents.length > 0 ? (
                 <div className="space-y-1.5">
                   {detail.documents.map((d) => (
@@ -356,12 +357,12 @@ export default function ContractorsPage() {
                   ))}
                 </div>
               ) : (
-                <p className="text-text-tertiary text-xs">No documents attached.</p>
+                <p className="text-text-tertiary text-xs">{t("contractors.noDocuments")}</p>
               )}
             </Section>
 
             {/* Property history */}
-            <Section title="Property History">
+            <Section title={t("contractors.sec.history")}>
               {detail.history.length > 0 ? (
                 <div className="rounded-2xl overflow-hidden" style={{ background: "rgba(255,255,255,0.04)", border: "0.5px solid var(--glass-border)" }}>
                   {detail.history.map((h, i) => (
@@ -372,20 +373,20 @@ export default function ContractorsPage() {
                   ))}
                 </div>
               ) : (
-                <p className="text-text-tertiary text-xs">No prior jobs recorded.</p>
+                <p className="text-text-tertiary text-xs">{t("contractors.noHistory")}</p>
               )}
             </Section>
 
             {/* Notes */}
-            <Section title="Notes">
+            <Section title={t("contractors.sec.notes")}>
               <p className="text-text-secondary text-xs leading-relaxed">{detail.notes}</p>
             </Section>
 
             <div className="flex gap-2 mt-2">
               {detail.custom && (
-                <button onClick={() => { setCustom((list) => list.filter((x) => x.id !== detail.id)); setDetail(null); }} className="flex-1 py-3 rounded-2xl text-sm font-medium" style={{ background: "rgba(239,68,68,0.10)", border: "1px solid rgba(239,68,68,0.20)", color: "#EF4444" }}>Delete</button>
+                <button onClick={() => { setCustom((list) => list.filter((x) => x.id !== detail.id)); setDetail(null); }} className="flex-1 py-3 rounded-2xl text-sm font-medium" style={{ background: "rgba(239,68,68,0.10)", border: "1px solid rgba(239,68,68,0.20)", color: "#EF4444" }}>{t("contractors.delete")}</button>
               )}
-              <button onClick={() => setDetail(null)} className="flex-1 py-3 rounded-2xl text-sm font-medium" style={{ background: "var(--glass-bg)", border: "0.5px solid var(--glass-border)", color: "var(--text-1)" }}>Close</button>
+              <button onClick={() => setDetail(null)} className="flex-1 py-3 rounded-2xl text-sm font-medium" style={{ background: "var(--glass-bg)", border: "0.5px solid var(--glass-border)", color: "var(--text-1)" }}>{t("contractors.close")}</button>
             </div>
           </div>
         </div>

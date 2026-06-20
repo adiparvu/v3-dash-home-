@@ -6,9 +6,10 @@ import StatusBar from "../components/layout/StatusBar";
 import BottomNav from "../components/layout/BottomNav";
 import DetailDisclosureButton from "../components/DetailDisclosureButton";
 import DetailSheet from "../components/DetailSheet";
-import { useT } from "../lib/i18n";
+import { useT, type MessageKey } from "../lib/i18n";
 
 const sensorCategories = ["All", "Water", "Air", "Soil", "Power"];
+const CAT_KEYS: Record<string, MessageKey> = { All: "f.all", Water: "sensors.water", Air: "sensors.air", Soil: "sensors.soil", Power: "sensors.power" };
 
 const sensors = [
   { id: "s1", name: "Lake Water Quality", zone: "Lake", category: "Water", status: "ok", value: "7.4 pH", sub: "18.4°C · DO 8.2 mg/L", icon: "💧", color: "#22D3EE", battery: 92, lastSeen: "now" },
@@ -142,21 +143,21 @@ export default function SensorsPage() {
         <h1 className="font-bold text-2xl" style={{ color: "var(--text-1)" }}>{t("page.sensors")}</h1>
         <div className="ml-auto flex items-center gap-1.5">
           <span className="w-2 h-2 rounded-full animate-pulse" style={{ background: "#4ADE80" }} />
-          <span className="text-accent-green text-xs font-medium">Live</span>
+          <span className="text-accent-green text-xs font-medium">{t("notif.live")}</span>
         </div>
       </div>
 
       {/* Stats */}
       <div className="px-4 mb-4">
         <div className="grid grid-cols-3 gap-2">
-          {[
-            { label: "Online", value: okCount, color: "#4ADE80" },
-            { label: "Warning", value: warnCount, color: "#F59E0B" },
-            { label: "Offline", value: errCount, color: "#EF4444" },
-          ].map((s) => (
-            <div key={s.label} className="liquid-glass rounded-2xl p-3 text-center">
+          {([
+            { tkey: "sensors.online" as MessageKey, value: okCount, color: "#4ADE80" },
+            { tkey: "sensors.warning" as MessageKey, value: warnCount, color: "#F59E0B" },
+            { tkey: "sensors.offline" as MessageKey, value: errCount, color: "#EF4444" },
+          ]).map((s) => (
+            <div key={s.tkey} className="liquid-glass rounded-2xl p-3 text-center">
               <p className="font-bold text-xl" style={{ color: s.color }}>{s.value}</p>
-              <p className="text-text-secondary text-[10px]">{s.label}</p>
+              <p className="text-text-secondary text-[10px]">{t(s.tkey)}</p>
             </div>
           ))}
         </div>
@@ -166,7 +167,7 @@ export default function SensorsPage() {
       <div className="px-4 mb-3">
         <div className="flex items-center gap-2 rounded-2xl px-3 py-2.5 liquid-glass">
           <svg width="14" height="14" viewBox="0 0 24 24" fill="none" style={{ color: "var(--text-3)", flexShrink: 0 }}><circle cx="11" cy="11" r="7" stroke="currentColor" strokeWidth="1.75" /><path d="M16.5 16.5L21 21" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" /></svg>
-          <input value={search} onChange={(e) => setSearch(e.target.value)} placeholder="Search sensors…" className="flex-1 bg-transparent text-sm outline-none" style={{ color: "var(--text-1)", caretColor: "var(--accent)" }} />
+          <input value={search} onChange={(e) => setSearch(e.target.value)} placeholder={t("sensors.search")} className="flex-1 bg-transparent text-sm outline-none" style={{ color: "var(--text-1)", caretColor: "var(--accent)" }} />
         </div>
       </div>
 
@@ -175,7 +176,7 @@ export default function SensorsPage() {
         {sensorCategories.map((c) => (
           <button key={c} onClick={() => setCategory(c)} className="px-4 py-1.5 rounded-full text-sm font-medium whitespace-nowrap flex-shrink-0 transition-all"
             style={category === c ? { background: "#4ADE80", color: "#050A14" } : { background: "var(--glass-bg)", color: "var(--text-2)", border: "0.5px solid var(--glass-border)" }}>
-            {c}
+            {t(CAT_KEYS[c])}
           </button>
         ))}
       </div>
@@ -230,10 +231,10 @@ export default function SensorsPage() {
             </div>
             <div className="grid grid-cols-2 gap-2">
               {[
-                { label: "Current", value: detail.value },
-                { label: "Category", value: detail.category },
-                { label: "Battery", value: detail.battery === null ? "Mains" : `${detail.battery}%` },
-                { label: "Last seen", value: detail.lastSeen },
+                { label: t("sensors.current"), value: detail.value },
+                { label: t("maint.category"), value: detail.category },
+                { label: t("sensors.battery"), value: detail.battery === null ? t("sensors.mains") : `${detail.battery}%` },
+                { label: t("sensors.lastSeen"), value: detail.lastSeen },
               ].map((stat) => (
                 <div key={stat.label} className="rounded-2xl p-3 liquid-glass">
                   <p className="text-text-secondary text-[10px]">{stat.label}</p>
@@ -242,12 +243,12 @@ export default function SensorsPage() {
               ))}
             </div>
             <div className="rounded-2xl p-3.5 liquid-glass">
-              <p className="text-text-secondary text-[11px] uppercase tracking-wide mb-1">Reading</p>
+              <p className="text-text-secondary text-[11px] uppercase tracking-wide mb-1">{t("sensors.reading")}</p>
               <p className="text-sm" style={{ color: "var(--text-1)" }}>{detail.sub}</p>
             </div>
             <Link href="/diagnostics" className="block">
               <button className="w-full rounded-2xl py-3 text-sm font-medium" style={{ background: "var(--accent)", color: "var(--bg-1)" }}>
-                Run diagnostics
+                {t("sensors.runDiagnostics")}
               </button>
             </Link>
           </div>
