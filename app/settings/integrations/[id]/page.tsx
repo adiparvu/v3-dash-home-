@@ -5,6 +5,7 @@ import Link from "next/link";
 import { useParams, useRouter } from "next/navigation";
 import StatusBar from "../../../components/layout/StatusBar";
 import { getIntegration, useIntegrations } from "../../../lib/integrations";
+import { useT } from "../../../lib/i18n";
 import EnergyTariffPanel from "../../../components/integrations/EnergyTariffPanel";
 import AirQualityPanel from "../../../components/integrations/AirQualityPanel";
 import SeismicPanel from "../../../components/integrations/SeismicPanel";
@@ -19,13 +20,14 @@ export default function IntegrationDetailPage() {
   const integration = getIntegration(params.id);
   const { isConnected, connect, disconnect } = useIntegrations();
   const [busy, setBusy] = useState(false);
+  const t = useT();
 
   if (!integration) {
     return (
       <div className="min-h-screen flex flex-col items-center justify-center gap-3 px-8 text-center" style={{ color: "var(--text-1)" }}>
         <p className="text-3xl">🔌</p>
-        <p className="font-semibold">Integration not found</p>
-        <Link href="/settings/integrations" className="text-sm font-medium" style={{ color: "var(--accent)" }}>Back to integrations</Link>
+        <p className="font-semibold">{t("int.notFound")}</p>
+        <Link href="/settings/integrations" className="text-sm font-medium" style={{ color: "var(--accent)" }}>{t("int.back")}</Link>
       </div>
     );
   }
@@ -63,7 +65,7 @@ export default function IntegrationDetailPage() {
           <span className="text-[10px] font-semibold px-2 py-1 rounded-full flex-shrink-0" style={connected
             ? { background: "rgba(74,222,128,0.15)", color: "#4ADE80" }
             : { background: "var(--glass-bg)", color: "var(--text-3)" }}>
-            {connected ? (integration.connectedBadge ?? "Connected") : "Not connected"}
+            {connected ? (integration.connectedBadge ?? t("int.connectedPill")) : t("int.notConnected")}
           </span>
         </div>
 
@@ -87,7 +89,7 @@ export default function IntegrationDetailPage() {
             {/* Recent activity */}
             {integration.feed && integration.feed.length > 0 && (
               <div>
-                <p className="text-text-secondary text-xs font-medium uppercase tracking-wide mb-2 px-1">Recent activity</p>
+                <p className="text-text-secondary text-xs font-medium uppercase tracking-wide mb-2 px-1">{t("home.recentActivity")}</p>
                 <div className="rounded-2xl overflow-hidden" style={{ background: "rgba(255,255,255,0.04)", border: "0.5px solid var(--glass-border)" }}>
                   {integration.feed.map((f, i) => (
                     <div key={i} className="flex items-center gap-3 px-4 py-3" style={{ borderBottom: i < integration.feed!.length - 1 ? "1px solid rgba(255,255,255,0.06)" : undefined }}>
@@ -114,14 +116,14 @@ export default function IntegrationDetailPage() {
             )}
 
             <button onClick={() => disconnect(integration.id)} className="w-full rounded-2xl py-3 text-sm font-medium" style={{ background: "rgba(239,68,68,0.10)", border: "1px solid rgba(239,68,68,0.20)", color: "#EF4444" }}>
-              Disconnect
+              {t("int.disconnect")}
             </button>
           </>
         ) : (
           <>
             {/* What you get */}
             <div>
-              <p className="text-text-secondary text-xs font-medium uppercase tracking-wide mb-2 px-1">What you get</p>
+              <p className="text-text-secondary text-xs font-medium uppercase tracking-wide mb-2 px-1">{t("int.whatYouGet")}</p>
               <div className="rounded-2xl p-4 space-y-2.5 liquid-glass">
                 {integration.whatYouGet.map((w, i) => (
                   <div key={i} className="flex items-start gap-2.5 text-sm">
@@ -133,10 +135,10 @@ export default function IntegrationDetailPage() {
             </div>
 
             <button onClick={onConnect} disabled={busy} className="w-full rounded-2xl py-3.5 text-sm font-semibold transition-opacity" style={{ background: integration.color, color: "#08111E", opacity: busy ? 0.7 : 1 }}>
-              {busy ? "Connecting…" : (integration.connectLabel ?? "Connect")}
+              {busy ? t("int.connecting") : (integration.connectLabel ?? t("int.connect"))}
             </button>
             <p className="text-text-tertiary text-[11px] text-center leading-relaxed">
-              Connecting authorizes PRVIO Earth to sync this service through the backend. You can disconnect anytime.
+              {t("int.connectNote")}
             </p>
           </>
         )}

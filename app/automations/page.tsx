@@ -9,17 +9,17 @@ import DetailSheet from "../components/DetailSheet";
 import { useSchedules } from "../lib/useSmartHome";
 import { useConditions } from "../lib/useConditions";
 import { evaluateRules } from "../lib/automationRules";
-import { useT } from "../lib/i18n";
+import { useT, type MessageKey } from "../lib/i18n";
 
 type Automation = (typeof automations)[number];
 
 const AUTO_KEY = "prvio-automations-v1";
 
-const automationTemplates = [
-  { icon: "💧", name: "Irrigation Schedule", desc: "Auto-water zones on a timer" },
-  { icon: "🌡️", name: "Climate Alert", desc: "Notify on temp/humidity threshold" },
-  { icon: "🔒", name: "Security Mode", desc: "Enable cameras at sunset" },
-  { icon: "📊", name: "Weekly Report", desc: "Generate and send estate report" },
+const automationTemplates: { icon: string; nkey: MessageKey; dkey: MessageKey }[] = [
+  { icon: "💧", nkey: "auto.t.irrigation", dkey: "auto.t.irrigation.d" },
+  { icon: "🌡️", nkey: "auto.t.climate", dkey: "auto.t.climate.d" },
+  { icon: "🔒", nkey: "auto.t.security", dkey: "auto.t.security.d" },
+  { icon: "📊", nkey: "auto.t.report", dkey: "auto.t.report.d" },
 ];
 
 const automations = [
@@ -156,7 +156,7 @@ export default function AutomationsPage() {
       <div className="px-5 pt-1 pb-3 flex items-center justify-between">
         <div>
           <h1 className="font-bold text-2xl" style={{ color: "var(--text-1)" }}>{t("page.automations")}</h1>
-          <p className="text-text-secondary text-xs">{activeCount} active · {runsToday} runs today</p>
+          <p className="text-text-secondary text-xs">{activeCount} {t("auto.activeLabel")} · {runsToday} {t("auto.runsToday")}</p>
         </div>
         <button
           onClick={() => setShowTemplates(!showTemplates)}
@@ -176,30 +176,30 @@ export default function AutomationsPage() {
             className="rounded-3xl p-4"
             style={{ background: "rgba(255,255,255,0.05)", border: "1px solid rgba(255,255,255,0.10)" }}
           >
-            <p className="text-white font-semibold text-sm mb-3">Quick Templates</p>
+            <p className="text-white font-semibold text-sm mb-3">{t("auto.quickTemplates")}</p>
             <div className="grid grid-cols-2 gap-2">
-              {automationTemplates.map((t) => (
+              {automationTemplates.map((tpl) => (
                 <button
-                  key={t.name}
+                  key={tpl.nkey}
                   onClick={() => setShowTemplates(false)}
                   className="rounded-2xl p-3 text-left active:scale-95 transition-transform"
                   style={{ background: "rgba(255,255,255,0.06)", border: "1px solid rgba(255,255,255,0.08)" }}
                 >
-                  <span className="text-xl">{t.icon}</span>
-                  <p className="text-white text-xs font-medium mt-1.5 leading-tight">{t.name}</p>
-                  <p className="text-text-secondary text-[10px] mt-0.5">{t.desc}</p>
+                  <span className="text-xl">{tpl.icon}</span>
+                  <p className="text-white text-xs font-medium mt-1.5 leading-tight">{t(tpl.nkey)}</p>
+                  <p className="text-text-secondary text-[10px] mt-0.5">{t(tpl.dkey)}</p>
                 </button>
               ))}
             </div>
             <div className="flex gap-2 mt-3">
               <Link href="/automations/new" className="flex-1">
                 <button className="w-full rounded-2xl py-2.5 text-sm font-medium" style={{ background: "rgba(255,255,255,0.07)", border: "1px solid var(--glass-border)", color: "var(--text-1)" }}>
-                  Wizard
+                  {t("auto.wizard")}
                 </button>
               </Link>
               <Link href="/automations/builder" className="flex-1">
                 <button className="w-full rounded-2xl py-2.5 text-sm font-medium" style={{ background: "linear-gradient(135deg, #4ADE80, #22D3EE)", color: "#050A14" }}>
-                  Builder vizual
+                  {t("auto.builder")}
                 </button>
               </Link>
             </div>
@@ -214,21 +214,21 @@ export default function AutomationsPage() {
           style={{ background: "rgba(124,58,237,0.08)", border: "1px solid rgba(124,58,237,0.20)" }}
         >
           <div>
-            <p className="text-text-secondary text-xs">System Status</p>
-            <p className="text-white font-bold text-lg mt-0.5">All Running</p>
+            <p className="text-text-secondary text-xs">{t("auto.systemStatus")}</p>
+            <p className="text-white font-bold text-lg mt-0.5">{t("auto.allRunning")}</p>
           </div>
           <div className="flex gap-5">
             <div className="text-center">
               <p className="text-white font-bold text-lg">{activeCount}</p>
-              <p className="text-text-secondary text-[10px]">Active</p>
+              <p className="text-text-secondary text-[10px]">{t("auto.active")}</p>
             </div>
             <div className="text-center">
               <p className="text-white font-bold text-lg">{runsToday}</p>
-              <p className="text-text-secondary text-[10px]">Today</p>
+              <p className="text-text-secondary text-[10px]">{t("auto.today")}</p>
             </div>
             <div className="text-center">
               <p className="text-accent-green font-bold text-lg">99%</p>
-              <p className="text-text-secondary text-[10px]">Success</p>
+              <p className="text-text-secondary text-[10px]">{t("auto.success")}</p>
             </div>
           </div>
         </div>
@@ -237,11 +237,11 @@ export default function AutomationsPage() {
       {/* Smart rules — evaluated against live conditions (tariff, AQI, weather) */}
       <div className="px-4 mb-4">
         <div className="flex items-center gap-2 mb-2 px-1">
-          <p className="text-text-secondary text-xs font-medium uppercase tracking-wide">Smart rules · live</p>
+          <p className="text-text-secondary text-xs font-medium uppercase tracking-wide">{t("auto.smartRules")}</p>
           <span className="text-[10px] font-semibold px-2 py-0.5 rounded-full" style={live
             ? { background: "rgba(74,222,128,0.15)", color: "#4ADE80" }
-            : { background: "rgba(255,255,255,0.06)", color: "#9CA3AF" }}>{live ? "Live data" : "Demo"}</span>
-          <span className="text-text-tertiary text-[10px] ml-auto">{activeRules} active now</span>
+            : { background: "rgba(255,255,255,0.06)", color: "#9CA3AF" }}>{live ? t("auto.liveData") : t("auto.demo")}</span>
+          <span className="text-text-tertiary text-[10px] ml-auto">{activeRules} {t("auto.activeNow")}</span>
         </div>
         <div className="rounded-2xl liquid-glass overflow-hidden">
           {smartRules.map((r, i) => (
@@ -253,7 +253,7 @@ export default function AutomationsPage() {
               </div>
               <span className="text-[9px] font-semibold px-2 py-0.5 rounded-full flex-shrink-0" style={r.active
                 ? { background: "rgba(74,222,128,0.15)", color: "#4ADE80" }
-                : { background: "var(--glass-bg)", color: "var(--text-3)" }}>{r.active ? "ON" : "idle"}</span>
+                : { background: "var(--glass-bg)", color: "var(--text-3)" }}>{r.active ? t("auto.on") : t("auto.idle")}</span>
             </div>
           ))}
         </div>
@@ -270,17 +270,17 @@ export default function AutomationsPage() {
         return (
           <div className="px-4 mb-3">
             <div className="flex items-center gap-2 mb-2 px-1">
-              <p className="text-text-secondary text-xs font-medium uppercase tracking-wide">Scheduler · azi</p>
+              <p className="text-text-secondary text-xs font-medium uppercase tracking-wide">{t("auto.scheduler")}</p>
               <span className="text-[10px] font-semibold px-2 py-0.5 rounded-full" style={scheduleHook.source === "remote"
                 ? { background: "rgba(74,222,128,0.15)", color: "#4ADE80" }
-                : { background: "rgba(255,255,255,0.06)", color: "#9CA3AF" }}>{scheduleHook.source === "remote" ? "Synced" : "Demo"}</span>
+                : { background: "rgba(255,255,255,0.06)", color: "#9CA3AF" }}>{scheduleHook.source === "remote" ? t("common.synced") : t("auto.demo")}</span>
             </div>
             <div className="rounded-2xl p-3 liquid-glass space-y-2">
               {scheduled.map((a) => (
                 <div key={a.id} className="flex items-center gap-3">
                   <span className="text-xs font-bold w-12 flex-shrink-0" style={{ color: a.accent }}>{a.t}</span>
                   <span className="text-sm flex-1 truncate" style={{ color: "var(--text-1)" }}>{a.icon} {a.name}</span>
-                  <span className="text-[10px]" style={{ color: a.enabled ? "#4ADE80" : "var(--text-3)" }}>{a.enabled ? "armat" : "oprit"}</span>
+                  <span className="text-[10px]" style={{ color: a.enabled ? "#4ADE80" : "var(--text-3)" }}>{a.enabled ? t("auto.armed") : t("auto.off")}</span>
                 </div>
               ))}
             </div>
@@ -293,7 +293,7 @@ export default function AutomationsPage() {
         {["All", ...Array.from(new Set(automations.map((a) => a.zone)))].map((area) => (
           <button key={area} onClick={() => setAreaFilter(area)} className="px-3.5 py-1.5 rounded-full text-xs font-medium whitespace-nowrap flex-shrink-0 transition-all"
             style={areaFilter === area ? { background: "var(--accent)", color: "#050A14" } : { background: "rgba(255,255,255,0.07)", color: "var(--text-3)", border: "1px solid rgba(255,255,255,0.09)" }}>
-            {area === "All" ? "Toate zonele" : area}
+            {area === "All" ? t("auto.allZones") : area}
           </button>
         ))}
       </div>
@@ -326,7 +326,7 @@ export default function AutomationsPage() {
                   </div>
                   <p className="text-text-secondary text-xs">⚡ {auto.trigger}</p>
                   <p className="text-text-secondary text-xs mt-0.5">→ {auto.action}</p>
-                  <p className="text-text-tertiary text-[10px] mt-1">Last run: {auto.lastRun} · {auto.successRate}% success</p>
+                  <p className="text-text-tertiary text-[10px] mt-1">{t("auto.lastRun")}: {auto.lastRun} · {auto.successRate}% {t("auto.successWord")}</p>
                 </div>
                 <div className="flex flex-col items-center gap-2.5 flex-shrink-0">
                   {/* Toggle */}
@@ -367,25 +367,25 @@ export default function AutomationsPage() {
           <div className="space-y-4">
             <div className="flex items-center gap-2">
               <span className="text-[10px] font-medium px-2 py-0.5 rounded-full" style={{ background: `${detail.accentColor}18`, color: detail.accentColor }}>{detail.zone}</span>
-              <span className="text-[10px] font-medium px-2 py-0.5 rounded-full" style={{ background: detail.active ? "rgba(74,222,128,0.15)" : "var(--glass-bg)", color: detail.active ? "#4ADE80" : "var(--text-3)" }}>{detail.active ? "Active" : "Paused"}</span>
+              <span className="text-[10px] font-medium px-2 py-0.5 rounded-full" style={{ background: detail.active ? "rgba(74,222,128,0.15)" : "var(--glass-bg)", color: detail.active ? "#4ADE80" : "var(--text-3)" }}>{detail.active ? t("auto.active") : t("auto.paused")}</span>
             </div>
 
             <div className="rounded-2xl p-3.5 liquid-glass space-y-2.5">
               <div>
-                <p className="text-text-secondary text-[11px] uppercase tracking-wide">Trigger</p>
+                <p className="text-text-secondary text-[11px] uppercase tracking-wide">{t("auto.trigger")}</p>
                 <p className="text-sm" style={{ color: "var(--text-1)" }}>⚡ {detail.trigger}</p>
               </div>
               <div>
-                <p className="text-text-secondary text-[11px] uppercase tracking-wide">Action</p>
+                <p className="text-text-secondary text-[11px] uppercase tracking-wide">{t("auto.action")}</p>
                 <p className="text-sm" style={{ color: "var(--text-1)" }}>→ {detail.action}</p>
               </div>
             </div>
 
             <div className="grid grid-cols-3 gap-2">
               {[
-                { label: "Last run", value: detail.lastRun },
-                { label: "Runs today", value: String(detail.runsToday) },
-                { label: "Success", value: `${detail.successRate}%` },
+                { label: t("auto.lastRun"), value: detail.lastRun },
+                { label: t("auto.runsTodayStat"), value: String(detail.runsToday) },
+                { label: t("auto.success"), value: `${detail.successRate}%` },
               ].map((stat) => (
                 <div key={stat.label} className="rounded-2xl p-3 text-center liquid-glass">
                   <p className="font-bold text-sm" style={{ color: "var(--text-1)" }}>{stat.value}</p>
@@ -396,7 +396,7 @@ export default function AutomationsPage() {
 
             <Link href={`/automations/${detail.id}`} className="block">
               <button className="w-full rounded-2xl py-3 text-sm font-medium" style={{ background: "var(--accent)", color: "var(--bg-1)" }}>
-                Open full automation
+                {t("auto.openFull")}
               </button>
             </Link>
           </div>

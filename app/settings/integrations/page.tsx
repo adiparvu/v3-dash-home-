@@ -3,7 +3,16 @@
 import { useState } from "react";
 import Link from "next/link";
 import StatusBar from "../../components/layout/StatusBar";
-import { INTEGRATIONS, CATEGORIES, useIntegrations } from "../../lib/integrations";
+import { INTEGRATIONS, CATEGORIES, useIntegrations, type IntegrationCategory } from "../../lib/integrations";
+import { useT, type MessageKey } from "../../lib/i18n";
+
+const CAT_KEYS: Record<IntegrationCategory, MessageKey> = {
+  "Smart Home & Standards": "int.cat.smartHome",
+  Security: "int.cat.security",
+  "Finance & Banking": "int.cat.finance",
+  "Rentals & Hospitality": "int.cat.rentals",
+  "Energy & Environment": "int.cat.energy",
+};
 
 /**
  * Integrations hub — a categorized catalog where every integration is
@@ -13,6 +22,7 @@ import { INTEGRATIONS, CATEGORIES, useIntegrations } from "../../lib/integration
 export default function IntegrationsPage() {
   const [query, setQuery] = useState("");
   const { isConnected, connectedCount } = useIntegrations();
+  const t = useT();
   const q = query.trim().toLowerCase();
 
   const sections = CATEGORIES.map((cat) => ({
@@ -40,8 +50,8 @@ export default function IntegrationsPage() {
             <span className="w-2 h-2 rounded-full" style={{ background: "var(--accent)", boxShadow: "0 0 8px var(--accent)" }} />
           </div>
           <div className="flex-1">
-            <p className="text-sm font-semibold" style={{ color: "var(--text-1)" }}>All systems operational</p>
-            <p className="text-text-secondary text-xs">{connectedCount} of {INTEGRATIONS.length} integrations connected</p>
+            <p className="text-sm font-semibold" style={{ color: "var(--text-1)" }}>{t("int.allOperational")}</p>
+            <p className="text-text-secondary text-xs">{connectedCount} {t("int.of")} {INTEGRATIONS.length} {t("int.connectedCountWord")}</p>
           </div>
         </div>
 
@@ -50,8 +60,8 @@ export default function IntegrationsPage() {
           type="search"
           value={query}
           onChange={(e) => setQuery(e.target.value)}
-          placeholder="Search integrations"
-          aria-label="Search integrations"
+          placeholder={t("int.search")}
+          aria-label={t("int.search")}
           className="w-full rounded-2xl px-4 py-2.5 text-sm"
           style={{ background: "var(--glass-bg)", border: "0.5px solid var(--glass-border)", color: "var(--text-1)" }}
         />
@@ -59,7 +69,7 @@ export default function IntegrationsPage() {
         {/* Categorized integrations */}
         {sections.map((section) => (
           <div key={section.title}>
-            <p className="text-text-secondary text-xs font-medium uppercase tracking-wide mb-2 px-1">{section.title}</p>
+            <p className="text-text-secondary text-xs font-medium uppercase tracking-wide mb-2 px-1">{t(CAT_KEYS[section.title as IntegrationCategory])}</p>
             <div className="rounded-2xl overflow-hidden" style={{ background: "rgba(255,255,255,0.04)", border: "0.5px solid var(--glass-border)" }}>
               {section.items.map((item, i) => {
                 const connected = isConnected(item.id);
@@ -73,11 +83,11 @@ export default function IntegrationsPage() {
                       </div>
                       {connected ? (
                         <span className="text-[10px] font-semibold px-2 py-1 rounded-full flex-shrink-0" style={{ background: "rgba(74,222,128,0.15)", color: "#4ADE80" }}>
-                          {item.connectedBadge ?? "● Connected"}
+                          {item.connectedBadge ?? `● ${t("int.connectedPill")}`}
                         </span>
                       ) : (
                         <span className="text-[10px] font-semibold px-2.5 py-1 rounded-full flex-shrink-0" style={{ background: "rgba(34,211,238,0.15)", color: "#22D3EE", border: "0.5px solid rgba(34,211,238,0.3)" }}>
-                          Connect
+                          {t("int.connect")}
                         </span>
                       )}
                     </div>
@@ -89,12 +99,12 @@ export default function IntegrationsPage() {
         ))}
 
         {sections.length === 0 && (
-          <p className="text-text-secondary text-sm text-center py-6">No integration matches “{query}”.</p>
+          <p className="text-text-secondary text-sm text-center py-6">{t("int.noMatch")} “{query}”.</p>
         )}
 
         {/* Developer */}
         <div>
-          <p className="text-text-secondary text-xs font-medium uppercase tracking-wide mb-2 px-1">Developer</p>
+          <p className="text-text-secondary text-xs font-medium uppercase tracking-wide mb-2 px-1">{t("int.developer")}</p>
           <Link href="#">
             <div className="liquid-glass rounded-2xl p-4 flex items-center gap-3.5 active:scale-[0.98] transition-transform">
               <div className="w-11 h-11 rounded-2xl flex items-center justify-center flex-shrink-0" style={{ background: "var(--glass-bg)", border: "0.5px solid var(--glass-border)" }}>
@@ -103,8 +113,8 @@ export default function IntegrationsPage() {
                 </svg>
               </div>
               <div className="flex-1">
-                <p className="text-sm font-medium" style={{ color: "var(--text-1)" }}>API Keys & Webhooks</p>
-                <p className="text-text-secondary text-xs">Build custom automations</p>
+                <p className="text-sm font-medium" style={{ color: "var(--text-1)" }}>{t("int.apiKeys")}</p>
+                <p className="text-text-secondary text-xs">{t("int.apiKeysDesc")}</p>
               </div>
               <svg width="16" height="16" viewBox="0 0 24 24" fill="none" style={{ opacity: 0.4 }} aria-hidden="true"><path d="M9 18l6-6-6-6" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round" /></svg>
             </div>
