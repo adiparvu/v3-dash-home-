@@ -4,25 +4,29 @@ import { useState } from "react";
 import Link from "next/link";
 import StatusBar from "../../components/layout/StatusBar";
 import BottomNav from "../../components/layout/BottomNav";
+import { useT, type MessageKey } from "../../lib/i18n";
 
 const deviceCategories = ["All", "Lighting", "Security", "Climate", "Energy"];
+const CAT_KEY: Record<string, MessageKey> = { All: "zp.sh.catAll", Lighting: "zp.sh.catLighting", Security: "zp.sh.catSecurity", Climate: "zp.sh.catClimate", Energy: "zp.sh.catEnergy" };
 
-const devices = [
-  { id: "d1", name: "Living Room Lights", category: "Lighting", status: true, value: "80%", icon: "💡", color: "#F59E0B", room: "Living Room" },
-  { id: "d2", name: "Kitchen Lights", category: "Lighting", status: false, value: "Off", icon: "💡", color: "#F59E0B", room: "Kitchen" },
-  { id: "d3", name: "Bedroom Lights", category: "Lighting", status: false, value: "Off", icon: "💡", color: "#F59E0B", room: "Master Bedroom" },
-  { id: "d4", name: "Exterior Lights", category: "Lighting", status: true, value: "100%", icon: "🔦", color: "#F59E0B", room: "Exterior" },
-  { id: "d5", name: "Main Gate Lock", category: "Security", status: true, value: "Locked", icon: "🔒", color: "#7C3AED", room: "Gate" },
-  { id: "d6", name: "Front Door Lock", category: "Security", status: true, value: "Locked", icon: "🔒", color: "#7C3AED", room: "Entrance" },
-  { id: "d7", name: "Security Alarm", category: "Security", status: false, value: "Disarmed", icon: "🚨", color: "#EF4444", room: "Estate" },
-  { id: "d8", name: "Living Room AC", category: "Climate", status: true, value: "22°C", icon: "❄️", color: "#22D3EE", room: "Living Room" },
-  { id: "d9", name: "Master Bedroom AC", category: "Climate", status: false, value: "Off", icon: "❄️", color: "#22D3EE", room: "Master Bedroom" },
-  { id: "d10", name: "Underfloor Heating", category: "Climate", status: true, value: "21°C", icon: "🌡️", color: "#EF4444", room: "Ground Floor" },
-  { id: "d11", name: "Solar Inverter", category: "Energy", status: true, value: "14.2 kW", icon: "☀️", color: "#4ADE80", room: "Roof" },
-  { id: "d12", name: "Battery Storage", category: "Energy", status: true, value: "94%", icon: "🔋", color: "#4ADE80", room: "Utility" },
+type Device = { id: string; nameKey: MessageKey; category: string; status: boolean; value: string; valueKey?: MessageKey; icon: string; color: string; roomKey: MessageKey };
+const devices: Device[] = [
+  { id: "d1", nameKey: "zp.sh.d1", category: "Lighting", status: true, value: "80%", icon: "💡", color: "#F59E0B", roomKey: "zp.sh.rLiving" },
+  { id: "d2", nameKey: "zp.sh.d2", category: "Lighting", status: false, value: "", valueKey: "zp.sh.off", icon: "💡", color: "#F59E0B", roomKey: "zp.sh.rKitchen" },
+  { id: "d3", nameKey: "zp.sh.d3", category: "Lighting", status: false, value: "", valueKey: "zp.sh.off", icon: "💡", color: "#F59E0B", roomKey: "zp.sh.rBedroom" },
+  { id: "d4", nameKey: "zp.sh.d4", category: "Lighting", status: true, value: "100%", icon: "🔦", color: "#F59E0B", roomKey: "zp.sh.rExterior" },
+  { id: "d5", nameKey: "zp.sh.d5", category: "Security", status: true, value: "", valueKey: "zp.sh.locked", icon: "🔒", color: "#7C3AED", roomKey: "zp.sh.rGate" },
+  { id: "d6", nameKey: "zp.sh.d6", category: "Security", status: true, value: "", valueKey: "zp.sh.locked", icon: "🔒", color: "#7C3AED", roomKey: "zp.sh.rEntrance" },
+  { id: "d7", nameKey: "zp.sh.d7", category: "Security", status: false, value: "", valueKey: "zp.sh.disarmed", icon: "🚨", color: "#EF4444", roomKey: "zp.sh.rEstate" },
+  { id: "d8", nameKey: "zp.sh.d8", category: "Climate", status: true, value: "22°C", icon: "❄️", color: "#22D3EE", roomKey: "zp.sh.rLiving" },
+  { id: "d9", nameKey: "zp.sh.d9", category: "Climate", status: false, value: "", valueKey: "zp.sh.off", icon: "❄️", color: "#22D3EE", roomKey: "zp.sh.rBedroom" },
+  { id: "d10", nameKey: "zp.sh.d10", category: "Climate", status: true, value: "21°C", icon: "🌡️", color: "#EF4444", roomKey: "zp.sh.rGroundFloor" },
+  { id: "d11", nameKey: "zp.sh.d11", category: "Energy", status: true, value: "14.2 kW", icon: "☀️", color: "#4ADE80", roomKey: "zp.sh.rRoof" },
+  { id: "d12", nameKey: "zp.sh.d12", category: "Energy", status: true, value: "94%", icon: "🔋", color: "#4ADE80", roomKey: "zp.sh.rUtility" },
 ];
 
 export default function SmartHomePage() {
+  const t = useT();
   const [category, setCategory] = useState("All");
   const [deviceStates, setDeviceStates] = useState<Record<string, boolean>>(
     Object.fromEntries(devices.map((d) => [d.id, d.status]))
@@ -77,9 +81,9 @@ export default function SmartHomePage() {
         <div className="absolute bottom-5 left-5">
           <div className="flex items-center gap-2 mb-1">
             <span className="text-2xl">🤖</span>
-            <h1 className="text-white font-bold text-2xl">Smart Home</h1>
+            <h1 className="text-white font-bold text-2xl">{t("zp.sh.name")}</h1>
           </div>
-          <p className="text-text-secondary text-sm">{onCount}/{devices.length} devices active</p>
+          <p className="text-text-secondary text-sm">{onCount}/{devices.length} {t("zp.sh.devicesActive")}</p>
         </div>
       </div>
 
@@ -87,10 +91,10 @@ export default function SmartHomePage() {
       <div className="px-4 mb-4">
         <div className="grid grid-cols-4 gap-2">
           {[
-            { label: "Active", value: onCount, color: "#4ADE80" },
-            { label: "Lights", value: devices.filter((d) => d.category === "Lighting" && deviceStates[d.id]).length, color: "#F59E0B" },
-            { label: "Secured", value: devices.filter((d) => d.category === "Security" && deviceStates[d.id]).length, color: "#7C3AED" },
-            { label: "Energy", value: "14kW", color: "#22D3EE" },
+            { label: t("zp.sh.stActive"), value: onCount, color: "#4ADE80" },
+            { label: t("zp.sh.stLights"), value: devices.filter((d) => d.category === "Lighting" && deviceStates[d.id]).length, color: "#F59E0B" },
+            { label: t("zp.sh.stSecured"), value: devices.filter((d) => d.category === "Security" && deviceStates[d.id]).length, color: "#7C3AED" },
+            { label: t("zp.sh.stEnergy"), value: "14kW", color: "#22D3EE" },
           ].map((s) => (
             <div key={s.label} className="rounded-2xl p-2.5 text-center" style={{ background: "rgba(255,255,255,0.05)", border: `1px solid ${s.color}20` }}>
               <p className="font-bold text-lg" style={{ color: s.color }}>{s.value}</p>
@@ -105,7 +109,7 @@ export default function SmartHomePage() {
         {deviceCategories.map((c) => (
           <button key={c} onClick={() => setCategory(c)} className="px-4 py-1.5 rounded-full text-sm font-medium whitespace-nowrap flex-shrink-0 transition-all"
             style={category === c ? { background: "#4ADE80", color: "#050A14" } : { background: "rgba(255,255,255,0.07)", color: "#9CA3AF", border: "1px solid rgba(255,255,255,0.09)" }}>
-            {c}
+            {t(CAT_KEY[c])}
           </button>
         ))}
       </div>
@@ -120,11 +124,11 @@ export default function SmartHomePage() {
                 {device.icon}
               </div>
               <div className="flex-1 min-w-0">
-                <p className="text-white text-sm font-medium truncate">{device.name}</p>
-                <p className="text-text-secondary text-xs">{device.room}</p>
+                <p className="text-white text-sm font-medium truncate">{t(device.nameKey)}</p>
+                <p className="text-text-secondary text-xs">{t(device.roomKey)}</p>
               </div>
               <div className="flex items-center gap-3 flex-shrink-0">
-                <span className="text-xs font-medium" style={{ color: on ? device.color : "#6B7280" }}>{on ? device.value : "Off"}</span>
+                <span className="text-xs font-medium" style={{ color: on ? device.color : "#6B7280" }}>{on ? (device.valueKey ? t(device.valueKey) : device.value) : t("zp.sh.off")}</span>
                 <button onClick={() => toggle(device.id)} className="w-11 h-6 rounded-full relative transition-all duration-200" style={{ background: on ? device.color : "rgba(255,255,255,0.15)" }}>
                   <div className="absolute top-0.5 w-5 h-5 rounded-full transition-all duration-200" style={{ left: on ? "calc(100% - 22px)" : "2px", background: on ? "#050A14" : "rgba(255,255,255,0.5)" }} />
                 </button>
