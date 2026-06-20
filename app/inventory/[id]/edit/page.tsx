@@ -24,9 +24,9 @@ const LOC_KEY: Record<string, MessageKey> = {
 };
 
 function Field({
-  label, value, ph, active, onChange, onFocus, onBlur,
+  label, value, ph, active, onChange, onFocus, onBlur, type = "text",
 }: {
-  label: string; value: string; ph: string; active: boolean;
+  label: string; value: string; ph?: string; active: boolean; type?: string;
   onChange: (v: string) => void; onFocus: () => void; onBlur: () => void;
 }) {
   return (
@@ -34,13 +34,14 @@ function Field({
       <label className="text-xs font-medium block mb-1.5 px-1" style={{ color: "var(--text-2)" }}>{label}</label>
       <div className="rounded-2xl overflow-hidden transition-all" style={{ background: "var(--glass-bg)", border: `1px solid ${active ? "var(--accent)" : "var(--glass-border)"}` }}>
         <input
+          type={type}
           value={value}
           onChange={(e) => onChange(e.target.value)}
           onFocus={onFocus}
           onBlur={onBlur}
           placeholder={ph}
           className="w-full bg-transparent px-4 py-3.5 text-sm outline-none"
-          style={{ color: "var(--text-1)", caretColor: "var(--accent)" }}
+          style={{ color: "var(--text-1)", caretColor: "var(--accent)", colorScheme: "dark" }}
         />
       </div>
     </div>
@@ -56,7 +57,8 @@ export default function EditInventoryPage() {
   const [missing, setMissing] = useState(false);
   const [href, setHref] = useState("");
   const [form, setForm] = useState({
-    name: "", category: "Equipment", location: "Lake", brand: "", model: "", serial: "", icon: "⚙️",
+    name: "", category: "Equipment", location: "Lake", brand: "", model: "", serial: "",
+    purchaseDate: "", warranty: "", quantity: "", value: "", notes: "", icon: "⚙️",
   });
   const [focused, setFocused] = useState<string | null>(null);
 
@@ -69,7 +71,9 @@ export default function EditInventoryPage() {
       setHref(a.href);
       setForm({
         name: a.name, category: a.category, location: a.location,
-        brand: a.brand ?? "", model: a.model ?? "", serial: a.serial ?? "", icon: a.icon,
+        brand: a.brand ?? "", model: a.model ?? "", serial: a.serial ?? "",
+        purchaseDate: a.purchaseDate ?? "", warranty: a.warranty ?? "", quantity: a.quantity ?? "",
+        value: a.value ?? "", notes: a.notes ?? "", icon: a.icon,
       });
     }
     setLoaded(true);
@@ -90,11 +94,16 @@ export default function EditInventoryPage() {
       brand: form.brand.trim(),
       model: form.model.trim(),
       serial: form.serial.trim(),
+      purchaseDate: form.purchaseDate.trim(),
+      warranty: form.warranty.trim(),
+      quantity: form.quantity.trim(),
+      value: form.value.trim(),
+      notes: form.notes.trim(),
     });
     router.push(href);
   };
 
-  const fieldProps = (k: "name" | "brand" | "model" | "serial") => ({
+  const fieldProps = (k: "name" | "brand" | "model" | "serial" | "quantity" | "value") => ({
     value: form[k],
     active: focused === k,
     onChange: (v: string) => set(k, v),
@@ -183,6 +192,31 @@ export default function EditInventoryPage() {
         <Field label={t("inv.brand")} ph={t("inv.brandPh")} {...fieldProps("brand")} />
         <Field label={t("inv.model")} ph={t("inv.modelPh")} {...fieldProps("model")} />
         <Field label={t("inv.serial")} ph={t("inv.serialPh")} {...fieldProps("serial")} />
+
+        <div className="grid grid-cols-2 gap-3">
+          <Field label={t("inv.purchaseDate")} type="date" value={form.purchaseDate} active={focused === "purchaseDate"} onChange={(v) => set("purchaseDate", v)} onFocus={() => setFocused("purchaseDate")} onBlur={() => setFocused(null)} />
+          <Field label={t("inv.warranty")} type="date" value={form.warranty} active={focused === "warranty"} onChange={(v) => set("warranty", v)} onFocus={() => setFocused("warranty")} onBlur={() => setFocused(null)} />
+        </div>
+        <div className="grid grid-cols-2 gap-3">
+          <Field label={t("inv.quantity")} ph={t("inv.quantityPh")} type="number" {...fieldProps("quantity")} />
+          <Field label={t("inv.value")} ph={t("inv.valuePh")} {...fieldProps("value")} />
+        </div>
+
+        <div>
+          <label className="text-xs font-medium block mb-1.5 px-1" style={{ color: "var(--text-2)" }}>{t("inv.notes")}</label>
+          <div className="rounded-2xl overflow-hidden transition-all" style={{ background: "var(--glass-bg)", border: `1px solid ${focused === "notes" ? "var(--accent)" : "var(--glass-border)"}` }}>
+            <textarea
+              value={form.notes}
+              onChange={(e) => set("notes", e.target.value)}
+              onFocus={() => setFocused("notes")}
+              onBlur={() => setFocused(null)}
+              placeholder={t("inv.notesPh")}
+              rows={3}
+              className="w-full bg-transparent px-4 py-3.5 text-sm outline-none resize-none"
+              style={{ color: "var(--text-1)", caretColor: "var(--accent)" }}
+            />
+          </div>
+        </div>
 
         <button
           onClick={save}

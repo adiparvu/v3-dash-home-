@@ -196,8 +196,8 @@ export default function InventoryDetailPage() {
         brand: custom.brand || "—",
         model: custom.model || "—",
         serial: custom.serial || "—",
-        purchaseDate: "—",
-        warranty: "—",
+        purchaseDate: custom.purchaseDate || "—",
+        warranty: custom.warranty || "—",
       }
     : assetData[params.id]
     ? assetData[params.id]
@@ -219,6 +219,11 @@ export default function InventoryDetailPage() {
         warranty: "—",
       }
     : defaultAsset;
+
+  // Quantity / value / notes only exist on user-added assets.
+  const extraQuantity = custom?.quantity?.trim() ?? "";
+  const extraValue = custom?.value?.trim() ?? "";
+  const extraNotes = custom?.notes?.trim() ?? "";
 
   return (
     <div className="min-h-screen" style={{ background: "var(--bg-1)" }}>
@@ -358,6 +363,8 @@ export default function InventoryDetailPage() {
                 { label: t("idet.purchaseDate"), value: asset.purchaseDate },
                 { label: t("idet.warranty"), value: asset.warranty === "N/A" ? t("idet.na") : asset.warranty },
                 { label: t("idet.location"), value: tx(LOC_KEY, asset.location) },
+                ...(extraQuantity ? [{ label: t("idet.quantity"), value: extraQuantity }] : []),
+                ...(extraValue ? [{ label: t("idet.value"), value: extraValue }] : []),
               ].map((row, i, arr) => (
                 <div
                   key={row.label}
@@ -369,6 +376,14 @@ export default function InventoryDetailPage() {
                 </div>
               ))}
             </div>
+
+            {/* Notes */}
+            {extraNotes && (
+              <div className="liquid-glass rounded-2xl p-4 mb-4">
+                <p className="text-xs font-semibold uppercase tracking-widest mb-1.5" style={{ color: "var(--text-3)" }}>{t("idet.notes")}</p>
+                <p className="text-sm leading-relaxed whitespace-pre-wrap" style={{ color: "var(--text-1)" }}>{extraNotes}</p>
+              </div>
+            )}
 
             {/* Quick Actions */}
             <p className="text-xs font-semibold uppercase tracking-widest mb-3" style={{ color: "var(--text-3)" }}>

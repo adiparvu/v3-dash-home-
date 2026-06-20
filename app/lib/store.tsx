@@ -30,6 +30,11 @@ export type Asset = {
   brand?: string;
   model?: string;
   serial?: string;
+  purchaseDate?: string;
+  warranty?: string;
+  quantity?: string;
+  value?: string;
+  notes?: string;
   custom?: boolean;
 };
 
