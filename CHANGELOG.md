@@ -9,6 +9,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 ### Added
+- **Phase 8 — multiplatform (iPad / Mac / Vision Pro) + Apple Watch** — the
+  `PRVIOEarth` target now builds for **iPhone + iPad + Mac Catalyst + Vision Pro**
+  from one codebase, with an adaptive layout (tab bar on iPhone, `NavigationSplitView`
+  sidebar on regular widths). A new standalone **watchOS** target
+  (`PRVIOEarthWatch`) reuses the shared `EstateSnapshot` to show estate health,
+  counts and tasks across vertical pages. All targets share the code under
+  `apple/Shared/`.
 - **Phase 8 — Live Activities (ActivityKit)** — in-progress estate jobs
   (maintenance / delivery / inspection / incident) surface on the **Lock Screen**
   and **Dynamic Island** (compact / minimal / expanded). `MaintenanceActivityAttributes`

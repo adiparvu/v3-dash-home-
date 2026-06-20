@@ -5,9 +5,15 @@ contracts** as the web client (`/api/v1`, `{ "apiVersion": "1.0.0", "data": … 
 and the same Supabase identity, so the estate, profile and security data are
 shared across platforms.
 
-This is **Phase 8, increment 1**: the iPhone app foundation. Later increments add
-Widgets (WidgetKit), Live Activities (ActivityKit), and iPad / Mac / Apple Watch /
-Vision Pro targets on the same shared layer.
+**Phase 8** covers the native Apple clients. Targets:
+
+- **PRVIOEarth** — one multiplatform app: **iPhone + iPad + Mac (Catalyst) +
+  Vision Pro**, with an adaptive layout (tab bar on iPhone, sidebar split view on
+  regular widths).
+- **PRVIOEarthWidgets** — WidgetKit widgets + Live Activities.
+- **PRVIOEarthWatch** — Apple Watch app.
+
+All share the code under `Shared/` and the design system.
 
 > **Status / honesty note:** this code is authored to open and build in Xcode on
 > macOS. It has **not** been compiled in this environment (the repo CI runs on
@@ -99,6 +105,19 @@ lives on the **Property detail** screen ("Start maintenance job").
   `{ apiVersion, data }` envelope. On any network/auth failure it falls back to
   `DemoData` so screens stay usable.
 
+## Multiplatform & Apple Watch
+
+The `PRVIOEarth` target is a single multiplatform app. `MainTabView` adapts via the
+horizontal size class — a `TabView` on iPhone, a `NavigationSplitView` sidebar on
+iPad / Mac Catalyst / Vision Pro — so all screens are reused unchanged. Mac and
+Vision support is enabled through `SUPPORTS_MACCATALYST` /
+`SUPPORTS_*_DESIGNED_FOR_IPHONE_IPAD` in `project.yml`.
+
+`PRVIOEarthWatch` is a standalone watchOS app (`WatchRootView`) that reuses the
+shared `EstateSnapshot` to show estate health, counts and tasks across vertical
+pages. It currently renders the demo snapshot on-watch; WatchConnectivity sync from
+the paired iPhone is a follow-up.
+
 ## Backend auth
 
 `/api/v1` accepts **both** auth schemes: the SSR cookie session (web) and an
@@ -109,6 +128,7 @@ with a real account. With no configuration the app stays in demo mode.
 
 ## Known follow-ups (deferred)
 
-- iPad / Mac / Apple Watch / Vision Pro targets on the shared layer.
+- WatchConnectivity sync (paired-iPhone → Watch); the Watch shows demo data today.
 - Push-updated Live Activities (APNs); local start/update/end works today.
 - Magic-link / OAuth sign-in (deep-link handling); password sign-in works today.
+- A native visionOS scene (spatial); Vision Pro runs the iPad layout today.
