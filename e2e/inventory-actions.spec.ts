@@ -51,6 +51,17 @@ test("quick action Settings navigates to the edit page", async ({ page }) => {
   await expect(page).toHaveURL(/\/inventory\/water-pump\/edit/);
 });
 
+test("upload a document shows it in the list", async ({ page }) => {
+  await page.goto("/inventory/water-pump");
+  await page.getByRole("button", { name: "Documents" }).click();
+  await page.locator('input[type="file"]').setInputFiles({
+    name: "manual.txt",
+    mimeType: "text/plain",
+    buffer: Buffer.from("hello world"),
+  });
+  await expect(page.getByText("manual.txt")).toBeVisible();
+});
+
 test("scan result Add Task navigates to tasks", async ({ page }) => {
   await page.goto("/inventory/qr/WP-001");
   await page.getByRole("button", { name: "Add Task" }).click();

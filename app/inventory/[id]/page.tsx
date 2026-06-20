@@ -9,6 +9,7 @@ import { useAssets } from "../../lib/useAssets";
 import { useT, type MessageKey } from "../../lib/i18n";
 import AssetQrCard from "../../components/inventory/AssetQrCard";
 import { useAssetRecords } from "../../lib/useAssetRecords";
+import { useAssetDocuments } from "../../lib/useAssetDocuments";
 
 const NAME_KEY: Record<string, MessageKey> = {
   "Water Pump": "qrr.nameWaterPump", "Ficus Tree": "qrr.nameFicus", "Air Conditioner": "qrr.nameAC",
@@ -194,6 +195,7 @@ export default function InventoryDetailPage() {
   const { assets: liveAssets, source: assetsSource } = useAssets();
   const remote = liveAssets.find((a) => a.href === `/inventory/${params.id}`);
   const synced = !custom && !assetData[params.id] && !!remote && assetsSource === "remote";
+  const remoteDocs = useAssetDocuments(params.id, synced);
 
   const asset = custom
     ? {
@@ -525,21 +527,30 @@ export default function InventoryDetailPage() {
           </div>
         )}
 
-        {activeTab === "Documents" && (
+        {activeTab === "Documents" && (() => {
+          // Prefer the Supabase-backed list when available; otherwise the local
+          // prototype store. Shape both into one view model.
+          const userDocs = remoteDocs.active
+            ? remoteDocs.documents.map((d) => ({ id: d.id, name: d.name, size: d.size, url: d.url }))
+            : records.documents.map((d) => ({ id: d.id, name: d.name, size: d.size, url: d.dataUrl }));
+          const removeDoc = remoteDocs.active ? remoteDocs.remove : removeDocument;
+          return (
           <div>
             <div className="liquid-glass rounded-2xl overflow-hidden mb-4">
-              {/* User-uploaded documents */}
-              {records.documents.map((doc) => (
+              {/* User documents (remote Storage or local) */}
+              {userDocs.map((doc) => (
                 <div key={doc.id} className="flex items-center gap-3.5 px-4 py-4" style={{ borderBottom: "0.5px solid var(--glass-border)" }}>
                   <span className="text-2xl">📎</span>
                   <div className="flex-1 min-w-0">
                     <p className="text-sm font-medium truncate" style={{ color: "var(--text-1)" }}>{doc.name}</p>
                     <p className="text-xs mt-0.5" style={{ color: "var(--text-3)" }}>{doc.size}</p>
                   </div>
-                  {doc.dataUrl && (
+                  {doc.url && (
                     <a
-                      href={doc.dataUrl}
+                      href={doc.url}
                       download={doc.name}
+                      target="_blank"
+                      rel="noopener noreferrer"
                       aria-label={t("idet.download")}
                       className="w-8 h-8 rounded-xl flex items-center justify-center flex-shrink-0"
                       style={{ background: "var(--glass-bg)", border: "0.5px solid var(--glass-border)", color: "var(--text-2)" }}
@@ -549,7 +560,7 @@ export default function InventoryDetailPage() {
                       </svg>
                     </a>
                   )}
-                  <button onClick={() => removeDocument(doc.id)} aria-label={t("idet.remove")} className="text-sm px-1 flex-shrink-0" style={{ color: "#EF4444" }}>✕</button>
+                  <button onClick={() => removeDoc(doc.id)} aria-label={t("idet.remove")} className="text-sm px-1 flex-shrink-0" style={{ color: "#EF4444" }}>✕</button>
                 </div>
               ))}
               {/* Sample documents */}
@@ -575,9 +586,13 @@ export default function InventoryDetailPage() {
               onChange={(e) => {
                 const file = e.target.files?.[0];
                 if (!file) return;
-                const reader = new FileReader();
-                reader.onload = () => addDocument(file.name, humanSize(file.size), typeof reader.result === "string" ? reader.result : undefined);
-                reader.readAsDataURL(file);
+                if (remoteDocs.active) {
+                  remoteDocs.upload(file);
+                } else {
+                  const reader = new FileReader();
+                  reader.onload = () => addDocument(file.name, humanSize(file.size), typeof reader.result === "string" ? reader.result : undefined);
+                  reader.readAsDataURL(file);
+                }
                 e.target.value = "";
               }}
             />
@@ -589,7 +604,8 @@ export default function InventoryDetailPage() {
               {t("idet.uploadDoc")}
             </button>
           </div>
-        )}
+          );
+        })()}
 
         {activeTab === "QR Code" && (
           <AssetQrCard
