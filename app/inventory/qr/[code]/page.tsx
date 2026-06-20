@@ -4,6 +4,15 @@ import Link from "next/link";
 import { useParams } from "next/navigation";
 import StatusBar from "../../../components/layout/StatusBar";
 import { useT, type MessageKey } from "../../../lib/i18n";
+import { useStore } from "../../../lib/store";
+import { useAssets } from "../../../lib/useAssets";
+
+// Translate stored (English) category/location/status values for display.
+const CAT_KEY: Record<string, MessageKey> = { Devices: "inv.catDevices", Plants: "inv.catPlants", Equipment: "inv.catEquipment", Vehicles: "inv.catVehicles" };
+const LOC_KEY: Record<string, MessageKey> = { Lake: "inv.locLake", Forest: "inv.locForest", Greenhouse: "inv.locGreenhouse", Orchard: "inv.locOrchard", Garden: "inv.locGarden", House: "inv.locHouse", Driveway: "inv.locDriveway" };
+const STATUS_KEY: Record<string, MessageKey> = { Active: "inv.statusActive", Idle: "inv.statusIdle", Offline: "inv.statusOffline" };
+
+type Resolved = { name: string; category: string; location: string; status: string; statusColor: string; icon: string; accentColor: string; assetId: string; detailHref: string };
 
 const assetLookup: Record<string, {
   nameKey: MessageKey;
@@ -86,11 +95,25 @@ const assetLookup: Record<string, {
 
 export default function QRResultPage() {
   const t = useT();
+  const tx = (m: Record<string, MessageKey>, v: string) => (m[v] ? t(m[v]) : v);
   const params = useParams<{ code: string }>();
   const decodedCode = decodeURIComponent(params.code).toUpperCase();
-  const asset = assetLookup[decodedCode];
+  const { findAsset } = useStore();
+  const { assets: liveAssets } = useAssets();
 
-  if (!asset) {
+  // Resolve a scanned/typed code: demo catalog first, then real assets (custom
+  // store + live/seed inventory) matched by slug.
+  const demo = assetLookup[decodedCode];
+  const slug = decodedCode.toLowerCase();
+  const real = !demo ? (findAsset(slug) ?? liveAssets.find((a) => a.href === `/inventory/${slug}`)) : undefined;
+
+  const resolved: Resolved | null = demo
+    ? { name: t(demo.nameKey), category: t(demo.categoryKey), location: t(demo.locationKey), status: t(demo.statusKey), statusColor: demo.statusColor, icon: demo.icon, accentColor: demo.accentColor, assetId: demo.assetId, detailHref: demo.detailHref }
+    : real
+    ? { name: real.name, category: tx(CAT_KEY, real.category), location: tx(LOC_KEY, real.location), status: tx(STATUS_KEY, real.status), statusColor: real.statusColor, icon: real.icon, accentColor: real.accentColor, assetId: decodedCode, detailHref: real.href }
+    : null;
+
+  if (!resolved) {
     return (
       <div className="min-h-screen flex flex-col" style={{ background: "#050A14" }}>
         <StatusBar />
@@ -199,7 +222,7 @@ export default function QRResultPage() {
         </div>
 
         <p className="text-sm font-medium mb-1" style={{ color: "#4ADE80" }}>{t("qrr.assetFound")}</p>
-        <h2 className="text-white font-bold text-2xl mb-6">{t(asset.nameKey)}</h2>
+        <h2 className="text-white font-bold text-2xl mb-6">{resolved.name}</h2>
 
         {/* Asset card */}
         <div
@@ -214,25 +237,25 @@ export default function QRResultPage() {
             <div
               className="w-14 h-14 rounded-2xl flex items-center justify-center text-3xl flex-shrink-0"
               style={{
-                background: `${asset.accentColor}12`,
-                border: `1px solid ${asset.accentColor}25`,
+                background: `${resolved.accentColor}12`,
+                border: `1px solid ${resolved.accentColor}25`,
               }}
             >
-              {asset.icon}
+              {resolved.icon}
             </div>
             <div className="flex-1">
-              <p className="text-white font-semibold">{t(asset.nameKey)}</p>
-              <p className="text-xs mt-0.5" style={{ color: "#9CA3AF" }}>{t(asset.categoryKey)}</p>
+              <p className="text-white font-semibold">{resolved.name}</p>
+              <p className="text-xs mt-0.5" style={{ color: "#9CA3AF" }}>{resolved.category}</p>
             </div>
             <span
               className="px-2.5 py-1 rounded-full text-[10px] font-semibold flex-shrink-0"
               style={{
-                background: `${asset.statusColor}18`,
-                color: asset.statusColor,
-                border: `1px solid ${asset.statusColor}30`,
+                background: `${resolved.statusColor}18`,
+                color: resolved.statusColor,
+                border: `1px solid ${resolved.statusColor}30`,
               }}
             >
-              {t(asset.statusKey)}
+              {resolved.status}
             </span>
           </div>
 
@@ -242,19 +265,19 @@ export default function QRResultPage() {
             style={{ borderBottom: "1px solid rgba(255,255,255,0.06)" }}
           >
             <span className="text-sm" style={{ color: "#6B7280" }}>{t("qrr.location")}</span>
-            <span className="text-sm font-medium text-white">{t(asset.locationKey)}</span>
+            <span className="text-sm font-medium text-white">{resolved.location}</span>
           </div>
           <div className="flex items-center justify-between px-4 py-3.5">
             <span className="text-sm" style={{ color: "#6B7280" }}>{t("qrr.assetId")}</span>
-            <span className="text-sm font-mono font-semibold" style={{ color: asset.accentColor }}>
-              {asset.assetId}
+            <span className="text-sm font-mono font-semibold" style={{ color: resolved.accentColor }}>
+              {resolved.assetId}
             </span>
           </div>
         </div>
 
         {/* Action buttons */}
         <Link
-          href={asset.detailHref}
+          href={resolved.detailHref}
           className="w-full py-3.5 rounded-2xl text-sm font-semibold text-center block mb-3"
           style={{
             background: "linear-gradient(135deg, #4ADE80, #22D3EE)",

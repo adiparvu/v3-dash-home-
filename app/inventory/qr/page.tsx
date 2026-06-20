@@ -47,8 +47,15 @@ export default function QRScannerPage() {
       setDetected(value);
       stopCamera();
       const code = value.trim();
-      // If the QR encodes a full path, use it; otherwise treat as asset code
-      const target = code.startsWith("/") ? code : `/inventory/qr/${encodeURIComponent(code)}`;
+      // Our printed labels encode an absolute URL to the asset. Accept those
+      // (route to their in-app path), bare app paths, or a plain asset code.
+      let target: string;
+      try {
+        const url = new URL(code);
+        target = url.pathname + url.search;
+      } catch {
+        target = code.startsWith("/") ? code : `/inventory/qr/${encodeURIComponent(code)}`;
+      }
       setTimeout(() => router.push(target), 450);
     },
     [router, stopCamera]

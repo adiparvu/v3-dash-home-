@@ -7,6 +7,7 @@ import StatusBar from "../../components/layout/StatusBar";
 import { useStore } from "../../lib/store";
 import { useAssets } from "../../lib/useAssets";
 import { useT, type MessageKey } from "../../lib/i18n";
+import AssetQrCard from "../../components/inventory/AssetQrCard";
 
 const NAME_KEY: Record<string, MessageKey> = {
   "Water Pump": "qrr.nameWaterPump", "Ficus Tree": "qrr.nameFicus", "Air Conditioner": "qrr.nameAC",
@@ -507,48 +508,12 @@ export default function InventoryDetailPage() {
         )}
 
         {activeTab === "QR Code" && (
-          <div className="flex flex-col items-center">
-            {/* QR card */}
-            <div className="liquid-glass w-full rounded-2xl p-6 flex flex-col items-center mb-4">
-              {/* QR placeholder */}
-              <div
-                className="w-[180px] h-[180px] rounded-2xl flex items-center justify-center mb-4"
-                style={{ background: "white" }}
-              >
-                <span className="font-bold text-3xl" style={{ color: "#050A14" }}>QR</span>
-              </div>
-
-              {/* Asset ID */}
-              <p className="text-sm font-medium mb-1" style={{ color: "var(--text-2)" }}>
-                {t("idet.assetId")}
-              </p>
-              <p className="font-bold text-lg tracking-widest" style={{ color: "var(--text-1)" }}>{asset.assetId}</p>
-            </div>
-
-            {/* Download QR */}
-            <button
-              className="w-full py-3.5 rounded-2xl text-sm font-semibold mb-3"
-              style={{
-                background: "linear-gradient(135deg, #4ADE80, #22D3EE)",
-                color: "#050A14",
-              }}
-            >
-              {t("idet.downloadQr")}
-            </button>
-
-            {/* Print Label */}
-            <button
-              className="w-full py-3.5 rounded-2xl text-sm font-semibold"
-              style={{
-                background: "var(--glass-bg)",
-                color: "var(--text-1)",
-                border: "0.5px solid var(--glass-border)",
-                backdropFilter: "blur(20px)",
-              }}
-            >
-              {t("idet.printLabel")}
-            </button>
-          </div>
+          <AssetQrCard
+            path={custom?.href ?? `/inventory/${params.id}`}
+            assetName={tx(NAME_KEY, asset.name)}
+            assetId={asset.assetId}
+            location={tx(LOC_KEY, asset.location)}
+          />
         )}
       </div>
 
