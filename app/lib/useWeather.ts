@@ -7,9 +7,9 @@
  */
 import { useEffect, useState } from "react";
 
-export type Weather = { tempC: number; condition: string; icon: string; high: number; low: number; source: "live" | "fallback" };
+export type Weather = { tempC: number; condition: string; icon: string; high: number; low: number; uv: number; source: "live" | "fallback" };
 
-const FALLBACK: Weather = { tempC: 22, condition: "Clear", icon: "☀️", high: 26, low: 14, source: "fallback" };
+const FALLBACK: Weather = { tempC: 22, condition: "Clear", icon: "☀️", high: 26, low: 14, uv: 3, source: "fallback" };
 
 export function useWeather(): Weather {
   const [weather, setWeather] = useState<Weather>(FALLBACK);

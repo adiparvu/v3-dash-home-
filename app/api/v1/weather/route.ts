@@ -21,10 +21,12 @@ type WeatherPayload = {
   icon: string;
   high: number;
   low: number;
+  /** Current UV index (0–11+). */
+  uv: number;
   source: "live" | "fallback";
 };
 
-const FALLBACK: WeatherPayload = { tempC: 22, condition: "Clear", icon: "☀️", high: 26, low: 14, source: "fallback" };
+const FALLBACK: WeatherPayload = { tempC: 22, condition: "Clear", icon: "☀️", high: 26, low: 14, uv: 3, source: "fallback" };
 
 /** WMO weather interpretation codes → label + emoji. */
 function describe(code: number): { condition: string; icon: string } {
@@ -49,7 +51,7 @@ export async function GET(request: Request) {
   try {
     const url =
       `https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}` +
-      `&current=temperature_2m,weather_code&daily=temperature_2m_max,temperature_2m_min&timezone=auto&forecast_days=1`;
+      `&current=temperature_2m,weather_code,uv_index&daily=temperature_2m_max,temperature_2m_min&timezone=auto&forecast_days=1`;
 
     const ctrl = new AbortController();
     const timer = setTimeout(() => ctrl.abort(), 3500);
@@ -66,6 +68,7 @@ export async function GET(request: Request) {
       icon,
       high: Math.round(Number(j?.daily?.temperature_2m_max?.[0] ?? FALLBACK.high)),
       low: Math.round(Number(j?.daily?.temperature_2m_min?.[0] ?? FALLBACK.low)),
+      uv: Math.round(Number(j?.current?.uv_index ?? FALLBACK.uv)),
       source: "live",
     };
     return NextResponse.json(

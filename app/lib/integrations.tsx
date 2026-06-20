@@ -32,7 +32,7 @@ export type Integration = {
   /** Verb on the connect button, e.g. "Connect", "Pair", "Scan a receipt". */
   connectLabel?: string;
   /** Renders a real, live data panel on the detail screen when connected. */
-  live?: "energy-tariff" | "air-quality";
+  live?: "energy-tariff" | "air-quality" | "seismic";
   /** Sold benefits, shown before connecting. */
   whatYouGet: string[];
   /** Headline numbers, shown once connected. */
@@ -155,11 +155,18 @@ export const INTEGRATIONS: Integration[] = [
     metrics: [{ label: "Source", value: "Energy-Charts" }, { label: "Zones", value: "BE · RO" }, { label: "Update", value: "Hourly" }],
   },
   {
-    id: "airquality", name: "Air Quality", desc: "European AQI & pollutants for your current location.", icon: "🫧", color: "#4ADE80",
+    id: "airquality", name: "Air Quality", desc: "European AQI, pollutants & pollen for your location.", icon: "🫧", color: "#4ADE80",
     category: "Energy & Environment", connectLabel: "Connect air quality",
     live: "air-quality",
-    whatYouGet: ["Real European AQI by location", "PM2.5 · PM10 · NO₂ · O₃ · SO₂", "Drives ventilation suggestions"],
+    whatYouGet: ["Real European AQI by location", "PM2.5 · PM10 · NO₂ · O₃ · SO₂", "Pollen counts (grass, birch, alder, ragweed)"],
     metrics: [{ label: "Source", value: "Open-Meteo" }, { label: "Scope", value: "Location" }, { label: "Update", value: "Hourly" }],
+  },
+  {
+    id: "seismic", name: "Seismic Monitor", desc: "Recent earthquakes near your location (USGS).", icon: "🌐", color: "#F97316",
+    category: "Energy & Environment", connectLabel: "Connect seismic",
+    live: "seismic",
+    whatYouGet: ["Recent quakes within 600 km", "Magnitude, distance & depth", "Estate safety awareness"],
+    metrics: [{ label: "Source", value: "USGS" }, { label: "Window", value: "30 days" }, { label: "Radius", value: "600 km" }],
   },
   {
     id: "solar", name: "Solar / PV System", desc: "Monitor solar panel output and energy savings.", icon: "☀️", color: "#F59E0B",

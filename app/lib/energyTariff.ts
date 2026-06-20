@@ -6,11 +6,16 @@
  * ct/kWh for display and compute the cheapest window.
  */
 
-export type TariffZone = "BE" | "RO";
+export type TariffZone = "BE" | "RO" | "DE" | "FR" | "NL" | "ES" | "AT";
 
 export const ZONES: Record<TariffZone, { label: string; flag: string; bzn: string }> = {
   BE: { label: "Belgium", flag: "🇧🇪", bzn: "BE" },
   RO: { label: "Romania", flag: "🇷🇴", bzn: "RO" },
+  DE: { label: "Germany", flag: "🇩🇪", bzn: "DE-LU" },
+  FR: { label: "France", flag: "🇫🇷", bzn: "FR" },
+  NL: { label: "Netherlands", flag: "🇳🇱", bzn: "NL" },
+  ES: { label: "Spain", flag: "🇪🇸", bzn: "ES" },
+  AT: { label: "Austria", flag: "🇦🇹", bzn: "AT" },
 };
 
 export type TariffPoint = { t: number; eurMwh: number };

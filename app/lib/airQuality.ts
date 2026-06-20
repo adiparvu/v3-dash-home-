@@ -8,10 +8,28 @@
 export type AirQuality = {
   aqi: number;
   pollutants: { pm25: number; pm10: number; no2: number; o3: number; so2: number };
+  /** Grain/m³ pollen counts (Europe). */
+  pollen: { grass: number; birch: number; alder: number; ragweed: number };
   /** Resolved location label for display. */
   location: string;
   source: "live" | "fallback";
 };
+
+export const POLLEN_TYPES: { key: keyof AirQuality["pollen"]; label: string }[] = [
+  { key: "grass", label: "Grass" },
+  { key: "birch", label: "Birch" },
+  { key: "alder", label: "Alder" },
+  { key: "ragweed", label: "Ragweed" },
+];
+
+/** Pollen risk band from grains/m³ (combined max). */
+export function pollenRisk(max: number): AqiBand {
+  if (max <= 0) return { label: "None", color: "#4ADE80" };
+  if (max < 20) return { label: "Low", color: "#A3E635" };
+  if (max < 50) return { label: "Moderate", color: "#FACC15" };
+  if (max < 100) return { label: "High", color: "#F97316" };
+  return { label: "Very high", color: "#EF4444" };
+}
 
 export type AqiBand = { label: string; color: string };
 
@@ -36,6 +54,7 @@ export const POLLUTANTS: { key: keyof AirQuality["pollutants"]; label: string; u
 export const AIR_QUALITY_FALLBACK: AirQuality = {
   aqi: 28,
   pollutants: { pm25: 9, pm10: 16, no2: 12, o3: 64, so2: 2 },
+  pollen: { grass: 12, birch: 4, alder: 0, ragweed: 0 },
   location: "Estate",
   source: "fallback",
 };

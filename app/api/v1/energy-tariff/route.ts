@@ -12,7 +12,7 @@ export const dynamic = "force-dynamic";
 const API_VERSION = "1.0.0";
 
 function isZone(v: string | null): v is TariffZone {
-  return v === "BE" || v === "RO";
+  return v === "BE" || v === "RO" || v === "DE" || v === "FR" || v === "NL" || v === "ES" || v === "AT";
 }
 
 export async function GET(request: Request) {

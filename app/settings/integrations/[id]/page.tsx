@@ -7,6 +7,7 @@ import StatusBar from "../../../components/layout/StatusBar";
 import { getIntegration, useIntegrations } from "../../../lib/integrations";
 import EnergyTariffPanel from "../../../components/integrations/EnergyTariffPanel";
 import AirQualityPanel from "../../../components/integrations/AirQualityPanel";
+import SeismicPanel from "../../../components/integrations/SeismicPanel";
 
 /**
  * Integration detail — connect/disconnect (persisted) and, once connected, the
@@ -71,6 +72,7 @@ export default function IntegrationDetailPage() {
             {/* Live data panel for real-API integrations */}
             {integration.live === "energy-tariff" && <EnergyTariffPanel />}
             {integration.live === "air-quality" && <AirQualityPanel />}
+            {integration.live === "seismic" && <SeismicPanel />}
 
             {/* Metrics */}
             <div className="grid grid-cols-3 gap-2">

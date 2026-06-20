@@ -22,7 +22,7 @@ export async function GET(request: Request) {
   try {
     const url =
       `https://air-quality-api.open-meteo.com/v1/air-quality?latitude=${lat}&longitude=${lon}` +
-      `&current=european_aqi,pm2_5,pm10,nitrogen_dioxide,ozone,sulphur_dioxide&timezone=auto`;
+      `&current=european_aqi,pm2_5,pm10,nitrogen_dioxide,ozone,sulphur_dioxide,grass_pollen,birch_pollen,alder_pollen,ragweed_pollen&timezone=auto`;
 
     const ctrl = new AbortController();
     const timer = setTimeout(() => ctrl.abort(), 3500);
@@ -41,6 +41,12 @@ export async function GET(request: Request) {
         no2: num(c.nitrogen_dioxide, AIR_QUALITY_FALLBACK.pollutants.no2),
         o3: num(c.ozone, AIR_QUALITY_FALLBACK.pollutants.o3),
         so2: num(c.sulphur_dioxide, AIR_QUALITY_FALLBACK.pollutants.so2),
+      },
+      pollen: {
+        grass: num(c.grass_pollen, 0),
+        birch: num(c.birch_pollen, 0),
+        alder: num(c.alder_pollen, 0),
+        ragweed: num(c.ragweed_pollen, 0),
       },
       location: label,
       source: "live",
