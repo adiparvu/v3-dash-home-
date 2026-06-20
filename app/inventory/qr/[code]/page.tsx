@@ -1,11 +1,13 @@
 "use client";
 
+import { useState } from "react";
 import Link from "next/link";
 import { useParams } from "next/navigation";
 import StatusBar from "../../../components/layout/StatusBar";
 import { useT, type MessageKey } from "../../../lib/i18n";
 import { useStore } from "../../../lib/store";
 import { useAssets } from "../../../lib/useAssets";
+import QrPrinter from "../../../components/inventory/QrPrinter";
 
 // Translate stored (English) category/location/status values for display.
 const CAT_KEY: Record<string, MessageKey> = { Devices: "inv.catDevices", Plants: "inv.catPlants", Equipment: "inv.catEquipment", Vehicles: "inv.catVehicles" };
@@ -96,6 +98,7 @@ const assetLookup: Record<string, {
 export default function QRResultPage() {
   const t = useT();
   const tx = (m: Record<string, MessageKey>, v: string) => (m[v] ? t(m[v]) : v);
+  const [printing, setPrinting] = useState(false);
   const params = useParams<{ code: string }>();
   const decodedCode = decodeURIComponent(params.code).toUpperCase();
   const { findAsset } = useStore();
@@ -288,6 +291,22 @@ export default function QRResultPage() {
         </Link>
 
         <button
+          onClick={() => setPrinting(true)}
+          className="w-full py-3.5 rounded-2xl text-sm font-semibold mb-3 flex items-center justify-center gap-2"
+          style={{
+            background: "rgba(255,255,255,0.07)",
+            color: "#FFFFFF",
+            border: "1px solid rgba(255,255,255,0.12)",
+            backdropFilter: "blur(20px)",
+          }}
+        >
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
+            <path d="M6 9V2h12v7M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2M6 14h12v8H6z" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round" />
+          </svg>
+          {t("idet.printLabel")}
+        </button>
+
+        <button
           className="w-full py-3.5 rounded-2xl text-sm font-semibold mb-3"
           style={{
             background: "rgba(255,255,255,0.07)",
@@ -315,6 +334,16 @@ export default function QRResultPage() {
           {t("qrr.backToInventory")}
         </Link>
       </div>
+
+      {printing && (
+        <QrPrinter
+          path={resolved.detailHref}
+          name={resolved.name}
+          assetId={resolved.assetId}
+          location={resolved.location}
+          onDone={() => setPrinting(false)}
+        />
+      )}
     </div>
   );
 }
