@@ -7,6 +7,7 @@ import StatusBar from "../../../components/layout/StatusBar";
 import { useT, type MessageKey } from "../../../lib/i18n";
 import { useStore } from "../../../lib/store";
 import { useAssets } from "../../../lib/useAssets";
+import { useAssetRecords } from "../../../lib/useAssetRecords";
 import QrPrinter from "../../../components/inventory/QrPrinter";
 
 // Translate stored (English) category/location/status values for display.
@@ -102,7 +103,7 @@ export default function QRResultPage() {
   const router = useRouter();
   const params = useParams<{ code: string }>();
   const decodedCode = decodeURIComponent(params.code).toUpperCase();
-  const { findAsset } = useStore();
+  const { findAsset, estateName, profile } = useStore();
   const { assets: liveAssets } = useAssets();
 
   // Resolve a scanned/typed code: demo catalog first, then real assets (custom
@@ -116,6 +117,11 @@ export default function QRResultPage() {
     : real
     ? { name: real.name, category: tx(CAT_KEY, real.category), location: tx(LOC_KEY, real.location), status: tx(STATUS_KEY, real.status), statusColor: real.statusColor, icon: real.icon, accentColor: real.accentColor, assetId: decodedCode, detailHref: real.href }
     : null;
+
+  // Loan state lives in localStorage keyed by the asset's detail slug.
+  const loanSlug = resolved ? (resolved.detailHref.split("/").filter(Boolean).pop() ?? "") : "";
+  const { records: assetRecords, clearLoan } = useAssetRecords(loanSlug);
+  const loan = assetRecords.loan ?? null;
 
   if (!resolved) {
     return (
@@ -228,6 +234,22 @@ export default function QRResultPage() {
         <p className="text-sm font-medium mb-1" style={{ color: "#4ADE80" }}>{t("qrr.assetFound")}</p>
         <h2 className="text-white font-bold text-2xl mb-6">{resolved.name}</h2>
 
+        {/* Loan banner — visible to whoever scans the item */}
+        {loan && (
+          <div className="w-full rounded-2xl p-4 mb-4" style={{ background: "rgba(245,158,11,0.10)", border: "1px solid rgba(245,158,11,0.30)" }}>
+            <div className="flex items-center gap-2 mb-1">
+              <span className="text-base">🤝</span>
+              <p className="text-sm font-semibold" style={{ color: "#F59E0B" }}>{t("loan.lentTo")} {loan.borrower}</p>
+            </div>
+            {loan.contact && <p className="text-xs" style={{ color: "#9CA3AF" }}>{loan.contact}</p>}
+            {loan.since && <p className="text-xs" style={{ color: "#9CA3AF" }}>{t("loan.since")} {loan.since}</p>}
+            {loan.note && <p className="text-sm mt-1" style={{ color: "#C9CDD6" }}>{loan.note}</p>}
+            <button onClick={clearLoan} className="w-full mt-3 py-2.5 rounded-xl text-sm font-semibold active:scale-[0.98] transition-transform" style={{ background: "rgba(74,222,128,0.14)", color: "#4ADE80", border: "1px solid rgba(74,222,128,0.25)" }}>
+              {t("loan.markReturned")}
+            </button>
+          </div>
+        )}
+
         {/* Asset card */}
         <div
           className="w-full rounded-2xl mb-5"
@@ -277,6 +299,18 @@ export default function QRResultPage() {
               {resolved.assetId}
             </span>
           </div>
+        </div>
+
+        {/* Owner — so a finder knows whose item this is */}
+        <div className="w-full rounded-2xl mb-5 px-4 py-3.5" style={{ background: "rgba(255,255,255,0.06)", border: "1px solid rgba(255,255,255,0.10)" }}>
+          <p className="text-[10px] font-semibold uppercase tracking-widest mb-1" style={{ color: "#6B7280" }}>{t("loan.owner")}</p>
+          <p className="text-sm font-medium text-white">{profile.displayName}</p>
+          <p className="text-xs mt-0.5" style={{ color: "#9CA3AF" }}>{t("loan.propertyOf")} {estateName}</p>
+          {(profile.phone || profile.email) && (
+            <a href={profile.phone ? `tel:${profile.phone}` : `mailto:${profile.email}`} className="inline-block text-xs font-medium mt-2" style={{ color: "#22D3EE" }}>
+              {t("loan.contactOwner")} · {profile.phone || profile.email}
+            </a>
+          )}
         </div>
 
         {/* Action buttons */}

@@ -13,10 +13,11 @@ const MAX_DATAURL = 1_500_000; // ~1.5MB cap before we store metadata only
 
 export type MaintRec = { id: string; title: string; date: string; done: boolean };
 export type DocRec = { id: string; name: string; size: string; dataUrl?: string };
-type Records = { maintenance: MaintRec[]; documents: DocRec[] };
+export type Loan = { borrower: string; contact?: string; since: string; note?: string };
+type Records = { maintenance: MaintRec[]; documents: DocRec[]; loan?: Loan | null };
 type AllRecords = Record<string, Records>;
 
-const EMPTY: Records = { maintenance: [], documents: [] };
+const EMPTY: Records = { maintenance: [], documents: [], loan: null };
 
 function readAll(): AllRecords {
   if (typeof window === "undefined") return {};
@@ -83,6 +84,22 @@ export function useAssetRecords(slug: string) {
     (id: string) => mutate((cur) => ({ ...cur, documents: cur.documents.filter((d) => d.id !== id) })),
     [mutate],
   );
+  const setLoan = useCallback((loan: Loan) => mutate((cur) => ({ ...cur, loan })), [mutate]);
+  const clearLoan = useCallback(() => mutate((cur) => ({ ...cur, loan: null })), [mutate]);
 
-  return { records, addMaintenance, toggleMaintenance, removeMaintenance, addDocument, removeDocument };
+  return { records, addMaintenance, toggleMaintenance, removeMaintenance, addDocument, removeDocument, setLoan, clearLoan };
+}
+
+/** Read the loan state for every asset (keyed by slug) — for list badges. */
+export function useAllAssetLoans(): Record<string, Loan> {
+  const [loans, setLoans] = useState<Record<string, Loan>>({});
+  useEffect(() => {
+    const all = readAll();
+    const out: Record<string, Loan> = {};
+    for (const [slug, rec] of Object.entries(all)) {
+      if (rec.loan) out[slug] = rec.loan;
+    }
+    setLoans(out);
+  }, []);
+  return loans;
 }

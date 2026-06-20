@@ -8,6 +8,7 @@ import { useAssets } from "../lib/useAssets";
 import { useT, type MessageKey } from "../lib/i18n";
 import QrPrinter from "../components/inventory/QrPrinter";
 import { assetIdFromHref } from "../lib/printLabel";
+import { useAllAssetLoans } from "../lib/useAssetRecords";
 
 const categories = ["All", "Devices", "Plants", "Equipment", "Vehicles"];
 
@@ -28,6 +29,7 @@ export default function InventoryPage() {
   const [search, setSearch] = useState("");
   const [printTarget, setPrintTarget] = useState<{ href: string; name: string; location: string } | null>(null);
   const { assets, source } = useAssets();
+  const loans = useAllAssetLoans();
 
   const filtered = assets.filter((a) => {
     const matchesCategory = activeCategory === "All" || a.category === activeCategory;
@@ -141,6 +143,9 @@ export default function InventoryPage() {
 
               {/* Status */}
               <div className="flex items-center gap-1.5 flex-shrink-0">
+                {loans[asset.href.split("/").filter(Boolean).pop() ?? ""] && (
+                  <span className="text-[9px] font-semibold px-1.5 py-0.5 rounded-full" style={{ background: "rgba(245,158,11,0.15)", color: "#F59E0B", border: "1px solid rgba(245,158,11,0.30)" }}>{t("loan.status")}</span>
+                )}
                 <span className="w-1.5 h-1.5 rounded-full" style={{ background: asset.statusColor }} />
                 <span className="text-xs font-medium" style={{ color: asset.statusColor }}>{tx(STATUS_KEY, asset.status)}</span>
               </div>

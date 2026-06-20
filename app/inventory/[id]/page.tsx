@@ -184,10 +184,16 @@ export default function InventoryDetailPage() {
   const [menuOpen, setMenuOpen] = useState(false);
   const { findAsset, removeAsset } = useStore();
   const router = useRouter();
-  const { records, addMaintenance, toggleMaintenance, removeMaintenance, addDocument, removeDocument } = useAssetRecords(params.id);
+  const { records, addMaintenance, toggleMaintenance, removeMaintenance, addDocument, removeDocument, setLoan, clearLoan } = useAssetRecords(params.id);
+  const loan = records.loan ?? null;
   const [maintOpen, setMaintOpen] = useState(false);
   const [maintTitle, setMaintTitle] = useState("");
   const [maintDate, setMaintDate] = useState("");
+  const [lendOpen, setLendOpen] = useState(false);
+  const [lendBorrower, setLendBorrower] = useState("");
+  const [lendContact, setLendContact] = useState("");
+  const [lendDate, setLendDate] = useState("");
+  const [lendNote, setLendNote] = useState("");
   const fileRef = useRef<HTMLInputElement>(null);
   const editHref = `${(findAsset(params.id)?.href) ?? `/inventory/${params.id}`}/edit`;
 
@@ -325,6 +331,11 @@ export default function InventoryDetailPage() {
               : { background: "rgba(255,255,255,0.06)", color: "#9CA3AF", border: "1px solid rgba(255,255,255,0.12)" }}>
               {synced ? t("idet.synced") : t("idet.demo")}
             </span>
+            {loan && (
+              <span className="text-[10px] font-semibold px-2 py-0.5 rounded-full" style={{ background: "rgba(245,158,11,0.15)", color: "#F59E0B", border: "1px solid rgba(245,158,11,0.30)" }}>
+                {t("loan.status")}
+              </span>
+            )}
           </div>
           <span
             className="mt-1 px-3 py-1 rounded-full text-xs font-semibold flex-shrink-0"
@@ -399,6 +410,30 @@ export default function InventoryDetailPage() {
                 <p className="text-sm leading-relaxed whitespace-pre-wrap" style={{ color: "var(--text-1)" }}>{extraNotes}</p>
               </div>
             )}
+
+            {/* Loan */}
+            <div className="liquid-glass rounded-2xl p-4 mb-4" style={loan ? { border: "1px solid rgba(245,158,11,0.30)" } : undefined}>
+              {loan ? (
+                <>
+                  <p className="text-xs font-semibold uppercase tracking-widest mb-1.5" style={{ color: "#F59E0B" }}>{t("loan.onLoan")}</p>
+                  <p className="text-sm font-medium" style={{ color: "var(--text-1)" }}>{t("loan.lentTo")} {loan.borrower}</p>
+                  {loan.contact && <p className="text-xs mt-0.5" style={{ color: "var(--text-3)" }}>{loan.contact}</p>}
+                  {loan.since && <p className="text-xs mt-0.5" style={{ color: "var(--text-3)" }}>{t("loan.since")} {loan.since}</p>}
+                  {loan.note && <p className="text-sm mt-1.5" style={{ color: "var(--text-2)" }}>{loan.note}</p>}
+                  <button onClick={clearLoan} className="w-full mt-3 py-2.5 rounded-xl text-sm font-semibold active:scale-[0.98] transition-transform" style={{ background: "rgba(74,222,128,0.12)", color: "var(--accent)", border: "1px solid rgba(74,222,128,0.25)" }}>
+                    {t("loan.markReturned")}
+                  </button>
+                </>
+              ) : (
+                <button
+                  onClick={() => { setLendBorrower(""); setLendContact(""); setLendDate(""); setLendNote(""); setLendOpen(true); }}
+                  className="w-full py-2.5 rounded-xl text-sm font-semibold flex items-center justify-center gap-2 active:scale-[0.98] transition-transform"
+                  style={{ background: "var(--glass-bg)", color: "var(--text-1)", border: "0.5px solid var(--glass-border)" }}
+                >
+                  <span>🤝</span> {t("loan.lendItem")}
+                </button>
+              )}
+            </div>
 
             {/* Quick Actions */}
             <p className="text-xs font-semibold uppercase tracking-widest mb-3" style={{ color: "var(--text-3)" }}>
@@ -648,6 +683,33 @@ export default function InventoryDetailPage() {
               {t("idet.save")}
             </button>
             <button onClick={() => setMaintOpen(false)} className="w-full py-3.5 rounded-2xl font-medium text-base" style={{ background: "var(--glass-bg)", border: "0.5px solid var(--glass-border)", color: "var(--text-1)" }}>{t("idet.cancel")}</button>
+          </div>
+        </div>
+      )}
+
+      {/* Lend-item sheet */}
+      {lendOpen && (
+        <div className="fixed inset-0 z-[60] flex items-end justify-center" style={{ background: "rgba(0,0,0,0.45)" }} onClick={() => setLendOpen(false)}>
+          <div className="w-full md:w-[390px] rounded-t-[28px] p-5 pb-8 animate-slide-up liquid-glass-strong" onClick={(e) => e.stopPropagation()}>
+            <div className="w-10 h-1 rounded-full mx-auto mb-4" style={{ background: "var(--glass-border)" }} />
+            <p className="font-bold text-base mb-4" style={{ color: "var(--text-1)" }}>{t("loan.lendItem")}</p>
+            <label className="text-xs font-medium block mb-1.5 px-1" style={{ color: "var(--text-2)" }}>{t("loan.borrower")}</label>
+            <input value={lendBorrower} onChange={(e) => setLendBorrower(e.target.value)} placeholder={t("loan.borrowerPh")} className="w-full rounded-2xl px-4 py-3 text-sm outline-none mb-3" style={{ background: "var(--glass-bg)", border: "0.5px solid var(--glass-border)", color: "var(--text-1)", caretColor: "var(--accent)" }} />
+            <label className="text-xs font-medium block mb-1.5 px-1" style={{ color: "var(--text-2)" }}>{t("loan.contact")}</label>
+            <input value={lendContact} onChange={(e) => setLendContact(e.target.value)} placeholder={t("loan.contactPh")} className="w-full rounded-2xl px-4 py-3 text-sm outline-none mb-3" style={{ background: "var(--glass-bg)", border: "0.5px solid var(--glass-border)", color: "var(--text-1)", caretColor: "var(--accent)" }} />
+            <label className="text-xs font-medium block mb-1.5 px-1" style={{ color: "var(--text-2)" }}>{t("loan.date")}</label>
+            <input type="date" value={lendDate} onChange={(e) => setLendDate(e.target.value)} className="w-full rounded-2xl px-4 py-3 text-sm outline-none mb-3" style={{ background: "var(--glass-bg)", border: "0.5px solid var(--glass-border)", color: "var(--text-1)", caretColor: "var(--accent)", colorScheme: "dark" }} />
+            <label className="text-xs font-medium block mb-1.5 px-1" style={{ color: "var(--text-2)" }}>{t("loan.note")}</label>
+            <input value={lendNote} onChange={(e) => setLendNote(e.target.value)} placeholder={t("loan.notePh")} className="w-full rounded-2xl px-4 py-3 text-sm outline-none mb-4" style={{ background: "var(--glass-bg)", border: "0.5px solid var(--glass-border)", color: "var(--text-1)", caretColor: "var(--accent)" }} />
+            <button
+              onClick={() => { if (lendBorrower.trim()) { setLoan({ borrower: lendBorrower.trim(), contact: lendContact.trim() || undefined, since: lendDate || new Date().toISOString().slice(0, 10), note: lendNote.trim() || undefined }); setLendOpen(false); } }}
+              disabled={!lendBorrower.trim()}
+              className="w-full py-3.5 rounded-2xl font-semibold text-base mb-2 transition-all"
+              style={lendBorrower.trim() ? { background: "var(--accent)", color: "#08111E" } : { background: "var(--glass-bg)", border: "0.5px solid var(--glass-border)", color: "var(--text-3)" }}
+            >
+              {t("idet.save")}
+            </button>
+            <button onClick={() => setLendOpen(false)} className="w-full py-3.5 rounded-2xl font-medium text-base" style={{ background: "var(--glass-bg)", border: "0.5px solid var(--glass-border)", color: "var(--text-1)" }}>{t("idet.cancel")}</button>
           </div>
         </div>
       )}

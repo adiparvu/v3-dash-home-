@@ -62,6 +62,25 @@ test("upload a document shows it in the list", async ({ page }) => {
   await expect(page.getByText("manual.txt")).toBeVisible();
 });
 
+test("lend an item, see it on scan, then mark it returned", async ({ page }) => {
+  await page.goto("/inventory/water-pump");
+  await page.getByRole("button", { name: "Lend item" }).click();
+  await page.getByPlaceholder("e.g. Maria Popescu").fill("Maria Popescu");
+  await page.getByRole("button", { name: "Save", exact: true }).click();
+  await expect(page.getByText("Lent to Maria Popescu")).toBeVisible();
+
+  // A finder scanning the item sees the loan + the owner.
+  await page.goto("/inventory/qr/WP-001");
+  await expect(page.getByText("Lent to Maria Popescu")).toBeVisible();
+  await expect(page.getByText("Property of")).toBeVisible();
+
+  // Owner marks it returned → it clears everywhere.
+  await page.getByRole("button", { name: "Mark returned" }).click();
+  await expect(page.getByText("Lent to Maria Popescu")).toHaveCount(0);
+  await page.goto("/inventory/water-pump");
+  await expect(page.getByRole("button", { name: "Lend item" })).toBeVisible();
+});
+
 test("scan result Add Task navigates to tasks", async ({ page }) => {
   await page.goto("/inventory/qr/WP-001");
   await page.getByRole("button", { name: "Add Task" }).click();
