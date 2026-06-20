@@ -8,6 +8,7 @@
 import { useZoneSensors } from "../../lib/monitor/useZoneSensors";
 import type { MetricSpec } from "../../lib/monitor/types";
 import MonitorCard from "./MonitorCard";
+import { useT } from "../../lib/i18n";
 
 export default function MonitorGrid({
   zoneType,
@@ -20,6 +21,7 @@ export default function MonitorGrid({
   title?: string;
   columns?: 2 | 3;
 }) {
+  const t = useT();
   const { metrics, source } = useZoneSensors(zoneType, specs);
   const live = source === "live";
   return (
@@ -29,7 +31,7 @@ export default function MonitorGrid({
           <p className="text-xs font-medium uppercase tracking-wide" style={{ color: "var(--text-2)" }}>{title}</p>
           <span className="flex items-center gap-1 text-[10px] font-semibold" style={{ color: live ? "#4ADE80" : "#9CA3AF" }}>
             <span className="w-1.5 h-1.5 rounded-full animate-pulse-glow" style={{ background: live ? "#4ADE80" : "#9CA3AF" }} />
-            {live ? "Live" : "Simulat"}
+            {live ? t("mon.live") : t("mon.simulated")}
           </span>
         </div>
       )}

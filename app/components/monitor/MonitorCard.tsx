@@ -8,6 +8,17 @@
 import { useId } from "react";
 import { type MetricReading, STATUS_COLOR } from "../../lib/monitor/types";
 import { smoothPath, smoothAreaPath, lastPoint } from "../../lib/charts";
+import { useT, type MessageKey } from "../../lib/i18n";
+
+// Map the preset's (Romanian) source label to a translation key.
+const METRIC_KEY: Record<string, MessageKey> = {
+  "CO₂": "met.co2", "Clor liber": "met.freeChlorine", "Debit irigare": "met.irrigationFlow",
+  "EC nutrienți": "met.ecNutrients", "Inundație": "met.flood", "Luminozitate": "met.luminosity",
+  "Lumină": "met.light", "Nivel apă": "met.waterLevel", "Oxigen dizolvat": "met.dissolvedOxygen",
+  "Salinitate": "met.salinity", "Temperatură": "met.temperature", "Turbiditate": "met.turbidity",
+  "Umiditate aer": "met.airHumidity", "Umiditate sol": "met.soilMoisture", "Umiditate": "met.humidity",
+  "pH nutrienți": "met.phNutrients", "pH sol": "met.phSoil", "pH": "met.ph",
+};
 
 // Revolut-style mini sparkline: smooth curve, gradient fade, endpoint dot.
 function Sparkline({ series, color }: { series: number[]; color: string }) {
@@ -35,14 +46,16 @@ function Sparkline({ series, color }: { series: number[]; color: string }) {
 }
 
 export default function MonitorCard({ m }: { m: MetricReading }) {
+  const t = useT();
   const color = STATUS_COLOR[m.status];
+  const label = METRIC_KEY[m.label] ? t(METRIC_KEY[m.label]) : m.label;
   const decimals = m.decimals ?? (Math.abs(m.value) >= 100 ? 0 : 1);
   return (
     <div className="rounded-2xl p-3.5 liquid-glass" style={{ borderColor: m.status === "ok" ? undefined : `${color}40` }}>
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-2 min-w-0">
           {m.icon && <span className="text-base flex-shrink-0">{m.icon}</span>}
-          <span className="text-xs truncate" style={{ color: "var(--text-2)" }}>{m.label}</span>
+          <span className="text-xs truncate" style={{ color: "var(--text-2)" }}>{label}</span>
         </div>
         <span className="w-2 h-2 rounded-full flex-shrink-0" style={{ background: color, boxShadow: `0 0 8px ${color}80` }} />
       </div>
