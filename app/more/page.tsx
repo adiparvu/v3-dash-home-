@@ -1,10 +1,14 @@
+"use client";
+
 import StatusBar from "../components/layout/StatusBar";
 import BottomNav from "../components/layout/BottomNav";
 import Link from "next/link";
+import { useT, type MessageKey } from "../lib/i18n";
 
-const sections = [
+const sections: { title: string; tkey: MessageKey; items: { href: string; label: string; icon: string; desc: string; badge: string | null }[] }[] = [
   {
     title: "Estate",
+    tkey: "more.estate",
     items: [
       { href: "/automations", label: "Automations", icon: "⚡", desc: "Smart rules & triggers", badge: "3 active" },
       { href: "/chat", label: "Chat", icon: "💬", desc: "Household live messages", badge: "6 unread" },
@@ -15,6 +19,7 @@ const sections = [
   },
   {
     title: "Monitoring",
+    tkey: "more.monitoring",
     items: [
       { href: "/twin/energy", label: "Energy", icon: "⚡", desc: "Solar, Powerwall & grid flow", badge: "Live" },
       { href: "/twin/floorplan", label: "Floorplan", icon: "🏠", desc: "Live rooms · energy · presence", badge: "Live" },
@@ -25,6 +30,7 @@ const sections = [
   },
   {
     title: "Account",
+    tkey: "more.account",
     items: [
       { href: "/widgets", label: "Widgets", icon: "🧩", desc: "Home, Lock Screen & Live Activities", badge: "New" },
       { href: "/settings", label: "Settings", icon: "⚙️", desc: "Preferences & security", badge: null },
@@ -35,13 +41,14 @@ const sections = [
 ];
 
 export default function MorePage() {
+  const t = useT();
   return (
     <div className="min-h-screen pb-28" style={{ background: "var(--bg-1)" }}>
       <StatusBar />
 
       {/* Header + Profile */}
       <div className="px-5 pt-1 pb-4">
-        <h1 className="font-bold text-2xl mb-4" style={{ color: "var(--text-1)" }}>More</h1>
+        <h1 className="font-bold text-2xl mb-4" style={{ color: "var(--text-1)" }}>{t("more.title")}</h1>
 
         {/* Profile card */}
         <div
@@ -73,7 +80,7 @@ export default function MorePage() {
         {sections.map((section) => (
           <div key={section.title}>
             <p className="text-text-secondary text-xs font-medium tracking-wide uppercase mb-2 px-1">
-              {section.title}
+              {t(section.tkey)}
             </p>
             <div
               className="rounded-2xl overflow-hidden"
@@ -113,7 +120,7 @@ export default function MorePage() {
           className="w-full rounded-2xl py-3.5 text-sm font-medium"
           style={{ background: "rgba(239,68,68,0.10)", border: "1px solid rgba(239,68,68,0.20)", color: "#EF4444" }}
         >
-          Sign Out
+          {t("more.signOut")}
         </button>
 
         <p className="text-text-tertiary text-center text-xs pb-2">PRVIO EARTH · v1.0.0</p>

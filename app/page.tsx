@@ -4,6 +4,7 @@ import StatusBar from "./components/layout/StatusBar";
 import BottomNav from "./components/layout/BottomNav";
 import { useTheme } from "./components/ThemeProvider";
 import { useStore } from "./lib/store";
+import { useT, type MessageKey } from "./lib/i18n";
 import { useRouter } from "next/navigation";
 import { useEffect } from "react";
 import Link from "next/link";
@@ -12,11 +13,11 @@ const healthScore = 87;
 const circumference = 2 * Math.PI * 52;
 const offset = circumference - (healthScore / 100) * circumference;
 
-const stats = [
-  { value: "26", label: "Zones" },
-  { value: "142", label: "Objects" },
-  { value: "7", label: "Tasks" },
-  { value: "3", label: "Alerts", alert: true },
+const stats: { value: string; label: string; tkey: MessageKey; alert?: boolean }[] = [
+  { value: "26", label: "Zones", tkey: "stat.zones" },
+  { value: "142", label: "Objects", tkey: "stat.objects" },
+  { value: "7", label: "Tasks", tkey: "stat.tasks" },
+  { value: "3", label: "Alerts", tkey: "stat.alerts", alert: true },
 ];
 
 const recentAlerts = [
@@ -59,6 +60,7 @@ function MoonIcon() {
 export default function OverviewPage() {
   const { theme, toggle } = useTheme();
   const { ready, onboarded, estateName, addedZones } = useStore();
+  const t = useT();
   const router = useRouter();
 
   // First-launch: send the user through onboarding once.
@@ -73,7 +75,7 @@ export default function OverviewPage() {
       {/* Header */}
       <div className="px-5 pt-1 pb-3 flex justify-between items-center">
         <div>
-          <p className="text-xs font-medium" style={{ color: "var(--text-2)" }}>Good morning</p>
+          <p className="text-xs font-medium" style={{ color: "var(--text-2)" }}>{t("home.greeting")}</p>
           <h1 className="font-bold text-2xl leading-tight" style={{ color: "var(--text-1)" }}>{estateName}</h1>
         </div>
         <div className="flex items-center gap-2">
@@ -128,8 +130,8 @@ export default function OverviewPage() {
       {/* Live indicator */}
       <div className="px-5 mb-3 flex items-center gap-1.5">
         <span className="w-1.5 h-1.5 rounded-full inline-block" style={{ background: "var(--accent)", boxShadow: "0 0 6px var(--accent)" }} />
-        <span className="text-xs font-medium" style={{ color: "var(--accent)" }}>Live</span>
-        <span className="text-xs" style={{ color: "var(--text-3)" }}>· Updated just now</span>
+        <span className="text-xs font-medium" style={{ color: "var(--accent)" }}>{t("home.live")}</span>
+        <span className="text-xs" style={{ color: "var(--text-3)" }}>· {t("home.updatedNow")}</span>
       </div>
 
       {/* Hero map area */}
@@ -198,7 +200,7 @@ export default function OverviewPage() {
           className="rounded-3xl p-4 flex flex-col items-center justify-center liquid-glass"
           style={{ minWidth: 120 }}
         >
-          <span className="text-[10px] font-medium mb-2" style={{ color: "var(--text-2)" }}>Health Score</span>
+          <span className="text-[10px] font-medium mb-2" style={{ color: "var(--text-2)" }}>{t("home.healthScore")}</span>
           <svg width="80" height="80" viewBox="0 0 120 120">
             <defs>
               <linearGradient id="healthGrad" x1="0%" y1="0%" x2="100%" y2="0%">
@@ -228,7 +230,7 @@ export default function OverviewPage() {
                 className="rounded-2xl p-3 flex flex-col justify-center liquid-glass"
               >
                 <span className="font-bold text-xl leading-tight" style={{ color: s.alert ? "#F97316" : "var(--text-1)" }}>{value}</span>
-                <span className="text-xs mt-0.5" style={{ color: "var(--text-2)" }}>{s.label}</span>
+                <span className="text-xs mt-0.5" style={{ color: "var(--text-2)" }}>{t(s.tkey)}</span>
               </div>
             );
           })}
@@ -237,8 +239,8 @@ export default function OverviewPage() {
 
       {/* Quick access zones */}
       <div className="px-5 mb-2 flex items-center justify-between">
-        <span className="font-semibold text-sm" style={{ color: "var(--text-1)" }}>Quick Access</span>
-        <Link href="/zones" className="text-xs font-medium" style={{ color: "var(--accent)" }}>See all</Link>
+        <span className="font-semibold text-sm" style={{ color: "var(--text-1)" }}>{t("home.quickAccess")}</span>
+        <Link href="/zones" className="text-xs font-medium" style={{ color: "var(--accent)" }}>{t("home.seeAll")}</Link>
       </div>
       <div className="px-4 mb-4 grid grid-cols-4 gap-2">
         {quickZones.map((z) => (
@@ -256,8 +258,8 @@ export default function OverviewPage() {
 
       {/* Recent Alerts */}
       <div className="px-5 mb-2 flex items-center justify-between">
-        <span className="font-semibold text-sm" style={{ color: "var(--text-1)" }}>Recent Activity</span>
-        <button className="text-xs font-medium" style={{ color: "var(--accent)" }}>Clear all</button>
+        <span className="font-semibold text-sm" style={{ color: "var(--text-1)" }}>{t("home.recentActivity")}</span>
+        <button className="text-xs font-medium" style={{ color: "var(--accent)" }}>{t("home.clearAll")}</button>
       </div>
       <div className="px-4 space-y-2 mb-4">
         {recentAlerts.map((alert) => (
