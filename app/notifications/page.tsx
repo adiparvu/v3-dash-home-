@@ -101,7 +101,7 @@ export default function NotificationsPage() {
       <div className="px-5 pt-1 pb-3 flex items-center justify-between">
         <div>
           <h1 className="font-bold text-2xl" style={{ color: "var(--text-1)" }}>{t("page.notifications")}</h1>
-          {unreadCount > 0 && <p className="text-text-secondary text-xs">{unreadCount} unread</p>}
+          {unreadCount > 0 && <p className="text-text-secondary text-xs">{unreadCount} {t("notif.unread")}</p>}
         </div>
         <div className="flex items-center gap-3">
           {mounted && pushAvailable && (
@@ -117,14 +117,14 @@ export default function NotificationsPage() {
               }}
             >
               <span>{push.subscribed ? "🔔" : "🔕"}</span>
-              {push.busy ? "…" : push.subscribed ? "Push on" : push.status === "denied" ? "Blocked" : "Enable push"}
+              {push.busy ? "…" : push.subscribed ? t("notif.pushOn") : push.status === "denied" ? t("notif.blocked") : t("notif.enablePush")}
             </button>
           )}
           {unreadCount > 0 && (
-            <button onClick={markAllRead} className="text-accent-green text-xs font-medium">Mark all read</button>
+            <button onClick={markAllRead} className="text-accent-green text-xs font-medium">{t("notif.markAllRead")}</button>
           )}
           {items.length > 0 && (
-            <button onClick={clearAll} className="text-xs font-medium" style={{ color: "var(--text-2)" }}>Clear all</button>
+            <button onClick={clearAll} className="text-xs font-medium" style={{ color: "var(--text-2)" }}>{t("home.clearAll")}</button>
           )}
         </div>
       </div>
@@ -132,10 +132,10 @@ export default function NotificationsPage() {
       {mounted && liveAlerts.length > 0 && (
         <div className="px-4 mb-3">
           <div className="flex items-center gap-2 mb-2 px-1">
-            <p className="text-text-secondary text-xs font-medium uppercase tracking-wide">Alerte live</p>
+            <p className="text-text-secondary text-xs font-medium uppercase tracking-wide">{t("notif.liveAlerts")}</p>
             <span className="flex items-center gap-1 text-[10px] font-semibold" style={{ color: source === "live" ? "#4ADE80" : "#9CA3AF" }}>
               <span className="w-1.5 h-1.5 rounded-full animate-pulse-glow" style={{ background: source === "live" ? "#4ADE80" : "#9CA3AF" }} />
-              {source === "live" ? "Live" : "Simulat"}
+              {source === "live" ? t("notif.live") : t("notif.simulated")}
             </span>
           </div>
           <div className="space-y-2">
@@ -146,7 +146,7 @@ export default function NotificationsPage() {
                   <p className="text-sm font-medium leading-tight" style={{ color: "var(--text-1)" }}>{a.title}</p>
                   <p className="text-xs mt-0.5" style={{ color: "var(--text-2)" }}>{a.desc}</p>
                 </div>
-                <span className="text-[9px] font-semibold px-1.5 py-0.5 rounded-full flex-shrink-0" style={{ background: `${a.color}22`, color: a.color }}>acum</span>
+                <span className="text-[9px] font-semibold px-1.5 py-0.5 rounded-full flex-shrink-0" style={{ background: `${a.color}22`, color: a.color }}>{t("common.now")}</span>
               </div>
             ))}
           </div>
@@ -156,8 +156,8 @@ export default function NotificationsPage() {
       {mounted && remoteNotifs.items && remoteNotifs.items.length > 0 && (
         <div className="px-4 mb-3">
           <div className="flex items-center gap-2 mb-2 px-1">
-            <p className="text-text-secondary text-xs font-medium uppercase tracking-wide">Istoric · sincronizat</p>
-            <span className="text-[10px] font-semibold px-2 py-0.5 rounded-full" style={{ background: "rgba(74,222,128,0.15)", color: "#4ADE80" }}>Synced</span>
+            <p className="text-text-secondary text-xs font-medium uppercase tracking-wide">{t("notif.historySynced")}</p>
+            <span className="text-[10px] font-semibold px-2 py-0.5 rounded-full" style={{ background: "rgba(74,222,128,0.15)", color: "#4ADE80" }}>{t("common.synced")}</span>
           </div>
           <div className="space-y-2">
             {remoteNotifs.items.map((n) => (
@@ -176,8 +176,8 @@ export default function NotificationsPage() {
       {items.length === 0 ? (
         <div className="flex flex-col items-center justify-center px-8 text-center mt-32">
           <span className="text-5xl mb-4">🔔</span>
-          <p className="text-base font-semibold mb-1" style={{ color: "var(--text-1)" }}>All caught up</p>
-          <p className="text-sm" style={{ color: "var(--text-2)" }}>You have no new notifications.</p>
+          <p className="text-base font-semibold mb-1" style={{ color: "var(--text-1)" }}>{t("notif.allCaughtUp")}</p>
+          <p className="text-sm" style={{ color: "var(--text-2)" }}>{t("notif.noNew")}</p>
         </div>
       ) : (
         <div className="px-4 space-y-2">
