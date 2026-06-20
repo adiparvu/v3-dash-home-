@@ -9,6 +9,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 ### Added
+- **Bearer-token auth for `/api/v1` (native enabler)** — the backend now accepts
+  `Authorization: Bearer <jwt>` in addition to the SSR cookie session, so the
+  native Apple client (and any token-based client) uses the **same versioned API**
+  and RLS isolation as the web app. `createClient()` scopes every PostgREST/RPC
+  request to the bearer user; `currentUserId()` validates the token via
+  `auth.getUser(token)` (fail-closed on forged tokens). Pure header parsing lives
+  in `lib/supabase/auth-header.ts` with unit tests. Verified live: requests with a
+  forged bearer return `401` (not `500`).
 - **Phase 8 — iPhone SwiftUI app foundation (`apple/`)** — the first native Apple
   client, reusing the same versioned backend contracts as the web app. Includes an
   XcodeGen project (`project.yml`), a shared layer (versioned `APIClient` that

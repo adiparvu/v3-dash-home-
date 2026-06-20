@@ -67,11 +67,15 @@ PRVIOEarth/
   `{ apiVersion, data }` envelope. On any network/auth failure it falls back to
   `DemoData` so screens stay usable.
 
+## Backend auth
+
+`/api/v1` accepts **both** auth schemes: the SSR cookie session (web) and an
+`Authorization: Bearer <jwt>` header (this app). The token is validated against
+Supabase (`auth.getUser(token)`) and every query is RLS-scoped to that user, so
+the native app reads the **same live data** as the web client once you sign in
+with a real account. With no configuration the app stays in demo mode.
+
 ## Known follow-ups (deferred)
 
-- **Backend Bearer auth:** the current `/api/v1` resolves the user from the SSR
-  **cookie** session only. For the native app to read live data it must also
-  accept `Authorization: Bearer <token>` (a small `currentUserId()` change).
-  Until then the app authenticates with Supabase and renders demo data for the
-  estate screens.
 - Widgets, Live Activities, and the iPad/Mac/Watch/Vision targets.
+- Magic-link / OAuth sign-in (deep-link handling); password sign-in works today.

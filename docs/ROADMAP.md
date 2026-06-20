@@ -114,12 +114,13 @@ future track that reuses the same versioned backend contracts.
 | Home / Lock screen / Notification Center widgets | ⏳ |
 | Live Activities (maintenance, deliveries, incidents, inspections) | ⏳ |
 | Secure Enclave key handling for sensitive records | ⏳ |
-| **Backend enabler:** `/api/v1` accepts `Authorization: Bearer` (native token auth) | ⏳ |
+| **Backend enabler:** `/api/v1` accepts `Authorization: Bearer` (native token auth) | ✅ |
 
 > **Increment 1 (current):** the iPhone app foundation lives under [`apple/`](../apple/).
-> It builds in Xcode on macOS (not compiled in the Linux CI). It authenticates via
-> Supabase and renders **demo data** for estate screens until the backend Bearer
-> enabler lands — see [`apple/README.md`](../apple/README.md).
+> It builds in Xcode on macOS (not compiled in the Linux CI). `/api/v1` now accepts
+> bearer tokens (validated server-side, RLS-scoped), so the native app reads the
+> **same live data** as the web once signed in; with no config it stays in demo
+> mode — see [`apple/README.md`](../apple/README.md).
 
 ---
 
