@@ -3,9 +3,11 @@
 import { useState, useEffect } from "react";
 import StatusBar from "../components/layout/StatusBar";
 import BottomNav from "../components/layout/BottomNav";
-import { useT } from "../lib/i18n";
+import { useT, type MessageKey } from "../lib/i18n";
 
 const filters = ["All", "Pending", "In Progress", "Completed"];
+const FILTER_KEYS: Record<string, MessageKey> = { All: "f.all", Pending: "f.pending", "In Progress": "f.inProgress", Completed: "f.completed" };
+const PRIO_KEYS: Record<string, MessageKey> = { high: "prio.high", normal: "prio.normal", low: "prio.low", medium: "prio.medium" };
 
 const TASKS_KEY = "prvio-tasks-done-v1";
 
@@ -206,11 +208,11 @@ export default function TasksPage() {
       <div className="px-5 pt-1 pb-3 flex items-center justify-between">
         <div>
           <h1 className="font-bold text-2xl" style={{ color: "var(--text-1)" }}>{t("page.tasks")}</h1>
-          <p className="text-text-secondary text-xs">{pending} pending · {inProgress} in progress</p>
+          <p className="text-text-secondary text-xs">{pending} {t("f.pending").toLowerCase()} · {inProgress} {t("f.inProgress").toLowerCase()}</p>
         </div>
         <button
           onClick={() => setComposerOpen(true)}
-          aria-label="Add task"
+          aria-label={t("tasks.add")}
           className="w-9 h-9 rounded-2xl flex items-center justify-center active:scale-90 transition-transform"
           style={{ background: "rgba(74,222,128,0.15)", border: "1px solid rgba(74,222,128,0.30)", color: "var(--accent)" }}
         >
@@ -220,15 +222,15 @@ export default function TasksPage() {
 
       {/* Summary strip */}
       <div className="px-4 mb-4 flex gap-2">
-        {[
-          { label: "Total", value: tasks.length.toString(), color: "var(--text-1)" },
-          { label: "Pending", value: pending.toString(), color: "#F59E0B" },
-          { label: "In Progress", value: inProgress.toString(), color: "#22D3EE" },
-          { label: "Done", value: tasks.filter((t) => t.status === "completed").length.toString(), color: "#4ADE80" },
-        ].map((s) => (
-          <div key={s.label} className="flex-1 rounded-2xl p-2.5 text-center" style={{ background: "rgba(255,255,255,0.05)", border: "0.5px solid var(--glass-border)" }}>
+        {([
+          { tkey: "f.total" as MessageKey, value: tasks.length.toString(), color: "var(--text-1)" },
+          { tkey: "f.pending" as MessageKey, value: pending.toString(), color: "#F59E0B" },
+          { tkey: "f.inProgress" as MessageKey, value: inProgress.toString(), color: "#22D3EE" },
+          { tkey: "f.done" as MessageKey, value: tasks.filter((t) => t.status === "completed").length.toString(), color: "#4ADE80" },
+        ]).map((s) => (
+          <div key={s.tkey} className="flex-1 rounded-2xl p-2.5 text-center" style={{ background: "rgba(255,255,255,0.05)", border: "0.5px solid var(--glass-border)" }}>
             <p className="font-bold text-base" style={{ color: s.color }}>{s.value}</p>
-            <p className="text-text-tertiary text-[9px] mt-0.5">{s.label}</p>
+            <p className="text-text-tertiary text-[9px] mt-0.5">{t(s.tkey)}</p>
           </div>
         ))}
       </div>
@@ -246,7 +248,7 @@ export default function TasksPage() {
                 : { background: "rgba(255,255,255,0.07)", color: "var(--text-2)", border: "0.5px solid var(--glass-border)" }
             }
           >
-            {f}
+            {t(FILTER_KEYS[f])}
           </button>
         ))}
       </div>
@@ -265,7 +267,7 @@ export default function TasksPage() {
                 {/* Checkbox */}
                 <button
                   onClick={() => toggle(task.id, task.status === "completed")}
-                  aria-label={task.status === "completed" ? "Mark as not done" : "Mark as done"}
+                  aria-label={task.status === "completed" ? t("tasks.markNotDone") : t("tasks.markDone")}
                   className="w-5 h-5 rounded-full flex-shrink-0 mt-0.5 flex items-center justify-center active:scale-90 transition-transform"
                   style={{
                     border: task.status === "completed" ? "none" : "1.5px solid var(--text-3)",
@@ -295,7 +297,7 @@ export default function TasksPage() {
                   className="text-[10px] font-medium px-2 py-0.5 rounded-full flex-shrink-0"
                   style={{ background: pConfig.bg, color: pConfig.color }}
                 >
-                  {pConfig.label}
+                  {t(PRIO_KEYS[task.priority])}
                 </span>
               </div>
 
@@ -321,21 +323,21 @@ export default function TasksPage() {
             onClick={(e) => e.stopPropagation()}
           >
             <div className="w-10 h-1 rounded-full mx-auto mb-4" style={{ background: "var(--glass-border)" }} />
-            <h2 className="font-bold text-lg mb-4" style={{ color: "var(--text-1)" }}>New Task</h2>
+            <h2 className="font-bold text-lg mb-4" style={{ color: "var(--text-1)" }}>{t("tasks.new")}</h2>
 
-            <label className="text-xs font-medium block mb-1.5 px-1" style={{ color: "var(--text-2)" }}>Title</label>
+            <label className="text-xs font-medium block mb-1.5 px-1" style={{ color: "var(--text-2)" }}>{t("tasks.titleField")}</label>
             <div className="rounded-2xl overflow-hidden mb-4" style={{ background: "var(--glass-bg)", border: "0.5px solid var(--glass-border)" }}>
               <input
                 autoFocus
                 value={newTitle}
                 onChange={(e) => setNewTitle(e.target.value)}
-                placeholder="e.g. Check irrigation valves"
+                placeholder={t("tasks.titlePlaceholder")}
                 className="w-full bg-transparent px-4 py-3.5 text-sm outline-none"
                 style={{ color: "var(--text-1)", caretColor: "var(--accent)" }}
               />
             </div>
 
-            <label className="text-xs font-medium block mb-2 px-1" style={{ color: "var(--text-2)" }}>Zone</label>
+            <label className="text-xs font-medium block mb-2 px-1" style={{ color: "var(--text-2)" }}>{t("tasks.zone")}</label>
             <div className="flex flex-wrap gap-2 mb-4">
               {zoneChoices.map((z) => {
                 const active = newZone === z;
@@ -347,14 +349,14 @@ export default function TasksPage() {
               })}
             </div>
 
-            <label className="text-xs font-medium block mb-2 px-1" style={{ color: "var(--text-2)" }}>Priority</label>
+            <label className="text-xs font-medium block mb-2 px-1" style={{ color: "var(--text-2)" }}>{t("tasks.priority")}</label>
             <div className="flex gap-2 mb-6">
               {(["high", "normal", "low"] as const).map((pr) => {
                 const cfg = priorityConfig[pr];
                 const active = newPriority === pr;
                 return (
-                  <button key={pr} onClick={() => setNewPriority(pr)} className="flex-1 py-2.5 rounded-xl text-sm font-medium capitalize transition-all active:scale-95" style={active ? { background: cfg.bg, color: cfg.color, border: `1px solid ${cfg.color}55` } : { background: "var(--glass-bg)", color: "var(--text-3)", border: "0.5px solid var(--glass-border)" }}>
-                    {cfg.label}
+                  <button key={pr} onClick={() => setNewPriority(pr)} className="flex-1 py-2.5 rounded-xl text-sm font-medium transition-all active:scale-95" style={active ? { background: cfg.bg, color: cfg.color, border: `1px solid ${cfg.color}55` } : { background: "var(--glass-bg)", color: "var(--text-3)", border: "0.5px solid var(--glass-border)" }}>
+                    {t(PRIO_KEYS[pr])}
                   </button>
                 );
               })}
@@ -370,7 +372,7 @@ export default function TasksPage() {
                 border: newTitle.trim() ? "none" : "0.5px solid var(--glass-border)",
               }}
             >
-              Add Task
+              {t("tasks.add")}
             </button>
           </div>
         </div>

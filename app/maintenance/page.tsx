@@ -4,7 +4,11 @@ import { useState } from "react";
 import Link from "next/link";
 import StatusBar from "../components/layout/StatusBar";
 import BottomNav from "../components/layout/BottomNav";
-import { useT } from "../lib/i18n";
+import { useT, type MessageKey } from "../lib/i18n";
+
+const FILTER_KEYS: Record<string, MessageKey> = { All: "f.all", Due: "f.due", Scheduled: "f.scheduled", Completed: "f.completed" };
+const STATUS_KEYS: Record<string, MessageKey> = { due: "f.due", scheduled: "f.scheduled", completed: "f.done" };
+const PRIO_KEYS: Record<string, MessageKey> = { high: "prio.high", medium: "prio.medium", low: "prio.low" };
 
 const filterTabs = ["All", "Due", "Scheduled", "Completed"];
 
@@ -54,14 +58,14 @@ export default function MaintenancePage() {
       {/* Stats */}
       <div className="px-4 mb-4">
         <div className="grid grid-cols-3 gap-2">
-          {[
-            { label: "Due", value: records.filter((r) => r.status === "due").length, color: "#EF4444" },
-            { label: "Scheduled", value: records.filter((r) => r.status === "scheduled").length, color: "#22D3EE" },
-            { label: "Done", value: records.filter((r) => r.status === "completed").length, color: "#4ADE80" },
-          ].map((s) => (
-            <div key={s.label} className="rounded-2xl p-3 text-center" style={{ background: "rgba(255,255,255,0.05)", border: `1px solid ${s.color}20` }}>
+          {([
+            { tkey: "f.due" as MessageKey, value: records.filter((r) => r.status === "due").length, color: "#EF4444" },
+            { tkey: "f.scheduled" as MessageKey, value: records.filter((r) => r.status === "scheduled").length, color: "#22D3EE" },
+            { tkey: "f.done" as MessageKey, value: records.filter((r) => r.status === "completed").length, color: "#4ADE80" },
+          ]).map((s) => (
+            <div key={s.tkey} className="rounded-2xl p-3 text-center" style={{ background: "rgba(255,255,255,0.05)", border: `1px solid ${s.color}20` }}>
               <p className="font-bold text-xl" style={{ color: s.color }}>{s.value}</p>
-              <p className="text-text-secondary text-[10px]">{s.label}</p>
+              <p className="text-text-secondary text-[10px]">{t(s.tkey)}</p>
             </div>
           ))}
         </div>
@@ -69,10 +73,10 @@ export default function MaintenancePage() {
 
       {/* Filter tabs */}
       <div className="px-4 mb-4 flex gap-2 overflow-x-auto scrollbar-hide">
-        {filterTabs.map((t) => (
-          <button key={t} onClick={() => setActiveTab(t)} className="px-4 py-1.5 rounded-full text-sm font-medium whitespace-nowrap flex-shrink-0 transition-all"
-            style={activeTab === t ? { background: "#4ADE80", color: "#050A14" } : { background: "rgba(255,255,255,0.07)", color: "#9CA3AF", border: "1px solid rgba(255,255,255,0.09)" }}>
-            {t}
+        {filterTabs.map((tab) => (
+          <button key={tab} onClick={() => setActiveTab(tab)} className="px-4 py-1.5 rounded-full text-sm font-medium whitespace-nowrap flex-shrink-0 transition-all"
+            style={activeTab === tab ? { background: "#4ADE80", color: "#050A14" } : { background: "rgba(255,255,255,0.07)", color: "#9CA3AF", border: "1px solid rgba(255,255,255,0.09)" }}>
+            {t(FILTER_KEYS[tab])}
           </button>
         ))}
       </div>
@@ -91,7 +95,7 @@ export default function MaintenancePage() {
                 <div className="flex-1 min-w-0">
                   <div className="flex items-center gap-2 mb-0.5">
                     <p className="text-white text-sm font-medium truncate">{record.title}</p>
-                    <span className="text-[9px] font-bold px-1.5 py-0.5 rounded-full flex-shrink-0" style={{ background: st.bg, color: st.text }}>{st.label}</span>
+                    <span className="text-[9px] font-bold px-1.5 py-0.5 rounded-full flex-shrink-0" style={{ background: st.bg, color: st.text }}>{t(STATUS_KEYS[record.status])}</span>
                   </div>
                   <div className="flex items-center gap-2">
                     <p className="text-text-secondary text-xs">{record.zone}</p>
@@ -99,7 +103,7 @@ export default function MaintenancePage() {
                     <p className="text-text-secondary text-xs">{record.date}</p>
                     <span className="text-text-tertiary text-[10px]">·</span>
                     <span className="w-1.5 h-1.5 rounded-full flex-shrink-0" style={{ background: priorityColors[record.priority] }} />
-                    <p className="text-text-secondary text-xs capitalize">{record.priority}</p>
+                    <p className="text-text-secondary text-xs">{t(PRIO_KEYS[record.priority])}</p>
                   </div>
                 </div>
                 <svg width="14" height="14" viewBox="0 0 24 24" fill="none" style={{ transform: isOpen ? "rotate(180deg)" : undefined, transition: "transform 0.2s", flexShrink: 0 }}>
@@ -112,21 +116,21 @@ export default function MaintenancePage() {
                   <p className="text-text-secondary text-xs mt-3 leading-relaxed">{record.notes}</p>
                   <div className="mt-3 flex items-center justify-between">
                     <div className="flex items-center gap-2">
-                      <span className="text-text-tertiary text-xs">Assignee:</span>
+                      <span className="text-text-tertiary text-xs">{t("maint.assignee")}:</span>
                       <span className="text-white text-xs font-medium">{record.assignee}</span>
                     </div>
                     <div className="flex items-center gap-2">
-                      <span className="text-text-tertiary text-xs">Category:</span>
+                      <span className="text-text-tertiary text-xs">{t("maint.category")}:</span>
                       <span className="text-white text-xs font-medium">{record.category}</span>
                     </div>
                   </div>
                   {record.status !== "completed" && (
                     <div className="flex gap-2 mt-3">
                       <button className="flex-1 py-2 rounded-xl text-xs font-medium" style={{ background: "rgba(74,222,128,0.15)", border: "1px solid rgba(74,222,128,0.25)", color: "#4ADE80" }}>
-                        Mark Complete
+                        {t("maint.markComplete")}
                       </button>
                       <button className="flex-1 py-2 rounded-xl text-xs font-medium" style={{ background: "rgba(255,255,255,0.07)", border: "1px solid rgba(255,255,255,0.10)", color: "white" }}>
-                        Reschedule
+                        {t("maint.reschedule")}
                       </button>
                     </div>
                   )}
@@ -139,6 +143,7 @@ export default function MaintenancePage() {
 
       {/* Add FAB */}
       <button
+        aria-label={t("maint.add")}
         className="fixed bottom-24 right-4 w-14 h-14 rounded-2xl flex items-center justify-center z-20"
         style={{ background: "linear-gradient(135deg, #4ADE80 0%, #22D3EE 100%)", boxShadow: "0 4px 20px rgba(74,222,128,0.4)" }}
       >
