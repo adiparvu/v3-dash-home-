@@ -8,7 +8,20 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Changed
+- **Next.js 14 → 15.3.9** — upgraded the framework (and `eslint-config-next`),
+  closing several npm advisories. Migrated to Next 15's async dynamic APIs:
+  versioned route handlers now `await params: Promise<{…}>` and client dynamic
+  pages read route params via `useParams()`. Hardened `currentUserId()` to short-
+  circuit when Supabase is unconfigured so API routes return **401** (not 500)
+  in localStorage prototype mode.
+
 ### Added
+- **Live widgets & real weather** — the Widget Gallery snapshot now derives from
+  live sources: estate counts (store), the live alert count (`deriveAlerts` over
+  the energy feed), camera online ratio (`useCameras`), door/armed state and
+  live **weather** via a new `GET /api/v1/weather` route (Open-Meteo, no API key,
+  server-side fallback) consumed through a `useWeather` hook.
 - **Widget gallery & PWA offline shell** — a new **Widget Gallery**
   (`/widgets`, linked from More) previews the native iOS widget set described in
   the spec: **Home Screen** widgets at Small/Medium/Large (Property Status,
