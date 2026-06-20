@@ -32,7 +32,7 @@ export default function PropertiesPage() {
                 : { background: "rgba(255,255,255,0.06)", border: "0.5px solid rgba(255,255,255,0.12)", color: "#6B7280" }
             }
           >
-            {source === "remote" ? "● Synced" : source === "loading" ? "…" : "Demo"}
+            {source === "remote" ? `● ${t("common.synced")}` : source === "loading" ? "…" : t("auto.demo")}
           </span>
         </div>
         <Link href="/properties/new">
@@ -53,19 +53,19 @@ export default function PropertiesPage() {
           className="rounded-3xl p-4"
           style={{ background: "rgba(255,255,255,0.05)", border: "1px solid rgba(255,255,255,0.08)" }}
         >
-          <p className="text-[#9CA3AF] text-xs mb-3">Portfolio Overview</p>
+          <p className="text-[#9CA3AF] text-xs mb-3">{t("props.portfolio")}</p>
           <div className="grid grid-cols-4 gap-2">
-            <Stat value={String(count)} label="Properties" />
-            <Stat value={totalHa ? `${Math.round(totalHa)}` : "—"} label="ha total" />
-            <Stat value={valueLabel} label="Value" />
-            <Stat value={avgHealth != null ? String(avgHealth) : "—"} label="Health avg" color={avgHealth != null ? "#4ADE80" : "#FFFFFF"} />
+            <Stat value={String(count)} label={t("page.properties")} />
+            <Stat value={totalHa ? `${Math.round(totalHa)}` : "—"} label={t("props.haTotal")} />
+            <Stat value={valueLabel} label={t("props.value")} />
+            <Stat value={avgHealth != null ? String(avgHealth) : "—"} label={t("props.healthAvg")} color={avgHealth != null ? "#4ADE80" : "#FFFFFF"} />
           </div>
         </div>
       </div>
 
       {/* Properties list */}
       <div className="px-4 mb-3">
-        <p className="text-[#9CA3AF] text-xs font-medium mb-3 uppercase tracking-wider">My Properties</p>
+        <p className="text-[#9CA3AF] text-xs font-medium mb-3 uppercase tracking-wider">{t("props.mine")}</p>
         {properties.map((p) => (
           <PropertyCard key={p.id} property={p} />
         ))}
@@ -81,7 +81,7 @@ export default function PropertiesPage() {
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
               <path d="M12 5V19M5 12H19" stroke="#9CA3AF" strokeWidth="2" strokeLinecap="round" />
             </svg>
-            <span className="text-[#9CA3AF] text-sm font-medium">Add Property</span>
+            <span className="text-[#9CA3AF] text-sm font-medium">{t("props.add")}</span>
           </button>
         </Link>
       </div>
@@ -101,6 +101,7 @@ function Stat({ value, label, color = "#FFFFFF" }: { value: string; label: strin
 }
 
 function PropertyCard({ property: p }: { property: UIProperty }) {
+  const t = useT();
   return (
     <Link href={`/properties/${p.id}`}>
       <div className="rounded-3xl overflow-hidden active:scale-[0.98] transition-transform mb-3" style={{ border: "1px solid rgba(255,255,255,0.10)" }}>
@@ -122,18 +123,18 @@ function PropertyCard({ property: p }: { property: UIProperty }) {
               <span className="animate-ping absolute inline-flex h-full w-full rounded-full opacity-75" style={{ background: "#4ADE80" }} />
               <span className="relative inline-flex rounded-full h-2 w-2" style={{ background: "#4ADE80" }} />
             </span>
-            <span className="text-[10px] text-[#4ADE80] font-medium">Live</span>
+            <span className="text-[10px] text-[#4ADE80] font-medium">{t("notif.live")}</span>
           </div>
           {p.health != null && (
             <div className="absolute top-3 left-3">
               <div className="flex items-center gap-1 px-2 py-0.5 rounded-full" style={{ background: "rgba(74,222,128,0.18)", border: "1px solid rgba(74,222,128,0.30)" }}>
                 <svg width="8" height="8" viewBox="0 0 24 24" fill="none"><path d="M12 2L15.09 8.26L22 9.27L17 14.14L18.18 21.02L12 17.77L5.82 21.02L7 14.14L2 9.27L8.91 8.26L12 2Z" fill="#4ADE80" /></svg>
-                <span className="text-[10px] font-semibold" style={{ color: "#4ADE80" }}>{p.health} · Very Good</span>
+                <span className="text-[10px] font-semibold" style={{ color: "#4ADE80" }}>{p.health} · {t("props.veryGood")}</span>
               </div>
             </div>
           )}
           <div className="relative z-10">
-            <p className="text-[#9CA3AF] text-xs mb-0.5">Estate</p>
+            <p className="text-[#9CA3AF] text-xs mb-0.5">{t("props.estate")}</p>
             <h3 className="text-white font-bold text-lg leading-tight">{p.name}</h3>
           </div>
         </div>
@@ -145,14 +146,14 @@ function PropertyCard({ property: p }: { property: UIProperty }) {
             <span className="text-[#9CA3AF] text-xs">{p.location}</span>
           </div>
           <div className="flex items-center gap-4 mb-3">
-            <Metric color="#22D3EE" value={p.zones != null ? String(p.zones) : "—"} unit="zones" />
-            <Metric color="#7C3AED" value={p.objects != null ? String(p.objects) : "—"} unit="objects" />
+            <Metric color="#22D3EE" value={p.zones != null ? String(p.zones) : "—"} unit={t("props.zones")} />
+            <Metric color="#7C3AED" value={p.objects != null ? String(p.objects) : "—"} unit={t("props.objects")} />
             <Metric color="#4ADE80" value={p.areaHa != null ? `${p.areaHa} ha` : "—"} unit="" />
           </div>
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-1">
               <svg width="11" height="11" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="9" stroke="#6B7280" strokeWidth="1.75" /><path d="M12 7V12L15 15" stroke="#6B7280" strokeWidth="1.75" strokeLinecap="round" /></svg>
-              <span className="text-[#6B7280] text-[11px]">Tap to open</span>
+              <span className="text-[#6B7280] text-[11px]">{t("props.tapToOpen")}</span>
             </div>
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none"><path d="M9 6L15 12L9 18" stroke="#6B7280" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round" /></svg>
           </div>
