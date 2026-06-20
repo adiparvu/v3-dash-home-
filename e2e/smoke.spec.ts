@@ -77,6 +77,24 @@ test("zone detail discloses faults + sensor recommendations", async ({ page }) =
   await expect(sheet.getByText(/How to connect ·/).first()).toBeVisible();
 });
 
+test("an integration can be connected and disconnected", async ({ page }) => {
+  await page.goto("/settings/integrations/airbnb");
+  await expect(page.getByRole("heading", { name: "Airbnb" })).toBeVisible();
+  // Not connected yet → connect button is shown.
+  const connect = page.getByRole("button", { name: /Connect Airbnb/ });
+  await expect(connect).toBeVisible();
+  await connect.click();
+  // After the simulated handshake it becomes connected (Disconnect appears).
+  await expect(page.getByRole("button", { name: "Disconnect" })).toBeVisible();
+  // State persists back on the list as Connected.
+  await page.goto("/settings/integrations");
+  await expect(page.getByRole("link", { name: /Airbnb/ }).getByText(/Connected/)).toBeVisible();
+  // Clean up: disconnect again.
+  await page.goto("/settings/integrations/airbnb");
+  await page.getByRole("button", { name: "Disconnect" }).click();
+  await expect(page.getByRole("button", { name: /Connect Airbnb/ })).toBeVisible();
+});
+
 test("diagnostics detail disclosure opens causes + suggestions", async ({ page }) => {
   await page.goto("/diagnostics");
   await expect(page.getByRole("heading", { name: "Diagnostics" })).toBeVisible();

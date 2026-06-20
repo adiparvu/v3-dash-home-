@@ -17,6 +17,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   in localStorage prototype mode.
 
 ### Added
+- **All integrations made functional (no more “Soon”)** — every integration is
+  now connectable end to end. A persisted integrations store
+  (`app/lib/integrations.tsx`, `prvio-integrations-v1`) + a rich catalog (19
+  integrations across Smart Home, Security, Finance, Hospitality, Energy) back a
+  new detail screen (`/settings/integrations/[id]`) with a Connect/Disconnect
+  flow (simulated handshake) and, once connected, representative metrics, a
+  recent-activity feed and deep links to the surfaces each one powers. The list
+  shows Connected / Via HomeKit / Connect — no placeholder states. Real
+  third-party APIs would plug into the same shapes behind the backend. Tests:
+  catalog + `resolveConnections` reducer (7) and an E2E connect/disconnect flow.
 - **Zone detail sheet + sensor advisor** — the Zones list now carries a Detail
   Disclosure Button per zone that opens a sheet with health/status, metrics,
   **possible faults in that zone** (via `faultsForZone`) and **recommended
