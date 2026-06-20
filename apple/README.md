@@ -22,8 +22,27 @@ apple/
 │   └── WeatherService.swift      # Example domain service on APIClient
 ├── Tests/PrvioKitTests/          # XCTest parity tests (formatValue, seasonal, widgets)
 ├── App/PrvioApp.swift            # Reference SwiftUI app entry (add to an Xcode App target)
+├── App/PrvioIntents.swift        # Siri Shortcuts (App Intents) — zero-setup phrases
 └── Widget/EstateWidget.swift     # Reference WidgetKit extension (add to a Widget target)
 ```
+
+## Siri Shortcuts (App Intents)
+
+`App/PrvioIntents.swift` defines native **Siri Shortcuts** via the App Intents
+framework — they reuse `PrvioKit`, so Siri, Spotlight, the Shortcuts app and the
+Action Button all drive the same versioned backend:
+
+- **“What's the weather at my PRVIO estate”** → `CheckWeatherIntent` (wired to
+  `GET /api/v1/weather`).
+- **“How is my estate in PRVIO”** → `EstateHealthIntent` (uses the planned
+  `GET /api/v1/estate/snapshot`).
+- **“Open Diagnostics / Energy / Insights in PRVIO”** → `OpenPrvioScreenIntent`
+  (deep-links into the app).
+
+`PrvioShortcuts: AppShortcutsProvider` registers the phrases so they work with no
+user setup. Add `PrvioIntents.swift` to the App target; the navigation intent
+posts `.prvioOpenScreen`, which the SwiftUI router observes. (Web parity: the PWA
+manifest already ships Home-Screen app shortcuts — Siri itself is iOS-only.)
 
 ## Architecture alignment
 

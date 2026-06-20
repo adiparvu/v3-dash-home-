@@ -17,6 +17,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   in localStorage prototype mode.
 
 ### Added
+- **Siri Shortcuts (App Intents)** — the Apple scaffold gains native Siri
+  Shortcuts (`apple/App/PrvioIntents.swift`): zero-setup phrases for estate
+  weather (wired to `/api/v1/weather`), estate health and open-screen
+  navigation, registered via an `AppShortcutsProvider` and reusing `PrvioKit`.
+  (Web parity: the PWA manifest already ships Home-Screen app shortcuts; Siri
+  itself is iOS-only.)
 - **Budget & expenses** — a new **Budget** screen (`/budget`, More → Estate)
   with a monthly budget progress bar, a 6-month trend, category breakdown (with
   shares) and recent expenses imported from the Receipt Scanner & banking

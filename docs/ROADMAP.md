@@ -110,6 +110,7 @@ future track that reuses the same versioned backend contracts.
 | --- | --- |
 | Native client scaffold (`apple/` — `PrvioKit` Swift package: versioned API client, models, widget content parity + XCTest) | ✅ |
 | SwiftUI app + WidgetKit reference sources (consume shared backend contracts) | 🚧 |
+| Siri Shortcuts (App Intents) — weather, estate health, open-screen + phrases | 🚧 |
 | Widget data model + on-device Widget Gallery preview (`/widgets`, framework-free + unit-tested) | ✅ |
 | PWA offline app shell (service-worker precache + `/offline` fallback) + install shortcuts | ✅ |
 | Full SwiftUI apps (iPhone, iPad, Mac, Watch, Vision Pro) | ⏳ |
