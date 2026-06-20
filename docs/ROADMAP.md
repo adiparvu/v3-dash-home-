@@ -108,9 +108,11 @@ future track that reuses the same versioned backend contracts.
 
 | Item | Status |
 | --- | --- |
-| SwiftUI apps (iPhone, iPad, Mac, Watch, Vision Pro) on shared backend contracts | ⏳ |
+| Native client scaffold (`apple/` — `PrvioKit` Swift package: versioned API client, models, widget content parity + XCTest) | ✅ |
+| SwiftUI app + WidgetKit reference sources (consume shared backend contracts) | 🚧 |
 | Widget data model + on-device Widget Gallery preview (`/widgets`, framework-free + unit-tested) | ✅ |
 | PWA offline app shell (service-worker precache + `/offline` fallback) + install shortcuts | ✅ |
+| Full SwiftUI apps (iPhone, iPad, Mac, Watch, Vision Pro) | ⏳ |
 | Home / Lock screen / Notification Center widgets (native WidgetKit) | ⏳ |
 | Live Activities (maintenance, deliveries, incidents, inspections — native ActivityKit) | ⏳ |
 | Face ID / Touch ID / Secure Enclave + Keychain | ⏳ |

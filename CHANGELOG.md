@@ -17,6 +17,21 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   in localStorage prototype mode.
 
 ### Added
+- **Apple native client scaffold (Phase 8)** — a new `apple/` directory starts
+  the SwiftUI client track: a Foundation-only **`PrvioKit`** Swift package with a
+  versioned REST `APIClient` (`/api/v1`, bearer auth, `{ apiVersion, data }`
+  envelope), Codable models (`Weather`, `EstateSnapshot`, `Profile`), a
+  `WidgetContent` model that mirrors the web `widgets.ts` (`formatValue`,
+  `seasonalChecklist`, `build`) and a `WeatherService`, plus XCTest parity tests.
+  Reference `App/PrvioApp.swift` (SwiftUI) and `Widget/EstateWidget.swift`
+  (WidgetKit, small/medium/large) show how the app and widgets reuse the shared
+  contracts. Documented in `apple/README.md`.
+- **Playwright E2E smoke suite** — `e2e/smoke.spec.ts` (6 checks: overview +
+  nav, widget gallery sizes, weather API, offline page, profile-API 401, tasks
+  deep-link) with `playwright.config.ts` and a dedicated CI job.
+- **i18n (EN/RO) & accessibility** — a typed i18n layer (`app/lib/i18n.tsx`,
+  `useT`/`useI18n`) with a live language switch; global focus-visible ring,
+  `.sr-only`, reduced-motion guard and `aria-current`/`aria-hidden` passes.
 - **Live widgets & real weather** — the Widget Gallery snapshot now derives from
   live sources: estate counts (store), the live alert count (`deriveAlerts` over
   the energy feed), camera online ratio (`useCameras`), door/armed state and
