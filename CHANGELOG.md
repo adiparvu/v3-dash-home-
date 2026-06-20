@@ -8,6 +8,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Verified / Documented
+- **Live backend verification** — verified the live Supabase project end to end:
+  migrations `001`–`010` applied, RLS enabled on all 28 tables, runtime auth
+  gating (`401` on `/api/v1/*`, `307`→`/login` on protected routes) and
+  fail-closed RLS confirmed via direct PostgREST. Documented the results and an
+  **`owns_property` guardrail** in the threat model warning that the `0029`
+  advisor on `owns_property` / `match_knowledge` is intentional and must not be
+  "fixed" (revoking `EXECUTE` from `authenticated` would break every
+  property-scoped RLS policy). Refreshed the stale threat-model open items.
+
 ### Added
 - **End-to-end smoke tests (Playwright)** — a runtime test suite (`e2e/smoke.spec.ts`)
   that builds and starts the app and drives the key surfaces in a real browser

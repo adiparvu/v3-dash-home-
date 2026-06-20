@@ -1,6 +1,6 @@
 # PRVIO Earth — Threat Model (living document)
 
-**Version:** v1.0.0 · **Last updated:** 2026-06-19
+**Version:** v1.0.0 · **Last updated:** 2026-06-20
 
 A living STRIDE-oriented threat model for the platform. Updated as
 architecture changes (see [diagram set](./diagram-set.md)).
@@ -32,8 +32,38 @@ architecture changes (see [diagram set](./diagram-set.md)).
 - **BYO model exfiltration** → key stays client/server only; no third party in
   the client path; server call is server-side.
 
+## Live backend verification (2026-06-20)
+
+Verified against the live Supabase project `v3-dash-home (PRVIO Earth)`
+(`tircswflgkosuxudcnsd`, eu-west-1, Postgres 17):
+
+- **Migrations** `001`–`010` all applied; **28 tables, RLS enabled on every one**.
+- **Auth gating (runtime)** — unauthenticated `/api/v1/*` return `401`
+  (`{"apiVersion":"1.0.0","error":"unauthorized"}`); protected routes `307` to
+  `/login?redirect=…`; `/login` is `200`.
+- **RLS (direct PostgREST, anon key)** — every table denies anon access
+  (fail-closed): parent tables return `[]`; property-scoped child tables return
+  `42501 permission denied for function owns_property`.
+
+### ⚠️ `owns_property` guardrail — do not "fix" the advisor
+
+Supabase security advisor `0029` flags `owns_property(uuid)` and
+`match_knowledge(...)` as `SECURITY DEFINER` functions executable by signed-in
+users. **Both are intentional and must not be revoked from `authenticated`:**
+
+- `owns_property` is called inside **every property-scoped RLS policy**, so the
+  `authenticated` role *must* keep `EXECUTE` — revoking it breaks all child-table
+  queries with `42501` for logged-in users.
+- `match_knowledge` is the retrieval RPC and enforces ownership internally
+  (`owns_property` → returns no rows if unauthorized).
+
+The `42501` seen by **anon** on child tables is the *deliberate* hardening from
+migration `003` (anon's `EXECUTE` on `owns_property` was revoked on purpose). It
+is fail-closed and leaks only the function name; do not grant it back to anon
+just for `[]`-shaped responses.
+
 ## Open items (tracked)
 - Gateway-level rate limiting / WAF (Phase 2 backend).
-- Apply migrations `005`/`006` to the live project and re-run advisors.
+- `vector` extension lives in the `public` schema (advisor `0014`, low priority).
 - Secret rotation guidance for BYO keys; consider server-side key vault instead
   of client storage for production.
