@@ -6,23 +6,26 @@ import StatusBar from "../../components/layout/StatusBar";
 import MonitorGrid from "../../components/monitor/MonitorGrid";
 import CameraWall from "../../components/cameras/CameraWall";
 import { POOL } from "../../lib/monitor/presets";
+import { useT, type MessageKey } from "../../lib/i18n";
 
-type Ctl = { id: string; label: string; icon: string; modes: string[] };
+type Ctl = { id: string; labelKey: MessageKey; icon: string; modes: string[] };
 const CONTROLS: Ctl[] = [
-  { id: "pump", label: "Pompă", icon: "🔄", modes: ["Auto", "On", "Off"] },
-  { id: "filter", label: "Filtrare", icon: "🫧", modes: ["Auto", "On", "Off"] },
-  { id: "heat", label: "Încălzire", icon: "🔥", modes: ["Auto", "On", "Off"] },
-  { id: "lights", label: "Lumini", icon: "💡", modes: ["Auto", "On", "Off"] },
-  { id: "cover", label: "Acoperire", icon: "🪟", modes: ["Auto", "Open", "Closed"] },
-  { id: "dose", label: "Dozare clor", icon: "🧴", modes: ["Auto", "On", "Off"] },
+  { id: "pump", labelKey: "zp.pool.cPump", icon: "🔄", modes: ["Auto", "On", "Off"] },
+  { id: "filter", labelKey: "zp.pool.cFilter", icon: "🫧", modes: ["Auto", "On", "Off"] },
+  { id: "heat", labelKey: "zp.pool.cHeat", icon: "🔥", modes: ["Auto", "On", "Off"] },
+  { id: "lights", labelKey: "zp.pool.cLights", icon: "💡", modes: ["Auto", "On", "Off"] },
+  { id: "cover", labelKey: "zp.pool.cCover", icon: "🪟", modes: ["Auto", "Open", "Closed"] },
+  { id: "dose", labelKey: "zp.pool.cDose", icon: "🧴", modes: ["Auto", "On", "Off"] },
 ];
+const MODE_KEY: Record<string, MessageKey> = { Auto: "zp.mAuto", On: "zp.mOn", Off: "zp.mOff", Open: "zp.mOpen", Closed: "zp.mClosed" };
 
-const SCHEDULE = [
-  { time: "06:00 – 10:00", detail: "Filtrare matinală", color: "#22D3EE" },
-  { time: "17:00 – 21:00", detail: "Filtrare seară", color: "#22D3EE" },
+const SCHEDULE: { timeKey: MessageKey; detailKey: MessageKey; color: string }[] = [
+  { timeKey: "zp.pool.s1", detailKey: "zp.pool.s1d", color: "#22D3EE" },
+  { timeKey: "zp.pool.s2", detailKey: "zp.pool.s2d", color: "#22D3EE" },
 ];
 
 export default function PoolPage() {
+  const t = useT();
   const [modes, setModes] = useState<Record<string, number>>({});
   const cycle = (id: string, len: number) => setModes((m) => ({ ...m, [id]: ((m[id] ?? 0) + 1) % len }));
 
@@ -42,7 +45,7 @@ export default function PoolPage() {
         <div className="absolute inset-0 flex items-center justify-center">
           <div className="rounded-3xl p-4 flex flex-col items-center gap-1" style={{ background: "rgba(56,189,248,0.12)", border: "1px solid rgba(56,189,248,0.30)", backdropFilter: "blur(10px)" }}>
             <span className="text-4xl">🏊</span>
-            <span className="text-white font-bold text-sm">Piscină</span>
+            <span className="text-white font-bold text-sm">{t("zp.pool.name")}</span>
           </div>
         </div>
       </div>
@@ -50,14 +53,14 @@ export default function PoolPage() {
       <div className="rounded-t-[32px] -mt-6 relative z-10 px-5 pt-6 pb-8" style={{ background: "rgba(255,255,255,0.05)", backdropFilter: "blur(40px)", WebkitBackdropFilter: "blur(40px)", borderTop: "1px solid rgba(255,255,255,0.10)" }}>
         <div className="w-10 h-1 rounded-full bg-white/20 mx-auto mb-5" />
 
-        <h1 className="text-white text-2xl font-bold mb-1">Piscină</h1>
-        <p className="text-text-secondary text-sm mb-5">Chimia apei · filtrare · confort</p>
+        <h1 className="text-white text-2xl font-bold mb-1">{t("zp.pool.name")}</h1>
+        <p className="text-text-secondary text-sm mb-5">{t("zp.pool.subtitle")}</p>
 
         <div className="mb-6">
-          <MonitorGrid zoneType="pool" specs={POOL} title="Calitatea apei" columns={2} />
+          <MonitorGrid zoneType="pool" specs={POOL} title={t("zp.pool.monTitle")} columns={2} />
         </div>
 
-        <p className="text-xs font-medium uppercase tracking-wide mb-2.5 px-1" style={{ color: "var(--text-2)" }}>Control echipamente</p>
+        <p className="text-xs font-medium uppercase tracking-wide mb-2.5 px-1" style={{ color: "var(--text-2)" }}>{t("zp.pool.equipControl")}</p>
         <div className="grid grid-cols-3 gap-2.5 mb-6">
           {CONTROLS.map((c) => {
             const idx = modes[c.id] ?? 0;
@@ -68,8 +71,8 @@ export default function PoolPage() {
             return (
               <button key={c.id} onClick={() => cycle(c.id, c.modes.length)} className="rounded-2xl p-3 liquid-glass text-center active:scale-95 transition-transform" style={{ borderColor: `${color}40` }}>
                 <span className="text-xl">{c.icon}</span>
-                <p className="text-[11px] font-medium mt-1 truncate" style={{ color: "var(--text-1)" }}>{c.label}</p>
-                <span className="text-[10px] font-semibold px-2 py-0.5 rounded-full mt-1 inline-block" style={{ background: `${color}22`, color }}>{mode}</span>
+                <p className="text-[11px] font-medium mt-1 truncate" style={{ color: "var(--text-1)" }}>{t(c.labelKey)}</p>
+                <span className="text-[10px] font-semibold px-2 py-0.5 rounded-full mt-1 inline-block" style={{ background: `${color}22`, color }}>{MODE_KEY[mode] ? t(MODE_KEY[mode]) : mode}</span>
               </button>
             );
           })}
@@ -78,23 +81,23 @@ export default function PoolPage() {
         {/* Filtration schedule + cost */}
         <div className="grid grid-cols-2 gap-3 mb-6">
           <div className="rounded-2xl p-4 liquid-glass">
-            <p className="text-xs mb-2" style={{ color: "var(--text-2)" }}>Program filtrare</p>
+            <p className="text-xs mb-2" style={{ color: "var(--text-2)" }}>{t("zp.pool.filterSchedule")}</p>
             {SCHEDULE.map((s) => (
-              <div key={s.time} className="mb-1.5">
-                <p className="text-[13px] font-medium" style={{ color: "var(--text-1)" }}>{s.time}</p>
-                <p className="text-[10px]" style={{ color: "var(--text-3)" }}>{s.detail}</p>
+              <div key={s.timeKey} className="mb-1.5">
+                <p className="text-[13px] font-medium" style={{ color: "var(--text-1)" }}>{t(s.timeKey)}</p>
+                <p className="text-[10px]" style={{ color: "var(--text-3)" }}>{t(s.detailKey)}</p>
               </div>
             ))}
           </div>
           <div className="rounded-2xl p-4 liquid-glass flex flex-col justify-between">
-            <p className="text-xs" style={{ color: "var(--text-2)" }}>Cost lunar estimat</p>
+            <p className="text-xs" style={{ color: "var(--text-2)" }}>{t("zp.pool.monthlyCost")}</p>
             <div><span className="text-white font-bold text-3xl">€84</span></div>
-            <p className="text-[10px]" style={{ color: "var(--text-3)" }}>pompe + încălzire · ↓ 6% vs luna trecută</p>
+            <p className="text-[10px]" style={{ color: "var(--text-3)" }}>{t("zp.pool.costNote")}</p>
           </div>
         </div>
 
         <div>
-          <CameraWall zone="pool" title="Camere piscină · AI" />
+          <CameraWall zone="pool" title={t("zp.pool.camTitle")} />
         </div>
       </div>
     </div>
