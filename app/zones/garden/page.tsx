@@ -1,25 +1,28 @@
+"use client";
+
 import Link from "next/link";
 import StatusBar from "../../components/layout/StatusBar";
+import { useT, type MessageKey } from "../../lib/i18n";
 
-const metrics = [
-  { label: "Plants", value: "87", color: "#4ADE80" },
-  { label: "Trees", value: "12", color: "#4ADE80" },
-  { label: "Lawn Area", value: "680 m²", color: "#FFFFFF" },
-  { label: "Flower Beds", value: "8", color: "#FFFFFF" },
+const metrics: { labelKey: MessageKey; value: string; color: string }[] = [
+  { labelKey: "zp.gd.mPlants", value: "87", color: "#4ADE80" },
+  { labelKey: "zp.gd.mTrees", value: "12", color: "#4ADE80" },
+  { labelKey: "zp.gd.mLawn", value: "680 m²", color: "#FFFFFF" },
+  { labelKey: "zp.gd.mBeds", value: "8", color: "#FFFFFF" },
 ];
 
-const statusRows = [
-  { label: "Irrigation", value: "Active", color: "#4ADE80" },
-  { label: "Mowing Schedule", value: "Weekly", color: "#9CA3AF" },
-  { label: "Fertilizer Due", value: "In 5 days", color: "#F59E0B" },
-  { label: "Pest Control", value: "Low Risk", color: "#4ADE80" },
-  { label: "Last Watered", value: "1h ago", color: "#9CA3AF" },
-  { label: "Soil Moisture", value: "Optimal", color: "#22D3EE" },
+const statusRows: { labelKey: MessageKey; valueKey: MessageKey; color: string }[] = [
+  { labelKey: "zp.gd.sIrrigation", valueKey: "zp.gd.sIrrigationV", color: "#4ADE80" },
+  { labelKey: "zp.gd.sMowing", valueKey: "zp.gd.sMowingV", color: "#9CA3AF" },
+  { labelKey: "zp.gd.sFertilizer", valueKey: "zp.gd.sFertilizerV", color: "#F59E0B" },
+  { labelKey: "zp.gd.sPest", valueKey: "zp.gd.sPestV", color: "#4ADE80" },
+  { labelKey: "zp.gd.sWatered", valueKey: "zp.gd.sWateredV", color: "#9CA3AF" },
+  { labelKey: "zp.gd.sMoisture", valueKey: "zp.gd.sMoistureV", color: "#22D3EE" },
 ];
 
-const actions = [
+const actions: { labelKey: MessageKey; icon: React.ReactNode }[] = [
   {
-    label: "History",
+    labelKey: "zp.lake.actHistory",
     icon: (
       <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#9CA3AF" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
         <circle cx="12" cy="12" r="10" />
@@ -28,7 +31,7 @@ const actions = [
     ),
   },
   {
-    label: "Tasks",
+    labelKey: "zp.lake.actTasks",
     icon: (
       <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#9CA3AF" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
         <polyline points="9 11 12 14 22 4" />
@@ -37,7 +40,7 @@ const actions = [
     ),
   },
   {
-    label: "Documents",
+    labelKey: "zp.lake.actDocuments",
     icon: (
       <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#9CA3AF" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
         <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
@@ -46,7 +49,7 @@ const actions = [
     ),
   },
   {
-    label: "Sensors",
+    labelKey: "zp.lake.actSensors",
     icon: (
       <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#9CA3AF" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
         <path d="M5 12.55a11 11 0 0 1 14.08 0" />
@@ -73,6 +76,7 @@ const particles = [
 ];
 
 export default function GardenPage() {
+  const t = useT();
   return (
     <div className="min-h-screen" style={{ background: "#050A14" }}>
       {/* Hero area */}
@@ -173,7 +177,7 @@ export default function GardenPage() {
 
         {/* Title row */}
         <div className="flex items-center justify-between mb-1">
-          <h1 className="text-white text-2xl font-bold">Garden</h1>
+          <h1 className="text-white text-2xl font-bold">{t("zp.gd.name")}</h1>
           <span
             className="text-xs font-medium px-2.5 py-1 rounded-full"
             style={{
@@ -182,18 +186,18 @@ export default function GardenPage() {
               border: "1px solid rgba(74,222,128,0.25)",
             }}
           >
-            Good
+            {t("zp.gd.good")}
           </span>
         </div>
         <p className="text-sm mb-5" style={{ color: "#9CA3AF" }}>
-          Main Garden · 1,200 m²
+          {t("zp.gd.subtitle")}
         </p>
 
         {/* Metrics grid (2x2) */}
         <div className="grid grid-cols-2 gap-2 mb-5">
           {metrics.map((m) => (
             <div
-              key={m.label}
+              key={m.labelKey}
               className="rounded-2xl p-3.5"
               style={{
                 background: "rgba(255,255,255,0.05)",
@@ -201,7 +205,7 @@ export default function GardenPage() {
               }}
             >
               <p className="text-[10px] mb-1" style={{ color: "#6B7280" }}>
-                {m.label}
+                {t(m.labelKey)}
               </p>
               <p className="text-base font-bold" style={{ color: m.color }}>
                 {m.value}
@@ -220,17 +224,17 @@ export default function GardenPage() {
         >
           {statusRows.map((row, i) => (
             <div
-              key={row.label}
+              key={row.labelKey}
               className="flex justify-between items-center px-4 py-3"
               style={{
                 borderBottom: i < statusRows.length - 1 ? "1px solid rgba(255,255,255,0.06)" : undefined,
               }}
             >
               <span className="text-sm" style={{ color: "#9CA3AF" }}>
-                {row.label}
+                {t(row.labelKey)}
               </span>
               <span className="text-sm font-medium" style={{ color: row.color }}>
-                {row.value}
+                {t(row.valueKey)}
               </span>
             </div>
           ))}
@@ -240,7 +244,7 @@ export default function GardenPage() {
         <div className="grid grid-cols-4 gap-2">
           {actions.map((action) => (
             <button
-              key={action.label}
+              key={action.labelKey}
               className="rounded-2xl p-3 flex flex-col items-center gap-2 active:scale-95 transition-transform"
               style={{
                 background: "rgba(255,255,255,0.07)",
@@ -249,7 +253,7 @@ export default function GardenPage() {
             >
               {action.icon}
               <span className="text-xs" style={{ color: "#9CA3AF" }}>
-                {action.label}
+                {t(action.labelKey)}
               </span>
             </button>
           ))}
