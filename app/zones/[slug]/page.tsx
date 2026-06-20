@@ -6,8 +6,10 @@ import { useParams, useRouter } from "next/navigation";
 import StatusBar from "../../components/layout/StatusBar";
 import { useStore } from "../../lib/store";
 import { useZones } from "../../lib/useZones";
+import { useT, type MessageKey } from "../../lib/i18n";
 
 export default function CustomZonePage() {
+  const t = useT();
   const params = useParams<{ slug: string }>();
   const router = useRouter();
   const { ready, findZone, removeZone } = useStore();
@@ -33,17 +35,17 @@ export default function CustomZonePage() {
       <div className="min-h-screen flex flex-col" style={{ color: "var(--text-1)" }}>
         <StatusBar />
         <div className="px-5 pt-1 pb-4 flex items-center gap-3">
-          <Link href="/zones" aria-label="Back" className="w-9 h-9 rounded-2xl flex items-center justify-center liquid-glass" style={{ color: "var(--text-1)" }}>
+          <Link href="/zones" aria-label={t("zdet.back")} className="w-9 h-9 rounded-2xl flex items-center justify-center liquid-glass" style={{ color: "var(--text-1)" }}>
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none"><path d="M15 18L9 12L15 6" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" /></svg>
           </Link>
-          <h1 className="font-bold text-xl" style={{ color: "var(--text-1)" }}>Zone</h1>
+          <h1 className="font-bold text-xl" style={{ color: "var(--text-1)" }}>{t("zdet.zone")}</h1>
         </div>
         <div className="flex-1 flex flex-col items-center justify-center px-8 text-center -mt-16">
           <span className="text-5xl mb-4">🗺️</span>
-          <p className="text-base font-semibold mb-1" style={{ color: "var(--text-1)" }}>Zone not found</p>
-          <p className="text-sm mb-6" style={{ color: "var(--text-2)" }}>This zone may have been removed or never existed.</p>
+          <p className="text-base font-semibold mb-1" style={{ color: "var(--text-1)" }}>{t("zdet.notFound")}</p>
+          <p className="text-sm mb-6" style={{ color: "var(--text-2)" }}>{t("zdet.notFoundSub")}</p>
           <Link href="/zones">
-            <button className="px-5 py-3 rounded-2xl text-sm font-semibold" style={{ background: "linear-gradient(135deg,#4ADE80,#22C55E)", color: "#08111E" }}>Back to Zones</button>
+            <button className="px-5 py-3 rounded-2xl text-sm font-semibold" style={{ background: "linear-gradient(135deg,#4ADE80,#22C55E)", color: "#08111E" }}>{t("zdet.backToZones")}</button>
           </Link>
         </div>
       </div>
@@ -56,13 +58,13 @@ export default function CustomZonePage() {
       <div className="relative h-56 flex items-center justify-center overflow-hidden" style={{ background: `linear-gradient(160deg, ${zone.accentColor}33 0%, transparent 100%)` }}>
         <StatusBar transparent />
         <div className="absolute inset-0 opacity-30" style={{ background: `radial-gradient(ellipse at 50% 55%, ${zone.accentColor} 0%, transparent 70%)` }} />
-        <Link href="/zones" aria-label="Back" className="absolute top-14 left-5 w-9 h-9 rounded-2xl flex items-center justify-center z-10 liquid-glass" style={{ color: "var(--text-1)" }}>
+        <Link href="/zones" aria-label={t("zdet.back")} className="absolute top-14 left-5 w-9 h-9 rounded-2xl flex items-center justify-center z-10 liquid-glass" style={{ color: "var(--text-1)" }}>
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none"><path d="M15 18l-6-6 6-6" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" /></svg>
         </Link>
         <div className="absolute top-14 right-5 z-10 flex items-center gap-2">
           <Link
             href={`${zone.href}/edit`}
-            aria-label="Edit zone"
+            aria-label={t("zdet.editZone")}
             className="w-9 h-9 rounded-2xl flex items-center justify-center liquid-glass active:scale-90 transition-transform"
             style={{ color: "var(--text-1)" }}
           >
@@ -70,7 +72,7 @@ export default function CustomZonePage() {
           </Link>
           <button
             onClick={() => setConfirmOpen(true)}
-            aria-label="Delete zone"
+            aria-label={t("zdet.deleteZone")}
             className="w-9 h-9 rounded-2xl flex items-center justify-center liquid-glass active:scale-90 transition-transform"
             style={{ color: "#EF4444" }}
           >
@@ -91,7 +93,7 @@ export default function CustomZonePage() {
           <span className="text-[10px] font-semibold px-2 py-0.5 rounded-full" style={synced
             ? { background: "rgba(74,222,128,0.15)", color: "#4ADE80", border: "1px solid rgba(74,222,128,0.25)" }
             : { background: "rgba(255,255,255,0.06)", color: "#9CA3AF", border: "1px solid rgba(255,255,255,0.12)" }}>
-            {synced ? "Synced" : "Demo"}
+            {synced ? t("zdet.synced") : t("zdet.demo")}
           </span>
         </p>
       </div>
@@ -107,8 +109,8 @@ export default function CustomZonePage() {
             <span className="absolute inset-0 flex items-center justify-center font-bold text-sm" style={{ color: "var(--text-1)" }}>{zone.health}</span>
           </div>
           <div className="flex-1">
-            <p className="text-sm font-semibold" style={{ color: "var(--text-1)" }}>Zone Health</p>
-            <p className="text-xs" style={{ color: "var(--text-2)" }}>Operating normally</p>
+            <p className="text-sm font-semibold" style={{ color: "var(--text-1)" }}>{t("zdet.zoneHealth")}</p>
+            <p className="text-xs" style={{ color: "var(--text-2)" }}>{t("zdet.operatingNormally")}</p>
           </div>
         </div>
       </div>
@@ -125,15 +127,15 @@ export default function CustomZonePage() {
 
       {/* Actions */}
       <div className="px-4 mt-4 space-y-2">
-        {[
-          { label: "Sensors", href: "/sensors", icon: "📡" },
-          { label: "Tasks", href: "/tasks", icon: "✅" },
-          { label: "Automations", href: "/automations", icon: "⚡" },
-        ].map((a) => (
-          <Link key={a.label} href={a.href}>
+        {([
+          { labelKey: "page.sensors", href: "/sensors", icon: "📡" },
+          { labelKey: "page.tasks", href: "/tasks", icon: "✅" },
+          { labelKey: "page.automations", href: "/automations", icon: "⚡" },
+        ] as { labelKey: MessageKey; href: string; icon: string }[]).map((a) => (
+          <Link key={a.href} href={a.href}>
             <div className="liquid-glass rounded-2xl px-4 py-3.5 flex items-center gap-3 active:scale-[0.98] transition-transform">
               <span className="text-xl">{a.icon}</span>
-              <span className="flex-1 text-sm font-medium" style={{ color: "var(--text-1)" }}>{a.label}</span>
+              <span className="flex-1 text-sm font-medium" style={{ color: "var(--text-1)" }}>{t(a.labelKey)}</span>
               <svg width="14" height="14" viewBox="0 0 24 24" fill="none" style={{ opacity: 0.4 }}><path d="M9 18l6-6-6-6" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round" /></svg>
             </div>
           </Link>
@@ -145,10 +147,10 @@ export default function CustomZonePage() {
         <div className="fixed inset-0 z-[60] flex items-end justify-center" style={{ background: "rgba(0,0,0,0.45)" }} onClick={() => setConfirmOpen(false)}>
           <div className="w-full md:w-[390px] rounded-t-[28px] p-5 pb-8 animate-slide-up liquid-glass-strong" onClick={(e) => e.stopPropagation()}>
             <div className="w-10 h-1 rounded-full mx-auto mb-4" style={{ background: "var(--glass-border)" }} />
-            <h2 className="font-bold text-lg mb-1" style={{ color: "var(--text-1)" }}>Delete {zone.name}?</h2>
-            <p className="text-sm mb-5" style={{ color: "var(--text-2)" }}>This zone will be permanently removed.</p>
-            <button onClick={doDelete} className="w-full py-3.5 rounded-2xl font-semibold text-base mb-2 active:scale-[0.97] transition-transform" style={{ background: "#EF4444", color: "#fff" }}>Delete Zone</button>
-            <button onClick={() => setConfirmOpen(false)} className="w-full py-3.5 rounded-2xl font-medium text-base" style={{ background: "var(--glass-bg)", border: "0.5px solid var(--glass-border)", color: "var(--text-1)" }}>Cancel</button>
+            <h2 className="font-bold text-lg mb-1" style={{ color: "var(--text-1)" }}>{t("zdet.deletePrefix")} {zone.name}?</h2>
+            <p className="text-sm mb-5" style={{ color: "var(--text-2)" }}>{t("zdet.deleteConfirm")}</p>
+            <button onClick={doDelete} className="w-full py-3.5 rounded-2xl font-semibold text-base mb-2 active:scale-[0.97] transition-transform" style={{ background: "#EF4444", color: "#fff" }}>{t("zdet.deleteBtn")}</button>
+            <button onClick={() => setConfirmOpen(false)} className="w-full py-3.5 rounded-2xl font-medium text-base" style={{ background: "var(--glass-bg)", border: "0.5px solid var(--glass-border)", color: "var(--text-1)" }}>{t("zdet.cancel")}</button>
           </div>
         </div>
       )}
