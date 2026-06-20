@@ -7,13 +7,15 @@ import BottomNav from "../components/layout/BottomNav";
 import { useStore } from "../lib/store";
 import { retrieve, retrieveRemote, OWNER_SCOPES, RetrievedChunk } from "../lib/ai/retrieval";
 import { classifyAndGuard, validateOutput, classificationMeta, GuardrailDecision } from "../lib/ai/guardrails";
+import { useT, type MessageKey } from "../lib/i18n";
 
-const suggestions = [
-  "What's the health status of my forest zone?",
-  "When should I harvest the orchard?",
-  "Is my greenhouse CO₂ level safe?",
-  "How many zones and assets do I have?",
+const suggestions: { en: string; tkey: MessageKey }[] = [
+  { en: "What's the health status of my forest zone?", tkey: "ai.s.forest" },
+  { en: "When should I harvest the orchard?", tkey: "ai.s.harvest" },
+  { en: "Is my greenhouse CO₂ level safe?", tkey: "ai.s.co2" },
+  { en: "How many zones and assets do I have?", tkey: "ai.s.count" },
 ];
+
 
 type MsgMeta = {
   classification: GuardrailDecision["classification"];
@@ -35,6 +37,7 @@ const initial: Msg[] = [
 
 export default function AIPage() {
   const { estateName, addedZones, addedAssets, assistant, logAiDecision, aiAuditLog } = useStore();
+  const t = useT();
   const [input, setInput] = useState("");
   const [chat, setChat] = useState<Msg[]>(initial);
   const [typing, setTyping] = useState(false);
@@ -139,9 +142,9 @@ export default function AIPage() {
               <span className="text-[10px]" style={{ color: "var(--accent)" }}>
                 {(() => {
                   const m = assistant.model;
-                  const label = m === "byo" ? (assistant.byoModelName || "Custom model") : m === "claude" ? "Claude" : "On-device";
+                  const label = m === "byo" ? (assistant.byoModelName || t("ai.customModel")) : m === "claude" ? "Claude" : t("asst.m.onDevice");
                   const byoReady = m !== "byo" || Boolean(assistant.byoEndpoint && assistant.byoModelName && assistant.byoApiKey);
-                  return `via ${label}${byoReady ? "" : " · setup needed"} · guardrails on`;
+                  return `${t("ai.via")} ${label}${byoReady ? "" : ` · ${t("ai.setupNeeded")}`} · ${t("ai.guardrailsOn")}`;
                 })()}
               </span>
             </div>
@@ -150,7 +153,7 @@ export default function AIPage() {
         <div className="flex items-center gap-2">
           <Link
             href="/settings/ai-guardrails"
-            aria-label="AI guardrails"
+            aria-label={t("set.guardrails")}
             className="w-9 h-9 rounded-2xl flex items-center justify-center relative"
             style={{ background: "var(--glass-bg)", border: "0.5px solid var(--glass-border)", color: "var(--text-2)" }}
           >
@@ -161,7 +164,7 @@ export default function AIPage() {
           </Link>
           <button
             onClick={() => setChat(initial)}
-            aria-label="New chat"
+            aria-label={t("ai.newChat")}
             className="w-9 h-9 rounded-2xl flex items-center justify-center"
             style={{ background: "var(--glass-bg)", border: "0.5px solid var(--glass-border)", color: "var(--text-2)" }}
           >
@@ -200,19 +203,19 @@ export default function AIPage() {
 
                 {meta?.requiresApproval && (
                   <Link href="/properties/transfer" className="block mt-2 text-center text-xs font-medium px-3 py-2 rounded-xl" style={{ background: "rgba(245,158,11,0.12)", border: "1px solid rgba(245,158,11,0.3)", color: "#F59E0B" }}>
-                    Open secure workflow →
+                    {t("ai.secureWorkflow")}
                   </Link>
                 )}
 
                 {meta && meta.sources.length > 0 && (
                   <div className="mt-2 pt-2 flex flex-wrap items-center gap-1.5" style={{ borderTop: "0.5px solid var(--glass-border)" }}>
-                    <span className="text-[10px]" style={{ color: "var(--text-3)" }}>Sources:</span>
+                    <span className="text-[10px]" style={{ color: "var(--text-3)" }}>{t("ai.sources")}</span>
                     {meta.sources.map((s, i) => (
                       <span key={i} className="text-[10px] px-1.5 py-0.5 rounded-md" style={{ background: "rgba(34,211,238,0.10)", color: "#22D3EE" }}>{s.title}</span>
                     ))}
                     {meta.retrieval && (
                       <span className="text-[10px] px-1.5 py-0.5 rounded-md" style={{ background: "var(--glass-bg)", color: "var(--text-3)" }}>
-                        {meta.retrieval === "backend" ? "● backend store" : "on-device"}
+                        {meta.retrieval === "backend" ? t("ai.backendStore") : t("ai.onDeviceRetrieval")}
                       </span>
                     )}
                   </div>
@@ -237,15 +240,15 @@ export default function AIPage() {
         {/* Suggestions */}
         {chat.length <= 1 && !typing && (
           <div className="space-y-2 mt-4">
-            <p className="text-xs px-1" style={{ color: "var(--text-2)" }}>Suggested questions</p>
+            <p className="text-xs px-1" style={{ color: "var(--text-2)" }}>{t("ai.suggested")}</p>
             {suggestions.map((s) => (
               <button
-                key={s}
-                onClick={() => send(s)}
+                key={s.en}
+                onClick={() => send(s.en)}
                 className="w-full text-left rounded-2xl px-4 py-3 text-sm active:scale-[0.98] transition-transform liquid-glass"
                 style={{ color: "var(--text-1)" }}
               >
-                {s}
+                {t(s.tkey)}
               </button>
             ))}
           </div>
@@ -258,7 +261,7 @@ export default function AIPage() {
           <textarea
             value={input}
             onChange={(e) => setInput(e.target.value)}
-            placeholder="Ask about your estate..."
+            placeholder={t("ai.placeholder")}
             rows={1}
             className="flex-1 bg-transparent text-sm outline-none resize-none px-2 py-1.5"
             onKeyDown={(e) => { if (e.key === "Enter" && !e.shiftKey) { e.preventDefault(); send(input); } }}

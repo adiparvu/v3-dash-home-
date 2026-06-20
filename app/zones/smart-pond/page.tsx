@@ -1,25 +1,28 @@
+"use client";
+
 import Link from "next/link";
 import StatusBar from "../../components/layout/StatusBar";
+import { useT, type MessageKey } from "../../lib/i18n";
 
-const stats = [
-  { label: "Water Temp", value: "16.2 °C", unit: "", color: "#FFFFFF" },
-  { label: "pH Level", value: "7.4", unit: "", color: "#FFFFFF" },
-  { label: "Dissolved O₂", value: "8.2 mg/L", unit: "", color: "#22D3EE" },
-  { label: "Turbidity", value: "Low", unit: "", color: "#4ADE80" },
+const stats: { labelKey: MessageKey; value: string; valueKey?: MessageKey; color: string }[] = [
+  { labelKey: "zp.sp.mTemp", value: "16.2 °C", color: "#FFFFFF" },
+  { labelKey: "zp.sp.mPh", value: "7.4", color: "#FFFFFF" },
+  { labelKey: "zp.sp.mO2", value: "8.2 mg/L", color: "#22D3EE" },
+  { labelKey: "zp.sp.mTurbidity", value: "", valueKey: "zp.sp.mTurbidityV", color: "#4ADE80" },
 ];
 
-const statusRows = [
-  { label: "Fish Health", value: "Excellent", color: "#4ADE80" },
-  { label: "Algae Level", value: "Low", color: "#4ADE80" },
-  { label: "Filtration", value: "Active", color: "#4ADE80" },
-  { label: "UV Sterilizer", value: "On", color: "#22D3EE" },
-  { label: "Last Fed", value: "3h ago", color: "#9CA3AF" },
-  { label: "Last Cleaned", value: "8 days ago", color: "#9CA3AF" },
+const statusRows: { labelKey: MessageKey; valueKey: MessageKey; color: string }[] = [
+  { labelKey: "zp.sp.sFish", valueKey: "zp.sp.sFishV", color: "#4ADE80" },
+  { labelKey: "zp.sp.sAlgae", valueKey: "zp.sp.sAlgaeV", color: "#4ADE80" },
+  { labelKey: "zp.sp.sFiltration", valueKey: "zp.sp.sFiltrationV", color: "#4ADE80" },
+  { labelKey: "zp.sp.sUv", valueKey: "zp.sp.sUvV", color: "#22D3EE" },
+  { labelKey: "zp.sp.sFed", valueKey: "zp.sp.sFedV", color: "#9CA3AF" },
+  { labelKey: "zp.sp.sCleaned", valueKey: "zp.sp.sCleanedV", color: "#9CA3AF" },
 ];
 
-const actions = [
+const actions: { labelKey: MessageKey; icon: React.ReactNode }[] = [
   {
-    label: "History",
+    labelKey: "zp.lake.actHistory",
     icon: (
       <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#9CA3AF" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
         <circle cx="12" cy="12" r="10" />
@@ -28,7 +31,7 @@ const actions = [
     ),
   },
   {
-    label: "Tasks",
+    labelKey: "zp.lake.actTasks",
     icon: (
       <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#9CA3AF" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
         <polyline points="9 11 12 14 22 4" />
@@ -37,7 +40,7 @@ const actions = [
     ),
   },
   {
-    label: "Documents",
+    labelKey: "zp.lake.actDocuments",
     icon: (
       <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#9CA3AF" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
         <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
@@ -46,7 +49,7 @@ const actions = [
     ),
   },
   {
-    label: "Sensors",
+    labelKey: "zp.lake.actSensors",
     icon: (
       <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#9CA3AF" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
         <path d="M5 12.55a11 11 0 0 1 14.08 0" />
@@ -59,6 +62,7 @@ const actions = [
 ];
 
 export default function SmartPondPage() {
+  const t = useT();
   return (
     <div className="min-h-screen" style={{ background: "#050A14" }}>
       {/* Hero area */}
@@ -165,7 +169,7 @@ export default function SmartPondPage() {
 
         {/* Title row */}
         <div className="flex items-center justify-between mb-1">
-          <h1 className="text-white text-2xl font-bold">Smart Pond</h1>
+          <h1 className="text-white text-2xl font-bold">{t("zp.sp.name")}</h1>
           <span
             className="text-xs font-medium px-2.5 py-1 rounded-full"
             style={{
@@ -174,18 +178,18 @@ export default function SmartPondPage() {
               border: "1px solid rgba(34,211,238,0.25)",
             }}
           >
-            Excellent
+            {t("zp.sp.excellent")}
           </span>
         </div>
         <p className="text-sm mb-5" style={{ color: "#9CA3AF" }}>
-          Koi &amp; Aquatic Garden · 85 m²
+          {t("zp.sp.subtitle")}
         </p>
 
         {/* Stats grid (2x2) */}
         <div className="grid grid-cols-2 gap-2 mb-5">
           {stats.map((s) => (
             <div
-              key={s.label}
+              key={s.labelKey}
               className="rounded-2xl p-3.5"
               style={{
                 background: "rgba(255,255,255,0.05)",
@@ -193,10 +197,10 @@ export default function SmartPondPage() {
               }}
             >
               <p className="text-[10px] mb-1" style={{ color: "#6B7280" }}>
-                {s.label}
+                {t(s.labelKey)}
               </p>
               <p className="text-base font-bold" style={{ color: s.color }}>
-                {s.value}
+                {s.valueKey ? t(s.valueKey) : s.value}
               </p>
             </div>
           ))}
@@ -212,17 +216,17 @@ export default function SmartPondPage() {
         >
           {statusRows.map((row, i) => (
             <div
-              key={row.label}
+              key={row.labelKey}
               className="flex justify-between items-center px-4 py-3"
               style={{
                 borderBottom: i < statusRows.length - 1 ? "1px solid rgba(255,255,255,0.06)" : undefined,
               }}
             >
               <span className="text-sm" style={{ color: "#9CA3AF" }}>
-                {row.label}
+                {t(row.labelKey)}
               </span>
               <span className="text-sm font-medium" style={{ color: row.color }}>
-                {row.value}
+                {t(row.valueKey)}
               </span>
             </div>
           ))}
@@ -232,7 +236,7 @@ export default function SmartPondPage() {
         <div className="grid grid-cols-4 gap-2">
           {actions.map((action) => (
             <button
-              key={action.label}
+              key={action.labelKey}
               className="rounded-2xl p-3 flex flex-col items-center gap-2 active:scale-95 transition-transform"
               style={{
                 background: "rgba(255,255,255,0.07)",
@@ -241,7 +245,7 @@ export default function SmartPondPage() {
             >
               {action.icon}
               <span className="text-xs" style={{ color: "#9CA3AF" }}>
-                {action.label}
+                {t(action.labelKey)}
               </span>
             </button>
           ))}

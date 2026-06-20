@@ -15,6 +15,7 @@ import BottomNav from "../../components/layout/BottomNav";
 import { useStore } from "../../lib/store";
 import { useEnergyLive } from "../../lib/twin/energyLive";
 import { usePresence } from "../../lib/useSmartHome";
+import { useT, type MessageKey } from "../../lib/i18n";
 
 type Person = { name: string; initial: string; color: string };
 const PEOPLE: Record<string, Person> = {
@@ -25,7 +26,7 @@ const PEOPLE: Record<string, Person> = {
 
 type Room = {
   id: string;
-  name: string;
+  nameKey: MessageKey;
   icon: string;
   area: string;
   baseW: number;
@@ -35,12 +36,12 @@ type Room = {
 };
 
 const ROOMS: Room[] = [
-  { id: "living", name: "Living", icon: "🛋️", area: "living", baseW: 320, baseTemp: 22.4, lights: 4, people: ["alex"] },
-  { id: "kitchen", name: "Bucătărie", icon: "🍳", area: "kitchen", baseW: 280, baseTemp: 23.1, lights: 2, people: ["maria"] },
-  { id: "bath", name: "Baie & spa", icon: "🛁", area: "bath", baseW: 140, baseTemp: 24.5, lights: 1, people: [] },
-  { id: "bedroom", name: "Dormitor principal", icon: "🛏️", area: "bedroom", baseW: 90, baseTemp: 21.2, lights: 0, people: [] },
-  { id: "office", name: "Birou", icon: "💻", area: "office", baseW: 180, baseTemp: 22.0, lights: 1, people: ["sofia"] },
-  { id: "garage", name: "Garaj", icon: "🚗", area: "garage", baseW: 1400, baseTemp: 18.6, lights: 1, people: [] },
+  { id: "living", nameKey: "fp.roomLiving", icon: "🛋️", area: "living", baseW: 320, baseTemp: 22.4, lights: 4, people: ["alex"] },
+  { id: "kitchen", nameKey: "fp.roomKitchen", icon: "🍳", area: "kitchen", baseW: 280, baseTemp: 23.1, lights: 2, people: ["maria"] },
+  { id: "bath", nameKey: "fp.roomBath", icon: "🛁", area: "bath", baseW: 140, baseTemp: 24.5, lights: 1, people: [] },
+  { id: "bedroom", nameKey: "fp.roomBedroom", icon: "🛏️", area: "bedroom", baseW: 90, baseTemp: 21.2, lights: 0, people: [] },
+  { id: "office", nameKey: "fp.roomOffice", icon: "💻", area: "office", baseW: 180, baseTemp: 22.0, lights: 1, people: ["sofia"] },
+  { id: "garage", nameKey: "fp.roomGarage", icon: "🚗", area: "garage", baseW: 1400, baseTemp: 18.6, lights: 1, people: [] },
 ];
 
 const GRID_AREAS = `"living living kitchen" "living living bath" "bedroom office garage"`;
@@ -48,6 +49,7 @@ const GRID_AREAS = `"living living kitchen" "living living bath" "bedroom office
 const jit = (v: number, f: number, seed: number) => v * (1 + (Math.sin(seed) * f));
 
 export default function FloorplanPage() {
+  const t = useT();
   const [tick, setTick] = useState(0);
   const [selected, setSelected] = useState<string | null>(null);
   const { energy, setEnergy } = useStore();
@@ -65,7 +67,7 @@ export default function FloorplanPage() {
   const liveTotalW = Math.max(0, s.home * 1000);
   const live = (r: Room) => ({
     watts: Math.round(jit((r.baseW / totalBase) * liveTotalW, 0.1, tick + r.id.length)),
-    temp: Math.round(jit(r.baseTemp, 0.01, tick * 1.3 + r.name.length) * 10) / 10,
+    temp: Math.round(jit(r.baseTemp, 0.01, tick * 1.3 + r.nameKey.length) * 10) / 10,
   });
 
   const totalW = ROOMS.reduce((s, r) => s + live(r).watts, 0);
@@ -74,10 +76,10 @@ export default function FloorplanPage() {
 
   const climateOn = energy.hvacMode !== "Off";
   const CHIPS: { id: string; state: boolean; on: string; off: string; icon: string; label: string; toggle: () => void }[] = [
-    { id: "lights", state: energy.lightsOn, on: "Aprinse", off: "Stinse", icon: "💡", label: "Lumini", toggle: () => setEnergy({ lightsOn: !energy.lightsOn }) },
-    { id: "climate", state: climateOn, on: `${energy.hvacSetpoint}°C`, off: "Oprit", icon: "❄️", label: "Climă", toggle: () => setEnergy({ hvacMode: climateOn ? "Off" : "Auto" }) },
-    { id: "doors", state: energy.doorsLocked, on: "Încuiat", off: "Descuiat", icon: "🔒", label: "Uși", toggle: () => setEnergy({ doorsLocked: !energy.doorsLocked }) },
-    { id: "music", state: energy.musicOn, on: "Redă", off: "Oprit", icon: "🎵", label: "Muzică", toggle: () => setEnergy({ musicOn: !energy.musicOn }) },
+    { id: "lights", state: energy.lightsOn, on: t("fp.on"), off: t("fp.off"), icon: "💡", label: t("fp.chipLights"), toggle: () => setEnergy({ lightsOn: !energy.lightsOn }) },
+    { id: "climate", state: climateOn, on: `${energy.hvacSetpoint}°C`, off: t("fp.off"), icon: "❄️", label: t("fp.chipClimate"), toggle: () => setEnergy({ hvacMode: climateOn ? "Off" : "Auto" }) },
+    { id: "doors", state: energy.doorsLocked, on: t("fp.locked"), off: t("fp.unlocked"), icon: "🔒", label: t("fp.chipDoors"), toggle: () => setEnergy({ doorsLocked: !energy.doorsLocked }) },
+    { id: "music", state: energy.musicOn, on: t("fp.playing"), off: t("fp.off"), icon: "🎵", label: t("fp.chipMusic"), toggle: () => setEnergy({ musicOn: !energy.musicOn }) },
   ];
 
   return (
@@ -87,9 +89,9 @@ export default function FloorplanPage() {
         <Link href="/more" className="w-9 h-9 rounded-2xl flex items-center justify-center flex-shrink-0 liquid-glass" style={{ color: "var(--text-1)" }}>
           <svg width="18" height="18" viewBox="0 0 24 24" fill="none"><path d="M19 12H5M12 5l-7 7 7 7" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" /></svg>
         </Link>
-        <h1 className="font-bold text-2xl flex-1" style={{ color: "var(--text-1)" }}>Floorplan</h1>
+        <h1 className="font-bold text-2xl flex-1" style={{ color: "var(--text-1)" }}>{t("fp.title")}</h1>
         <span className="flex items-center gap-1.5 text-[11px] font-semibold" style={{ color: source === "live" ? "#4ADE80" : "#9CA3AF" }}>
-          <span style={{ width: 7, height: 7, borderRadius: 999, background: source === "live" ? "#4ADE80" : "#9CA3AF" }} /> {source === "live" ? "Live" : "Simulat"}
+          <span style={{ width: 7, height: 7, borderRadius: 999, background: source === "live" ? "#4ADE80" : "#9CA3AF" }} /> {source === "live" ? t("fp.live") : t("fp.simulated")}
         </span>
       </div>
 
@@ -113,9 +115,9 @@ export default function FloorplanPage() {
 
       {/* Summary */}
       <div className="px-4 mb-3 grid grid-cols-3 gap-2">
-        <div className="rounded-2xl p-2.5 text-center liquid-glass"><p className="font-bold text-lg" style={{ color: "var(--text-1)" }}>{(totalW / 1000).toFixed(1)} kW</p><p className="text-text-secondary text-[10px]">Consum casă</p></div>
-        <div className="rounded-2xl p-2.5 text-center liquid-glass"><p className="font-bold text-lg" style={{ color: "#22D3EE" }}>{occupied.length}</p><p className="text-text-secondary text-[10px]">Camere ocupate</p></div>
-        <div className="rounded-2xl p-2.5 text-center liquid-glass"><p className="font-bold text-lg" style={{ color: "#4ADE80" }}>{Object.keys(PEOPLE).filter((p) => ROOMS.some((r) => peopleIn(r.id).includes(p))).length}</p><p className="text-text-secondary text-[10px]">Persoane acasă</p></div>
+        <div className="rounded-2xl p-2.5 text-center liquid-glass"><p className="font-bold text-lg" style={{ color: "var(--text-1)" }}>{(totalW / 1000).toFixed(1)} kW</p><p className="text-text-secondary text-[10px]">{t("fp.houseUsage")}</p></div>
+        <div className="rounded-2xl p-2.5 text-center liquid-glass"><p className="font-bold text-lg" style={{ color: "#22D3EE" }}>{occupied.length}</p><p className="text-text-secondary text-[10px]">{t("fp.roomsOccupied")}</p></div>
+        <div className="rounded-2xl p-2.5 text-center liquid-glass"><p className="font-bold text-lg" style={{ color: "#4ADE80" }}>{Object.keys(PEOPLE).filter((p) => ROOMS.some((r) => peopleIn(r.id).includes(p))).length}</p><p className="text-text-secondary text-[10px]">{t("fp.peopleHome")}</p></div>
       </div>
 
       {/* Floorplan grid */}
@@ -137,7 +139,7 @@ export default function FloorplanPage() {
                     ))}
                   </div>
                 </div>
-                <p className="text-xs font-semibold leading-tight" style={{ color: "var(--text-1)" }}>{r.name}</p>
+                <p className="text-xs font-semibold leading-tight" style={{ color: "var(--text-1)" }}>{t(r.nameKey)}</p>
                 <div className="flex items-center gap-2 mt-1">
                   <span className="text-[10px]" style={{ color: "#A78BFA" }}>{l.watts} W</span>
                   <span className="text-[10px]" style={{ color: "#F59E0B" }}>{l.temp}°</span>
@@ -154,21 +156,21 @@ export default function FloorplanPage() {
           <div className="rounded-3xl p-4 liquid-glass">
             <div className="flex items-center gap-2 mb-3">
               <span className="text-2xl">{sel.icon}</span>
-              <h2 className="text-lg font-bold flex-1" style={{ color: "var(--text-1)" }}>{sel.name}</h2>
+              <h2 className="text-lg font-bold flex-1" style={{ color: "var(--text-1)" }}>{t(sel.nameKey)}</h2>
               <button onClick={() => setSelected(null)} className="w-7 h-7 rounded-full flex items-center justify-center" style={{ background: "rgba(255,255,255,0.08)", color: "var(--text-1)" }}>✕</button>
             </div>
             {[
-              { l: "Consum acum", v: `${live(sel).watts} W`, c: "#A78BFA" },
-              { l: "Temperatură", v: `${live(sel).temp}°C`, c: "#F59E0B" },
-              { l: "Lumini aprinse", v: `${sel.lights}`, c: "var(--text-1)" },
-              { l: "Prezență", v: peopleIn(sel.id).length ? peopleIn(sel.id).map((p) => PEOPLE[p]?.name ?? p).join(", ") : "Nimeni", c: peopleIn(sel.id).length ? "#4ADE80" : "var(--text-3)" },
+              { l: t("fp.usageNow"), v: `${live(sel).watts} W`, c: "#A78BFA" },
+              { l: t("fp.temperature"), v: `${live(sel).temp}°C`, c: "#F59E0B" },
+              { l: t("fp.lightsOn"), v: `${sel.lights}`, c: "var(--text-1)" },
+              { l: t("fp.presence"), v: peopleIn(sel.id).length ? peopleIn(sel.id).map((p) => PEOPLE[p]?.name ?? p).join(", ") : t("fp.nobody"), c: peopleIn(sel.id).length ? "#4ADE80" : "var(--text-3)" },
             ].map((row) => (
               <div key={row.l} className="flex items-center justify-between py-2.5" style={{ borderBottom: "1px solid rgba(255,255,255,0.06)" }}>
                 <span className="text-sm" style={{ color: "var(--text-3)" }}>{row.l}</span>
                 <span className="text-sm font-semibold" style={{ color: row.c }}>{row.v}</span>
               </div>
             ))}
-            <p className="text-[11px] mt-3" style={{ color: "var(--text-3)" }}>Sincronizat cu Home Assistant prin gateway-ul backend.</p>
+            <p className="text-[11px] mt-3" style={{ color: "var(--text-3)" }}>{t("fp.syncNote")}</p>
           </div>
         </div>
       )}

@@ -2,20 +2,23 @@
 
 import { useState, useEffect } from "react";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
+import { useParams, useRouter } from "next/navigation";
 import StatusBar from "../../../components/layout/StatusBar";
 import { useStore } from "../../../lib/store";
+import { useT, type MessageKey } from "../../../lib/i18n";
 
-const types = [
-  { id: "Natural", label: "Natural", icon: "🌿", color: "#4ADE80" },
-  { id: "Agriculture", label: "Agriculture", icon: "🌾", color: "#F59E0B" },
-  { id: "Infrastructure", label: "Infrastructure", icon: "🛠️", color: "#22D3EE" },
-  { id: "Built", label: "Built", icon: "🏠", color: "#7C3AED" },
+const types: { id: string; labelKey: MessageKey; icon: string; color: string }[] = [
+  { id: "Natural", labelKey: "znew.tNatural", icon: "🌿", color: "#4ADE80" },
+  { id: "Agriculture", labelKey: "znew.tAgriculture", icon: "🌾", color: "#F59E0B" },
+  { id: "Infrastructure", labelKey: "znew.tInfrastructure", icon: "🛠️", color: "#22D3EE" },
+  { id: "Built", labelKey: "znew.tBuilt", icon: "🏠", color: "#7C3AED" },
 ];
 
 const iconChoices = ["💧", "🌲", "🏡", "🍎", "🌿", "🐟", "🏠", "🚗", "⚡", "🌻", "🪴", "🏞️"];
 
-export default function EditZonePage({ params }: { params: { slug: string } }) {
+export default function EditZonePage() {
+  const t = useT();
+  const params = useParams<{ slug: string }>();
   const router = useRouter();
   const { ready, findZone, updateZone } = useStore();
   const [loaded, setLoaded] = useState(false);
@@ -44,7 +47,7 @@ export default function EditZonePage({ params }: { params: { slug: string } }) {
   const canSave = name.trim().length > 0;
   const save = () => {
     if (!canSave || !href) return;
-    const color = types.find((t) => t.id === type)?.color ?? "#4ADE80";
+    const color = types.find((ty) => ty.id === type)?.color ?? "#4ADE80";
     updateZone(href, { name: name.trim(), subtitle: subtitle.trim() || type, type, icon, accentColor: color });
     router.push(href);
   };
@@ -62,9 +65,9 @@ export default function EditZonePage({ params }: { params: { slug: string } }) {
         <StatusBar />
         <div className="flex-1 flex flex-col items-center justify-center px-8 text-center -mt-12">
           <span className="text-5xl mb-4">🗺️</span>
-          <p className="text-base font-semibold mb-1" style={{ color: "var(--text-1)" }}>Can&apos;t edit this zone</p>
-          <p className="text-sm mb-6" style={{ color: "var(--text-2)" }}>Only custom zones you added can be edited.</p>
-          <Link href="/zones"><button className="px-5 py-3 rounded-2xl text-sm font-semibold" style={{ background: "linear-gradient(135deg,#4ADE80,#22C55E)", color: "#08111E" }}>Back to Zones</button></Link>
+          <p className="text-base font-semibold mb-1" style={{ color: "var(--text-1)" }}>{t("zedit.cantEdit")}</p>
+          <p className="text-sm mb-6" style={{ color: "var(--text-2)" }}>{t("zedit.cantEditSub")}</p>
+          <Link href="/zones"><button className="px-5 py-3 rounded-2xl text-sm font-semibold" style={{ background: "linear-gradient(135deg,#4ADE80,#22C55E)", color: "#08111E" }}>{t("zedit.backToZones")}</button></Link>
         </div>
       </div>
     );
@@ -75,12 +78,12 @@ export default function EditZonePage({ params }: { params: { slug: string } }) {
       <StatusBar />
 
       <div className="px-4 pt-1 pb-4 flex items-center gap-3">
-        <Link href={href || "/zones"} aria-label="Back" className="w-9 h-9 rounded-2xl flex items-center justify-center flex-shrink-0 liquid-glass" style={{ color: "var(--text-1)" }}>
+        <Link href={href || "/zones"} aria-label={t("znew.back")} className="w-9 h-9 rounded-2xl flex items-center justify-center flex-shrink-0 liquid-glass" style={{ color: "var(--text-1)" }}>
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none"><path d="M15 18L9 12L15 6" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" /></svg>
         </Link>
         <div>
-          <h1 className="font-bold text-xl leading-tight" style={{ color: "var(--text-1)" }}>Edit Zone</h1>
-          <p className="text-xs" style={{ color: "var(--text-2)" }}>Update the details</p>
+          <h1 className="font-bold text-xl leading-tight" style={{ color: "var(--text-1)" }}>{t("zedit.title")}</h1>
+          <p className="text-xs" style={{ color: "var(--text-2)" }}>{t("zedit.subtitle")}</p>
         </div>
       </div>
 
@@ -88,35 +91,35 @@ export default function EditZonePage({ params }: { params: { slug: string } }) {
         <div className="liquid-glass rounded-3xl p-4 flex items-center gap-4">
           <div className="w-14 h-14 rounded-2xl flex items-center justify-center text-3xl flex-shrink-0" style={{ background: "var(--glass-bg)", border: "0.5px solid var(--glass-border)" }}>{icon}</div>
           <div className="flex-1 min-w-0">
-            <p className="font-semibold text-base leading-tight" style={{ color: "var(--text-1)" }}>{name.trim() || "Zone name"}</p>
-            <p className="text-xs mt-0.5" style={{ color: "var(--text-2)" }}>{subtitle.trim() || "Subtitle"}</p>
-            <span className="inline-block mt-1.5 text-[10px] font-medium px-2 py-0.5 rounded-full" style={{ background: "rgba(74,222,128,0.15)", color: "var(--accent)" }}>{type}</span>
+            <p className="font-semibold text-base leading-tight" style={{ color: "var(--text-1)" }}>{name.trim() || t("znew.zoneName")}</p>
+            <p className="text-xs mt-0.5" style={{ color: "var(--text-2)" }}>{subtitle.trim() || t("znew.subtitlePlaceholder")}</p>
+            <span className="inline-block mt-1.5 text-[10px] font-medium px-2 py-0.5 rounded-full" style={{ background: "rgba(74,222,128,0.15)", color: "var(--accent)" }}>{t(types.find((ty) => ty.id === type)?.labelKey ?? "znew.tNatural")}</span>
           </div>
         </div>
 
         <div>
-          <label className="text-xs font-medium block mb-1.5 px-1" style={{ color: "var(--text-2)" }}>Zone Name</label>
+          <label className="text-xs font-medium block mb-1.5 px-1" style={{ color: "var(--text-2)" }}>{t("znew.nameLabel")}</label>
           <div className="rounded-2xl overflow-hidden transition-all" style={inputWrap("name")}>
-            <input value={name} onChange={(e) => setName(e.target.value)} onFocus={() => setFocused("name")} onBlur={() => setFocused(null)} placeholder="e.g. North Lake" className="w-full bg-transparent px-4 py-3.5 text-sm outline-none" style={{ color: "var(--text-1)", caretColor: "var(--accent)" }} />
+            <input value={name} onChange={(e) => setName(e.target.value)} onFocus={() => setFocused("name")} onBlur={() => setFocused(null)} placeholder={t("znew.namePh")} className="w-full bg-transparent px-4 py-3.5 text-sm outline-none" style={{ color: "var(--text-1)", caretColor: "var(--accent)" }} />
           </div>
         </div>
 
         <div>
-          <label className="text-xs font-medium block mb-1.5 px-1" style={{ color: "var(--text-2)" }}>Subtitle</label>
+          <label className="text-xs font-medium block mb-1.5 px-1" style={{ color: "var(--text-2)" }}>{t("znew.subLabel")}</label>
           <div className="rounded-2xl overflow-hidden transition-all" style={inputWrap("subtitle")}>
-            <input value={subtitle} onChange={(e) => setSubtitle(e.target.value)} onFocus={() => setFocused("subtitle")} onBlur={() => setFocused(null)} placeholder="e.g. Freshwater Ecosystem" className="w-full bg-transparent px-4 py-3.5 text-sm outline-none" style={{ color: "var(--text-1)", caretColor: "var(--accent)" }} />
+            <input value={subtitle} onChange={(e) => setSubtitle(e.target.value)} onFocus={() => setFocused("subtitle")} onBlur={() => setFocused(null)} placeholder={t("znew.subPh")} className="w-full bg-transparent px-4 py-3.5 text-sm outline-none" style={{ color: "var(--text-1)", caretColor: "var(--accent)" }} />
           </div>
         </div>
 
         <div>
-          <label className="text-xs font-medium block mb-2 px-1" style={{ color: "var(--text-2)" }}>Zone Type</label>
+          <label className="text-xs font-medium block mb-2 px-1" style={{ color: "var(--text-2)" }}>{t("znew.type")}</label>
           <div className="grid grid-cols-2 gap-2.5">
-            {types.map((t) => {
-              const active = type === t.id;
+            {types.map((ty) => {
+              const active = type === ty.id;
               return (
-                <button key={t.id} onClick={() => setType(t.id)} className="liquid-glass rounded-2xl p-3 flex items-center gap-2.5 active:scale-[0.97] transition-transform" style={{ border: active ? `1.5px solid ${t.color}` : undefined }}>
-                  <span className="text-xl">{t.icon}</span>
-                  <span className="text-sm font-medium" style={{ color: "var(--text-1)" }}>{t.label}</span>
+                <button key={ty.id} onClick={() => setType(ty.id)} className="liquid-glass rounded-2xl p-3 flex items-center gap-2.5 active:scale-[0.97] transition-transform" style={{ border: active ? `1.5px solid ${ty.color}` : undefined }}>
+                  <span className="text-xl">{ty.icon}</span>
+                  <span className="text-sm font-medium" style={{ color: "var(--text-1)" }}>{t(ty.labelKey)}</span>
                 </button>
               );
             })}
@@ -124,7 +127,7 @@ export default function EditZonePage({ params }: { params: { slug: string } }) {
         </div>
 
         <div>
-          <label className="text-xs font-medium block mb-2 px-1" style={{ color: "var(--text-2)" }}>Icon</label>
+          <label className="text-xs font-medium block mb-2 px-1" style={{ color: "var(--text-2)" }}>{t("znew.icon")}</label>
           <div className="liquid-glass rounded-2xl p-3 grid grid-cols-6 gap-2">
             {iconChoices.map((ic) => {
               const active = icon === ic;
@@ -148,10 +151,10 @@ export default function EditZonePage({ params }: { params: { slug: string } }) {
             border: canSave ? "none" : "0.5px solid var(--glass-border)",
           }}
         >
-          Save Changes
+          {t("zedit.save")}
         </button>
         <div className="flex justify-center">
-          <Link href={href || "/zones"}><button className="text-sm py-2 px-4" style={{ color: "var(--text-2)" }}>Cancel</button></Link>
+          <Link href={href || "/zones"}><button className="text-sm py-2 px-4" style={{ color: "var(--text-2)" }}>{t("znew.cancel")}</button></Link>
         </div>
       </div>
     </div>

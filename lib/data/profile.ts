@@ -7,6 +7,7 @@
  * never by the client (see docs/PRODUCT_SPEC.md §9).
  */
 import { createClient, createServiceClient } from "../supabase/server";
+import { isSupabaseConfigured } from "../supabase/middleware";
 import type {
   Profile,
   ProfileSocialLink,
@@ -19,6 +20,9 @@ import type {
 
 /** Resolve the authenticated user id, or null when there is no session. */
 export async function currentUserId(): Promise<string | null> {
+  // No backend configured (localStorage prototype mode) → no session. Avoids the
+  // Supabase client throwing on missing env vars so routes degrade to 401, not 500.
+  if (!isSupabaseConfigured()) return null;
   const supabase = await createClient();
   const { data } = await supabase.auth.getUser();
   return data.user?.id ?? null;

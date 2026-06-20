@@ -8,6 +8,7 @@
  * estate so the prototype keeps rendering.
  */
 import { useEffect, useState } from "react";
+import { readCustomProperties } from "./customProperties";
 
 const configured = Boolean(
   process.env.NEXT_PUBLIC_SUPABASE_URL && process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
@@ -65,7 +66,11 @@ export function useProperties(): UseProperties {
   const [properties, setProperties] = useState<UIProperty[]>(DEMO);
 
   useEffect(() => {
-    if (!configured) return;
+    if (!configured) {
+      // Prototype mode: surface locally-added properties ahead of the demo estate.
+      setProperties([...readCustomProperties(), ...DEMO]);
+      return;
+    }
     let cancelled = false;
     (async () => {
       try {

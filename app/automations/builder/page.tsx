@@ -9,25 +9,36 @@ import { useState, useEffect } from "react";
 import Link from "next/link";
 import StatusBar from "../../components/layout/StatusBar";
 import BottomNav from "../../components/layout/BottomNav";
+import { useT, type MessageKey } from "../../lib/i18n";
 
 const KEY = "prvio-automation-drafts-v1";
 
-const TRIGGERS = [
-  { id: "schedule", label: "Program", icon: "⏰" },
-  { id: "sensor", label: "Senzor", icon: "📡" },
-  { id: "event", label: "Eveniment", icon: "⚡" },
-  { id: "price", label: "Preț energie", icon: "💸" },
+const TRIGGERS: { id: string; labelKey: MessageKey; icon: string }[] = [
+  { id: "schedule", labelKey: "abld.trigSchedule", icon: "⏰" },
+  { id: "sensor", labelKey: "abld.trigSensor", icon: "📡" },
+  { id: "event", labelKey: "abld.trigEvent", icon: "⚡" },
+  { id: "price", labelKey: "abld.trigPrice", icon: "💸" },
 ];
-const ZONES = ["Orchard", "Greenhouse", "Forest", "Lake", "Smart Pond", "Garden", "Driveway", "House", "Toate zonele"];
-const SENSORS = ["Temperatură", "Umiditate sol", "CO₂", "Nivel apă", "Consum"];
+const ZONES = ["Orchard", "Greenhouse", "Forest", "Lake", "Smart Pond", "Garden", "Driveway", "House", "All Zones"];
+const ZONE_KEY: Record<string, MessageKey> = {
+  Orchard: "inv.locOrchard", Greenhouse: "inv.locGreenhouse", Forest: "inv.locForest", Lake: "inv.locLake",
+  "Smart Pond": "anew.zSmartPond", Garden: "inv.locGarden", Driveway: "inv.locDriveway", House: "inv.locHouse", "All Zones": "abld.zAllZones",
+};
+const SENSORS: { id: string; labelKey: MessageKey }[] = [
+  { id: "temp", labelKey: "abld.sensorTemp" },
+  { id: "soil", labelKey: "abld.sensorSoil" },
+  { id: "co2", labelKey: "abld.sensorCo2" },
+  { id: "water", labelKey: "abld.sensorWater" },
+  { id: "power", labelKey: "abld.sensorPower" },
+];
 const OPS = [">", "<", "="];
-const ACTIONS = [
-  { id: "notify", label: "Trimite notificare", icon: "🔔" },
-  { id: "irrigate", label: "Pornește irigația", icon: "💧" },
-  { id: "ventilate", label: "Ventilație", icon: "💨" },
-  { id: "charge", label: "Încarcă Powerwall/EV", icon: "🔋" },
-  { id: "report", label: "Generează raport", icon: "📊" },
-  { id: "task", label: "Creează sarcină", icon: "✅" },
+const ACTIONS: { id: string; labelKey: MessageKey; icon: string }[] = [
+  { id: "notify", labelKey: "abld.actNotify", icon: "🔔" },
+  { id: "irrigate", labelKey: "abld.actIrrigate", icon: "💧" },
+  { id: "ventilate", labelKey: "abld.actVentilate", icon: "💨" },
+  { id: "charge", labelKey: "abld.actCharge", icon: "🔋" },
+  { id: "report", labelKey: "abld.actReport", icon: "📊" },
+  { id: "task", labelKey: "abld.actTask", icon: "✅" },
 ];
 
 type Draft = { id: string; text: string };
@@ -58,10 +69,11 @@ function Chips({ options, value, onPick }: { options: { id: string; label: strin
 }
 
 export default function AutomationBuilderPage() {
+  const t = useT();
   const [trigger, setTrigger] = useState("schedule");
   const [zone, setZone] = useState("Greenhouse");
   const [time, setTime] = useState("06:00");
-  const [sensor, setSensor] = useState("Temperatură");
+  const [sensor, setSensor] = useState("temp");
   const [op, setOp] = useState(">");
   const [val, setVal] = useState("30");
   const [action, setAction] = useState("notify");
@@ -74,13 +86,16 @@ export default function AutomationBuilderPage() {
   }, []);
   useEffect(() => { if (mounted) try { localStorage.setItem(KEY, JSON.stringify(drafts)); } catch { /* ignore */ } }, [drafts, mounted]);
 
+  const sensorLabel = (() => { const s = SENSORS.find((x) => x.id === sensor); return s ? t(s.labelKey) : sensor; })();
   const whenText =
-    trigger === "schedule" ? `în fiecare zi la ${time}` :
-    trigger === "sensor" ? `${sensor} ${op} ${val}` :
-    trigger === "price" ? "când tariful e în fereastra ieftină" :
-    "la un eveniment de sistem";
-  const actionLabel = ACTIONS.find((a) => a.id === action)?.label.toLowerCase() ?? "";
-  const preview = `Când ${whenText} în ${zone}, ${actionLabel}.`;
+    trigger === "schedule" ? `${t("abld.everyDayAt")} ${time}` :
+    trigger === "sensor" ? `${sensorLabel} ${op} ${val}` :
+    trigger === "price" ? t("abld.cheapWindow") :
+    t("abld.systemEvent");
+  const actionItem = ACTIONS.find((a) => a.id === action);
+  const actionLabel = actionItem ? t(actionItem.labelKey).toLowerCase() : "";
+  const zoneLabel = ZONE_KEY[zone] ? t(ZONE_KEY[zone]) : zone;
+  const preview = `${t("abld.when")} ${whenText} ${t("abld.in")} ${zoneLabel}, ${actionLabel}.`;
 
   const save = () => setDrafts((d) => [{ id: `${Date.now()}`, text: preview }, ...d].slice(0, 12));
   const remove = (id: string) => setDrafts((d) => d.filter((x) => x.id !== id));
@@ -92,20 +107,20 @@ export default function AutomationBuilderPage() {
         <Link href="/automations" className="w-9 h-9 rounded-2xl flex items-center justify-center flex-shrink-0 liquid-glass" style={{ color: "var(--text-1)" }}>
           <svg width="18" height="18" viewBox="0 0 24 24" fill="none"><path d="M19 12H5M12 5l-7 7 7 7" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" /></svg>
         </Link>
-        <h1 className="font-bold text-2xl flex-1" style={{ color: "var(--text-1)" }}>Builder automatizare</h1>
+        <h1 className="font-bold text-2xl flex-1" style={{ color: "var(--text-1)" }}>{t("abld.title")}</h1>
       </div>
 
       <div className="px-4 space-y-2">
         {/* WHEN */}
-        <Node step="1" title="Când (declanșator)" accent="#22D3EE">
-          <Chips options={TRIGGERS} value={trigger} onPick={setTrigger} />
+        <Node step="1" title={t("abld.whenNode")} accent="#22D3EE">
+          <Chips options={TRIGGERS.map((x) => ({ id: x.id, label: t(x.labelKey), icon: x.icon }))} value={trigger} onPick={setTrigger} />
           {trigger === "schedule" && (
             <input type="time" value={time} onChange={(e) => setTime(e.target.value)} className="mt-3 rounded-xl px-3 py-2 text-sm" style={{ background: "rgba(255,255,255,0.06)", border: "1px solid var(--glass-border)", color: "var(--text-1)" }} />
           )}
           {trigger === "sensor" && (
             <div className="flex gap-2 mt-3">
               <select value={sensor} onChange={(e) => setSensor(e.target.value)} className="flex-1 rounded-xl px-2 py-2 text-sm" style={{ background: "rgba(255,255,255,0.06)", border: "1px solid var(--glass-border)", color: "var(--text-1)" }}>
-                {SENSORS.map((x) => <option key={x}>{x}</option>)}
+                {SENSORS.map((x) => <option key={x.id} value={x.id}>{t(x.labelKey)}</option>)}
               </select>
               <select value={op} onChange={(e) => setOp(e.target.value)} className="rounded-xl px-2 py-2 text-sm" style={{ background: "rgba(255,255,255,0.06)", border: "1px solid var(--glass-border)", color: "var(--text-1)" }}>
                 {OPS.map((x) => <option key={x}>{x}</option>)}
@@ -118,34 +133,34 @@ export default function AutomationBuilderPage() {
         <div className="flex justify-center"><span style={{ color: "var(--text-3)" }}>↓</span></div>
 
         {/* WHERE */}
-        <Node step="2" title="Unde (zonă)" accent="#7C3AED">
-          <Chips options={ZONES.map((z) => ({ id: z, label: z }))} value={zone} onPick={setZone} />
+        <Node step="2" title={t("abld.whereNode")} accent="#7C3AED">
+          <Chips options={ZONES.map((z) => ({ id: z, label: ZONE_KEY[z] ? t(ZONE_KEY[z]) : z }))} value={zone} onPick={setZone} />
         </Node>
 
         <div className="flex justify-center"><span style={{ color: "var(--text-3)" }}>↓</span></div>
 
         {/* THEN */}
-        <Node step="3" title="Atunci (acțiune)" accent="#4ADE80">
-          <Chips options={ACTIONS} value={action} onPick={setAction} />
+        <Node step="3" title={t("abld.thenNode")} accent="#4ADE80">
+          <Chips options={ACTIONS.map((x) => ({ id: x.id, label: t(x.labelKey), icon: x.icon }))} value={action} onPick={setAction} />
         </Node>
 
         {/* Preview */}
         <div className="rounded-3xl p-4 mt-1" style={{ background: "rgba(74,222,128,0.08)", border: "1px solid rgba(74,222,128,0.25)" }}>
-          <p className="text-text-secondary text-[11px] uppercase tracking-wide mb-1">Previzualizare regulă</p>
+          <p className="text-text-secondary text-[11px] uppercase tracking-wide mb-1">{t("abld.previewLabel")}</p>
           <p className="text-sm font-medium" style={{ color: "var(--text-1)" }}>{preview}</p>
-          <button onClick={save} className="w-full mt-3 py-2.5 rounded-xl text-sm font-semibold" style={{ background: "linear-gradient(135deg,#4ADE80,#22C55E)", color: "#05210F" }}>Salvează automatizarea</button>
+          <button onClick={save} className="w-full mt-3 py-2.5 rounded-xl text-sm font-semibold" style={{ background: "linear-gradient(135deg,#4ADE80,#22C55E)", color: "#05210F" }}>{t("abld.save")}</button>
         </div>
 
         {/* Saved drafts */}
         {mounted && drafts.length > 0 && (
           <div className="pt-2">
-            <p className="text-text-secondary text-xs font-medium uppercase tracking-wide mb-2 px-1">Reguli create ({drafts.length})</p>
+            <p className="text-text-secondary text-xs font-medium uppercase tracking-wide mb-2 px-1">{t("abld.createdRules")} ({drafts.length})</p>
             <div className="space-y-2">
               {drafts.map((d) => (
                 <div key={d.id} className="rounded-2xl p-3 flex items-start gap-2 liquid-glass">
                   <span className="text-base">⚡</span>
                   <p className="text-sm flex-1" style={{ color: "var(--text-1)" }}>{d.text}</p>
-                  <button onClick={() => remove(d.id)} aria-label="Șterge" className="text-xs" style={{ color: "#EF4444" }}>✕</button>
+                  <button onClick={() => remove(d.id)} aria-label={t("abld.delete")} className="text-xs" style={{ color: "#EF4444" }}>✕</button>
                 </div>
               ))}
             </div>

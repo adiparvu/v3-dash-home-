@@ -2,9 +2,10 @@
 
 import { useState, useEffect } from "react";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
+import { useParams, useRouter } from "next/navigation";
 import StatusBar from "../../../components/layout/StatusBar";
 import { useStore } from "../../../lib/store";
+import { useT, type MessageKey } from "../../../lib/i18n";
 
 const categories = [
   { id: "Devices", icon: "📱", color: "#22D3EE" },
@@ -15,10 +16,17 @@ const categories = [
 
 const locations = ["Lake", "Forest", "Greenhouse", "Orchard", "Garden", "House", "Driveway"];
 
+const CAT_KEY: Record<string, MessageKey> = {
+  Devices: "inv.catDevices", Plants: "inv.catPlants", Equipment: "inv.catEquipment", Vehicles: "inv.catVehicles",
+};
+const LOC_KEY: Record<string, MessageKey> = {
+  Lake: "inv.locLake", Forest: "inv.locForest", Greenhouse: "inv.locGreenhouse", Orchard: "inv.locOrchard", Garden: "inv.locGarden", House: "inv.locHouse", Driveway: "inv.locDriveway",
+};
+
 function Field({
-  label, value, ph, active, onChange, onFocus, onBlur,
+  label, value, ph, active, onChange, onFocus, onBlur, type = "text",
 }: {
-  label: string; value: string; ph: string; active: boolean;
+  label: string; value: string; ph?: string; active: boolean; type?: string;
   onChange: (v: string) => void; onFocus: () => void; onBlur: () => void;
 }) {
   return (
@@ -26,27 +34,31 @@ function Field({
       <label className="text-xs font-medium block mb-1.5 px-1" style={{ color: "var(--text-2)" }}>{label}</label>
       <div className="rounded-2xl overflow-hidden transition-all" style={{ background: "var(--glass-bg)", border: `1px solid ${active ? "var(--accent)" : "var(--glass-border)"}` }}>
         <input
+          type={type}
           value={value}
           onChange={(e) => onChange(e.target.value)}
           onFocus={onFocus}
           onBlur={onBlur}
           placeholder={ph}
           className="w-full bg-transparent px-4 py-3.5 text-sm outline-none"
-          style={{ color: "var(--text-1)", caretColor: "var(--accent)" }}
+          style={{ color: "var(--text-1)", caretColor: "var(--accent)", colorScheme: "dark" }}
         />
       </div>
     </div>
   );
 }
 
-export default function EditInventoryPage({ params }: { params: { id: string } }) {
+export default function EditInventoryPage() {
+  const t = useT();
+  const params = useParams<{ id: string }>();
   const router = useRouter();
   const { ready, findAsset, updateAsset } = useStore();
   const [loaded, setLoaded] = useState(false);
   const [missing, setMissing] = useState(false);
   const [href, setHref] = useState("");
   const [form, setForm] = useState({
-    name: "", category: "Equipment", location: "Lake", brand: "", model: "", serial: "", icon: "⚙️",
+    name: "", category: "Equipment", location: "Lake", brand: "", model: "", serial: "",
+    purchaseDate: "", warranty: "", quantity: "", value: "", notes: "", icon: "⚙️",
   });
   const [focused, setFocused] = useState<string | null>(null);
 
@@ -59,7 +71,9 @@ export default function EditInventoryPage({ params }: { params: { id: string } }
       setHref(a.href);
       setForm({
         name: a.name, category: a.category, location: a.location,
-        brand: a.brand ?? "", model: a.model ?? "", serial: a.serial ?? "", icon: a.icon,
+        brand: a.brand ?? "", model: a.model ?? "", serial: a.serial ?? "",
+        purchaseDate: a.purchaseDate ?? "", warranty: a.warranty ?? "", quantity: a.quantity ?? "",
+        value: a.value ?? "", notes: a.notes ?? "", icon: a.icon,
       });
     }
     setLoaded(true);
@@ -80,11 +94,16 @@ export default function EditInventoryPage({ params }: { params: { id: string } }
       brand: form.brand.trim(),
       model: form.model.trim(),
       serial: form.serial.trim(),
+      purchaseDate: form.purchaseDate.trim(),
+      warranty: form.warranty.trim(),
+      quantity: form.quantity.trim(),
+      value: form.value.trim(),
+      notes: form.notes.trim(),
     });
     router.push(href);
   };
 
-  const fieldProps = (k: "name" | "brand" | "model" | "serial") => ({
+  const fieldProps = (k: "name" | "brand" | "model" | "serial" | "quantity" | "value") => ({
     value: form[k],
     active: focused === k,
     onChange: (v: string) => set(k, v),
@@ -102,9 +121,9 @@ export default function EditInventoryPage({ params }: { params: { id: string } }
         <StatusBar />
         <div className="flex-1 flex flex-col items-center justify-center px-8 text-center -mt-12">
           <span className="text-5xl mb-4">📦</span>
-          <p className="text-base font-semibold mb-1" style={{ color: "var(--text-1)" }}>Can&apos;t edit this asset</p>
-          <p className="text-sm mb-6" style={{ color: "var(--text-2)" }}>Only custom assets you added can be edited.</p>
-          <Link href="/inventory"><button className="px-5 py-3 rounded-2xl text-sm font-semibold" style={{ background: "linear-gradient(135deg,#4ADE80,#22C55E)", color: "#08111E" }}>Back to Inventory</button></Link>
+          <p className="text-base font-semibold mb-1" style={{ color: "var(--text-1)" }}>{t("inv.cantEdit")}</p>
+          <p className="text-sm mb-6" style={{ color: "var(--text-2)" }}>{t("inv.cantEditSub")}</p>
+          <Link href="/inventory"><button className="px-5 py-3 rounded-2xl text-sm font-semibold" style={{ background: "linear-gradient(135deg,#4ADE80,#22C55E)", color: "#08111E" }}>{t("inv.backToInventory")}</button></Link>
         </div>
       </div>
     );
@@ -115,12 +134,12 @@ export default function EditInventoryPage({ params }: { params: { id: string } }
       <StatusBar />
 
       <div className="px-4 pt-1 pb-4 flex items-center gap-3">
-        <Link href={href || "/inventory"} aria-label="Back" className="w-9 h-9 rounded-2xl flex items-center justify-center flex-shrink-0 liquid-glass" style={{ color: "var(--text-1)" }}>
+        <Link href={href || "/inventory"} aria-label={t("inv.back")} className="w-9 h-9 rounded-2xl flex items-center justify-center flex-shrink-0 liquid-glass" style={{ color: "var(--text-1)" }}>
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none"><path d="M15 18L9 12L15 6" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" /></svg>
         </Link>
         <div>
-          <h1 className="font-bold text-xl leading-tight" style={{ color: "var(--text-1)" }}>Edit Asset</h1>
-          <p className="text-xs" style={{ color: "var(--text-2)" }}>Update the details</p>
+          <h1 className="font-bold text-xl leading-tight" style={{ color: "var(--text-1)" }}>{t("inv.editAsset")}</h1>
+          <p className="text-xs" style={{ color: "var(--text-2)" }}>{t("inv.updateDetails")}</p>
         </div>
       </div>
 
@@ -129,23 +148,23 @@ export default function EditInventoryPage({ params }: { params: { id: string } }
         <div className="liquid-glass rounded-3xl p-4 flex items-center gap-4">
           <div className="w-14 h-14 rounded-2xl flex items-center justify-center text-3xl flex-shrink-0" style={{ background: "var(--glass-bg)", border: "0.5px solid var(--glass-border)" }}>{form.icon}</div>
           <div className="flex-1 min-w-0">
-            <p className="font-semibold text-base leading-tight" style={{ color: "var(--text-1)" }}>{form.name.trim() || "Asset name"}</p>
-            <p className="text-xs mt-0.5" style={{ color: "var(--text-2)" }}>{form.category} · {form.location}</p>
+            <p className="font-semibold text-base leading-tight" style={{ color: "var(--text-1)" }}>{form.name.trim() || t("inv.assetNamePlaceholder")}</p>
+            <p className="text-xs mt-0.5" style={{ color: "var(--text-2)" }}>{CAT_KEY[form.category] ? t(CAT_KEY[form.category]) : form.category} · {LOC_KEY[form.location] ? t(LOC_KEY[form.location]) : form.location}</p>
           </div>
         </div>
 
-        <Field label="Asset Name" ph="e.g. Water Pump" {...fieldProps("name")} />
+        <Field label={t("inv.assetName")} ph={t("inv.assetNamePh")} {...fieldProps("name")} />
 
         {/* Category */}
         <div>
-          <label className="text-xs font-medium block mb-2 px-1" style={{ color: "var(--text-2)" }}>Category</label>
+          <label className="text-xs font-medium block mb-2 px-1" style={{ color: "var(--text-2)" }}>{t("inv.category")}</label>
           <div className="grid grid-cols-4 gap-2">
             {categories.map((c) => {
               const active = form.category === c.id;
               return (
                 <button key={c.id} onClick={() => { set("category", c.id); set("icon", c.icon); }} className="liquid-glass rounded-2xl py-3 flex flex-col items-center gap-1.5 active:scale-[0.95] transition-transform" style={{ border: active ? "1.5px solid var(--accent)" : undefined }}>
                   <span className="text-xl">{c.icon}</span>
-                  <span className="text-[10px] font-medium" style={{ color: "var(--text-1)" }}>{c.id}</span>
+                  <span className="text-[10px] font-medium" style={{ color: "var(--text-1)" }}>{CAT_KEY[c.id] ? t(CAT_KEY[c.id]) : c.id}</span>
                 </button>
               );
             })}
@@ -154,13 +173,13 @@ export default function EditInventoryPage({ params }: { params: { id: string } }
 
         {/* Location */}
         <div>
-          <label className="text-xs font-medium block mb-2 px-1" style={{ color: "var(--text-2)" }}>Location</label>
+          <label className="text-xs font-medium block mb-2 px-1" style={{ color: "var(--text-2)" }}>{t("inv.location")}</label>
           <div className="flex flex-wrap gap-2">
             {locations.map((loc) => {
               const active = form.location === loc;
               return (
                 <button key={loc} onClick={() => set("location", loc)} className="px-3.5 py-2 rounded-xl text-sm font-medium transition-all active:scale-95" style={active ? { background: "var(--accent)", color: "var(--bg-1)" } : { background: "var(--glass-bg)", color: "var(--text-2)", border: "0.5px solid var(--glass-border)" }}>
-                  {loc}
+                  {LOC_KEY[loc] ? t(LOC_KEY[loc]) : loc}
                 </button>
               );
             })}
@@ -168,11 +187,36 @@ export default function EditInventoryPage({ params }: { params: { id: string } }
         </div>
 
         <div className="h-px" style={{ background: "var(--glass-border)" }} />
-        <p className="text-xs font-semibold uppercase tracking-widest px-1" style={{ color: "var(--text-3)" }}>Details</p>
+        <p className="text-xs font-semibold uppercase tracking-widest px-1" style={{ color: "var(--text-3)" }}>{t("inv.details")}</p>
 
-        <Field label="Brand" ph="e.g. Grundfos" {...fieldProps("brand")} />
-        <Field label="Model" ph="e.g. CM 5-4" {...fieldProps("model")} />
-        <Field label="Serial Number" ph="e.g. GF-2023-0041" {...fieldProps("serial")} />
+        <Field label={t("inv.brand")} ph={t("inv.brandPh")} {...fieldProps("brand")} />
+        <Field label={t("inv.model")} ph={t("inv.modelPh")} {...fieldProps("model")} />
+        <Field label={t("inv.serial")} ph={t("inv.serialPh")} {...fieldProps("serial")} />
+
+        <div className="grid grid-cols-2 gap-3">
+          <Field label={t("inv.purchaseDate")} type="date" value={form.purchaseDate} active={focused === "purchaseDate"} onChange={(v) => set("purchaseDate", v)} onFocus={() => setFocused("purchaseDate")} onBlur={() => setFocused(null)} />
+          <Field label={t("inv.warranty")} type="date" value={form.warranty} active={focused === "warranty"} onChange={(v) => set("warranty", v)} onFocus={() => setFocused("warranty")} onBlur={() => setFocused(null)} />
+        </div>
+        <div className="grid grid-cols-2 gap-3">
+          <Field label={t("inv.quantity")} ph={t("inv.quantityPh")} type="number" {...fieldProps("quantity")} />
+          <Field label={t("inv.value")} ph={t("inv.valuePh")} {...fieldProps("value")} />
+        </div>
+
+        <div>
+          <label className="text-xs font-medium block mb-1.5 px-1" style={{ color: "var(--text-2)" }}>{t("inv.notes")}</label>
+          <div className="rounded-2xl overflow-hidden transition-all" style={{ background: "var(--glass-bg)", border: `1px solid ${focused === "notes" ? "var(--accent)" : "var(--glass-border)"}` }}>
+            <textarea
+              value={form.notes}
+              onChange={(e) => set("notes", e.target.value)}
+              onFocus={() => setFocused("notes")}
+              onBlur={() => setFocused(null)}
+              placeholder={t("inv.notesPh")}
+              rows={3}
+              className="w-full bg-transparent px-4 py-3.5 text-sm outline-none resize-none"
+              style={{ color: "var(--text-1)", caretColor: "var(--accent)" }}
+            />
+          </div>
+        </div>
 
         <button
           onClick={save}
@@ -185,10 +229,10 @@ export default function EditInventoryPage({ params }: { params: { id: string } }
             border: canSave ? "none" : "0.5px solid var(--glass-border)",
           }}
         >
-          Save Changes
+          {t("inv.saveChanges")}
         </button>
         <div className="flex justify-center">
-          <Link href={href || "/inventory"}><button className="text-sm py-2 px-4" style={{ color: "var(--text-2)" }}>Cancel</button></Link>
+          <Link href={href || "/inventory"}><button className="text-sm py-2 px-4" style={{ color: "var(--text-2)" }}>{t("inv.cancel")}</button></Link>
         </div>
       </div>
     </div>

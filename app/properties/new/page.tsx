@@ -2,17 +2,22 @@
 
 import { useState } from "react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import StatusBar from "../../components/layout/StatusBar";
+import { useT } from "../../lib/i18n";
+import { addCustomProperty, slugifyProperty } from "../../lib/customProperties";
 
 const fields = [
-  { key: "name", label: "Property Name", placeholder: "e.g. Prvio Estate", type: "text" },
-  { key: "address", label: "Address", placeholder: "e.g. Str. Principală 12", type: "text" },
-  { key: "city", label: "City", placeholder: "e.g. Cluj-Napoca", type: "text" },
-  { key: "country", label: "Country", placeholder: "e.g. România", type: "text" },
-  { key: "area", label: "Area (m²)", placeholder: "e.g. 450000", type: "number" },
-];
+  { key: "name", labelKey: "pnew.name", phKey: "pnew.namePh", type: "text" },
+  { key: "address", labelKey: "pnew.address", phKey: "pnew.addressPh", type: "text" },
+  { key: "city", labelKey: "pnew.city", phKey: "pnew.cityPh", type: "text" },
+  { key: "country", labelKey: "pnew.country", phKey: "pnew.countryPh", type: "text" },
+  { key: "area", labelKey: "pnew.area", phKey: "pnew.areaPh", type: "number" },
+] as const;
 
 export default function NewPropertyPage() {
+  const t = useT();
+  const router = useRouter();
   const [form, setForm] = useState<Record<string, string>>({
     name: "",
     address: "",
@@ -28,7 +33,21 @@ export default function NewPropertyPage() {
   };
 
   const handleSubmit = () => {
-    // Placeholder — would call API
+    const name = form.name.trim();
+    if (!name) return;
+    const areaSqm = parseFloat(form.area);
+    const areaHa = Number.isFinite(areaSqm) && areaSqm > 0 ? Math.round((areaSqm / 10000) * 10) / 10 : null;
+    addCustomProperty({
+      id: slugifyProperty(name),
+      name,
+      location: [form.city.trim(), form.country.trim()].filter(Boolean).join(", ") || "—",
+      areaHa,
+      zones: null,
+      objects: null,
+      health: null,
+      valueLabel: "—",
+    });
+    router.push("/properties");
   };
 
   return (
@@ -48,8 +67,8 @@ export default function NewPropertyPage() {
           </button>
         </Link>
         <div>
-          <h1 className="text-white font-bold text-xl leading-tight">Add Property</h1>
-          <p className="text-[#9CA3AF] text-xs">Fill in the details below</p>
+          <h1 className="text-white font-bold text-xl leading-tight">{t("pnew.title")}</h1>
+          <p className="text-[#9CA3AF] text-xs">{t("pnew.subtitle")}</p>
         </div>
       </div>
 
@@ -58,7 +77,7 @@ export default function NewPropertyPage() {
         {/* Main fields */}
         {fields.map((field) => (
           <div key={field.key}>
-            <label className="text-[#9CA3AF] text-xs font-medium block mb-1.5 px-1">{field.label}</label>
+            <label className="text-[#9CA3AF] text-xs font-medium block mb-1.5 px-1">{t(field.labelKey)}</label>
             <div
               className="rounded-2xl overflow-hidden transition-all"
               style={{
@@ -69,7 +88,7 @@ export default function NewPropertyPage() {
             >
               <input
                 type={field.type}
-                placeholder={field.placeholder}
+                placeholder={t(field.phKey)}
                 value={form[field.key]}
                 onChange={(e) => handleChange(field.key, e.target.value)}
                 onFocus={() => setFocused(field.key)}
@@ -83,7 +102,7 @@ export default function NewPropertyPage() {
 
         {/* Description textarea */}
         <div>
-          <label className="text-[#9CA3AF] text-xs font-medium block mb-1.5 px-1">Description</label>
+          <label className="text-[#9CA3AF] text-xs font-medium block mb-1.5 px-1">{t("pnew.description")}</label>
           <div
             className="rounded-2xl overflow-hidden transition-all"
             style={{
@@ -93,7 +112,7 @@ export default function NewPropertyPage() {
             }}
           >
             <textarea
-              placeholder="Brief description of the property…"
+              placeholder={t("pnew.descriptionPh")}
               value={form.description}
               onChange={(e) => handleChange("description", e.target.value)}
               onFocus={() => setFocused("description")}
@@ -127,8 +146,8 @@ export default function NewPropertyPage() {
             </svg>
           </div>
           <div className="flex-1">
-            <p className="text-white text-sm font-medium">Property type</p>
-            <p className="text-[#9CA3AF] text-xs">Estate / Farm / Residential</p>
+            <p className="text-white text-sm font-medium">{t("pnew.type")}</p>
+            <p className="text-[#9CA3AF] text-xs">{t("pnew.typeHint")}</p>
           </div>
           <svg width="14" height="14" viewBox="0 0 24 24" fill="none">
             <path d="M9 6L15 12L9 18" stroke="#6B7280" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round" />
@@ -145,13 +164,13 @@ export default function NewPropertyPage() {
             boxShadow: "0 0 24px rgba(74,222,128,0.25)",
           }}
         >
-          Add Property
+          {t("pnew.title")}
         </button>
 
         {/* Cancel link */}
         <div className="flex justify-center pb-4">
           <Link href="/properties">
-            <button className="text-[#9CA3AF] text-sm py-2 px-4">Cancel</button>
+            <button className="text-[#9CA3AF] text-sm py-2 px-4">{t("pnew.cancel")}</button>
           </Link>
         </div>
       </div>

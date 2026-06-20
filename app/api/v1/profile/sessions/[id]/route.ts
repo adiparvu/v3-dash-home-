@@ -9,7 +9,8 @@ export const dynamic = "force-dynamic";
 
 const API_VERSION = "1.0.0";
 
-export async function PATCH(request: Request, { params }: { params: { id: string } }) {
+export async function PATCH(request: Request, { params }: { params: Promise<{ id: string }> }) {
+  const { id } = await params;
   const userId = await currentUserId();
   if (!userId) {
     return NextResponse.json({ apiVersion: API_VERSION, error: "unauthorized" }, { status: 401 });
@@ -24,23 +25,24 @@ export async function PATCH(request: Request, { params }: { params: { id: string
     return NextResponse.json({ apiVersion: API_VERSION, error: "invalid_trusted" }, { status: 400 });
   }
   try {
-    await setSessionTrust(userId, params.id, body.trusted);
-    await writeAudit({ user_id: userId, action: "session.trust", resource: "user_sessions", detail: `${params.id}:${body.trusted}` });
-    return NextResponse.json({ apiVersion: API_VERSION, data: { id: params.id, trusted: body.trusted } });
+    await setSessionTrust(userId, id, body.trusted);
+    await writeAudit({ user_id: userId, action: "session.trust", resource: "user_sessions", detail: `${id}:${body.trusted}` });
+    return NextResponse.json({ apiVersion: API_VERSION, data: { id, trusted: body.trusted } });
   } catch (err) {
     return NextResponse.json({ apiVersion: API_VERSION, error: err instanceof Error ? err.message : "failed" }, { status: 500 });
   }
 }
 
-export async function DELETE(_request: Request, { params }: { params: { id: string } }) {
+export async function DELETE(_request: Request, { params }: { params: Promise<{ id: string }> }) {
+  const { id } = await params;
   const userId = await currentUserId();
   if (!userId) {
     return NextResponse.json({ apiVersion: API_VERSION, error: "unauthorized" }, { status: 401 });
   }
   try {
-    await revokeSession(userId, params.id);
-    await writeAudit({ user_id: userId, action: "session.revoke", resource: "user_sessions", detail: params.id });
-    return NextResponse.json({ apiVersion: API_VERSION, data: { id: params.id } });
+    await revokeSession(userId, id);
+    await writeAudit({ user_id: userId, action: "session.revoke", resource: "user_sessions", detail: id });
+    return NextResponse.json({ apiVersion: API_VERSION, data: { id } });
   } catch (err) {
     return NextResponse.json({ apiVersion: API_VERSION, error: err instanceof Error ? err.message : "failed" }, { status: 500 });
   }

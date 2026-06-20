@@ -8,7 +8,98 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Changed
+- **Next.js 14 → 15.3.9** — upgraded the framework (and `eslint-config-next`),
+  closing several npm advisories. Migrated to Next 15's async dynamic APIs:
+  versioned route handlers now `await params: Promise<{…}>` and client dynamic
+  pages read route params via `useParams()`. Hardened `currentUserId()` to short-
+  circuit when Supabase is unconfigured so API routes return **401** (not 500)
+  in localStorage prototype mode.
+
 ### Added
+- **Siri Shortcuts (App Intents)** — the Apple scaffold gains native Siri
+  Shortcuts (`apple/App/PrvioIntents.swift`): zero-setup phrases for estate
+  weather (wired to `/api/v1/weather`), estate health and open-screen
+  navigation, registered via an `AppShortcutsProvider` and reusing `PrvioKit`.
+  (Web parity: the PWA manifest already ships Home-Screen app shortcuts; Siri
+  itself is iOS-only.)
+- **Budget & expenses** — a new **Budget** screen (`/budget`, More → Estate)
+  with a monthly budget progress bar, a 6-month trend, category breakdown (with
+  shares) and recent expenses imported from the Receipt Scanner & banking
+  integrations. Pure, tested aggregation in `app/lib/budget.ts`.
+- **Proactive Insights feed** — `/insights` (More → Monitoring) fuses live
+  conditions, possible faults and active smart rules into a ranked, actionable
+  feed (`app/lib/insights.ts`).
+- **Automations on real data** — a live smart-rule engine
+  (`app/lib/automationRules.ts`, `useConditions`) evaluates rules
+  (charge-when-cheap, air-quality protection, pollen guard, skip-irrigation-on-
+  rain, UV shade, smart pre-cool) against the real weather/air/tariff feeds; the
+  Automations screen shows each rule's live ON/idle state + reason.
+- **More real data sources** — energy tariff expanded to 7 bidding zones (BE,
+  RO, DE, FR, NL, ES, AT); live **UV index** (weather); live **pollen** (air
+  quality); and a new **Seismic Monitor** integration (USGS earthquakes near
+  your location). All with graceful fallbacks; pure helpers unit-tested.
+- **All integrations made functional (no more “Soon”)** — every integration is
+  now connectable end to end. A persisted integrations store
+  (`app/lib/integrations.tsx`, `prvio-integrations-v1`) + a rich catalog (19
+  integrations across Smart Home, Security, Finance, Hospitality, Energy) back a
+  new detail screen (`/settings/integrations/[id]`) with a Connect/Disconnect
+  flow (simulated handshake) and, once connected, representative metrics, a
+  recent-activity feed and deep links to the surfaces each one powers. The list
+  shows Connected / Via HomeKit / Connect — no placeholder states. Real
+  third-party APIs would plug into the same shapes behind the backend. Tests:
+  catalog + `resolveConnections` reducer (7) and an E2E connect/disconnect flow.
+- **Zone detail sheet + sensor advisor** — the Zones list now carries a Detail
+  Disclosure Button per zone that opens a sheet with health/status, metrics,
+  **possible faults in that zone** (via `faultsForZone`) and **recommended
+  sensors** to add/replace — each with a ⓘ that expands the reason + **how to
+  connect** it (protocol + step-by-step pairing through the Home Assistant
+  gateway). New framework-free `app/lib/sensorAdvisor.ts` (recommendations +
+  connection guide, 5 tests); diagnostics demo readings moved into the lib and
+  shared. E2E covers the zone sheet + connection steps.
+- **Detail Disclosure Buttons + Diagnostics** — added the iOS circled-"i"
+  affordance (`DetailDisclosureButton`) and a reusable `DetailSheet` bottom
+  sheet (backdrop/Escape close, role="dialog"). A new **Diagnostics** screen
+  (`/diagnostics`, in More → Monitoring) surfaces **possible faults** derived
+  from sensor readings by a framework-free engine (`app/lib/diagnostics.ts`,
+  8 tests) — each fault opens a sheet with **likely causes + suggestions**.
+  The disclosure button is also wired into **Automations** (rule trigger/action/
+  stats) and **Sensors** (reading/battery/last-seen) rows. E2E covers opening a
+  diagnostics detail sheet.
+- **Apple native client scaffold (Phase 8)** — a new `apple/` directory starts
+  the SwiftUI client track: a Foundation-only **`PrvioKit`** Swift package with a
+  versioned REST `APIClient` (`/api/v1`, bearer auth, `{ apiVersion, data }`
+  envelope), Codable models (`Weather`, `EstateSnapshot`, `Profile`), a
+  `WidgetContent` model that mirrors the web `widgets.ts` (`formatValue`,
+  `seasonalChecklist`, `build`) and a `WeatherService`, plus XCTest parity tests.
+  Reference `App/PrvioApp.swift` (SwiftUI) and `Widget/EstateWidget.swift`
+  (WidgetKit, small/medium/large) show how the app and widgets reuse the shared
+  contracts. Documented in `apple/README.md`.
+- **Playwright E2E smoke suite** — `e2e/smoke.spec.ts` (6 checks: overview +
+  nav, widget gallery sizes, weather API, offline page, profile-API 401, tasks
+  deep-link) with `playwright.config.ts` and a dedicated CI job.
+- **i18n (EN/RO) & accessibility** — a typed i18n layer (`app/lib/i18n.tsx`,
+  `useT`/`useI18n`) with a live language switch; global focus-visible ring,
+  `.sr-only`, reduced-motion guard and `aria-current`/`aria-hidden` passes.
+- **Live widgets & real weather** — the Widget Gallery snapshot now derives from
+  live sources: estate counts (store), the live alert count (`deriveAlerts` over
+  the energy feed), camera online ratio (`useCameras`), door/armed state and
+  live **weather** via a new `GET /api/v1/weather` route (Open-Meteo, no API key,
+  server-side fallback) consumed through a `useWeather` hook.
+- **Widget gallery & PWA offline shell** — a new **Widget Gallery**
+  (`/widgets`, linked from More) previews the native iOS widget set described in
+  the spec: **Home Screen** widgets at Small/Medium/Large (Property Status,
+  Tasks, Weather, Maintenance Due, Property Value, Security, Seasonal Checklist)
+  via a size segmented control, **Lock Screen** complications, and **Live
+  Activities** (maintenance, deliveries, inspections, plus an open-door alert)
+  with progress bars. All content is derived from a framework-free, unit-tested
+  model (`app/lib/widgets.ts`, 11 tests) so the same shapes can drive WidgetKit
+  timelines in the SwiftUI client (Phase 8). The **PWA** gained an offline app
+  shell: the service worker now precaches the shell and serves a cached response
+  or an `/offline` fallback when disconnected (push handlers retained), the
+  worker is registered on load via `ServiceWorkerRegistrar`, and the manifest
+  adds app **shortcuts** (AI, Energy, Notifications, Widgets), `id`, `scope`,
+  `categories` and a maskable icon entry.
 - **Platform hardening & connect-up** — wired the new smart-home surfaces to the
   live feed and persisted their controls: the **floorplan** now derives room
   power from the live house load (Live/Simulat badge) and HVAC/lights/doors/music

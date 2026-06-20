@@ -13,19 +13,21 @@ const API_VERSION = "1.0.0";
 
 const EDITABLE = ["name", "description", "address", "city", "country", "total_area_sqm", "currency", "is_active"] as const;
 
-export async function GET(_request: Request, { params }: { params: { id: string } }) {
+export async function GET(_request: Request, { params }: { params: Promise<{ id: string }> }) {
+  const { id } = await params;
   const userId = await currentUserId();
   if (!userId) {
     return NextResponse.json({ apiVersion: API_VERSION, error: "unauthorized" }, { status: 401 });
   }
-  const property = await getProperty(params.id);
+  const property = await getProperty(id);
   if (!property) {
     return NextResponse.json({ apiVersion: API_VERSION, error: "not_found" }, { status: 404 });
   }
   return NextResponse.json({ apiVersion: API_VERSION, data: { property } });
 }
 
-export async function PATCH(request: Request, { params }: { params: { id: string } }) {
+export async function PATCH(request: Request, { params }: { params: Promise<{ id: string }> }) {
+  const { id } = await params;
   const userId = await currentUserId();
   if (!userId) {
     return NextResponse.json({ apiVersion: API_VERSION, error: "unauthorized" }, { status: 401 });
@@ -48,8 +50,8 @@ export async function PATCH(request: Request, { params }: { params: { id: string
   }
 
   try {
-    const property = await updateProperty(params.id, patch);
-    await writeAudit({ user_id: userId, property_id: params.id, action: "property.update", resource: "properties", detail: Object.keys(patch).join(", ") });
+    const property = await updateProperty(id, patch);
+    await writeAudit({ user_id: userId, property_id: id, action: "property.update", resource: "properties", detail: Object.keys(patch).join(", ") });
     return NextResponse.json({ apiVersion: API_VERSION, data: { property } });
   } catch (err) {
     return NextResponse.json({ apiVersion: API_VERSION, error: err instanceof Error ? err.message : "failed" }, { status: 500 });

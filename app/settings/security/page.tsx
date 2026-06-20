@@ -5,18 +5,20 @@ import Link from "next/link";
 import StatusBar from "../../components/layout/StatusBar";
 import { useSecurity } from "../../lib/useSecurity";
 import { useStore, AUTO_LOCK_OPTIONS, autoLockLabel } from "../../lib/store";
+import { useT } from "../../lib/i18n";
 
 export default function SecurityPage() {
   const { source, sessions, auditLog, revokeSession, revokeOthers, toggleTrust } = useSecurity();
   const { security, setSecurity } = useStore();
+  const t = useT();
   const [autoLockOpen, setAutoLockOpen] = useState(false);
 
   const authToggles: { key: "faceId" | "touchId" | "passcodeLock" | "loginAlerts" | "suspiciousActivity"; label: string; desc: string }[] = [
-    { key: "faceId", label: "Face ID", desc: "Unlock with Face ID" },
-    { key: "touchId", label: "Touch ID", desc: "Unlock with Touch ID" },
-    { key: "passcodeLock", label: "Passcode Lock", desc: "Require a passcode to open the app" },
-    { key: "loginAlerts", label: "Login Alerts", desc: "Notify on new sign-ins" },
-    { key: "suspiciousActivity", label: "Suspicious Activity", desc: "Detect and alert on unusual access" },
+    { key: "faceId", label: "Face ID", desc: t("sec.faceId.d") },
+    { key: "touchId", label: "Touch ID", desc: t("sec.touchId.d") },
+    { key: "passcodeLock", label: t("sec.passcode"), desc: t("sec.passcode.d") },
+    { key: "loginAlerts", label: t("sec.loginAlerts"), desc: t("sec.loginAlerts.d") },
+    { key: "suspiciousActivity", label: t("sec.suspicious"), desc: t("sec.suspicious.d") },
   ];
 
   return (
@@ -27,7 +29,7 @@ export default function SecurityPage() {
         <Link href="/settings" className="w-9 h-9 rounded-2xl flex items-center justify-center flex-shrink-0 liquid-glass">
           <svg width="18" height="18" viewBox="0 0 24 24" fill="none"><path d="M19 12H5M12 5l-7 7 7 7" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" /></svg>
         </Link>
-        <h1 className="font-bold text-xl" style={{ color: "var(--text-1)" }}>Security</h1>
+        <h1 className="font-bold text-xl" style={{ color: "var(--text-1)" }}>{t("sec.title")}</h1>
         <span
           className="ml-auto text-[10px] font-medium px-2 py-1 rounded-full"
           style={
@@ -36,14 +38,14 @@ export default function SecurityPage() {
               : { background: "var(--glass-bg)", border: "0.5px solid var(--glass-border)", color: "var(--text-3)" }
           }
         >
-          {source === "remote" ? "● Synced" : source === "loading" ? "…" : "Demo"}
+          {source === "remote" ? `● ${t("common.synced")}` : source === "loading" ? "…" : t("auto.demo")}
         </span>
       </div>
 
       <div className="px-4 space-y-4">
         {/* Auth methods */}
         <div>
-          <p className="text-text-secondary text-xs font-medium uppercase tracking-wide mb-2 px-1">Authentication</p>
+          <p className="text-text-secondary text-xs font-medium uppercase tracking-wide mb-2 px-1">{t("sec.authentication")}</p>
           <div className="rounded-2xl overflow-hidden" style={{ background: "rgba(255,255,255,0.04)", border: "0.5px solid var(--glass-border)" }}>
             {authToggles.map((item, i) => (
               <div key={item.key} className="flex items-center justify-between px-4 py-3.5" style={{ borderBottom: i < authToggles.length - 1 ? "1px solid rgba(255,255,255,0.06)" : undefined }}>
@@ -66,7 +68,7 @@ export default function SecurityPage() {
 
         {/* Auto-lock */}
         <div>
-          <p className="text-text-secondary text-xs font-medium uppercase tracking-wide mb-2 px-1">Auto-Lock</p>
+          <p className="text-text-secondary text-xs font-medium uppercase tracking-wide mb-2 px-1">{t("sec.autoLock")}</p>
           <button
             onClick={() => setAutoLockOpen(true)}
             className="w-full flex items-center justify-between px-4 py-3.5 rounded-2xl"
@@ -86,8 +88,8 @@ export default function SecurityPage() {
         {/* Active sessions */}
         <div>
           <div className="flex items-center justify-between mb-2 px-1">
-            <p className="text-text-secondary text-xs font-medium uppercase tracking-wide">Active Sessions</p>
-            <button onClick={revokeOthers} className="text-accent-red text-xs" style={{ color: "#EF4444" }}>Sign out all</button>
+            <p className="text-text-secondary text-xs font-medium uppercase tracking-wide">{t("sec.activeSessions")}</p>
+            <button onClick={revokeOthers} className="text-accent-red text-xs" style={{ color: "#EF4444" }}>{t("sec.signOutAll")}</button>
           </div>
           <div className="space-y-2">
             {sessions.length === 0 && (
@@ -106,8 +108,8 @@ export default function SecurityPage() {
                 <div className="flex-1 min-w-0">
                   <div className="flex items-center gap-2 flex-wrap">
                     <p className="text-sm font-medium leading-tight" style={{ color: "var(--text-1)" }}>{s.device}</p>
-                    {s.current && <span className="text-[9px] font-medium px-1.5 py-0.5 rounded-full" style={{ background: "rgba(74,222,128,0.15)", color: "#4ADE80" }}>This device</span>}
-                    {s.trusted && <span className="text-[9px] font-medium px-1.5 py-0.5 rounded-full" style={{ background: "rgba(34,211,238,0.15)", color: "#22D3EE" }}>Trusted</span>}
+                    {s.current && <span className="text-[9px] font-medium px-1.5 py-0.5 rounded-full" style={{ background: "rgba(74,222,128,0.15)", color: "#4ADE80" }}>{t("sec.thisDevice")}</span>}
+                    {s.trusted && <span className="text-[9px] font-medium px-1.5 py-0.5 rounded-full" style={{ background: "rgba(34,211,238,0.15)", color: "#22D3EE" }}>{t("sec.trusted")}</span>}
                   </div>
                   <p className="text-text-secondary text-xs">{s.platform} · {s.location}</p>
                   <p className="text-text-tertiary text-[10px]">{s.lastActive}</p>
@@ -115,13 +117,13 @@ export default function SecurityPage() {
                 <div className="flex flex-col items-end gap-1.5 flex-shrink-0">
                   <button
                     onClick={() => toggleTrust(s.id)}
-                    aria-label={s.trusted ? "Untrust device" : "Trust device"}
+                    aria-label={s.trusted ? t("sec.untrustDevice") : t("sec.trustDevice")}
                     className="text-xs px-2.5 py-1 rounded-full"
                     style={s.trusted
                       ? { background: "rgba(34,211,238,0.10)", border: "1px solid rgba(34,211,238,0.25)", color: "#22D3EE" }
                       : { background: "rgba(255,255,255,0.06)", border: "1px solid var(--glass-border)", color: "var(--text-2)" }}
                   >
-                    {s.trusted ? "Untrust" : "Trust"}
+                    {s.trusted ? t("sec.untrust") : t("sec.trust")}
                   </button>
                   {!s.current && (
                     <button onClick={() => revokeSession(s.id)} className="text-xs px-2.5 py-1 rounded-full" style={{ background: "rgba(239,68,68,0.10)", border: "1px solid rgba(239,68,68,0.20)", color: "#EF4444" }}>
@@ -136,10 +138,10 @@ export default function SecurityPage() {
 
         {/* Audit log */}
         <div>
-          <p className="text-text-secondary text-xs font-medium uppercase tracking-wide mb-2 px-1">Audit Log</p>
+          <p className="text-text-secondary text-xs font-medium uppercase tracking-wide mb-2 px-1">{t("sec.auditLog")}</p>
           <div className="rounded-2xl overflow-hidden" style={{ background: "rgba(255,255,255,0.04)", border: "0.5px solid var(--glass-border)" }}>
             {auditLog.length === 0 && (
-              <p className="text-text-tertiary text-xs px-4 py-3.5">No audit entries yet.</p>
+              <p className="text-text-tertiary text-xs px-4 py-3.5">{t("sec.noAudit")}</p>
             )}
             {auditLog.map((entry, i) => (
               <div key={entry.id} className="flex items-center gap-3 px-4 py-3" style={{ borderBottom: i < auditLog.length - 1 ? "1px solid rgba(255,255,255,0.06)" : undefined }}>
@@ -155,7 +157,7 @@ export default function SecurityPage() {
         </div>
 
         <button onClick={revokeOthers} className="w-full rounded-2xl py-3 text-sm font-medium" style={{ background: "rgba(239,68,68,0.10)", border: "1px solid rgba(239,68,68,0.20)", color: "#EF4444" }}>
-          Sign Out All Sessions
+          {t("sec.signOutAllSessions")}
         </button>
       </div>
 

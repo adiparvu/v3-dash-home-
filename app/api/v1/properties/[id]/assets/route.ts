@@ -15,20 +15,22 @@ const CATEGORIES: AssetCategory[] = [
   "device", "plant", "equipment", "vehicle", "furniture", "structure", "other",
 ];
 
-export async function GET(_request: Request, { params }: { params: { id: string } }) {
+export async function GET(_request: Request, { params }: { params: Promise<{ id: string }> }) {
+  const { id } = await params;
   const userId = await currentUserId();
   if (!userId) {
     return NextResponse.json({ apiVersion: API_VERSION, error: "unauthorized" }, { status: 401 });
   }
   try {
-    const assets = await listAssets(params.id);
+    const assets = await listAssets(id);
     return NextResponse.json({ apiVersion: API_VERSION, data: { assets } });
   } catch (err) {
     return NextResponse.json({ apiVersion: API_VERSION, error: err instanceof Error ? err.message : "failed" }, { status: 500 });
   }
 }
 
-export async function POST(request: Request, { params }: { params: { id: string } }) {
+export async function POST(request: Request, { params }: { params: Promise<{ id: string }> }) {
+  const { id } = await params;
   const userId = await currentUserId();
   if (!userId) {
     return NextResponse.json({ apiVersion: API_VERSION, error: "unauthorized" }, { status: 401 });
@@ -49,13 +51,13 @@ export async function POST(request: Request, { params }: { params: { id: string 
 
   try {
     const asset = await createAsset({
-      property_id: params.id,
+      property_id: id,
       name,
       category,
       zone_id: typeof body.zone_id === "string" ? body.zone_id : null,
       location_description: typeof body.location_description === "string" ? body.location_description : null,
     });
-    await writeAudit({ user_id: userId, property_id: params.id, action: "asset.create", resource: "assets", detail: name });
+    await writeAudit({ user_id: userId, property_id: id, action: "asset.create", resource: "assets", detail: name });
     return NextResponse.json({ apiVersion: API_VERSION, data: { asset } }, { status: 201 });
   } catch (err) {
     return NextResponse.json({ apiVersion: API_VERSION, error: err instanceof Error ? err.message : "failed" }, { status: 500 });

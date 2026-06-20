@@ -3,28 +3,31 @@
 import Link from "next/link";
 import StatusBar from "../../components/layout/StatusBar";
 import BottomNav from "../../components/layout/BottomNav";
+import { useT, type MessageKey } from "../../lib/i18n";
 
-const rooms = [
-  { name: "Living Room", floor: "Ground", area: "42 m²", temp: "22.1°C", status: "ok", devices: 6 },
-  { name: "Kitchen", floor: "Ground", area: "28 m²", temp: "23.4°C", status: "ok", devices: 4 },
-  { name: "Master Bedroom", floor: "First", area: "35 m²", temp: "21.2°C", status: "ok", devices: 5 },
-  { name: "Study / Office", floor: "First", area: "20 m²", temp: "21.8°C", status: "ok", devices: 3 },
-  { name: "Dining Room", floor: "Ground", area: "32 m²", temp: "22.0°C", status: "ok", devices: 2 },
-  { name: "Library", floor: "First", area: "18 m²", temp: "20.9°C", status: "ok", devices: 2 },
-  { name: "Garage", floor: "Ground", area: "45 m²", temp: "18.5°C", status: "warning", devices: 3 },
-  { name: "Wine Cellar", floor: "Basement", area: "22 m²", temp: "14.2°C", status: "ok", devices: 2 },
+const rooms: { nameKey: MessageKey; floor: string; area: string; temp: string; status: string; devices: number }[] = [
+  { nameKey: "zp.house.rLiving", floor: "Ground", area: "42 m²", temp: "22.1°C", status: "ok", devices: 6 },
+  { nameKey: "zp.house.rKitchen", floor: "Ground", area: "28 m²", temp: "23.4°C", status: "ok", devices: 4 },
+  { nameKey: "zp.house.rBedroom", floor: "First", area: "35 m²", temp: "21.2°C", status: "ok", devices: 5 },
+  { nameKey: "zp.house.rOffice", floor: "First", area: "20 m²", temp: "21.8°C", status: "ok", devices: 3 },
+  { nameKey: "zp.house.rDining", floor: "Ground", area: "32 m²", temp: "22.0°C", status: "ok", devices: 2 },
+  { nameKey: "zp.house.rLibrary", floor: "First", area: "18 m²", temp: "20.9°C", status: "ok", devices: 2 },
+  { nameKey: "zp.house.rGarage", floor: "Ground", area: "45 m²", temp: "18.5°C", status: "warning", devices: 3 },
+  { nameKey: "zp.house.rCellar", floor: "Basement", area: "22 m²", temp: "14.2°C", status: "ok", devices: 2 },
 ];
 
 const statusColor: Record<string, string> = { ok: "#4ADE80", warning: "#F59E0B", error: "#EF4444" };
+const FLOOR_KEY: Record<string, MessageKey> = { Ground: "zp.house.flGround", First: "zp.house.flFirst", Basement: "zp.house.flBasement" };
 
-const systems = [
-  { label: "HVAC", value: "22.1°C avg", status: "ok" },
-  { label: "Security", value: "Armed", status: "ok" },
-  { label: "Lighting", value: "6 on", status: "ok" },
-  { label: "Water", value: "Normal", status: "ok" },
+const systems: { labelKey: MessageKey; valueKey: MessageKey }[] = [
+  { labelKey: "zp.house.sHvac", valueKey: "zp.house.sHvacV" },
+  { labelKey: "zp.house.sSecurity", valueKey: "zp.house.sSecurityV" },
+  { labelKey: "zp.house.sLighting", valueKey: "zp.house.sLightingV" },
+  { labelKey: "zp.house.sWater", valueKey: "zp.house.sWaterV" },
 ];
 
 export default function HouseZonePage() {
+  const t = useT();
   return (
     <div className="min-h-screen pb-28" style={{ background: "#050A14" }}>
       <StatusBar />
@@ -70,9 +73,9 @@ export default function HouseZonePage() {
         <div className="absolute bottom-6 left-5">
           <div className="flex items-center gap-2 mb-1">
             <span className="text-2xl">🏠</span>
-            <h1 className="text-white font-bold text-2xl">House</h1>
+            <h1 className="text-white font-bold text-2xl">{t("zp.house.name")}</h1>
           </div>
-          <p className="text-text-secondary text-sm">Main Residence · {rooms.length} rooms</p>
+          <p className="text-text-secondary text-sm">{t("zp.house.subtitle")} · {rooms.length} {t("zp.house.rooms")}</p>
         </div>
       </div>
 
@@ -80,9 +83,9 @@ export default function HouseZonePage() {
       <div className="px-4 mb-4">
         <div className="grid grid-cols-4 gap-2">
           {systems.map((s) => (
-            <div key={s.label} className="rounded-2xl p-2.5 text-center" style={{ background: "rgba(124,58,237,0.08)", border: "1px solid rgba(124,58,237,0.20)" }}>
-              <p className="text-white font-bold text-xs">{s.value}</p>
-              <p className="text-text-secondary text-[9px]">{s.label}</p>
+            <div key={s.labelKey} className="rounded-2xl p-2.5 text-center" style={{ background: "rgba(124,58,237,0.08)", border: "1px solid rgba(124,58,237,0.20)" }}>
+              <p className="text-white font-bold text-xs">{t(s.valueKey)}</p>
+              <p className="text-text-secondary text-[9px]">{t(s.labelKey)}</p>
             </div>
           ))}
         </div>
@@ -94,18 +97,18 @@ export default function HouseZonePage() {
         if (!floorRooms.length) return null;
         return (
           <div key={floor} className="px-4 mb-4">
-            <p className="text-text-secondary text-xs font-medium uppercase tracking-wide mb-2 px-1">{floor} Floor</p>
+            <p className="text-text-secondary text-xs font-medium uppercase tracking-wide mb-2 px-1">{t(FLOOR_KEY[floor])} · {t("zp.house.floor")}</p>
             <div className="space-y-2">
               {floorRooms.map((room) => (
-                <div key={room.name} className="rounded-2xl p-3.5 flex items-center gap-3" style={{ background: "rgba(255,255,255,0.05)", border: "1px solid rgba(255,255,255,0.08)" }}>
+                <div key={room.nameKey} className="rounded-2xl p-3.5 flex items-center gap-3" style={{ background: "rgba(255,255,255,0.05)", border: "1px solid rgba(255,255,255,0.08)" }}>
                   <div className="w-2 h-8 rounded-full flex-shrink-0" style={{ background: statusColor[room.status] }} />
                   <div className="flex-1">
-                    <p className="text-white text-sm font-medium">{room.name}</p>
-                    <p className="text-text-secondary text-xs">{room.area} · {room.devices} devices</p>
+                    <p className="text-white text-sm font-medium">{t(room.nameKey)}</p>
+                    <p className="text-text-secondary text-xs">{room.area} · {room.devices} {t("zp.house.devices")}</p>
                   </div>
                   <div className="text-right flex-shrink-0">
                     <p className="text-white text-sm font-bold">{room.temp}</p>
-                    <p className="text-text-tertiary text-[10px]">Temperature</p>
+                    <p className="text-text-tertiary text-[10px]">{t("zp.house.temperature")}</p>
                   </div>
                 </div>
               ))}
@@ -117,10 +120,10 @@ export default function HouseZonePage() {
       {/* Actions */}
       <div className="px-4 grid grid-cols-2 gap-3 mb-4">
         {[
-          { label: "All Lights Off", icon: "💡", color: "#F59E0B" },
-          { label: "Lock Doors", icon: "🔒", color: "#7C3AED" },
-          { label: "Night Mode", icon: "🌙", color: "#22D3EE" },
-          { label: "Climate Control", icon: "🌡️", color: "#4ADE80" },
+          { label: t("zp.house.aLights"), icon: "💡", color: "#F59E0B" },
+          { label: t("zp.house.aLock"), icon: "🔒", color: "#7C3AED" },
+          { label: t("zp.house.aNight"), icon: "🌙", color: "#22D3EE" },
+          { label: t("zp.house.aClimate"), icon: "🌡️", color: "#4ADE80" },
         ].map((a) => (
           <button key={a.label} className="rounded-2xl p-3.5 flex items-center gap-2.5 active:scale-[0.97] transition-transform" style={{ background: `${a.color}10`, border: `1px solid ${a.color}25` }}>
             <span className="text-lg">{a.icon}</span>

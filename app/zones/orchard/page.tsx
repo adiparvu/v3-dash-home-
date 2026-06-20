@@ -6,39 +6,40 @@ import MonitorGrid from "../../components/monitor/MonitorGrid";
 import ZoneMap, { type MapFeature } from "../../components/gis/ZoneMap";
 import CameraWall from "../../components/cameras/CameraWall";
 import { ORCHARD } from "../../lib/monitor/presets";
+import { useT, type MessageKey } from "../../lib/i18n";
 
 const radius = 42;
 const circumference = 2 * Math.PI * radius;
 const healthScore = 88;
 const offset = circumference - (healthScore / 100) * circumference;
 
-// Parcel polygons (stand in for parcels.boundary_geojson; ZoneMap auto-fits).
-const PARCELS: MapFeature[] = [
-  { id: "p1", label: "Parcela A", sub: "măr · 48 pomi", status: "ok", polygon: [[0, 5], [4, 5.5], [4.3, 1], [0.2, 0.6]] },
-  { id: "p2", label: "Parcela B", sub: "păr · 36 pomi", status: "ok", polygon: [[4.6, 5.6], [8.5, 5.2], [8.2, 1.2], [4.5, 1]] },
-  { id: "p3", label: "Parcela C", sub: "prun · 40 pomi", status: "warn", polygon: [[0.3, 0.2], [8, 0.6], [8.1, -2.6], [0.4, -2.8]] },
-];
-
 // AI vision (YOLO-style) — fruit counting + disease/pest detection.
-const VISION = [
-  { label: "Fructe numărate", value: "8,420", icon: "🍎", color: "#4ADE80" },
-  { label: "Risc boli foliare", value: "Scăzut", icon: "🍃", color: "#4ADE80" },
-  { label: "Dăunători detectați", value: "2 zone", icon: "🐛", color: "#F59E0B" },
+const VISION: { labelKey: MessageKey; value: string; valueKey?: MessageKey; icon: string; color: string }[] = [
+  { labelKey: "zp.orch.vFruit", value: "8,420", icon: "🍎", color: "#4ADE80" },
+  { labelKey: "zp.orch.vDisease", value: "", valueKey: "zp.orch.vDiseaseVal", icon: "🍃", color: "#4ADE80" },
+  { labelKey: "zp.orch.vPests", value: "", valueKey: "zp.orch.vPestsVal", icon: "🐛", color: "#F59E0B" },
 ];
 
-const WORKLOG = [
-  { date: "Azi 08:10", detail: "Irigare automată · Parcela A", icon: "🚿" },
-  { date: "Ieri", detail: "Tăiere de formare · 12 pomi", icon: "✂️" },
-  { date: "acum 3 zile", detail: "Tratament foliar · cupru", icon: "🧴" },
+const WORKLOG: { dateKey: MessageKey; detailKey: MessageKey; icon: string }[] = [
+  { dateKey: "zp.orch.wl1", detailKey: "zp.orch.wl1d", icon: "🚿" },
+  { dateKey: "zp.orch.wl2", detailKey: "zp.orch.wl2d", icon: "✂️" },
+  { dateKey: "zp.orch.wl3", detailKey: "zp.orch.wl3d", icon: "🧴" },
 ];
 
-const TREATMENTS = [
-  { when: "în 2 zile", name: "Tratament fungicid", area: "Parcela C", color: "#F59E0B" },
-  { when: "în 9 zile", name: "Fertilizare foliară", area: "Toate parcelele", color: "#22D3EE" },
-  { when: "în 23 zile", name: "Recoltare măr", area: "Parcela A", color: "#4ADE80" },
+const TREATMENTS: { whenKey: MessageKey; nameKey: MessageKey; areaKey: MessageKey; color: string }[] = [
+  { whenKey: "zp.orch.tr1when", nameKey: "zp.orch.tr1", areaKey: "zp.orch.tr1area", color: "#F59E0B" },
+  { whenKey: "zp.orch.tr2when", nameKey: "zp.orch.tr2", areaKey: "zp.orch.tr2area", color: "#22D3EE" },
+  { whenKey: "zp.orch.tr3when", nameKey: "zp.orch.tr3", areaKey: "zp.orch.tr3area", color: "#4ADE80" },
 ];
 
 export default function OrchardPage() {
+  const t = useT();
+  // Parcel polygons (stand in for parcels.boundary_geojson; ZoneMap auto-fits).
+  const PARCELS: MapFeature[] = [
+    { id: "p1", label: t("zp.orch.p1"), sub: t("zp.orch.p1s"), status: "ok", polygon: [[0, 5], [4, 5.5], [4.3, 1], [0.2, 0.6]] },
+    { id: "p2", label: t("zp.orch.p2"), sub: t("zp.orch.p2s"), status: "ok", polygon: [[4.6, 5.6], [8.5, 5.2], [8.2, 1.2], [4.5, 1]] },
+    { id: "p3", label: t("zp.orch.p3"), sub: t("zp.orch.p3s"), status: "warn", polygon: [[0.3, 0.2], [8, 0.6], [8.1, -2.6], [0.4, -2.8]] },
+  ];
   return (
     <div className="min-h-screen pb-28" style={{ background: "#050A14" }}>
       {/* Hero */}
@@ -61,7 +62,7 @@ export default function OrchardPage() {
         <div className="absolute inset-0 flex items-center justify-center">
           <div className="rounded-3xl p-4 flex flex-col items-center gap-1" style={{ background: "rgba(245,158,11,0.10)", border: "1px solid rgba(245,158,11,0.25)", backdropFilter: "blur(10px)" }}>
             <span className="text-4xl">🍎</span>
-            <span className="text-white font-bold text-sm">Livadă</span>
+            <span className="text-white font-bold text-sm">{t("zp.orch.name")}</span>
           </div>
         </div>
       </div>
@@ -73,7 +74,7 @@ export default function OrchardPage() {
         {/* Health + yield */}
         <div className="grid grid-cols-2 gap-3 mb-6">
           <div className="rounded-2xl p-4 flex flex-col items-center liquid-glass">
-            <span className="text-text-secondary text-xs mb-2">Health Score</span>
+            <span className="text-text-secondary text-xs mb-2">{t("zp.orch.healthScore")}</span>
             <svg width="90" height="90" viewBox="0 0 100 100">
               <circle cx="50" cy="50" r={radius} fill="none" stroke="rgba(255,255,255,0.08)" strokeWidth="7" />
               <circle cx="50" cy="50" r={radius} fill="none" stroke="#F59E0B" strokeWidth="7" strokeDasharray={circumference} strokeDashoffset={offset} strokeLinecap="round" transform="rotate(-90 50 50)" />
@@ -81,64 +82,64 @@ export default function OrchardPage() {
             </svg>
           </div>
           <div className="rounded-2xl p-4 flex flex-col justify-between liquid-glass">
-            <span className="text-text-secondary text-xs">Recoltă estimată</span>
+            <span className="text-text-secondary text-xs">{t("zp.orch.estYield")}</span>
             <div><span className="text-white font-bold text-4xl">12.4</span><span className="text-text-secondary text-base ml-1">t</span></div>
-            <div><span className="text-text-secondary text-xs">Recoltare în</span><p className="text-white font-bold text-lg">23 zile</p></div>
+            <div><span className="text-text-secondary text-xs">{t("zp.orch.harvestIn")}</span><p className="text-white font-bold text-lg">{t("zp.orch.days23")}</p></div>
           </div>
         </div>
 
         {/* Live agronomy monitoring */}
         <div className="mb-6">
-          <MonitorGrid zoneType="orchard" specs={ORCHARD} title="Sol & microclimat" columns={2} />
+          <MonitorGrid zoneType="orchard" specs={ORCHARD} title={t("zp.orch.monTitle")} columns={2} />
         </div>
 
         {/* GIS parcels */}
-        <p className="text-xs font-medium uppercase tracking-wide mb-2.5 px-1" style={{ color: "var(--text-2)" }}>Hartă parcele</p>
+        <p className="text-xs font-medium uppercase tracking-wide mb-2.5 px-1" style={{ color: "var(--text-2)" }}>{t("zp.orch.parcelMap")}</p>
         <div className="mb-6">
-          <ZoneMap features={PARCELS} caption="Atinge o parcelă · contur din boundary_geojson" />
+          <ZoneMap features={PARCELS} caption={t("zp.orch.mapCaption")} />
         </div>
 
         {/* AI vision */}
-        <p className="text-xs font-medium uppercase tracking-wide mb-2.5 px-1" style={{ color: "var(--text-2)" }}>AI viziune · YOLO</p>
+        <p className="text-xs font-medium uppercase tracking-wide mb-2.5 px-1" style={{ color: "var(--text-2)" }}>{t("zp.orch.aiVision")}</p>
         <div className="grid grid-cols-3 gap-2.5 mb-6">
           {VISION.map((v) => (
-            <div key={v.label} className="rounded-2xl p-3 liquid-glass text-center">
+            <div key={v.labelKey} className="rounded-2xl p-3 liquid-glass text-center">
               <span className="text-xl">{v.icon}</span>
-              <p className="text-sm font-bold mt-1" style={{ color: v.color }}>{v.value}</p>
-              <p className="text-[10px] mt-0.5" style={{ color: "var(--text-3)" }}>{v.label}</p>
+              <p className="text-sm font-bold mt-1" style={{ color: v.color }}>{v.valueKey ? t(v.valueKey) : v.value}</p>
+              <p className="text-[10px] mt-0.5" style={{ color: "var(--text-3)" }}>{t(v.labelKey)}</p>
             </div>
           ))}
         </div>
 
         {/* Cameras / AI detections */}
         <div className="mb-6">
-          <CameraWall zone="orchard" title="Camere livadă · AI" />
+          <CameraWall zone="orchard" title={t("zp.orch.camTitle")} />
         </div>
 
         {/* Treatment calendar */}
-        <p className="text-xs font-medium uppercase tracking-wide mb-2.5 px-1" style={{ color: "var(--text-2)" }}>Calendar tratamente</p>
+        <p className="text-xs font-medium uppercase tracking-wide mb-2.5 px-1" style={{ color: "var(--text-2)" }}>{t("zp.orch.treatCal")}</p>
         <div className="space-y-2 mb-6">
-          {TREATMENTS.map((t) => (
-            <div key={t.name} className="flex items-center gap-3 rounded-2xl p-3.5 liquid-glass">
-              <span className="w-1.5 h-10 rounded-full flex-shrink-0" style={{ background: t.color }} />
+          {TREATMENTS.map((tr) => (
+            <div key={tr.nameKey} className="flex items-center gap-3 rounded-2xl p-3.5 liquid-glass">
+              <span className="w-1.5 h-10 rounded-full flex-shrink-0" style={{ background: tr.color }} />
               <div className="flex-1">
-                <p className="text-sm font-medium" style={{ color: "var(--text-1)" }}>{t.name}</p>
-                <p className="text-[11px]" style={{ color: "var(--text-3)" }}>{t.area}</p>
+                <p className="text-sm font-medium" style={{ color: "var(--text-1)" }}>{t(tr.nameKey)}</p>
+                <p className="text-[11px]" style={{ color: "var(--text-3)" }}>{t(tr.areaKey)}</p>
               </div>
-              <span className="text-[11px] font-semibold" style={{ color: t.color }}>{t.when}</span>
+              <span className="text-[11px] font-semibold" style={{ color: tr.color }}>{t(tr.whenKey)}</span>
             </div>
           ))}
         </div>
 
         {/* Work log */}
-        <p className="text-xs font-medium uppercase tracking-wide mb-2.5 px-1" style={{ color: "var(--text-2)" }}>Jurnal lucrări</p>
+        <p className="text-xs font-medium uppercase tracking-wide mb-2.5 px-1" style={{ color: "var(--text-2)" }}>{t("zp.orch.workLog")}</p>
         <div className="space-y-2">
           {WORKLOG.map((w, i) => (
             <div key={i} className="flex items-center gap-3 rounded-2xl p-3.5 liquid-glass">
               <span className="w-9 h-9 rounded-xl flex items-center justify-center text-base flex-shrink-0" style={{ background: "rgba(255,255,255,0.06)", border: "1px solid var(--glass-border)" }}>{w.icon}</span>
               <div className="flex-1">
-                <p className="text-sm font-medium" style={{ color: "var(--text-1)" }}>{w.detail}</p>
-                <p className="text-[11px]" style={{ color: "var(--text-3)" }}>{w.date}</p>
+                <p className="text-sm font-medium" style={{ color: "var(--text-1)" }}>{t(w.detailKey)}</p>
+                <p className="text-[11px]" style={{ color: "var(--text-3)" }}>{t(w.dateKey)}</p>
               </div>
             </div>
           ))}

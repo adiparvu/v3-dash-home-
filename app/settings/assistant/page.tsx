@@ -4,15 +4,24 @@ import { useState } from "react";
 import Link from "next/link";
 import StatusBar from "../../components/layout/StatusBar";
 import { useStore, ASSISTANT_PERSONALITIES, ASSISTANT_AVATARS } from "../../lib/store";
+import { useT, type MessageKey } from "../../lib/i18n";
 
-const MODELS = [
-  { id: "on-device", label: "On-device", blurb: "Private, runs locally" },
-  { id: "claude", label: "Claude", blurb: "Anthropic, cloud" },
-  { id: "byo", label: "Bring your own", blurb: "Custom endpoint" },
+const MODELS: { id: string; lkey: MessageKey; dkey: MessageKey }[] = [
+  { id: "on-device", lkey: "asst.m.onDevice", dkey: "asst.m.onDevice.d" },
+  { id: "claude", lkey: "asst.m.claude", dkey: "asst.m.claude.d" },
+  { id: "byo", lkey: "asst.m.byo", dkey: "asst.m.byo.d" },
 ];
+
+const PERSONALITY_KEYS: Record<string, { l: MessageKey; d: MessageKey }> = {
+  concise: { l: "asst.p.concise", d: "asst.p.concise.d" },
+  friendly: { l: "asst.p.friendly", d: "asst.p.friendly.d" },
+  expert: { l: "asst.p.expert", d: "asst.p.expert.d" },
+  proactive: { l: "asst.p.proactive", d: "asst.p.proactive.d" },
+};
 
 export default function AssistantSettingsPage() {
   const { assistant, setAssistant } = useStore();
+  const t = useT();
   const byoReady = Boolean(assistant.byoEndpoint && assistant.byoModelName && assistant.byoApiKey);
   const [saved, setSaved] = useState(false);
 
@@ -29,7 +38,7 @@ export default function AssistantSettingsPage() {
         <Link href="/settings" className="w-9 h-9 rounded-2xl flex items-center justify-center flex-shrink-0 liquid-glass">
           <svg width="18" height="18" viewBox="0 0 24 24" fill="none"><path d="M19 12H5M12 5l-7 7 7 7" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" /></svg>
         </Link>
-        <h1 className="font-bold text-xl" style={{ color: "var(--text-1)" }}>AI Assistant</h1>
+        <h1 className="font-bold text-xl" style={{ color: "var(--text-1)" }}>{t("set.assistant")}</h1>
       </div>
 
       <div className="px-4 space-y-5">
@@ -47,12 +56,12 @@ export default function AssistantSettingsPage() {
 
         {/* Name */}
         <div>
-          <p className="text-text-secondary text-xs font-medium uppercase tracking-wide mb-2 px-1">Name</p>
+          <p className="text-text-secondary text-xs font-medium uppercase tracking-wide mb-2 px-1">{t("asst.name")}</p>
           <div className="rounded-2xl px-4 py-3 liquid-glass">
             <input
               value={assistant.name}
               onChange={(e) => setAssistant({ name: e.target.value })}
-              placeholder="Assistant name"
+              placeholder={t("asst.namePlaceholder")}
               className="w-full bg-transparent text-sm outline-none"
               style={{ caretColor: "var(--accent)", color: "var(--text-1)" }}
             />
@@ -61,7 +70,7 @@ export default function AssistantSettingsPage() {
 
         {/* Avatar */}
         <div>
-          <p className="text-text-secondary text-xs font-medium uppercase tracking-wide mb-2 px-1">Avatar</p>
+          <p className="text-text-secondary text-xs font-medium uppercase tracking-wide mb-2 px-1">{t("asst.avatar")}</p>
           <div className="flex gap-2.5 px-1 flex-wrap">
             {ASSISTANT_AVATARS.map((a) => (
               <button
@@ -82,7 +91,7 @@ export default function AssistantSettingsPage() {
 
         {/* Personality */}
         <div>
-          <p className="text-text-secondary text-xs font-medium uppercase tracking-wide mb-2 px-1">Personality</p>
+          <p className="text-text-secondary text-xs font-medium uppercase tracking-wide mb-2 px-1">{t("asst.personality")}</p>
           <div className="grid grid-cols-2 gap-2">
             {ASSISTANT_PERSONALITIES.map((p) => (
               <button
@@ -95,8 +104,8 @@ export default function AssistantSettingsPage() {
                     : { background: "var(--glass-bg)", border: "0.5px solid var(--glass-border)" }
                 }
               >
-                <p className="text-sm font-medium" style={{ color: assistant.personality === p.id ? "var(--accent-purple)" : "var(--text-1)" }}>{p.label}</p>
-                <p className="text-text-secondary text-[11px]">{p.blurb}</p>
+                <p className="text-sm font-medium" style={{ color: assistant.personality === p.id ? "var(--accent-purple)" : "var(--text-1)" }}>{PERSONALITY_KEYS[p.id] ? t(PERSONALITY_KEYS[p.id].l) : p.label}</p>
+                <p className="text-text-secondary text-[11px]">{PERSONALITY_KEYS[p.id] ? t(PERSONALITY_KEYS[p.id].d) : p.blurb}</p>
               </button>
             ))}
           </div>
@@ -104,7 +113,7 @@ export default function AssistantSettingsPage() {
 
         {/* Model — bring your own */}
         <div>
-          <p className="text-text-secondary text-xs font-medium uppercase tracking-wide mb-2 px-1">Model</p>
+          <p className="text-text-secondary text-xs font-medium uppercase tracking-wide mb-2 px-1">{t("asst.model")}</p>
           <div className="rounded-2xl overflow-hidden liquid-glass">
             {MODELS.map((m, i) => (
               <button
@@ -114,8 +123,8 @@ export default function AssistantSettingsPage() {
                 style={{ borderBottom: i < MODELS.length - 1 ? "1px solid var(--glass-border)" : undefined }}
               >
                 <div>
-                  <p className="text-sm font-medium" style={{ color: "var(--text-1)" }}>{m.label}</p>
-                  <p className="text-text-secondary text-xs">{m.blurb}</p>
+                  <p className="text-sm font-medium" style={{ color: "var(--text-1)" }}>{t(m.lkey)}</p>
+                  <p className="text-text-secondary text-xs">{t(m.dkey)}</p>
                 </div>
                 <span
                   className="w-5 h-5 rounded-full flex items-center justify-center flex-shrink-0"
@@ -129,14 +138,13 @@ export default function AssistantSettingsPage() {
             ))}
           </div>
           <p className="text-text-tertiary text-[11px] px-1 mt-2">
-            Bring-your-own-model keeps your estate knowledge under your control; the
-            platform never claims ownership of it.
+            {t("asst.byoNote")}
           </p>
 
           {assistant.model === "byo" && (
             <div className="rounded-2xl p-4 mt-3 liquid-glass space-y-3">
               <div>
-                <label className="text-text-secondary text-xs font-medium mb-1.5 block">Endpoint URL</label>
+                <label className="text-text-secondary text-xs font-medium mb-1.5 block">{t("asst.endpoint")}</label>
                 <input
                   value={assistant.byoEndpoint ?? ""}
                   onChange={(e) => setAssistant({ byoEndpoint: e.target.value })}
@@ -146,7 +154,7 @@ export default function AssistantSettingsPage() {
                 />
               </div>
               <div>
-                <label className="text-text-secondary text-xs font-medium mb-1.5 block">Model name</label>
+                <label className="text-text-secondary text-xs font-medium mb-1.5 block">{t("asst.modelName")}</label>
                 <input
                   value={assistant.byoModelName ?? ""}
                   onChange={(e) => setAssistant({ byoModelName: e.target.value })}
@@ -156,7 +164,7 @@ export default function AssistantSettingsPage() {
                 />
               </div>
               <div>
-                <label className="text-text-secondary text-xs font-medium mb-1.5 block">API key</label>
+                <label className="text-text-secondary text-xs font-medium mb-1.5 block">{t("asst.apiKey")}</label>
                 <input
                   type="password"
                   value={assistant.byoApiKey ?? ""}
@@ -168,7 +176,7 @@ export default function AssistantSettingsPage() {
               </div>
               <p className="text-[11px] flex items-center gap-1.5" style={{ color: byoReady ? "#4ADE80" : "var(--text-3)" }}>
                 <span style={{ width: 6, height: 6, borderRadius: 999, background: byoReady ? "#4ADE80" : "#9CA3AF", display: "inline-block" }} />
-                {byoReady ? "Configurat — cheia rămâne pe dispozitiv." : "Completează endpoint, model și cheie."}
+                {byoReady ? t("asst.byoReady") : t("asst.byoIncomplete")}
               </p>
             </div>
           )}
@@ -177,12 +185,12 @@ export default function AssistantSettingsPage() {
         {/* Voice */}
         <div className="rounded-2xl px-4 py-3.5 flex items-center justify-between liquid-glass">
           <div>
-            <p className="text-sm font-medium" style={{ color: "var(--text-1)" }}>Voice interaction</p>
-            <p className="text-text-secondary text-xs">Talk to your assistant hands-free</p>
+            <p className="text-sm font-medium" style={{ color: "var(--text-1)" }}>{t("asst.voice")}</p>
+            <p className="text-text-secondary text-xs">{t("asst.voice.d")}</p>
           </div>
           <button
             onClick={() => setAssistant({ voiceEnabled: !assistant.voiceEnabled })}
-            aria-label="Toggle voice"
+            aria-label={t("asst.toggleVoice")}
             className="w-11 h-6 rounded-full relative transition-all duration-200 flex-shrink-0"
             style={{ background: assistant.voiceEnabled ? "#4ADE80" : "rgba(255,255,255,0.15)" }}
           >
@@ -199,7 +207,7 @@ export default function AssistantSettingsPage() {
             border: saved ? "1px solid rgba(74,222,128,0.4)" : undefined,
           }}
         >
-          {saved ? "✓ Saved!" : "Save Assistant"}
+          {saved ? t("asst.saved") : t("asst.save")}
         </button>
       </div>
     </div>

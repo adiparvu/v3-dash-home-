@@ -7,29 +7,33 @@
  * useCameras (live camera_events + demo fallback).
  */
 import { useCameras } from "../../lib/useCameras";
+import { useT, type MessageKey } from "../../lib/i18n";
 
 const OBJECT_ICON: Record<string, string> = { person: "🚶", car: "🚗", animal: "🦊", package: "📦", bicycle: "🚲", boat: "⛵" };
 const OBJECT_COLOR: Record<string, string> = { person: "#F59E0B", car: "#22D3EE", animal: "#A78BFA", package: "#4ADE80" };
+const OBJECT_KEY: Record<string, MessageKey> = { person: "cam.objPerson", car: "cam.objCar", animal: "cam.objAnimal", package: "cam.objPackage", bicycle: "cam.objBicycle", boat: "cam.objBoat" };
 
-function ago(iso: string): string {
+function ago(iso: string, nowLabel: string): string {
   const m = Math.max(0, Math.round((Date.now() - new Date(iso).getTime()) / 60000));
-  if (m < 1) return "acum";
+  if (m < 1) return nowLabel;
   if (m < 60) return `${m}m`;
   const h = Math.round(m / 60);
   return h < 24 ? `${h}h` : `${Math.round(h / 24)}z`;
 }
 
-export default function CameraWall({ zone, title = "Camere · AI" }: { zone?: string; title?: string }) {
+export default function CameraWall({ zone, title }: { zone?: string; title?: string }) {
+  const t = useT();
   const { cameras, events, source } = useCameras(zone);
   const live = source === "live";
+  const heading = title ?? t("cam.title");
 
   return (
     <div>
       <div className="flex items-center gap-2 mb-2.5 px-1">
-        <p className="text-xs font-medium uppercase tracking-wide" style={{ color: "var(--text-2)" }}>{title}</p>
+        <p className="text-xs font-medium uppercase tracking-wide" style={{ color: "var(--text-2)" }}>{heading}</p>
         <span className="flex items-center gap-1 text-[10px] font-semibold" style={{ color: live ? "#4ADE80" : "#9CA3AF" }}>
           <span className="w-1.5 h-1.5 rounded-full animate-pulse-glow" style={{ background: live ? "#4ADE80" : "#9CA3AF" }} />
-          {live ? "Live" : "Simulat"}
+          {live ? t("cam.live") : t("cam.simulated")}
         </span>
       </div>
 
@@ -44,7 +48,7 @@ export default function CameraWall({ zone, title = "Camere · AI" }: { zone?: st
             </div>
             <div className="px-2.5 py-1.5">
               <p className="text-[11px] font-medium truncate" style={{ color: "var(--text-1)" }}>{c.name}</p>
-              <p className="text-[9px]" style={{ color: c.online ? "var(--text-3)" : "#6B7280" }}>{c.online ? "Online" : "Offline"}</p>
+              <p className="text-[9px]" style={{ color: c.online ? "var(--text-3)" : "#6B7280" }}>{c.online ? t("cam.online") : t("cam.offline")}</p>
             </div>
           </div>
         ))}
@@ -52,18 +56,19 @@ export default function CameraWall({ zone, title = "Camere · AI" }: { zone?: st
 
       {/* Detection feed */}
       <div className="space-y-2">
-        {events.length === 0 && <p className="text-xs text-center py-3" style={{ color: "var(--text-3)" }}>Nicio detecție recentă.</p>}
+        {events.length === 0 && <p className="text-xs text-center py-3" style={{ color: "var(--text-3)" }}>{t("cam.noDetections")}</p>}
         {events.map((e) => {
           const color = OBJECT_COLOR[e.object] ?? "#9CA3AF";
           const cam = cameras.find((c) => c.id === e.cameraId);
+          const objName = OBJECT_KEY[e.object] ? t(OBJECT_KEY[e.object]) : e.object;
           return (
             <div key={e.id} className="flex items-center gap-3 rounded-2xl p-3 liquid-glass">
               <span className="w-9 h-9 rounded-xl flex items-center justify-center text-base flex-shrink-0" style={{ background: `${color}1f`, border: `1px solid ${color}33` }}>{OBJECT_ICON[e.object] ?? "👁️"}</span>
               <div className="flex-1 min-w-0">
-                <p className="text-sm font-medium capitalize" style={{ color: "var(--text-1)" }}>{e.object}{e.label ? ` · ${e.label}` : ""}</p>
-                <p className="text-[11px]" style={{ color: "var(--text-3)" }}>{cam?.name ?? e.zone ?? "cameră"}{e.confidence != null ? ` · ${Math.round(e.confidence * 100)}%` : ""}</p>
+                <p className="text-sm font-medium capitalize" style={{ color: "var(--text-1)" }}>{objName}{e.label ? ` · ${e.label}` : ""}</p>
+                <p className="text-[11px]" style={{ color: "var(--text-3)" }}>{cam?.name ?? e.zone ?? t("cam.cameraFallback")}{e.confidence != null ? ` · ${Math.round(e.confidence * 100)}%` : ""}</p>
               </div>
-              <span className="text-[10px] font-semibold flex-shrink-0" style={{ color: "var(--text-3)" }}>{ago(e.at)}</span>
+              <span className="text-[10px] font-semibold flex-shrink-0" style={{ color: "var(--text-3)" }}>{ago(e.at, t("cam.now"))}</span>
             </div>
           );
         })}

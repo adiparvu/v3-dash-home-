@@ -5,14 +5,15 @@ import StatusBar from "../components/layout/StatusBar";
 import BottomNav from "../components/layout/BottomNav";
 import CallMenu, { CallContact } from "../components/CallMenu";
 import { useStore, RING_COLORS, initials } from "../lib/store";
+import { useT, type MessageKey } from "../lib/i18n";
 
-const roomTypeMeta: Record<string, { label: string; color: string }> = {
-  group: { label: "Group", color: "#4ADE80" },
-  property: { label: "Property", color: "#7C3AED" },
-  zone: { label: "Zone", color: "#22D3EE" },
-  asset: { label: "Asset", color: "#F59E0B" },
-  task: { label: "Task", color: "#4ADE80" },
-  dm: { label: "DM", color: "#7C3AED" },
+const roomTypeMeta: Record<string, { lkey: MessageKey; color: string }> = {
+  group: { lkey: "chat.t.group", color: "#4ADE80" },
+  property: { lkey: "chat.t.property", color: "#7C3AED" },
+  zone: { lkey: "chat.t.zone", color: "#22D3EE" },
+  asset: { lkey: "chat.t.asset", color: "#F59E0B" },
+  task: { lkey: "chat.t.task", color: "#4ADE80" },
+  dm: { lkey: "chat.t.dm", color: "#7C3AED" },
 };
 
 const rooms = [
@@ -107,6 +108,7 @@ interface Message {
 
 export default function ChatPage() {
   const { profile } = useStore();
+  const t = useT();
   const ring = RING_COLORS[profile.ringColor] ?? RING_COLORS[0];
   const [activeRoom, setActiveRoom] = useState("general");
   const [showRooms, setShowRooms] = useState(false);
@@ -183,7 +185,7 @@ export default function ChatPage() {
             <span className="text-base">{room.icon}</span>
             <h1 className="font-semibold text-base truncate" style={{ color: "var(--text-1)" }}>{room.name}</h1>
             <span className="text-[10px] px-1.5 py-0.5 rounded-full flex-shrink-0" style={{ background: `${roomTypeMeta[room.type].color}22`, color: roomTypeMeta[room.type].color }}>
-              {roomTypeMeta[room.type].label}
+              {t(roomTypeMeta[room.type].lkey)}
             </span>
           </div>
         </div>
@@ -205,19 +207,19 @@ export default function ChatPage() {
         <div className="absolute inset-0 z-40 flex" style={{ top: 0 }} onClick={() => setShowRooms(false)}>
           <div className="w-72 h-full flex flex-col pt-16 pb-4" style={{ background: "var(--glass-bg)", borderRight: "0.5px solid var(--glass-border)" }} onClick={(e) => e.stopPropagation()}>
             <div className="px-4 mb-3">
-              <p className="font-bold text-lg" style={{ color: "var(--text-1)" }}>Messages</p>
+              <p className="font-bold text-lg" style={{ color: "var(--text-1)" }}>{t("chat.messages")}</p>
             </div>
 
             {[
-              { label: "Group Chats", items: rooms.filter((r) => r.type === "group") },
-              { label: "Property Channels", items: rooms.filter((r) => r.type === "property") },
-              { label: "Zone Channels", items: rooms.filter((r) => r.type === "zone") },
-              { label: "Asset Channels", items: rooms.filter((r) => r.type === "asset") },
-              { label: "Task Channels", items: rooms.filter((r) => r.type === "task") },
-              { label: "Direct Messages", items: rooms.filter((r) => r.type === "dm") },
+              { lkey: "chat.s.group" as MessageKey, items: rooms.filter((r) => r.type === "group") },
+              { lkey: "chat.s.property" as MessageKey, items: rooms.filter((r) => r.type === "property") },
+              { lkey: "chat.s.zone" as MessageKey, items: rooms.filter((r) => r.type === "zone") },
+              { lkey: "chat.s.asset" as MessageKey, items: rooms.filter((r) => r.type === "asset") },
+              { lkey: "chat.s.task" as MessageKey, items: rooms.filter((r) => r.type === "task") },
+              { lkey: "chat.s.dm" as MessageKey, items: rooms.filter((r) => r.type === "dm") },
             ].map((section) => (
-              <div key={section.label} className="mb-3">
-                <p className="text-text-secondary text-[10px] font-medium uppercase tracking-wide px-4 mb-1">{section.label}</p>
+              <div key={section.lkey} className="mb-3">
+                <p className="text-text-secondary text-[10px] font-medium uppercase tracking-wide px-4 mb-1">{t(section.lkey)}</p>
                 {section.items.map((r) => (
                   <button
                     key={r.id}
@@ -336,7 +338,7 @@ export default function ChatPage() {
             value={input}
             onChange={(e) => setInput(e.target.value)}
             onKeyDown={handleKey}
-            placeholder={`Message ${room.name}…`}
+            placeholder={`${t("chat.messagePrefix")} ${room.name}…`}
             rows={1}
             className="flex-1 bg-transparent text-sm placeholder-text-tertiary resize-none outline-none leading-relaxed py-1"
             style={{ color: "var(--text-1)", maxHeight: "100px" }}

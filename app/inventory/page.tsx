@@ -5,13 +5,31 @@ import Link from "next/link";
 import StatusBar from "../components/layout/StatusBar";
 import BottomNav from "../components/layout/BottomNav";
 import { useAssets } from "../lib/useAssets";
+import { useT, type MessageKey } from "../lib/i18n";
+import QrPrinter from "../components/inventory/QrPrinter";
+import { assetIdFromHref } from "../lib/printLabel";
+import { useAllAssetLoans } from "../lib/useAssetRecords";
 
 const categories = ["All", "Devices", "Plants", "Equipment", "Vehicles"];
 
+const CAT_KEY: Record<string, MessageKey> = {
+  All: "inv.catAll", Devices: "inv.catDevices", Plants: "inv.catPlants", Equipment: "inv.catEquipment", Vehicles: "inv.catVehicles",
+};
+const LOC_KEY: Record<string, MessageKey> = {
+  Lake: "inv.locLake", Forest: "inv.locForest", Greenhouse: "inv.locGreenhouse", Orchard: "inv.locOrchard", Garden: "inv.locGarden", House: "inv.locHouse", Driveway: "inv.locDriveway",
+};
+const STATUS_KEY: Record<string, MessageKey> = {
+  Active: "inv.statusActive", Idle: "inv.statusIdle", Offline: "inv.statusOffline",
+};
+
 export default function InventoryPage() {
+  const t = useT();
+  const tx = (map: Record<string, MessageKey>, v: string) => (map[v] ? t(map[v]) : v);
   const [activeCategory, setActiveCategory] = useState("All");
   const [search, setSearch] = useState("");
+  const [printTarget, setPrintTarget] = useState<{ href: string; name: string; location: string } | null>(null);
   const { assets, source } = useAssets();
+  const loans = useAllAssetLoans();
 
   const filtered = assets.filter((a) => {
     const matchesCategory = activeCategory === "All" || a.category === activeCategory;
@@ -26,7 +44,7 @@ export default function InventoryPage() {
       {/* Header */}
       <div className="px-5 pt-1 pb-3 flex items-center justify-between">
         <div className="flex items-center gap-2">
-          <h1 className="font-bold text-2xl" style={{ color: "var(--text-1)" }}>Inventory</h1>
+          <h1 className="font-bold text-2xl" style={{ color: "var(--text-1)" }}>{t("page.inventory")}</h1>
           <span
             className="text-[10px] font-medium px-2 py-1 rounded-full"
             style={
@@ -35,13 +53,13 @@ export default function InventoryPage() {
                 : { background: "rgba(255,255,255,0.06)", border: "0.5px solid var(--glass-border)", color: "var(--text-3)" }
             }
           >
-            {source === "remote" ? "● Synced" : source === "loading" ? "…" : "Demo"}
+            {source === "remote" ? `● ${t("inv.synced")}` : source === "loading" ? "…" : t("inv.demo")}
           </span>
         </div>
         <div className="flex items-center gap-2">
           <Link
             href="/inventory/new"
-            aria-label="Add asset"
+            aria-label={t("inv.addAssetAria")}
             className="w-9 h-9 rounded-2xl flex items-center justify-center active:scale-90 transition-transform"
             style={{ background: "rgba(74,222,128,0.15)", border: "1px solid rgba(74,222,128,0.30)", color: "var(--accent)" }}
           >
@@ -62,7 +80,7 @@ export default function InventoryPage() {
           </svg>
           <input
             type="text"
-            placeholder="Search assets..."
+            placeholder={t("inv.searchAssets")}
             value={search}
             onChange={(e) => setSearch(e.target.value)}
             className="flex-1 bg-transparent text-sm outline-none"
@@ -74,10 +92,10 @@ export default function InventoryPage() {
       {/* Stats strip */}
       <div className="px-4 mb-4 flex gap-2">
         {[
-          { label: "Total Assets", value: String(assets.length), color: "var(--text-1)" },
-          { label: "Active", value: String(assets.filter((a) => a.statusColor === "#4ADE80").length), color: "#4ADE80" },
-          { label: "Maintenance", value: String(assets.filter((a) => a.status === "Idle").length), color: "#F59E0B" },
-          { label: "Offline", value: String(assets.filter((a) => a.status === "Offline" || a.statusColor === "#EF4444").length), color: "#EF4444" },
+          { label: t("inv.totalAssets"), value: String(assets.length), color: "var(--text-1)" },
+          { label: t("inv.statActive"), value: String(assets.filter((a) => a.statusColor === "#4ADE80").length), color: "#4ADE80" },
+          { label: t("inv.statMaintenance"), value: String(assets.filter((a) => a.status === "Idle").length), color: "#F59E0B" },
+          { label: t("inv.statOffline"), value: String(assets.filter((a) => a.status === "Offline" || a.statusColor === "#EF4444").length), color: "#EF4444" },
         ].map((s) => (
           <div key={s.label} className="liquid-glass flex-1 rounded-2xl p-2.5 text-center">
             <p className="font-bold text-base leading-tight" style={{ color: s.color }}>{s.value}</p>
@@ -99,7 +117,7 @@ export default function InventoryPage() {
                 : { background: "rgba(255,255,255,0.07)", color: "var(--text-2)", border: "0.5px solid var(--glass-border)" }
             }
           >
-            {cat}
+            {tx(CAT_KEY, cat)}
           </button>
         ))}
       </div>
@@ -107,8 +125,8 @@ export default function InventoryPage() {
       {/* Assets list */}
       <div className="px-4 space-y-2.5">
         {filtered.map((asset) => (
-          <Link key={asset.href} href={asset.href}>
-            <div className="liquid-glass rounded-2xl p-3.5 flex items-center gap-3.5 active:scale-[0.98] transition-transform">
+          <div key={asset.href} className="liquid-glass rounded-2xl flex items-center active:scale-[0.98] transition-transform">
+            <Link href={asset.href} className="flex-1 flex items-center gap-3.5 p-3.5 min-w-0">
               {/* Icon */}
               <div
                 className="w-14 h-14 rounded-2xl flex items-center justify-center text-2xl flex-shrink-0"
@@ -120,19 +138,32 @@ export default function InventoryPage() {
               {/* Info */}
               <div className="flex-1 min-w-0">
                 <p className="font-semibold text-sm leading-tight" style={{ color: "var(--text-1)" }}>{asset.name}</p>
-                <p className="text-text-secondary text-xs mt-0.5">{asset.category} · {asset.location}</p>
+                <p className="text-text-secondary text-xs mt-0.5">{tx(CAT_KEY, asset.category)} · {tx(LOC_KEY, asset.location)}</p>
               </div>
 
               {/* Status */}
               <div className="flex items-center gap-1.5 flex-shrink-0">
+                {loans[asset.href.split("/").filter(Boolean).pop() ?? ""] && (
+                  <span className="text-[9px] font-semibold px-1.5 py-0.5 rounded-full" style={{ background: "rgba(245,158,11,0.15)", color: "#F59E0B", border: "1px solid rgba(245,158,11,0.30)" }}>{t("loan.status")}</span>
+                )}
                 <span className="w-1.5 h-1.5 rounded-full" style={{ background: asset.statusColor }} />
-                <span className="text-xs font-medium" style={{ color: asset.statusColor }}>{asset.status}</span>
-                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" style={{ opacity: 0.4 }}>
-                  <path d="M9 18l6-6-6-6" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round" />
-                </svg>
+                <span className="text-xs font-medium" style={{ color: asset.statusColor }}>{tx(STATUS_KEY, asset.status)}</span>
               </div>
-            </div>
-          </Link>
+            </Link>
+
+            {/* Print label */}
+            <button
+              onClick={() => setPrintTarget({ href: asset.href, name: asset.name, location: tx(LOC_KEY, asset.location) })}
+              aria-label={t("idet.printLabel")}
+              title={t("idet.printLabel")}
+              className="self-stretch px-4 flex items-center flex-shrink-0 active:scale-90 transition-transform"
+              style={{ borderLeft: "0.5px solid var(--glass-border)", color: "var(--text-3)" }}
+            >
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
+                <path d="M6 9V2h12v7M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2M6 14h12v8H6z" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round" />
+              </svg>
+            </button>
+          </div>
         ))}
       </div>
 
@@ -140,7 +171,7 @@ export default function InventoryPage() {
       <div className="fixed bottom-24 right-5 z-40">
         <Link
           href="/inventory/qr"
-          aria-label="Scan QR code"
+          aria-label={t("inv.scanQrAria")}
           className="w-14 h-14 rounded-full flex items-center justify-center shadow-2xl active:scale-90 transition-transform"
           style={{
             background: "linear-gradient(135deg, #4ADE80, #22D3EE)",
@@ -155,6 +186,16 @@ export default function InventoryPage() {
           </svg>
         </Link>
       </div>
+
+      {printTarget && (
+        <QrPrinter
+          path={printTarget.href}
+          name={printTarget.name}
+          assetId={assetIdFromHref(printTarget.href)}
+          location={printTarget.location}
+          onDone={() => setPrintTarget(null)}
+        />
+      )}
 
       <BottomNav />
     </div>

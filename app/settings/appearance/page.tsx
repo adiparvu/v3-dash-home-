@@ -4,6 +4,7 @@ import { useState } from "react";
 import Link from "next/link";
 import StatusBar from "../../components/layout/StatusBar";
 import { useTheme } from "../../components/ThemeProvider";
+import { useT, type MessageKey } from "../../lib/i18n";
 
 const accents = [
   { id: "green", label: "Forest", color: "#4ADE80" },
@@ -14,9 +15,9 @@ const accents = [
   { id: "rose", label: "Bloom", color: "#F43F5E" },
 ];
 
-const densities = [
-  { id: "comfortable", label: "Comfortable", desc: "More spacing between items" },
-  { id: "compact", label: "Compact", desc: "Fit more on screen" },
+const densities: { id: string; lkey: MessageKey; dkey: MessageKey }[] = [
+  { id: "comfortable", lkey: "appr.comfortable", dkey: "appr.comfortable.d" },
+  { id: "compact", lkey: "appr.compact", dkey: "appr.compact.d" },
 ];
 
 function BackHeader({ title }: { title: string }) {
@@ -32,51 +33,52 @@ function BackHeader({ title }: { title: string }) {
 
 export default function AppearancePage() {
   const { theme, setTheme } = useTheme();
+  const t = useT();
   const [accent, setAccent] = useState("green");
   const [density, setDensity] = useState("comfortable");
   const [reduceMotion, setReduceMotion] = useState(false);
   const [boldText, setBoldText] = useState(false);
 
   const themeCards: { id: "light" | "dark"; label: string }[] = [
-    { id: "light", label: "Light" },
-    { id: "dark", label: "Dark" },
+    { id: "light", label: t("appr.light") },
+    { id: "dark", label: t("appr.dark") },
   ];
 
   return (
     <div className="min-h-screen pb-10" style={{ color: "var(--text-1)" }}>
       <StatusBar />
-      <BackHeader title="Appearance" />
+      <BackHeader title={t("appr.title")} />
 
       <div className="px-4 space-y-5">
         {/* Theme */}
         <div>
-          <p className="text-text-secondary text-xs font-medium uppercase tracking-wide mb-2 px-1">Theme</p>
+          <p className="text-text-secondary text-xs font-medium uppercase tracking-wide mb-2 px-1">{t("appr.theme")}</p>
           <div className="grid grid-cols-2 gap-3">
-            {themeCards.map((t) => {
-              const active = theme === t.id;
+            {themeCards.map((tc) => {
+              const active = theme === tc.id;
               return (
                 <button
-                  key={t.id}
-                  onClick={() => setTheme(t.id)}
+                  key={tc.id}
+                  onClick={() => setTheme(tc.id)}
                   className="liquid-glass rounded-3xl p-3 text-left active:scale-[0.98] transition-transform"
                   style={{ border: active ? "1.5px solid var(--accent)" : undefined }}
                 >
                   {/* Mini preview */}
                   <div
                     className="rounded-2xl mb-2.5 p-2.5 h-24 flex flex-col gap-1.5"
-                    style={{ background: t.id === "dark" ? "#0c0e1a" : "#F0F1F7" }}
+                    style={{ background: tc.id === "dark" ? "#0c0e1a" : "#F0F1F7" }}
                   >
-                    <div className="h-2 w-10 rounded-full" style={{ background: t.id === "dark" ? "rgba(255,255,255,0.85)" : "#0A0A12" }} />
-                    <div className="rounded-xl flex-1 p-1.5 flex items-center gap-1.5" style={{ background: t.id === "dark" ? "rgba(255,255,255,0.09)" : "rgba(255,255,255,0.85)", border: t.id === "dark" ? "0.5px solid rgba(255,255,255,0.16)" : "0.5px solid rgba(0,0,0,0.06)" }}>
+                    <div className="h-2 w-10 rounded-full" style={{ background: tc.id === "dark" ? "rgba(255,255,255,0.85)" : "#0A0A12" }} />
+                    <div className="rounded-xl flex-1 p-1.5 flex items-center gap-1.5" style={{ background: tc.id === "dark" ? "rgba(255,255,255,0.09)" : "rgba(255,255,255,0.85)", border: tc.id === "dark" ? "0.5px solid rgba(255,255,255,0.16)" : "0.5px solid rgba(0,0,0,0.06)" }}>
                       <div className="w-4 h-4 rounded-md flex-shrink-0" style={{ background: "linear-gradient(135deg,#4ADE80,#22D3EE)" }} />
                       <div className="flex-1 space-y-1">
-                        <div className="h-1.5 w-full rounded-full" style={{ background: t.id === "dark" ? "rgba(255,255,255,0.5)" : "rgba(0,0,0,0.4)" }} />
-                        <div className="h-1.5 w-2/3 rounded-full" style={{ background: t.id === "dark" ? "rgba(255,255,255,0.25)" : "rgba(0,0,0,0.18)" }} />
+                        <div className="h-1.5 w-full rounded-full" style={{ background: tc.id === "dark" ? "rgba(255,255,255,0.5)" : "rgba(0,0,0,0.4)" }} />
+                        <div className="h-1.5 w-2/3 rounded-full" style={{ background: tc.id === "dark" ? "rgba(255,255,255,0.25)" : "rgba(0,0,0,0.18)" }} />
                       </div>
                     </div>
                   </div>
                   <div className="flex items-center justify-between px-0.5">
-                    <span className="text-sm font-medium" style={{ color: "var(--text-1)" }}>{t.label}</span>
+                    <span className="text-sm font-medium" style={{ color: "var(--text-1)" }}>{tc.label}</span>
                     <span
                       className="w-5 h-5 rounded-full flex items-center justify-center"
                       style={{ border: active ? "none" : "1.5px solid var(--glass-border)", background: active ? "var(--accent)" : "transparent" }}
@@ -92,7 +94,7 @@ export default function AppearancePage() {
 
         {/* Accent color */}
         <div>
-          <p className="text-text-secondary text-xs font-medium uppercase tracking-wide mb-2 px-1">Accent Color</p>
+          <p className="text-text-secondary text-xs font-medium uppercase tracking-wide mb-2 px-1">{t("appr.accent")}</p>
           <div className="liquid-glass rounded-2xl p-4 grid grid-cols-6 gap-3">
             {accents.map((a) => (
               <button key={a.id} onClick={() => setAccent(a.id)} aria-label={a.label} className="flex flex-col items-center gap-1.5 active:scale-90 transition-transform">
@@ -110,7 +112,7 @@ export default function AppearancePage() {
 
         {/* Layout density */}
         <div>
-          <p className="text-text-secondary text-xs font-medium uppercase tracking-wide mb-2 px-1">Layout</p>
+          <p className="text-text-secondary text-xs font-medium uppercase tracking-wide mb-2 px-1">{t("appr.layout")}</p>
           <div className="liquid-glass rounded-2xl overflow-hidden">
             {densities.map((d, i) => (
               <button
@@ -120,8 +122,8 @@ export default function AppearancePage() {
                 style={{ borderBottom: i < densities.length - 1 ? "0.5px solid var(--glass-border)" : undefined }}
               >
                 <div>
-                  <p className="text-sm font-medium" style={{ color: "var(--text-1)" }}>{d.label}</p>
-                  <p className="text-text-secondary text-xs">{d.desc}</p>
+                  <p className="text-sm font-medium" style={{ color: "var(--text-1)" }}>{t(d.lkey)}</p>
+                  <p className="text-text-secondary text-xs">{t(d.dkey)}</p>
                 </div>
                 <span
                   className="w-5 h-5 rounded-full flex items-center justify-center flex-shrink-0"
@@ -136,11 +138,11 @@ export default function AppearancePage() {
 
         {/* Accessibility toggles */}
         <div>
-          <p className="text-text-secondary text-xs font-medium uppercase tracking-wide mb-2 px-1">Accessibility</p>
+          <p className="text-text-secondary text-xs font-medium uppercase tracking-wide mb-2 px-1">{t("appr.accessibility")}</p>
           <div className="liquid-glass rounded-2xl overflow-hidden">
             {[
-              { label: "Reduce Motion", desc: "Minimize animations", enabled: reduceMotion, onToggle: () => setReduceMotion((v) => !v) },
-              { label: "Bold Text", desc: "Increase text weight", enabled: boldText, onToggle: () => setBoldText((v) => !v) },
+              { label: t("appr.reduceMotion"), desc: t("appr.reduceMotion.d"), enabled: reduceMotion, onToggle: () => setReduceMotion((v) => !v) },
+              { label: t("appr.boldText"), desc: t("appr.boldText.d"), enabled: boldText, onToggle: () => setBoldText((v) => !v) },
             ].map((item, i) => (
               <div key={item.label} className="flex items-center justify-between px-4 py-3.5" style={{ borderBottom: i === 0 ? "0.5px solid var(--glass-border)" : undefined }}>
                 <div>

@@ -5,39 +5,27 @@ import Link from "next/link";
 import { useParams } from "next/navigation";
 import StatusBar from "../../components/layout/StatusBar";
 import { useProperty } from "../../lib/useProperty";
+import { useT, type MessageKey } from "../../lib/i18n";
 
-const quickStats = [
-  { label: "Property Value", value: "€2.4M", color: "#4ADE80", sub: "+33% since purchase" },
-  { label: "Purchase Price", value: "€1.8M", color: "#22D3EE", sub: "Acquired 2019" },
-  { label: "Appreciation", value: "+33%", color: "#7C3AED", sub: "Over 5 years" },
-  { label: "Est. Income", value: "€12k/yr", color: "#F59E0B", sub: "Rental & yield" },
+const quickStats: { labelKey: MessageKey; value: string; color: string; subKey: MessageKey }[] = [
+  { labelKey: "pd.qs.value", value: "€2.4M", color: "#4ADE80", subKey: "pd.qs.valueSub" },
+  { labelKey: "pd.qs.purchase", value: "€1.8M", color: "#22D3EE", subKey: "pd.qs.purchaseSub" },
+  { labelKey: "pd.qs.appreciation", value: "+33%", color: "#7C3AED", subKey: "pd.qs.appreciationSub" },
+  { labelKey: "pd.qs.income", value: "€12k/yr", color: "#F59E0B", subKey: "pd.qs.incomeSub" },
 ];
 
-const recentActivity = [
-  {
-    icon: "🌱",
-    title: "Zone health updated",
-    desc: "Forest zone health improved to 91",
-    time: "2h ago",
-    color: "#4ADE80",
-  },
-  {
-    icon: "🔔",
-    title: "Sensor alert resolved",
-    desc: "Temperature spike in Greenhouse — resolved",
-    time: "Yesterday",
-    color: "#F59E0B",
-  },
-  {
-    icon: "📋",
-    title: "Inspection completed",
-    desc: "Annual property inspection logged",
-    time: "3 days ago",
-    color: "#22D3EE",
-  },
+const recentActivity: { icon: string; titleKey: MessageKey; descKey: MessageKey; timeKey: MessageKey; color: string }[] = [
+  { icon: "🌱", titleKey: "pd.act.zoneTitle", descKey: "pd.act.zoneDesc", timeKey: "pd.act.zoneTime", color: "#4ADE80" },
+  { icon: "🔔", titleKey: "pd.act.sensorTitle", descKey: "pd.act.sensorDesc", timeKey: "pd.act.sensorTime", color: "#F59E0B" },
+  { icon: "📋", titleKey: "pd.act.inspTitle", descKey: "pd.act.inspDesc", timeKey: "pd.act.inspTime", color: "#22D3EE" },
 ];
 
-const tabs = ["Overview", "Zones", "Parcels", "Value"];
+const tabs: { id: string; labelKey: MessageKey }[] = [
+  { id: "Overview", labelKey: "pd.tab.overview" },
+  { id: "Zones", labelKey: "pd.tab.zones" },
+  { id: "Parcels", labelKey: "pd.tab.parcels" },
+  { id: "Value", labelKey: "pd.tab.value" },
+];
 
 // ── Property Value Tracking (spec §6) ────────────────────────────────────────
 const valueHistory = [
@@ -49,14 +37,11 @@ const valueHistory = [
   { year: "2024", value: 2.4 },
 ];
 
-const improvements = [
-  { name: "Smart irrigation system", year: 2021, cost: "€85k" },
-  { name: "Greenhouse expansion", year: 2022, cost: "€120k" },
-  { name: "Solar + battery array", year: 2023, cost: "€140k" },
+const improvements: { nameKey: MessageKey; year: number; cost: string }[] = [
+  { nameKey: "pd.imp.irrigation", year: 2021, cost: "€85k" },
+  { nameKey: "pd.imp.greenhouse", year: 2022, cost: "€120k" },
+  { nameKey: "pd.imp.solar", year: 2023, cost: "€140k" },
 ];
-
-const marketNotes =
-  "Comparable private estates in Cluj county have appreciated ~7%/yr over the last 3 years. Recent infrastructure improvements and the smart-home retrofit support an above-market valuation.";
 
 /** Build an SVG sparkline path from the value history. */
 function sparkline(points: { value: number }[], w: number, h: number, pad = 4) {
@@ -75,6 +60,7 @@ function sparkline(points: { value: number }[], w: number, h: number, pad = 4) {
 }
 
 export default function PropertyDetailPage() {
+  const t = useT();
   const [activeTab, setActiveTab] = useState("Overview");
   const params = useParams();
   const id = typeof params?.id === "string" ? params.id : Array.isArray(params?.id) ? params.id[0] : undefined;
@@ -139,7 +125,7 @@ export default function PropertyDetailPage() {
               <svg width="14" height="14" viewBox="0 0 24 24" fill="none">
                 <path d="M15 18L9 12L15 6" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
               </svg>
-              <span className="text-white text-sm font-medium">Properties</span>
+              <span className="text-white text-sm font-medium">{t("pd.back")}</span>
             </button>
           </Link>
           <button
@@ -158,7 +144,7 @@ export default function PropertyDetailPage() {
         <div className="absolute bottom-0 left-0 right-0 px-5 pb-6 z-10">
           <div className="flex items-end justify-between">
             <div>
-              <p className="text-[rgba(255,255,255,0.5)] text-xs mb-1">Private Estate</p>
+              <p className="text-[rgba(255,255,255,0.5)] text-xs mb-1">{t("pd.privateEstate")}</p>
               <h1 className="text-white font-bold text-3xl">{property.name}</h1>
             </div>
             {/* Mini health ring */}
@@ -205,7 +191,7 @@ export default function PropertyDetailPage() {
                   className="text-[10px] font-semibold px-2 py-0.5 rounded-full"
                   style={{ background: "rgba(74,222,128,0.15)", color: "#4ADE80", border: "1px solid rgba(74,222,128,0.25)" }}
                 >
-                  Active
+                  {t("pd.active")}
                 </span>
               )}
               <span
@@ -214,7 +200,7 @@ export default function PropertyDetailPage() {
                   ? { background: "rgba(74,222,128,0.15)", color: "#4ADE80", border: "1px solid rgba(74,222,128,0.25)" }
                   : { background: "rgba(255,255,255,0.06)", color: "#9CA3AF", border: "1px solid rgba(255,255,255,0.12)" }}
               >
-                {source === "remote" ? "Synced" : "Demo"}
+                {source === "remote" ? t("pd.synced") : t("pd.demo")}
               </span>
             </div>
             <div className="flex items-center gap-1.5">
@@ -234,19 +220,19 @@ export default function PropertyDetailPage() {
           >
             <div className="text-center">
               <p className="text-[#4ADE80] font-bold text-lg">87</p>
-              <p className="text-[#6B7280] text-[10px]">Health</p>
+              <p className="text-[#6B7280] text-[10px]">{t("pd.health")}</p>
             </div>
             <div className="text-center">
               <p className="text-white font-bold text-lg">26</p>
-              <p className="text-[#6B7280] text-[10px]">Zones</p>
+              <p className="text-[#6B7280] text-[10px]">{t("pd.zones")}</p>
             </div>
             <div className="text-center">
               <p className="text-white font-bold text-lg">142</p>
-              <p className="text-[#6B7280] text-[10px]">Objects</p>
+              <p className="text-[#6B7280] text-[10px]">{t("pd.objects")}</p>
             </div>
             <div className="text-center">
               <p className="text-[#F59E0B] font-bold text-lg">3</p>
-              <p className="text-[#6B7280] text-[10px]">Alerts</p>
+              <p className="text-[#6B7280] text-[10px]">{t("pd.alerts")}</p>
             </div>
           </div>
         </div>
@@ -255,16 +241,16 @@ export default function PropertyDetailPage() {
         <div className="px-5 mb-4 flex gap-1 overflow-x-auto scrollbar-hide">
           {tabs.map((tab) => (
             <button
-              key={tab}
-              onClick={() => setActiveTab(tab)}
+              key={tab.id}
+              onClick={() => setActiveTab(tab.id)}
               className="px-4 py-2 rounded-full text-sm font-medium whitespace-nowrap transition-all flex-shrink-0"
               style={
-                activeTab === tab
+                activeTab === tab.id
                   ? { background: "#4ADE80", color: "#050A14" }
                   : { background: "rgba(255,255,255,0.06)", color: "#9CA3AF", border: "1px solid rgba(255,255,255,0.08)" }
               }
             >
-              {tab}
+              {t(tab.labelKey)}
             </button>
           ))}
         </div>
@@ -274,17 +260,17 @@ export default function PropertyDetailPage() {
           <div className="px-5 space-y-4">
             {/* Quick Stats 2x2 grid */}
             <div>
-              <p className="text-[#9CA3AF] text-xs font-medium uppercase tracking-wider mb-2">Quick Stats</p>
+              <p className="text-[#9CA3AF] text-xs font-medium uppercase tracking-wider mb-2">{t("pd.quickStats")}</p>
               <div className="grid grid-cols-2 gap-3">
                 {quickStats.map((stat) => (
                   <div
-                    key={stat.label}
+                    key={stat.labelKey}
                     className="rounded-2xl p-3"
                     style={{ background: "rgba(255,255,255,0.05)", border: "1px solid rgba(255,255,255,0.08)" }}
                   >
-                    <p className="text-[#9CA3AF] text-[11px] mb-1">{stat.label}</p>
+                    <p className="text-[#9CA3AF] text-[11px] mb-1">{t(stat.labelKey)}</p>
                     <p className="font-bold text-xl" style={{ color: stat.color }}>{stat.value}</p>
-                    <p className="text-[#6B7280] text-[10px] mt-0.5">{stat.sub}</p>
+                    <p className="text-[#6B7280] text-[10px] mt-0.5">{t(stat.subKey)}</p>
                   </div>
                 ))}
               </div>
@@ -293,8 +279,8 @@ export default function PropertyDetailPage() {
             {/* Trusted Persons */}
             <div>
               <div className="flex items-center justify-between mb-2">
-                <p className="text-[#9CA3AF] text-xs font-medium uppercase tracking-wider">Trusted Persons</p>
-                <button className="text-[#4ADE80] text-xs">+ Add</button>
+                <p className="text-[#9CA3AF] text-xs font-medium uppercase tracking-wider">{t("pd.trusted")}</p>
+                <button className="text-[#4ADE80] text-xs">{t("pd.add")}</button>
               </div>
               <div
                 className="rounded-2xl p-3 flex items-center gap-3"
@@ -320,7 +306,7 @@ export default function PropertyDetailPage() {
                 </div>
                 <div className="flex-1">
                   <p className="text-white font-semibold text-sm">Maria Owner</p>
-                  <p className="text-[#9CA3AF] text-xs">Primary Owner · Full access</p>
+                  <p className="text-[#9CA3AF] text-xs">{t("pd.primaryOwner")}</p>
                 </div>
                 <svg width="14" height="14" viewBox="0 0 24 24" fill="none">
                   <path d="M9 6L15 12L9 18" stroke="#6B7280" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round" />
@@ -330,7 +316,7 @@ export default function PropertyDetailPage() {
 
             {/* Ownership & Continuity */}
             <div>
-              <p className="text-[#9CA3AF] text-xs font-medium uppercase tracking-wider mb-2">Ownership & Continuity</p>
+              <p className="text-[#9CA3AF] text-xs font-medium uppercase tracking-wider mb-2">{t("pd.ownership")}</p>
               <Link href="/properties/transfer">
                 <div
                   className="rounded-2xl p-3.5 flex items-center gap-3 active:scale-[0.98] transition-transform"
@@ -338,8 +324,8 @@ export default function PropertyDetailPage() {
                 >
                   <div className="w-9 h-9 rounded-xl flex items-center justify-center text-base flex-shrink-0" style={{ background: "rgba(245,158,11,0.12)", border: "1px solid rgba(245,158,11,0.25)" }}>📜</div>
                   <div className="flex-1 min-w-0">
-                    <p className="text-white text-sm font-medium leading-tight">Transfer Ownership</p>
-                    <p className="text-[#9CA3AF] text-xs">Verified, legally-recorded estate transfer</p>
+                    <p className="text-white text-sm font-medium leading-tight">{t("pd.transfer")}</p>
+                    <p className="text-[#9CA3AF] text-xs">{t("pd.transferSub")}</p>
                   </div>
                   <svg width="14" height="14" viewBox="0 0 24 24" fill="none"><path d="M9 6L15 12L9 18" stroke="#6B7280" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round" /></svg>
                 </div>
@@ -348,7 +334,7 @@ export default function PropertyDetailPage() {
 
             {/* Recent Activity */}
             <div>
-              <p className="text-[#9CA3AF] text-xs font-medium uppercase tracking-wider mb-2">Recent Activity</p>
+              <p className="text-[#9CA3AF] text-xs font-medium uppercase tracking-wider mb-2">{t("pd.recentActivity")}</p>
               <div
                 className="rounded-2xl overflow-hidden"
                 style={{ background: "rgba(255,255,255,0.05)", border: "1px solid rgba(255,255,255,0.08)" }}
@@ -366,10 +352,10 @@ export default function PropertyDetailPage() {
                       {item.icon}
                     </div>
                     <div className="flex-1 min-w-0">
-                      <p className="text-white text-sm font-medium leading-tight">{item.title}</p>
-                      <p className="text-[#9CA3AF] text-xs mt-0.5 leading-tight">{item.desc}</p>
+                      <p className="text-white text-sm font-medium leading-tight">{t(item.titleKey)}</p>
+                      <p className="text-[#9CA3AF] text-xs mt-0.5 leading-tight">{t(item.descKey)}</p>
                     </div>
-                    <span className="text-[#6B7280] text-[10px] flex-shrink-0 mt-1">{item.time}</span>
+                    <span className="text-[#6B7280] text-[10px] flex-shrink-0 mt-1">{t(item.timeKey)}</span>
                   </div>
                 ))}
               </div>
@@ -384,11 +370,11 @@ export default function PropertyDetailPage() {
               className="rounded-2xl p-4"
               style={{ background: "rgba(255,255,255,0.05)", border: "1px solid rgba(255,255,255,0.08)" }}
             >
-              <p className="text-[#9CA3AF] text-[11px] mb-1">Current Property Value</p>
+              <p className="text-[#9CA3AF] text-[11px] mb-1">{t("pd.currentValue")}</p>
               <div className="flex items-end justify-between">
                 <div>
                   <p className="text-white font-bold text-3xl leading-none">€2.4M</p>
-                  <p className="text-[#4ADE80] text-xs mt-1.5 font-medium">▲ +33% since purchase (2019)</p>
+                  <p className="text-[#4ADE80] text-xs mt-1.5 font-medium">{t("pd.sincePurchase")}</p>
                 </div>
                 <svg width="120" height="48" viewBox="0 0 120 48" fill="none">
                   <path d={sparkline(valueHistory, 120, 48)} stroke="#4ADE80" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
@@ -399,23 +385,23 @@ export default function PropertyDetailPage() {
 
             {/* Value breakdown */}
             <div className="grid grid-cols-2 gap-3">
-              {[
-                { label: "Purchase Price", value: "€1.8M", sub: "Acquired 2019", color: "#22D3EE" },
-                { label: "Improvements", value: "€345k", sub: "3 capital projects", color: "#7C3AED" },
-                { label: "Est. Appreciation", value: "+33%", sub: "≈ €600k over 5 yrs", color: "#4ADE80" },
-                { label: "Land Area", value: "45 ha", sub: "€53k / ha", color: "#F59E0B" },
-              ].map((s) => (
-                <div key={s.label} className="rounded-2xl p-3" style={{ background: "rgba(255,255,255,0.05)", border: "1px solid rgba(255,255,255,0.08)" }}>
-                  <p className="text-[#9CA3AF] text-[11px] mb-1">{s.label}</p>
+              {([
+                { labelKey: "pd.vb.purchase", value: "€1.8M", subKey: "pd.vb.purchaseSub", color: "#22D3EE" },
+                { labelKey: "pd.vb.improvements", value: "€345k", subKey: "pd.vb.improvementsSub", color: "#7C3AED" },
+                { labelKey: "pd.vb.appreciation", value: "+33%", subKey: "pd.vb.appreciationSub", color: "#4ADE80" },
+                { labelKey: "pd.vb.land", value: "45 ha", subKey: "pd.vb.landSub", color: "#F59E0B" },
+              ] as { labelKey: MessageKey; value: string; subKey: MessageKey; color: string }[]).map((s) => (
+                <div key={s.labelKey} className="rounded-2xl p-3" style={{ background: "rgba(255,255,255,0.05)", border: "1px solid rgba(255,255,255,0.08)" }}>
+                  <p className="text-[#9CA3AF] text-[11px] mb-1">{t(s.labelKey)}</p>
                   <p className="font-bold text-xl" style={{ color: s.color }}>{s.value}</p>
-                  <p className="text-[#6B7280] text-[10px] mt-0.5">{s.sub}</p>
+                  <p className="text-[#6B7280] text-[10px] mt-0.5">{t(s.subKey)}</p>
                 </div>
               ))}
             </div>
 
             {/* Historical value */}
             <div>
-              <p className="text-[#9CA3AF] text-xs font-medium uppercase tracking-wider mb-2">Historical Value</p>
+              <p className="text-[#9CA3AF] text-xs font-medium uppercase tracking-wider mb-2">{t("pd.historical")}</p>
               <div className="rounded-2xl overflow-hidden" style={{ background: "rgba(255,255,255,0.05)", border: "1px solid rgba(255,255,255,0.08)" }}>
                 {valueHistory.slice().reverse().map((h, i, arr) => {
                   const prev = arr[i + 1];
@@ -439,12 +425,12 @@ export default function PropertyDetailPage() {
 
             {/* Improvements */}
             <div>
-              <p className="text-[#9CA3AF] text-xs font-medium uppercase tracking-wider mb-2">Improvements</p>
+              <p className="text-[#9CA3AF] text-xs font-medium uppercase tracking-wider mb-2">{t("pd.improvements")}</p>
               <div className="rounded-2xl overflow-hidden" style={{ background: "rgba(255,255,255,0.05)", border: "1px solid rgba(255,255,255,0.08)" }}>
                 {improvements.map((imp, i) => (
-                  <div key={imp.name} className={`flex items-center justify-between px-4 py-3 ${i < improvements.length - 1 ? "border-b" : ""}`} style={{ borderColor: "rgba(255,255,255,0.06)" }}>
+                  <div key={imp.nameKey} className={`flex items-center justify-between px-4 py-3 ${i < improvements.length - 1 ? "border-b" : ""}`} style={{ borderColor: "rgba(255,255,255,0.06)" }}>
                     <div>
-                      <p className="text-white text-sm font-medium leading-tight">{imp.name}</p>
+                      <p className="text-white text-sm font-medium leading-tight">{t(imp.nameKey)}</p>
                       <p className="text-[#6B7280] text-xs">{imp.year}</p>
                     </div>
                     <span className="text-[#7C3AED] text-sm font-semibold">{imp.cost}</span>
@@ -455,9 +441,9 @@ export default function PropertyDetailPage() {
 
             {/* Market notes */}
             <div>
-              <p className="text-[#9CA3AF] text-xs font-medium uppercase tracking-wider mb-2">Market Notes</p>
+              <p className="text-[#9CA3AF] text-xs font-medium uppercase tracking-wider mb-2">{t("pd.marketNotes")}</p>
               <div className="rounded-2xl p-4" style={{ background: "rgba(255,255,255,0.05)", border: "1px solid rgba(255,255,255,0.08)" }}>
-                <p className="text-[#C9CDD6] text-sm leading-relaxed">{marketNotes}</p>
+                <p className="text-[#C9CDD6] text-sm leading-relaxed">{t("pd.marketNotesBody")}</p>
               </div>
             </div>
           </div>
@@ -474,9 +460,9 @@ export default function PropertyDetailPage() {
                 <path d="M9 9h6M9 12h6M9 15h4" stroke="#6B7280" strokeWidth="1.75" strokeLinecap="round" />
               </svg>
             </div>
-            <p className="text-white font-semibold text-base mb-1">{activeTab}</p>
-            <p className="text-[#6B7280] text-sm text-center mb-4">Explore your rooms live on the floorplan.</p>
-            <Link href="/twin/floorplan" className="px-4 py-2.5 rounded-2xl text-sm font-semibold" style={{ background: "#4ADE80", color: "#050A14" }}>Open Floorplan</Link>
+            <p className="text-white font-semibold text-base mb-1">{t(activeTab === "Parcels" ? "pd.tab.parcels" : "pd.tab.zones")}</p>
+            <p className="text-[#6B7280] text-sm text-center mb-4">{t("pd.exploreRooms")}</p>
+            <Link href="/twin/floorplan" className="px-4 py-2.5 rounded-2xl text-sm font-semibold" style={{ background: "#4ADE80", color: "#050A14" }}>{t("pd.openFloorplan")}</Link>
           </div>
         )}
 

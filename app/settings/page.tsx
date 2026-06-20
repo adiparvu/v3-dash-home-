@@ -4,39 +4,41 @@ import Link from "next/link";
 import StatusBar from "../components/layout/StatusBar";
 import BottomNav from "../components/layout/BottomNav";
 import { useStore, RING_COLORS, memberSince, initials, AUTO_LOCK_OPTIONS, autoLockLabel } from "../lib/store";
+import { useT, type MessageKey } from "../lib/i18n";
 
-const settingsSections = [
+const settingsSections: { tkey: MessageKey; items: { href: string; lkey: MessageKey; dkey: MessageKey; icon: string }[] }[] = [
   {
-    title: "Account",
+    tkey: "set.account",
     items: [
-      { href: "/settings/profile", label: "Edit Profile", icon: "👤", desc: "Name, avatar, display preferences" },
-      { href: "/settings/security", label: "Security", icon: "🔒", desc: "Face ID, sessions & audit log" },
-      { href: "/settings/privacy", label: "Privacy & Data", icon: "🛡️", desc: "GDPR, data exports & deletion" },
-      { href: "/settings/notifications", label: "Notifications", icon: "🔔", desc: "Alerts & push preferences" },
-      { href: "/settings/assistant", label: "AI Assistant", icon: "✨", desc: "Name, avatar, personality & model" },
-      { href: "/settings/ai-guardrails", label: "AI Guardrails", icon: "🛡️", desc: "Policy, allowlisted tools & AI audit" },
+      { href: "/settings/profile", lkey: "set.editProfile", dkey: "set.editProfile.desc", icon: "👤" },
+      { href: "/settings/security", lkey: "set.security", dkey: "set.security.desc", icon: "🔒" },
+      { href: "/settings/privacy", lkey: "set.privacy", dkey: "set.privacy.desc", icon: "🛡️" },
+      { href: "/settings/notifications", lkey: "set.notifications", dkey: "set.notifications.desc", icon: "🔔" },
+      { href: "/settings/assistant", lkey: "set.assistant", dkey: "set.assistant.desc", icon: "✨" },
+      { href: "/settings/ai-guardrails", lkey: "set.guardrails", dkey: "set.guardrails.desc", icon: "🛡️" },
     ],
   },
   {
-    title: "Estate",
+    tkey: "set.estate",
     items: [
-      { href: "/properties", label: "Properties", icon: "🏠", desc: "Manage properties & parcels" },
-      { href: "/properties/transfer", label: "Transfer Ownership", icon: "📜", desc: "Verified, legally-recorded transfer" },
-      { href: "/settings/units", label: "Units & Currency", icon: "📏", desc: "Metric/Imperial, EUR/USD" },
-      { href: "/settings/integrations", label: "Integrations", icon: "🔗", desc: "Home Assistant, sensors, APIs" },
+      { href: "/properties", lkey: "set.properties", dkey: "set.properties.desc", icon: "🏠" },
+      { href: "/properties/transfer", lkey: "set.transfer", dkey: "set.transfer.desc", icon: "📜" },
+      { href: "/settings/units", lkey: "set.units", dkey: "set.units.desc", icon: "📏" },
+      { href: "/settings/integrations", lkey: "set.integrations", dkey: "set.integrations.desc", icon: "🔗" },
     ],
   },
   {
-    title: "App",
+    tkey: "set.app",
     items: [
-      { href: "/settings/appearance", label: "Appearance", icon: "🎨", desc: "Theme, accent color, layout" },
-      { href: "/settings/language", label: "Language & Region", icon: "🌍", desc: "Language, timezone, date format" },
+      { href: "/settings/appearance", lkey: "set.appearance", dkey: "set.appearance.desc", icon: "🎨" },
+      { href: "/settings/language", lkey: "set.language", dkey: "set.language.desc", icon: "🌍" },
     ],
   },
 ];
 
 export default function SettingsPage() {
   const { profile, security, setSecurity } = useStore();
+  const t = useT();
   const ring = RING_COLORS[profile.ringColor] ?? RING_COLORS[0];
 
   return (
@@ -44,7 +46,7 @@ export default function SettingsPage() {
       <StatusBar />
 
       <div className="px-5 pt-1 pb-4">
-        <h1 className="font-bold text-2xl" style={{ color: "var(--text-1)" }}>Settings</h1>
+        <h1 className="font-bold text-2xl" style={{ color: "var(--text-1)" }}>{t("page.settings")}</h1>
       </div>
 
       {/* Profile card */}
@@ -75,8 +77,8 @@ export default function SettingsPage() {
       {/* Sections */}
       <div className="px-4 space-y-5">
         {settingsSections.map((section) => (
-          <div key={section.title}>
-            <p className="text-text-secondary text-xs font-medium tracking-wide uppercase mb-2 px-1">{section.title}</p>
+          <div key={section.tkey}>
+            <p className="text-text-secondary text-xs font-medium tracking-wide uppercase mb-2 px-1">{t(section.tkey)}</p>
             <div className="liquid-glass rounded-2xl overflow-hidden">
               {section.items.map((item, i) => (
                 <Link key={item.href} href={item.href}>
@@ -86,8 +88,8 @@ export default function SettingsPage() {
                   >
                     <span className="text-xl w-8 text-center flex-shrink-0">{item.icon}</span>
                     <div className="flex-1">
-                      <p className="text-sm font-medium" style={{ color: "var(--text-1)" }}>{item.label}</p>
-                      <p className="text-text-secondary text-xs">{item.desc}</p>
+                      <p className="text-sm font-medium" style={{ color: "var(--text-1)" }}>{t(item.lkey)}</p>
+                      <p className="text-text-secondary text-xs">{t(item.dkey)}</p>
                     </div>
                     <svg width="14" height="14" viewBox="0 0 24 24" fill="none" style={{ opacity: 0.45 }}><path d="M9 18l6-6-6-6" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round" /></svg>
                   </div>
@@ -99,7 +101,7 @@ export default function SettingsPage() {
 
         {/* Auto lock */}
         <div>
-          <p className="text-text-secondary text-xs font-medium tracking-wide uppercase mb-2 px-1">Security</p>
+          <p className="text-text-secondary text-xs font-medium tracking-wide uppercase mb-2 px-1">{t("set.security")}</p>
           <div className="liquid-glass rounded-2xl overflow-hidden">
             <div className="flex items-center justify-between px-4 py-3.5" style={{ borderBottom: "0.5px solid var(--glass-border)" }}>
               <div>
@@ -134,7 +136,7 @@ export default function SettingsPage() {
             className="w-full rounded-2xl py-3.5 text-sm font-medium"
             style={{ background: "rgba(239,68,68,0.10)", border: "1px solid rgba(239,68,68,0.20)", color: "#EF4444" }}
           >
-            Sign Out
+            {t("more.signOut")}
           </button>
         </form>
 
