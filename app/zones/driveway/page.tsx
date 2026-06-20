@@ -3,23 +3,25 @@
 import Link from "next/link";
 import StatusBar from "../../components/layout/StatusBar";
 import BottomNav from "../../components/layout/BottomNav";
+import { useT, type MessageKey } from "../../lib/i18n";
 
-const events = [
-  { id: 1, type: "entry", person: "Ion (Caretaker)", vehicle: "Ford Transit White", time: "7:02 AM", icon: "🚐", color: "#4ADE80" },
-  { id: 2, type: "exit", person: "Unknown Vehicle", vehicle: "Delivery · DPD", time: "8:45 AM", icon: "📦", color: "#22D3EE" },
-  { id: 3, type: "entry", person: "Ana (Manager)", vehicle: "Dacia Logan Silver", time: "9:58 AM", icon: "🚗", color: "#4ADE80" },
-  { id: 4, type: "alert", person: "Motion detected", vehicle: "No vehicle — perimeter", time: "11:20 AM", icon: "⚠️", color: "#F59E0B" },
-  { id: 5, type: "exit", person: "Ana (Manager)", vehicle: "Dacia Logan Silver", time: "2:15 PM", icon: "🚗", color: "#9CA3AF" },
+const events: { id: number; type: string; typeKey: MessageKey; personKey: MessageKey; vehicleKey: MessageKey; time: string; icon: string; color: string }[] = [
+  { id: 1, type: "entry", typeKey: "zp.drive.tEntry", personKey: "zp.drive.p1", vehicleKey: "zp.drive.v1", time: "7:02 AM", icon: "🚐", color: "#4ADE80" },
+  { id: 2, type: "exit", typeKey: "zp.drive.tExit", personKey: "zp.drive.p2", vehicleKey: "zp.drive.v2", time: "8:45 AM", icon: "📦", color: "#22D3EE" },
+  { id: 3, type: "entry", typeKey: "zp.drive.tEntry", personKey: "zp.drive.p3", vehicleKey: "zp.drive.v3", time: "9:58 AM", icon: "🚗", color: "#4ADE80" },
+  { id: 4, type: "alert", typeKey: "zp.drive.tAlert", personKey: "zp.drive.p4", vehicleKey: "zp.drive.v4", time: "11:20 AM", icon: "⚠️", color: "#F59E0B" },
+  { id: 5, type: "exit", typeKey: "zp.drive.tExit", personKey: "zp.drive.p3", vehicleKey: "zp.drive.v3", time: "2:15 PM", icon: "🚗", color: "#9CA3AF" },
 ];
 
-const cameras = [
-  { id: "cam1", name: "Gate Camera", status: "online", resolution: "4K", angle: "Main gate · 120°" },
-  { id: "cam2", name: "Driveway North", status: "online", resolution: "1080p", angle: "North approach · 90°" },
-  { id: "cam3", name: "Driveway South", status: "online", resolution: "1080p", angle: "South approach · 90°" },
-  { id: "cam4", name: "Parking Area", status: "online", resolution: "4K", angle: "Parking · 180°" },
+const cameras: { id: string; nameKey: MessageKey; status: string; resolution: string; angleKey: MessageKey }[] = [
+  { id: "cam1", nameKey: "zp.drive.cam1", status: "online", resolution: "4K", angleKey: "zp.drive.cam1a" },
+  { id: "cam2", nameKey: "zp.drive.cam2", status: "online", resolution: "1080p", angleKey: "zp.drive.cam2a" },
+  { id: "cam3", nameKey: "zp.drive.cam3", status: "online", resolution: "1080p", angleKey: "zp.drive.cam3a" },
+  { id: "cam4", nameKey: "zp.drive.cam4", status: "online", resolution: "4K", angleKey: "zp.drive.cam4a" },
 ];
 
 export default function DrivewayZonePage() {
+  const t = useT();
   return (
     <div className="min-h-screen pb-28" style={{ background: "#050A14" }}>
       <StatusBar />
@@ -69,9 +71,9 @@ export default function DrivewayZonePage() {
         <div className="absolute bottom-5 left-5">
           <div className="flex items-center gap-2 mb-1">
             <span className="text-2xl">🚗</span>
-            <h1 className="text-white font-bold text-2xl">Driveway</h1>
+            <h1 className="text-white font-bold text-2xl">{t("zp.drive.name")}</h1>
           </div>
-          <p className="text-text-secondary text-sm">Gate Access & Surveillance</p>
+          <p className="text-text-secondary text-sm">{t("zp.drive.subtitle")}</p>
         </div>
       </div>
 
@@ -79,9 +81,9 @@ export default function DrivewayZonePage() {
       <div className="px-4 mb-4">
         <div className="grid grid-cols-3 gap-2">
           {[
-            { label: "Visits Today", value: "5", color: "#4ADE80" },
-            { label: "Cameras", value: "4", color: "#22D3EE" },
-            { label: "Alerts", value: "1", color: "#F59E0B" },
+            { label: t("zp.drive.visitsToday"), value: "5", color: "#4ADE80" },
+            { label: t("zp.drive.cameras"), value: "4", color: "#22D3EE" },
+            { label: t("zp.drive.alerts"), value: "1", color: "#F59E0B" },
           ].map((s) => (
             <div key={s.label} className="rounded-2xl p-3 text-center" style={{ background: "rgba(255,255,255,0.05)", border: `1px solid ${s.color}20` }}>
               <p className="font-bold text-xl" style={{ color: s.color }}>{s.value}</p>
@@ -93,11 +95,11 @@ export default function DrivewayZonePage() {
 
       {/* Gate controls */}
       <div className="px-4 mb-4">
-        <p className="text-text-secondary text-xs font-medium uppercase tracking-wide mb-2 px-1">Gate Control</p>
+        <p className="text-text-secondary text-xs font-medium uppercase tracking-wide mb-2 px-1">{t("zp.drive.gateControl")}</p>
         <div className="grid grid-cols-2 gap-2">
           {[
-            { label: "Open Gate", color: "#4ADE80", icon: "🔓" },
-            { label: "Close Gate", color: "#EF4444", icon: "🔒" },
+            { label: t("zp.drive.openGate"), color: "#4ADE80", icon: "🔓" },
+            { label: t("zp.drive.closeGate"), color: "#EF4444", icon: "🔒" },
           ].map((b) => (
             <button key={b.label} className="rounded-2xl py-3.5 flex items-center justify-center gap-2" style={{ background: `${b.color}12`, border: `1px solid ${b.color}30`, color: b.color }}>
               <span>{b.icon}</span>
@@ -109,7 +111,7 @@ export default function DrivewayZonePage() {
 
       {/* Cameras */}
       <div className="px-4 mb-4">
-        <p className="text-text-secondary text-xs font-medium uppercase tracking-wide mb-2 px-1">Cameras</p>
+        <p className="text-text-secondary text-xs font-medium uppercase tracking-wide mb-2 px-1">{t("zp.drive.cameras")}</p>
         <div className="space-y-2">
           {cameras.map((cam) => (
             <div key={cam.id} className="rounded-2xl p-3.5 flex items-center gap-3" style={{ background: "rgba(255,255,255,0.05)", border: "1px solid rgba(255,255,255,0.08)" }}>
@@ -117,13 +119,13 @@ export default function DrivewayZonePage() {
                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none"><path d="M23 7l-7 5 7 5V7z" stroke="#22D3EE" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round" /><rect x="1" y="5" width="15" height="14" rx="2" stroke="#22D3EE" strokeWidth="1.75" /></svg>
               </div>
               <div className="flex-1">
-                <p className="text-white text-sm font-medium">{cam.name}</p>
-                <p className="text-text-secondary text-xs">{cam.angle}</p>
+                <p className="text-white text-sm font-medium">{t(cam.nameKey)}</p>
+                <p className="text-text-secondary text-xs">{t(cam.angleKey)}</p>
               </div>
               <div className="flex flex-col items-end gap-1">
                 <div className="flex items-center gap-1">
                   <span className="w-1.5 h-1.5 rounded-full" style={{ background: "#4ADE80" }} />
-                  <span className="text-accent-green text-xs">{cam.status}</span>
+                  <span className="text-accent-green text-xs">{t("zp.drive.online")}</span>
                 </div>
                 <span className="text-text-tertiary text-[10px]">{cam.resolution}</span>
               </div>
@@ -134,18 +136,18 @@ export default function DrivewayZonePage() {
 
       {/* Access log */}
       <div className="px-4 mb-4">
-        <p className="text-text-secondary text-xs font-medium uppercase tracking-wide mb-2 px-1">Today&apos;s Access Log</p>
+        <p className="text-text-secondary text-xs font-medium uppercase tracking-wide mb-2 px-1">{t("zp.drive.accessLog")}</p>
         <div className="rounded-2xl overflow-hidden" style={{ background: "rgba(255,255,255,0.04)", border: "1px solid rgba(255,255,255,0.07)" }}>
           {events.map((ev, i) => (
             <div key={ev.id} className="flex items-center gap-3 px-4 py-3" style={{ borderBottom: i < events.length - 1 ? "1px solid rgba(255,255,255,0.06)" : undefined }}>
               <span className="text-base w-7 text-center flex-shrink-0">{ev.icon}</span>
               <div className="flex-1 min-w-0">
-                <p className="text-white text-xs font-medium truncate">{ev.person}</p>
-                <p className="text-text-secondary text-[10px]">{ev.vehicle}</p>
+                <p className="text-white text-xs font-medium truncate">{t(ev.personKey)}</p>
+                <p className="text-text-secondary text-[10px]">{t(ev.vehicleKey)}</p>
               </div>
               <div className="flex flex-col items-end gap-0.5 flex-shrink-0">
                 <span className="text-text-tertiary text-[10px]">{ev.time}</span>
-                <span className="text-[9px] font-medium px-1.5 py-0.5 rounded-full capitalize" style={{ background: `${ev.color}15`, color: ev.color }}>{ev.type}</span>
+                <span className="text-[9px] font-medium px-1.5 py-0.5 rounded-full capitalize" style={{ background: `${ev.color}15`, color: ev.color }}>{t(ev.typeKey)}</span>
               </div>
             </div>
           ))}
