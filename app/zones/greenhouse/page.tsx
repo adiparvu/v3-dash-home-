@@ -6,25 +6,28 @@ import StatusBar from "../../components/layout/StatusBar";
 import MonitorGrid from "../../components/monitor/MonitorGrid";
 import CameraWall from "../../components/cameras/CameraWall";
 import { GREENHOUSE } from "../../lib/monitor/presets";
+import { useT, type MessageKey } from "../../lib/i18n";
 
 // Mycodo-style climate actuators — interactive control panel (local state).
-type Ctl = { id: string; label: string; icon: string; modes: string[] };
+type Ctl = { id: string; labelKey: MessageKey; icon: string; modes: string[] };
 const CONTROLS: Ctl[] = [
-  { id: "vent", label: "Ventilație", icon: "🌀", modes: ["Auto", "On", "Off"] },
-  { id: "heat", label: "Încălzire", icon: "🔥", modes: ["Auto", "On", "Off"] },
-  { id: "lights", label: "Grow lights", icon: "💡", modes: ["Auto", "On", "Off"] },
-  { id: "irrig", label: "Irigare", icon: "🚿", modes: ["Auto", "On", "Off"] },
-  { id: "co2", label: "Dozare CO₂", icon: "🌫️", modes: ["Auto", "On", "Off"] },
-  { id: "shade", label: "Umbrire", icon: "🪟", modes: ["Auto", "Open", "Closed"] },
+  { id: "vent", labelKey: "zp.gh.cVent", icon: "🌀", modes: ["Auto", "On", "Off"] },
+  { id: "heat", labelKey: "zp.gh.cHeat", icon: "🔥", modes: ["Auto", "On", "Off"] },
+  { id: "lights", labelKey: "zp.gh.cLights", icon: "💡", modes: ["Auto", "On", "Off"] },
+  { id: "irrig", labelKey: "zp.gh.cIrrig", icon: "🚿", modes: ["Auto", "On", "Off"] },
+  { id: "co2", labelKey: "zp.gh.cCo2", icon: "🌫️", modes: ["Auto", "On", "Off"] },
+  { id: "shade", labelKey: "zp.gh.cShade", icon: "🪟", modes: ["Auto", "Open", "Closed"] },
 ];
+const MODE_KEY: Record<string, MessageKey> = { Auto: "zp.mAuto", On: "zp.mOn", Off: "zp.mOff", Open: "zp.mOpen", Closed: "zp.mClosed" };
 
-const DOSING = [
-  { label: "pH Down", value: "12 mL azi", color: "#22D3EE" },
-  { label: "Nutrient A", value: "240 mL azi", color: "#4ADE80" },
-  { label: "Nutrient B", value: "240 mL azi", color: "#4ADE80" },
+const DOSING: { labelKey: MessageKey; amount: string; color: string }[] = [
+  { labelKey: "zp.gh.dPhDown", amount: "12 mL", color: "#22D3EE" },
+  { labelKey: "zp.gh.dNutA", amount: "240 mL", color: "#4ADE80" },
+  { labelKey: "zp.gh.dNutB", amount: "240 mL", color: "#4ADE80" },
 ];
 
 export default function GreenhousePage() {
+  const t = useT();
   const [modes, setModes] = useState<Record<string, number>>({});
   const cycle = (id: string, len: number) => setModes((m) => ({ ...m, [id]: ((m[id] ?? 0) + 1) % len }));
 
@@ -45,7 +48,7 @@ export default function GreenhousePage() {
         <div className="absolute bottom-0 left-0 right-0 flex justify-center pb-4">
           <div className="rounded-2xl px-4 py-2 flex items-center gap-2" style={{ background: "rgba(74,222,128,0.12)", border: "1px solid rgba(74,222,128,0.25)", backdropFilter: "blur(10px)" }}>
             <span className="w-2 h-2 rounded-full bg-accent-green" style={{ boxShadow: "0 0 6px #4ADE80" }} />
-            <span className="text-accent-green font-semibold text-sm">Climat optim</span>
+            <span className="text-accent-green font-semibold text-sm">{t("zp.gh.optimal")}</span>
           </div>
         </div>
       </div>
@@ -54,16 +57,16 @@ export default function GreenhousePage() {
       <div className="rounded-t-[32px] -mt-6 relative z-10 px-5 pt-6 pb-8" style={{ background: "rgba(255,255,255,0.05)", backdropFilter: "blur(40px)", WebkitBackdropFilter: "blur(40px)", borderTop: "1px solid rgba(255,255,255,0.10)" }}>
         <div className="w-10 h-1 rounded-full bg-white/20 mx-auto mb-5" />
 
-        <h1 className="text-white text-2xl font-bold mb-1">Greenhouse</h1>
-        <p className="text-text-secondary text-sm mb-5">Climă & hidroponie · control automat</p>
+        <h1 className="text-white text-2xl font-bold mb-1">{t("zp.gh.name")}</h1>
+        <p className="text-text-secondary text-sm mb-5">{t("zp.gh.subtitle")}</p>
 
         {/* Live climate + nutrients */}
         <div className="mb-6">
-          <MonitorGrid zoneType="greenhouse" specs={GREENHOUSE} title="Climat & nutrienți" columns={2} />
+          <MonitorGrid zoneType="greenhouse" specs={GREENHOUSE} title={t("zp.gh.monTitle")} columns={2} />
         </div>
 
         {/* Mycodo-style control panel */}
-        <p className="text-xs font-medium uppercase tracking-wide mb-2.5 px-1" style={{ color: "var(--text-2)" }}>Control mediu</p>
+        <p className="text-xs font-medium uppercase tracking-wide mb-2.5 px-1" style={{ color: "var(--text-2)" }}>{t("zp.gh.envControl")}</p>
         <div className="grid grid-cols-3 gap-2.5 mb-6">
           {CONTROLS.map((c) => {
             const idx = modes[c.id] ?? 0;
@@ -74,30 +77,30 @@ export default function GreenhousePage() {
             return (
               <button key={c.id} onClick={() => cycle(c.id, c.modes.length)} className="rounded-2xl p-3 liquid-glass text-center active:scale-95 transition-transform" style={{ borderColor: `${color}40` }}>
                 <span className="text-xl">{c.icon}</span>
-                <p className="text-[11px] font-medium mt-1 truncate" style={{ color: "var(--text-1)" }}>{c.label}</p>
-                <span className="text-[10px] font-semibold px-2 py-0.5 rounded-full mt-1 inline-block" style={{ background: `${color}22`, color }}>{mode}</span>
+                <p className="text-[11px] font-medium mt-1 truncate" style={{ color: "var(--text-1)" }}>{t(c.labelKey)}</p>
+                <span className="text-[10px] font-semibold px-2 py-0.5 rounded-full mt-1 inline-block" style={{ background: `${color}22`, color }}>{MODE_KEY[mode] ? t(MODE_KEY[mode]) : mode}</span>
               </button>
             );
           })}
         </div>
 
         {/* Hydroponics dosing */}
-        <p className="text-xs font-medium uppercase tracking-wide mb-2.5 px-1" style={{ color: "var(--text-2)" }}>Dozare hidroponie</p>
+        <p className="text-xs font-medium uppercase tracking-wide mb-2.5 px-1" style={{ color: "var(--text-2)" }}>{t("zp.gh.dosing")}</p>
         <div className="space-y-2 mb-6">
           {DOSING.map((d) => (
-            <div key={d.label} className="flex items-center justify-between rounded-2xl p-3.5 liquid-glass">
+            <div key={d.labelKey} className="flex items-center justify-between rounded-2xl p-3.5 liquid-glass">
               <div className="flex items-center gap-3">
                 <span className="w-2.5 h-2.5 rounded-full" style={{ background: d.color }} />
-                <span className="text-sm font-medium" style={{ color: "var(--text-1)" }}>{d.label}</span>
+                <span className="text-sm font-medium" style={{ color: "var(--text-1)" }}>{t(d.labelKey)}</span>
               </div>
-              <span className="text-sm" style={{ color: "var(--text-2)" }}>{d.value}</span>
+              <span className="text-sm" style={{ color: "var(--text-2)" }}>{d.amount} {t("zp.today")}</span>
             </div>
           ))}
         </div>
 
         {/* Cameras / AI */}
         <div>
-          <CameraWall zone="greenhouse" title="Camere seră · AI" />
+          <CameraWall zone="greenhouse" title={t("zp.gh.camTitle")} />
         </div>
       </div>
     </div>
