@@ -112,7 +112,7 @@ future track that reuses the same versioned backend contracts.
 | Face ID / Touch ID unlock + Keychain session storage | 🚧 |
 | iPad / Mac / Apple Watch / Vision Pro targets on the shared layer | ⏳ |
 | Home / Lock screen widgets (WidgetKit: Property Status, Tasks) via App Group snapshot | 🚧 |
-| Live Activities (maintenance, deliveries, incidents, inspections) | ⏳ |
+| Live Activities (maintenance, deliveries, incidents, inspections) — Lock Screen + Dynamic Island | 🚧 |
 | Secure Enclave key handling for sensitive records | ⏳ |
 | **Backend enabler:** `/api/v1` accepts `Authorization: Bearer` (native token auth) | ✅ |
 

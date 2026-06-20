@@ -6,5 +6,6 @@ struct PRVIOEarthWidgetsBundle: WidgetBundle {
     var body: some Widget {
         PropertyStatusWidget()
         TasksWidget()
+        MaintenanceLiveActivity()
     }
 }

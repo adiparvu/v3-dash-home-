@@ -3,17 +3,49 @@ import SwiftUI
 struct PropertyDetailView: View {
     let property: Property
 
+    @State private var jobStarted = false
+
     var body: some View {
         ScrollView {
             VStack(alignment: .leading, spacing: 16) {
                 header
                 infoCard
+                maintenanceCard
             }
             .padding(16)
         }
         .background(Theme.bg1.ignoresSafeArea())
         .navigationTitle(property.name)
         .navigationBarTitleDisplayMode(.inline)
+    }
+
+    private var maintenanceCard: some View {
+        VStack(alignment: .leading, spacing: 12) {
+            Text("Maintenance").font(.subheadline.weight(.semibold)).foregroundStyle(Theme.text1)
+            Text("Start a job to track it live on the Lock Screen and Dynamic Island.")
+                .font(.caption).foregroundStyle(Theme.text2)
+            Button {
+                jobStarted = LiveActivityManager.shared.startMaintenance(
+                    job: "Irrigation service",
+                    property: property.name,
+                    technician: "GreenWorks Ltd"
+                )
+            } label: {
+                Label(jobStarted ? "Job started" : "Start maintenance job",
+                      systemImage: jobStarted ? "checkmark.circle.fill" : "wrench.and.screwdriver.fill")
+                    .frame(maxWidth: .infinity).padding(.vertical, 12)
+                    .background(Theme.accent, in: RoundedRectangle(cornerRadius: 14, style: .continuous))
+                    .foregroundStyle(Theme.bg1)
+            }
+            .disabled(jobStarted)
+            if jobStarted {
+                Button("End job") { Task { await LiveActivityManager.shared.endAll(); jobStarted = false } }
+                    .font(.caption).foregroundStyle(Theme.text2)
+            }
+        }
+        .frame(maxWidth: .infinity, alignment: .leading)
+        .padding(16)
+        .liquidGlass()
     }
 
     private var header: some View {

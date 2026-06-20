@@ -77,6 +77,20 @@ Widgets read an `EstateSnapshot` the app publishes to the **App Group**
 WidgetKit reload. No network runs in the widget process. Both targets must share
 the App Group capability (configured in `project.yml` entitlements).
 
+### Live Activities
+
+In-progress estate jobs (maintenance / delivery / inspection / incident) surface
+as **Live Activities** on the Lock Screen and **Dynamic Island**:
+
+- `MaintenanceActivityAttributes` (in `Shared/`, compiled into both targets) defines
+  the static attributes and the live `ContentState` (status, progress, ETA).
+- `LiveActivityManager` (app) starts / updates / ends activities.
+- `MaintenanceLiveActivity` (widget extension) renders the Lock Screen banner and
+  the Dynamic Island (compact / minimal / expanded).
+
+Requires `NSSupportsLiveActivities = YES` (set in `project.yml`). A demo trigger
+lives on the **Property detail** screen ("Start maintenance job").
+
 - **Auth:** signs in against Supabase GoTrue (`/auth/v1/token`), stores the
   access/refresh tokens in the **Keychain**, and gates the app with **Face ID /
   Touch ID** (`LocalAuthentication`). The session token is sent to the backend as
@@ -95,5 +109,6 @@ with a real account. With no configuration the app stays in demo mode.
 
 ## Known follow-ups (deferred)
 
-- Live Activities (ActivityKit), and the iPad/Mac/Watch/Vision targets.
+- iPad / Mac / Apple Watch / Vision Pro targets on the shared layer.
+- Push-updated Live Activities (APNs); local start/update/end works today.
 - Magic-link / OAuth sign-in (deep-link handling); password sign-in works today.

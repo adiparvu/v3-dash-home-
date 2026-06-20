@@ -9,6 +9,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 ### Added
+- **Phase 8 — Live Activities (ActivityKit)** — in-progress estate jobs
+  (maintenance / delivery / inspection / incident) surface on the **Lock Screen**
+  and **Dynamic Island** (compact / minimal / expanded). `MaintenanceActivityAttributes`
+  (shared, with a live `ContentState` of status / progress / ETA) is driven by a
+  `LiveActivityManager` (start / update / end) in the app and rendered by
+  `MaintenanceLiveActivity` in the widget extension. Enabled via
+  `NSSupportsLiveActivities`; a demo trigger lives on the Property detail screen.
 - **Phase 8 — WidgetKit extension (`apple/PRVIOEarthWidgets`)** — Home Screen
   (`systemSmall`/`systemMedium`) and Lock Screen (`accessoryCircular`/
   `accessoryRectangular`/`accessoryInline`) widgets: **Property Status** (health
