@@ -25,6 +25,7 @@ const sections: { title: string; tkey: MessageKey; items: { href: string; lkey: 
       { href: "/insights", lkey: "page.insights", dkey: "more.d.insights", icon: "💡", badge: "New" },
       { href: "/twin/energy", lkey: "more.energy", dkey: "more.d.energy", icon: "⚡", badge: "Live" },
       { href: "/twin/floorplan", lkey: "more.floorplan", dkey: "more.d.floorplan", icon: "🏠", badge: "Live" },
+      { href: "/twin/3d", lkey: "more.twin3d", dkey: "more.d.twin3d", icon: "🧊", badge: "3D" },
       { href: "/sensors", lkey: "page.sensors", dkey: "more.d.sensors", icon: "📡", badge: "Live" },
       { href: "/diagnostics", lkey: "page.diagnostics", dkey: "more.d.diagnostics", icon: "🩺", badge: null },
       { href: "/maintenance", lkey: "page.maintenance", dkey: "more.d.maintenance", icon: "🔧", badge: "1 due" },

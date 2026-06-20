@@ -90,7 +90,14 @@ export default function FloorplanPage() {
           <svg width="18" height="18" viewBox="0 0 24 24" fill="none"><path d="M19 12H5M12 5l-7 7 7 7" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" /></svg>
         </Link>
         <h1 className="font-bold text-2xl flex-1" style={{ color: "var(--text-1)" }}>{t("fp.title")}</h1>
-        <span className="flex items-center gap-1.5 text-[11px] font-semibold" style={{ color: source === "live" ? "#4ADE80" : "#9CA3AF" }}>
+        <Link
+          href="/twin/3d"
+          className="px-3 h-8 rounded-full flex items-center gap-1.5 text-[11px] font-bold flex-shrink-0 active:scale-95 transition-transform"
+          style={{ background: "linear-gradient(135deg, #A78BFA, #22D3EE)", color: "#06101c" }}
+        >
+          🧊 3D
+        </Link>
+        <span className="flex items-center gap-1.5 text-[11px] font-semibold flex-shrink-0" style={{ color: source === "live" ? "#4ADE80" : "#9CA3AF" }}>
           <span style={{ width: 7, height: 7, borderRadius: 999, background: source === "live" ? "#4ADE80" : "#9CA3AF" }} /> {source === "live" ? t("fp.live") : t("fp.simulated")}
         </span>
       </div>
