@@ -8,6 +8,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Changed
+- **Floorplan (spatial Digital Twin) disabled for now** — added a central feature
+  flag (`app/lib/features.ts`, `FEATURES.floorplan = false`). The Floorplan entry
+  in More → Monitoring and the "Open Floorplan" deep links (Home Assistant
+  integration, property detail) are now hidden, and the `/twin/floorplan` route
+  guards itself (redirects to `/more`). Fully reversible by flipping the flag.
+  The **Energy** module (`/twin/energy`) is intentionally unaffected and stays live.
+
 ### Verified / Documented
 - **Live backend verification** — verified the live Supabase project end to end:
   migrations `001`–`010` applied, RLS enabled on all 28 tables, runtime auth

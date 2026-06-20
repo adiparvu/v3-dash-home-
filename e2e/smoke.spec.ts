@@ -74,6 +74,21 @@ test.describe("core surfaces render", () => {
   });
 });
 
+test.describe("disabled features", () => {
+  test("Floorplan twin is disabled — route redirects away", async ({ page }) => {
+    await page.goto("/twin/floorplan");
+    await expect(page).toHaveURL(/\/more$/);
+  });
+
+  test("Floorplan is not listed in the More menu", async ({ page }) => {
+    await page.goto("/more");
+    await expect(page.getByRole("heading", { name: "More", level: 1 })).toBeVisible();
+    await expect(page.getByRole("link", { name: /Floorplan/ })).toHaveCount(0);
+    // The Energy twin module remains available.
+    await expect(page.getByRole("link", { name: /Energy/ })).toBeVisible();
+  });
+});
+
 test.describe("primary navigation", () => {
   test("bottom nav moves between the main tabs", async ({ page }) => {
     await page.goto("/");

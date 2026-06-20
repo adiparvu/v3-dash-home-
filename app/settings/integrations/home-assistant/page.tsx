@@ -4,6 +4,7 @@ import { useState } from "react";
 import Link from "next/link";
 import StatusBar from "../../../components/layout/StatusBar";
 import { useDevices, type Protocol } from "../../../lib/useDevices";
+import { FEATURES } from "../../../lib/features";
 
 /**
  * Home Assistant / IoT integration gateway: synchronizes with Home Assistant and
@@ -125,9 +126,11 @@ export default function HomeAssistantGatewayPage() {
           </div>
         </div>
 
-        <Link href="/twin/floorplan" className="block w-full text-center py-3.5 rounded-2xl font-semibold text-sm" style={{ background: "var(--accent)", color: "#08111E" }}>
-          Open Floorplan
-        </Link>
+        {FEATURES.floorplan && (
+          <Link href="/twin/floorplan" className="block w-full text-center py-3.5 rounded-2xl font-semibold text-sm" style={{ background: "var(--accent)", color: "#08111E" }}>
+            Open Floorplan
+          </Link>
+        )}
       </div>
     </div>
   );

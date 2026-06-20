@@ -1,6 +1,7 @@
 import StatusBar from "../components/layout/StatusBar";
 import BottomNav from "../components/layout/BottomNav";
 import Link from "next/link";
+import { FEATURES } from "../lib/features";
 
 const sections = [
   {
@@ -69,7 +70,13 @@ export default function MorePage() {
 
       {/* Sections */}
       <div className="px-4 space-y-5">
-        {sections.map((section) => (
+        {sections.map((section) => {
+          // Hide entry points for disabled features (e.g. the Floorplan twin).
+          const items = section.items.filter(
+            (item) => item.href !== "/twin/floorplan" || FEATURES.floorplan
+          );
+          if (items.length === 0) return null;
+          return (
           <div key={section.title}>
             <p className="text-text-secondary text-xs font-medium tracking-wide uppercase mb-2 px-1">
               {section.title}
@@ -78,11 +85,11 @@ export default function MorePage() {
               className="rounded-2xl overflow-hidden"
               style={{ background: "rgba(255,255,255,0.04)", border: "0.5px solid var(--glass-border)" }}
             >
-              {section.items.map((item, i) => (
+              {items.map((item, i) => (
                 <Link key={item.href} href={item.href}>
                   <div
                     className="flex items-center gap-3.5 px-4 py-3.5 active:bg-white/[0.06] transition-colors"
-                    style={{ borderBottom: i < section.items.length - 1 ? "1px solid rgba(255,255,255,0.06)" : undefined }}
+                    style={{ borderBottom: i < items.length - 1 ? "1px solid rgba(255,255,255,0.06)" : undefined }}
                   >
                     <span className="text-xl w-8 text-center flex-shrink-0">{item.icon}</span>
                     <div className="flex-1 min-w-0">
@@ -105,7 +112,8 @@ export default function MorePage() {
               ))}
             </div>
           </div>
-        ))}
+          );
+        })}
 
         {/* Sign out */}
         <button

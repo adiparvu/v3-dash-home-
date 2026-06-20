@@ -10,11 +10,13 @@
  */
 import { useEffect, useState } from "react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import StatusBar from "../../components/layout/StatusBar";
 import BottomNav from "../../components/layout/BottomNav";
 import { useStore } from "../../lib/store";
 import { useEnergyLive } from "../../lib/twin/energyLive";
 import { usePresence } from "../../lib/useSmartHome";
+import { FEATURES } from "../../lib/features";
 
 type Person = { name: string; initial: string; color: string };
 const PEOPLE: Record<string, Person> = {
@@ -47,7 +49,7 @@ const GRID_AREAS = `"living living kitchen" "living living bath" "bedroom office
 
 const jit = (v: number, f: number, seed: number) => v * (1 + (Math.sin(seed) * f));
 
-export default function FloorplanPage() {
+function FloorplanScreen() {
   const [tick, setTick] = useState(0);
   const [selected, setSelected] = useState<string | null>(null);
   const { energy, setEnergy } = useStore();
@@ -176,4 +178,20 @@ export default function FloorplanPage() {
       <BottomNav />
     </div>
   );
+}
+
+/**
+ * Route guard: the spatial Digital Twin floorplan is disabled for now
+ * (see `FEATURES.floorplan`). When off, redirect away so the route behaves as
+ * if removed; entry points are hidden separately.
+ */
+export default function FloorplanPage() {
+  const router = useRouter();
+
+  useEffect(() => {
+    if (!FEATURES.floorplan) router.replace("/more");
+  }, [router]);
+
+  if (!FEATURES.floorplan) return null;
+  return <FloorplanScreen />;
 }

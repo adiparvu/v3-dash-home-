@@ -5,6 +5,7 @@ import Link from "next/link";
 import { useParams } from "next/navigation";
 import StatusBar from "../../components/layout/StatusBar";
 import { useProperty } from "../../lib/useProperty";
+import { FEATURES } from "../../lib/features";
 
 const quickStats = [
   { label: "Property Value", value: "€2.4M", color: "#4ADE80", sub: "+33% since purchase" },
@@ -475,8 +476,14 @@ export default function PropertyDetailPage() {
               </svg>
             </div>
             <p className="text-white font-semibold text-base mb-1">{activeTab}</p>
-            <p className="text-[#6B7280] text-sm text-center mb-4">Explore your rooms live on the floorplan.</p>
-            <Link href="/twin/floorplan" className="px-4 py-2.5 rounded-2xl text-sm font-semibold" style={{ background: "#4ADE80", color: "#050A14" }}>Open Floorplan</Link>
+            {FEATURES.floorplan ? (
+              <>
+                <p className="text-[#6B7280] text-sm text-center mb-4">Explore your rooms live on the floorplan.</p>
+                <Link href="/twin/floorplan" className="px-4 py-2.5 rounded-2xl text-sm font-semibold" style={{ background: "#4ADE80", color: "#050A14" }}>Open Floorplan</Link>
+              </>
+            ) : (
+              <p className="text-[#6B7280] text-sm text-center">No {activeTab.toLowerCase()} to show yet.</p>
+            )}
           </div>
         )}
 
