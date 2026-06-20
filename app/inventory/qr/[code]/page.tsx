@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import { useParams } from "next/navigation";
 import StatusBar from "../../../components/layout/StatusBar";
 
 const assetLookup: Record<string, {
@@ -82,7 +83,8 @@ const assetLookup: Record<string, {
   },
 };
 
-export default function QRResultPage({ params }: { params: { code: string } }) {
+export default function QRResultPage() {
+  const params = useParams<{ code: string }>();
   const decodedCode = decodeURIComponent(params.code).toUpperCase();
   const asset = assetLookup[decodedCode];
 

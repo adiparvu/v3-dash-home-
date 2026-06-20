@@ -2,12 +2,13 @@
 
 import { useState } from "react";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
+import { useParams, useRouter } from "next/navigation";
 import StatusBar from "../../components/layout/StatusBar";
 import { useStore } from "../../lib/store";
 import { useZones } from "../../lib/useZones";
 
-export default function CustomZonePage({ params }: { params: { slug: string } }) {
+export default function CustomZonePage() {
+  const params = useParams<{ slug: string }>();
   const router = useRouter();
   const { ready, findZone, removeZone } = useStore();
   const { zones: liveZones, source: zonesSource } = useZones();

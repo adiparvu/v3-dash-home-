@@ -15,20 +15,22 @@ const ZONE_TYPES: ZoneType[] = [
   "forest", "greenhouse", "orchard", "lake", "garden", "house", "driveway", "smart_home", "custom",
 ];
 
-export async function GET(_request: Request, { params }: { params: { id: string } }) {
+export async function GET(_request: Request, { params }: { params: Promise<{ id: string }> }) {
+  const { id } = await params;
   const userId = await currentUserId();
   if (!userId) {
     return NextResponse.json({ apiVersion: API_VERSION, error: "unauthorized" }, { status: 401 });
   }
   try {
-    const zones = await listZones(params.id);
+    const zones = await listZones(id);
     return NextResponse.json({ apiVersion: API_VERSION, data: { zones } });
   } catch (err) {
     return NextResponse.json({ apiVersion: API_VERSION, error: err instanceof Error ? err.message : "failed" }, { status: 500 });
   }
 }
 
-export async function POST(request: Request, { params }: { params: { id: string } }) {
+export async function POST(request: Request, { params }: { params: Promise<{ id: string }> }) {
+  const { id } = await params;
   const userId = await currentUserId();
   if (!userId) {
     return NextResponse.json({ apiVersion: API_VERSION, error: "unauthorized" }, { status: 401 });
@@ -49,12 +51,12 @@ export async function POST(request: Request, { params }: { params: { id: string 
 
   try {
     const zone = await createZone({
-      property_id: params.id,
+      property_id: id,
       name,
       type,
       description: typeof body.description === "string" ? body.description : null,
     });
-    await writeAudit({ user_id: userId, property_id: params.id, action: "zone.create", resource: "zones", detail: name });
+    await writeAudit({ user_id: userId, property_id: id, action: "zone.create", resource: "zones", detail: name });
     return NextResponse.json({ apiVersion: API_VERSION, data: { zone } }, { status: 201 });
   } catch (err) {
     return NextResponse.json({ apiVersion: API_VERSION, error: err instanceof Error ? err.message : "failed" }, { status: 500 });

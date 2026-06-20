@@ -6,15 +6,16 @@ export const dynamic = "force-dynamic";
 
 const API_VERSION = "1.0.0";
 
-export async function DELETE(_request: Request, { params }: { params: { id: string } }) {
+export async function DELETE(_request: Request, { params }: { params: Promise<{ id: string }> }) {
+  const { id } = await params;
   const userId = await currentUserId();
   if (!userId) {
     return NextResponse.json({ apiVersion: API_VERSION, error: "unauthorized" }, { status: 401 });
   }
   try {
-    await removeSocialLink(userId, params.id);
-    await writeAudit({ user_id: userId, action: "profile.social_link.remove", resource: "profile_social_links", detail: params.id });
-    return NextResponse.json({ apiVersion: API_VERSION, data: { id: params.id } });
+    await removeSocialLink(userId, id);
+    await writeAudit({ user_id: userId, action: "profile.social_link.remove", resource: "profile_social_links", detail: id });
+    return NextResponse.json({ apiVersion: API_VERSION, data: { id } });
   } catch (err) {
     return NextResponse.json({ apiVersion: API_VERSION, error: err instanceof Error ? err.message : "failed" }, { status: 500 });
   }

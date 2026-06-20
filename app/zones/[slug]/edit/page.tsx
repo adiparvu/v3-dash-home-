@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
+import { useParams, useRouter } from "next/navigation";
 import StatusBar from "../../../components/layout/StatusBar";
 import { useStore } from "../../../lib/store";
 
@@ -15,7 +15,8 @@ const types = [
 
 const iconChoices = ["💧", "🌲", "🏡", "🍎", "🌿", "🐟", "🏠", "🚗", "⚡", "🌻", "🪴", "🏞️"];
 
-export default function EditZonePage({ params }: { params: { slug: string } }) {
+export default function EditZonePage() {
+  const params = useParams<{ slug: string }>();
   const router = useRouter();
   const { ready, findZone, updateZone } = useStore();
   const [loaded, setLoaded] = useState(false);

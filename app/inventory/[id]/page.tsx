@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
+import { useParams, useRouter } from "next/navigation";
 import StatusBar from "../../components/layout/StatusBar";
 import { useStore } from "../../lib/store";
 import { useAssets } from "../../lib/useAssets";
@@ -144,7 +144,8 @@ const documents = [
   { name: "Purchase Invoice", size: "0.8 MB", icon: "🧾" },
 ];
 
-export default function InventoryDetailPage({ params }: { params: { id: string } }) {
+export default function InventoryDetailPage() {
+  const params = useParams<{ id: string }>();
   const [activeTab, setActiveTab] = useState("Details");
   const [menuOpen, setMenuOpen] = useState(false);
   const { findAsset, removeAsset } = useStore();

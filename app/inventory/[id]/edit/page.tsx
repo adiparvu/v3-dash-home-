@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
+import { useParams, useRouter } from "next/navigation";
 import StatusBar from "../../../components/layout/StatusBar";
 import { useStore } from "../../../lib/store";
 
@@ -39,7 +39,8 @@ function Field({
   );
 }
 
-export default function EditInventoryPage({ params }: { params: { id: string } }) {
+export default function EditInventoryPage() {
+  const params = useParams<{ id: string }>();
   const router = useRouter();
   const { ready, findAsset, updateAsset } = useStore();
   const [loaded, setLoaded] = useState(false);
