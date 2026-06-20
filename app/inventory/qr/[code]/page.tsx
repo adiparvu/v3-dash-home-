@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import Link from "next/link";
-import { useParams } from "next/navigation";
+import { useParams, useRouter } from "next/navigation";
 import StatusBar from "../../../components/layout/StatusBar";
 import { useT, type MessageKey } from "../../../lib/i18n";
 import { useStore } from "../../../lib/store";
@@ -99,6 +99,7 @@ export default function QRResultPage() {
   const t = useT();
   const tx = (m: Record<string, MessageKey>, v: string) => (m[v] ? t(m[v]) : v);
   const [printing, setPrinting] = useState(false);
+  const router = useRouter();
   const params = useParams<{ code: string }>();
   const decodedCode = decodeURIComponent(params.code).toUpperCase();
   const { findAsset } = useStore();
@@ -307,7 +308,8 @@ export default function QRResultPage() {
         </button>
 
         <button
-          className="w-full py-3.5 rounded-2xl text-sm font-semibold mb-3"
+          onClick={() => router.push("/tasks")}
+          className="w-full py-3.5 rounded-2xl text-sm font-semibold mb-3 active:scale-[0.98] transition-transform"
           style={{
             background: "rgba(255,255,255,0.07)",
             color: "#FFFFFF",
@@ -319,7 +321,8 @@ export default function QRResultPage() {
         </button>
 
         <button
-          className="w-full py-3.5 rounded-2xl text-sm font-semibold mb-6"
+          onClick={() => router.push("/diagnostics")}
+          className="w-full py-3.5 rounded-2xl text-sm font-semibold mb-6 active:scale-[0.98] transition-transform"
           style={{
             background: "rgba(239,68,68,0.08)",
             color: "#EF4444",

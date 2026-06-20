@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useRef, useState } from "react";
 import Link from "next/link";
 import { useParams, useRouter } from "next/navigation";
 import StatusBar from "../../components/layout/StatusBar";
@@ -8,6 +8,7 @@ import { useStore } from "../../lib/store";
 import { useAssets } from "../../lib/useAssets";
 import { useT, type MessageKey } from "../../lib/i18n";
 import AssetQrCard from "../../components/inventory/AssetQrCard";
+import { useAssetRecords } from "../../lib/useAssetRecords";
 
 const NAME_KEY: Record<string, MessageKey> = {
   "Water Pump": "qrr.nameWaterPump", "Ficus Tree": "qrr.nameFicus", "Air Conditioner": "qrr.nameAC",
@@ -168,6 +169,12 @@ const documents: { nameKey: MessageKey; size: string; icon: string }[] = [
   { nameKey: "idet.docInvoice", size: "0.8 MB", icon: "🧾" },
 ];
 
+function humanSize(bytes: number): string {
+  if (bytes < 1024) return `${bytes} B`;
+  if (bytes < 1024 * 1024) return `${(bytes / 1024).toFixed(1)} KB`;
+  return `${(bytes / (1024 * 1024)).toFixed(1)} MB`;
+}
+
 export default function InventoryDetailPage() {
   const t = useT();
   const tx = (map: Record<string, MessageKey>, v: string) => (map[v] ? t(map[v]) : v);
@@ -176,6 +183,12 @@ export default function InventoryDetailPage() {
   const [menuOpen, setMenuOpen] = useState(false);
   const { findAsset, removeAsset } = useStore();
   const router = useRouter();
+  const { records, addMaintenance, toggleMaintenance, removeMaintenance, addDocument, removeDocument } = useAssetRecords(params.id);
+  const [maintOpen, setMaintOpen] = useState(false);
+  const [maintTitle, setMaintTitle] = useState("");
+  const [maintDate, setMaintDate] = useState("");
+  const fileRef = useRef<HTMLInputElement>(null);
+  const editHref = `${(findAsset(params.id)?.href) ?? `/inventory/${params.id}`}/edit`;
 
   const custom = findAsset(params.id);
   const { assets: liveAssets, source: assetsSource } = useAssets();
@@ -393,6 +406,7 @@ export default function InventoryDetailPage() {
               {[
                 {
                   label: t("idet.actHistory"),
+                  onClick: () => setActiveTab("Maintenance"),
                   icon: (
                     <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
                       <circle cx="12" cy="12" r="9" stroke="#22D3EE" strokeWidth="1.75" />
@@ -403,6 +417,7 @@ export default function InventoryDetailPage() {
                 },
                 {
                   label: t("idet.actTasks"),
+                  onClick: () => router.push("/tasks"),
                   icon: (
                     <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
                       <path d="M9 11l3 3L22 4" stroke="#4ADE80" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round" />
@@ -413,6 +428,7 @@ export default function InventoryDetailPage() {
                 },
                 {
                   label: t("idet.actAlert"),
+                  onClick: () => router.push("/diagnostics"),
                   icon: (
                     <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
                       <path d="M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z" stroke="#F59E0B" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round" />
@@ -424,6 +440,7 @@ export default function InventoryDetailPage() {
                 },
                 {
                   label: t("idet.actSettings"),
+                  onClick: () => router.push(editHref),
                   icon: (
                     <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
                       <circle cx="12" cy="12" r="3" stroke="#7C3AED" strokeWidth="1.75" />
@@ -435,7 +452,8 @@ export default function InventoryDetailPage() {
               ].map((action) => (
                 <button
                   key={action.label}
-                  className="flex flex-col items-center gap-2 rounded-2xl py-3.5"
+                  onClick={action.onClick}
+                  className="flex flex-col items-center gap-2 rounded-2xl py-3.5 active:scale-95 transition-transform"
                   style={{
                     background: `${action.color}0F`,
                     border: `1px solid ${action.color}20`,
@@ -454,6 +472,25 @@ export default function InventoryDetailPage() {
         {activeTab === "Maintenance" && (
           <div>
             <div className="liquid-glass rounded-2xl overflow-hidden mb-4">
+              {/* User-scheduled maintenance (tap title to toggle done) */}
+              {records.maintenance.map((m) => {
+                const color = m.done ? "#4ADE80" : "#F59E0B";
+                return (
+                  <div key={m.id} className="flex items-center justify-between px-4 py-4" style={{ borderBottom: "0.5px solid var(--glass-border)" }}>
+                    <button onClick={() => toggleMaintenance(m.id)} className="flex-1 text-left min-w-0 pr-2">
+                      <p className="text-sm font-medium truncate" style={{ color: "var(--text-1)" }}>{m.title}</p>
+                      <p className="text-xs mt-0.5" style={{ color: "var(--text-3)" }}>{m.date || "—"}</p>
+                    </button>
+                    <div className="flex items-center gap-2 flex-shrink-0">
+                      <span className="px-2.5 py-1 rounded-full text-[10px] font-semibold" style={{ background: `${color}18`, color, border: `1px solid ${color}30` }}>
+                        {m.done ? t("idet.mCompleted") : t("idet.mScheduled")}
+                      </span>
+                      <button onClick={() => removeMaintenance(m.id)} aria-label={t("idet.remove")} className="text-sm px-1" style={{ color: "#EF4444" }}>✕</button>
+                    </div>
+                  </div>
+                );
+              })}
+              {/* Sample maintenance history */}
               {maintenanceItems.map((item, i) => (
                 <div
                   key={item.titleKey}
@@ -479,7 +516,8 @@ export default function InventoryDetailPage() {
             </div>
 
             <button
-              className="w-full py-3.5 rounded-2xl text-sm font-semibold"
+              onClick={() => { setMaintTitle(""); setMaintDate(""); setMaintOpen(true); }}
+              className="w-full py-3.5 rounded-2xl text-sm font-semibold active:scale-[0.98] transition-transform"
               style={{ background: "rgba(74,222,128,0.12)", color: "var(--accent)", border: "1px solid rgba(74,222,128,0.25)" }}
             >
               {t("idet.scheduleMaint")}
@@ -490,6 +528,31 @@ export default function InventoryDetailPage() {
         {activeTab === "Documents" && (
           <div>
             <div className="liquid-glass rounded-2xl overflow-hidden mb-4">
+              {/* User-uploaded documents */}
+              {records.documents.map((doc) => (
+                <div key={doc.id} className="flex items-center gap-3.5 px-4 py-4" style={{ borderBottom: "0.5px solid var(--glass-border)" }}>
+                  <span className="text-2xl">📎</span>
+                  <div className="flex-1 min-w-0">
+                    <p className="text-sm font-medium truncate" style={{ color: "var(--text-1)" }}>{doc.name}</p>
+                    <p className="text-xs mt-0.5" style={{ color: "var(--text-3)" }}>{doc.size}</p>
+                  </div>
+                  {doc.dataUrl && (
+                    <a
+                      href={doc.dataUrl}
+                      download={doc.name}
+                      aria-label={t("idet.download")}
+                      className="w-8 h-8 rounded-xl flex items-center justify-center flex-shrink-0"
+                      style={{ background: "var(--glass-bg)", border: "0.5px solid var(--glass-border)", color: "var(--text-2)" }}
+                    >
+                      <svg width="14" height="14" viewBox="0 0 24 24" fill="none">
+                        <path d="M12 5v14M5 19l7 0 7 0M5 12l7 7 7-7" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round" />
+                      </svg>
+                    </a>
+                  )}
+                  <button onClick={() => removeDocument(doc.id)} aria-label={t("idet.remove")} className="text-sm px-1 flex-shrink-0" style={{ color: "#EF4444" }}>✕</button>
+                </div>
+              ))}
+              {/* Sample documents */}
               {documents.map((doc, i) => (
                 <div
                   key={doc.nameKey}
@@ -501,20 +564,26 @@ export default function InventoryDetailPage() {
                     <p className="text-sm font-medium" style={{ color: "var(--text-1)" }}>{t(doc.nameKey)}</p>
                     <p className="text-xs mt-0.5" style={{ color: "var(--text-3)" }}>{doc.size}</p>
                   </div>
-                  <button
-                    className="w-8 h-8 rounded-xl flex items-center justify-center"
-                    style={{ background: "var(--glass-bg)", border: "0.5px solid var(--glass-border)", color: "var(--text-2)" }}
-                  >
-                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none">
-                      <path d="M12 5v14M5 19l7 0 7 0M5 12l7 7 7-7" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round" />
-                    </svg>
-                  </button>
                 </div>
               ))}
             </div>
 
+            <input
+              ref={fileRef}
+              type="file"
+              hidden
+              onChange={(e) => {
+                const file = e.target.files?.[0];
+                if (!file) return;
+                const reader = new FileReader();
+                reader.onload = () => addDocument(file.name, humanSize(file.size), typeof reader.result === "string" ? reader.result : undefined);
+                reader.readAsDataURL(file);
+                e.target.value = "";
+              }}
+            />
             <button
-              className="w-full py-3.5 rounded-2xl text-sm font-semibold"
+              onClick={() => fileRef.current?.click()}
+              className="w-full py-3.5 rounded-2xl text-sm font-semibold active:scale-[0.98] transition-transform"
               style={{ background: "var(--glass-bg)", color: "var(--text-2)", border: "0.5px solid var(--glass-border)" }}
             >
               {t("idet.uploadDoc")}
@@ -531,6 +600,41 @@ export default function InventoryDetailPage() {
           />
         )}
       </div>
+
+      {/* Schedule-maintenance sheet */}
+      {maintOpen && (
+        <div className="fixed inset-0 z-[60] flex items-end justify-center" style={{ background: "rgba(0,0,0,0.45)" }} onClick={() => setMaintOpen(false)}>
+          <div className="w-full md:w-[390px] rounded-t-[28px] p-5 pb-8 animate-slide-up liquid-glass-strong" onClick={(e) => e.stopPropagation()}>
+            <div className="w-10 h-1 rounded-full mx-auto mb-4" style={{ background: "var(--glass-border)" }} />
+            <p className="font-bold text-base mb-4" style={{ color: "var(--text-1)" }}>{t("idet.scheduleTitle")}</p>
+            <label className="text-xs font-medium block mb-1.5 px-1" style={{ color: "var(--text-2)" }}>{t("idet.maintTitleLabel")}</label>
+            <input
+              value={maintTitle}
+              onChange={(e) => setMaintTitle(e.target.value)}
+              placeholder={t("idet.maintTitlePh")}
+              className="w-full rounded-2xl px-4 py-3 text-sm outline-none mb-3"
+              style={{ background: "var(--glass-bg)", border: "0.5px solid var(--glass-border)", color: "var(--text-1)", caretColor: "var(--accent)" }}
+            />
+            <label className="text-xs font-medium block mb-1.5 px-1" style={{ color: "var(--text-2)" }}>{t("idet.maintDateLabel")}</label>
+            <input
+              type="date"
+              value={maintDate}
+              onChange={(e) => setMaintDate(e.target.value)}
+              className="w-full rounded-2xl px-4 py-3 text-sm outline-none mb-4"
+              style={{ background: "var(--glass-bg)", border: "0.5px solid var(--glass-border)", color: "var(--text-1)", caretColor: "var(--accent)", colorScheme: "dark" }}
+            />
+            <button
+              onClick={() => { if (maintTitle.trim()) { addMaintenance(maintTitle.trim(), maintDate); setMaintOpen(false); } }}
+              disabled={!maintTitle.trim()}
+              className="w-full py-3.5 rounded-2xl font-semibold text-base mb-2 transition-all"
+              style={maintTitle.trim() ? { background: "var(--accent)", color: "#08111E" } : { background: "var(--glass-bg)", border: "0.5px solid var(--glass-border)", color: "var(--text-3)" }}
+            >
+              {t("idet.save")}
+            </button>
+            <button onClick={() => setMaintOpen(false)} className="w-full py-3.5 rounded-2xl font-medium text-base" style={{ background: "var(--glass-bg)", border: "0.5px solid var(--glass-border)", color: "var(--text-1)" }}>{t("idet.cancel")}</button>
+          </div>
+        </div>
+      )}
 
       {/* Action sheet */}
       {menuOpen && (
