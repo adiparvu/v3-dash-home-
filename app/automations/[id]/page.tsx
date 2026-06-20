@@ -4,42 +4,43 @@ import { useState } from "react";
 import { useParams } from "next/navigation";
 import Link from "next/link";
 import StatusBar from "../../components/layout/StatusBar";
+import { useT, type MessageKey } from "../../lib/i18n";
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
 type NodeStatus = "ok" | "error" | "warning" | "inactive";
 
 interface TriggerNode {
-  type: string;
-  label: string;
+  typeKey: MessageKey;
+  labelKey: MessageKey;
   icon: string;
   status: NodeStatus;
 }
 
 interface ConditionNode {
-  label: string;
+  labelKey: MessageKey;
   icon: string;
   status: NodeStatus;
 }
 
 interface ActionNode {
-  label: string;
+  labelKey: MessageKey;
   icon: string;
   status: NodeStatus;
-  detail: string;
+  detailKey: MessageKey;
 }
 
 interface LogEntry {
-  time: string;
-  msg: string;
+  timeKey: MessageKey;
+  msgKey: MessageKey;
   status: NodeStatus;
 }
 
 interface AutomationDetail {
-  name: string;
-  zone: string;
+  nameKey: MessageKey;
+  zoneKey: MessageKey;
   active: boolean;
-  lastRun: string;
+  lastRunKey: MessageKey;
   runsToday: number;
   successRate: number;
   icon: string;
@@ -54,53 +55,53 @@ interface AutomationDetail {
 
 const automationData: Record<string, AutomationDetail> = {
   "1": {
-    name: "Morning Irrigation",
-    zone: "Orchard",
+    nameKey: "adet.a1Name",
+    zoneKey: "inv.locOrchard",
     active: true,
-    lastRun: "6h ago",
+    lastRunKey: "adet.time6hAgo",
     runsToday: 1,
     successRate: 100,
     icon: "💧",
     accentColor: "#22D3EE",
-    trigger: { type: "Schedule", label: "Every day at 06:00", icon: "⏰", status: "ok" },
+    trigger: { typeKey: "adet.a1Trigger", labelKey: "adet.a1TriggerLabel", icon: "⏰", status: "ok" },
     conditions: [
-      { label: "Zone is Active", icon: "✅", status: "ok" },
-      { label: "No recent rain", icon: "☁️", status: "ok" },
+      { labelKey: "adet.a1Cond1", icon: "✅", status: "ok" },
+      { labelKey: "adet.a1Cond2", icon: "☁️", status: "ok" },
     ],
     actions: [
-      { label: "Open drip valves", icon: "🔧", status: "ok", detail: "Zones A, B, C" },
-      { label: "Run for 45 min", icon: "⏱️", status: "ok", detail: "Timer active" },
-      { label: "Send notification", icon: "🔔", status: "ok", detail: "Irrigation started" },
+      { labelKey: "adet.a1Act1", icon: "🔧", status: "ok", detailKey: "adet.a1Act1Detail" },
+      { labelKey: "adet.a1Act2", icon: "⏱️", status: "ok", detailKey: "adet.a1Act2Detail" },
+      { labelKey: "adet.a1Act3", icon: "🔔", status: "ok", detailKey: "adet.a1Act3Detail" },
     ],
     logs: [
-      { time: "06:00 today", msg: "Trigger fired", status: "ok" },
-      { time: "06:00 today", msg: "Conditions passed", status: "ok" },
-      { time: "06:01 today", msg: "Drip valves opened", status: "ok" },
-      { time: "06:46 today", msg: "Completed successfully", status: "ok" },
+      { timeKey: "adet.a1Time1", msgKey: "adet.a1Log1", status: "ok" },
+      { timeKey: "adet.a1Time1", msgKey: "adet.a1Log2", status: "ok" },
+      { timeKey: "adet.a1Time1", msgKey: "adet.a1Log3", status: "ok" },
+      { timeKey: "adet.a1Time4", msgKey: "adet.a1Log4", status: "ok" },
     ],
   },
   "2": {
-    name: "Greenhouse Temperature Alert",
-    zone: "Greenhouse",
+    nameKey: "adet.a2Name",
+    zoneKey: "inv.locGreenhouse",
     active: true,
-    lastRun: "2d ago",
+    lastRunKey: "adet.time2dAgo",
     runsToday: 0,
     successRate: 98,
     icon: "🌡️",
     accentColor: "#F59E0B",
-    trigger: { type: "Sensor Threshold", label: "Temperature > 30°C", icon: "🌡️", status: "ok" },
+    trigger: { typeKey: "adet.a2Trigger", labelKey: "adet.a2TriggerLabel", icon: "🌡️", status: "ok" },
     conditions: [
-      { label: "Greenhouse Active", icon: "✅", status: "ok" },
+      { labelKey: "adet.a2Cond1", icon: "✅", status: "ok" },
     ],
     actions: [
-      { label: "Open vents", icon: "💨", status: "error", detail: "Vent motor offline" },
-      { label: "Send notification", icon: "🔔", status: "ok", detail: "Alert sent" },
+      { labelKey: "adet.a2Act1", icon: "💨", status: "error", detailKey: "adet.a2Act1Detail" },
+      { labelKey: "adet.a2Act2", icon: "🔔", status: "ok", detailKey: "adet.a2Act2Detail" },
     ],
     logs: [
-      { time: "2d ago 14:22", msg: "Trigger: Temp reached 31.2°C", status: "ok" },
-      { time: "2d ago 14:22", msg: "Conditions passed", status: "ok" },
-      { time: "2d ago 14:22", msg: "Open vents — FAILED: motor offline", status: "error" },
-      { time: "2d ago 14:22", msg: "Notification sent", status: "ok" },
+      { timeKey: "adet.a2Time", msgKey: "adet.a2Log1", status: "ok" },
+      { timeKey: "adet.a2Time", msgKey: "adet.a2Log2", status: "ok" },
+      { timeKey: "adet.a2Time", msgKey: "adet.a2Log3", status: "error" },
+      { timeKey: "adet.a2Time", msgKey: "adet.a2Log4", status: "ok" },
     ],
   },
 };
@@ -262,6 +263,7 @@ function FlowNode({
 // ─── Main Page ────────────────────────────────────────────────────────────────
 
 export default function AutomationDetailPage() {
+  const t = useT();
   const params = useParams();
   const id = params.id as string;
 
@@ -304,9 +306,9 @@ export default function AutomationDetailPage() {
         <div className="flex-1 min-w-0">
           <div className="flex items-center gap-2">
             <span className="text-xl">{data.icon}</span>
-            <h1 className="text-white font-bold text-lg leading-tight truncate">{data.name}</h1>
+            <h1 className="text-white font-bold text-lg leading-tight truncate">{t(data.nameKey)}</h1>
           </div>
-          <p style={{ color: "rgba(255,255,255,0.4)", fontSize: 11 }}>{data.zone}</p>
+          <p style={{ color: "rgba(255,255,255,0.4)", fontSize: 11 }}>{t(data.zoneKey)}</p>
         </div>
 
         {/* Active toggle */}
@@ -338,16 +340,16 @@ export default function AutomationDetailPage() {
           >
             <span className="text-xl">⚠️</span>
             <div>
-              <p className="text-white font-semibold text-sm">Fault Detected</p>
+              <p className="text-white font-semibold text-sm">{t("adet.faultDetected")}</p>
               <p style={{ color: "rgba(255,255,255,0.55)", fontSize: 12 }}>
-                One action failed · tap node for details
+                {t("adet.faultSub")}
               </p>
             </div>
             <div className="ml-auto text-right">
               <p style={{ color: "#EF4444", fontSize: 12, fontWeight: 600 }}>
                 {data.successRate}%
               </p>
-              <p style={{ color: "rgba(255,255,255,0.35)", fontSize: 10 }}>success</p>
+              <p style={{ color: "rgba(255,255,255,0.35)", fontSize: 10 }}>{t("adet.success")}</p>
             </div>
           </div>
         ) : (
@@ -367,16 +369,16 @@ export default function AutomationDetailPage() {
               </svg>
             </div>
             <div>
-              <p className="text-white font-semibold text-sm">Running Smoothly</p>
+              <p className="text-white font-semibold text-sm">{t("adet.runningSmoothly")}</p>
               <p style={{ color: "rgba(255,255,255,0.45)", fontSize: 12 }}>
-                Last run {data.lastRun} · {data.successRate}% success rate
+                {t("adet.lastRun")} {t(data.lastRunKey)} · {data.successRate}% {t("adet.successRate")}
               </p>
             </div>
             <div className="ml-auto text-right">
               <p style={{ color: "#4ADE80", fontSize: 13, fontWeight: 700 }}>
                 {data.runsToday}
               </p>
-              <p style={{ color: "rgba(255,255,255,0.35)", fontSize: 10 }}>today</p>
+              <p style={{ color: "rgba(255,255,255,0.35)", fontSize: 10 }}>{t("adet.today")}</p>
             </div>
           </div>
         )}
@@ -388,18 +390,18 @@ export default function AutomationDetailPage() {
           className="font-semibold text-sm mb-3"
           style={{ color: "rgba(255,255,255,0.5)", letterSpacing: "0.04em", textTransform: "uppercase", fontSize: 11 }}
         >
-          Flow Diagram
+          {t("adet.flowDiagram")}
         </p>
 
         <div className="flex flex-col items-center">
 
           {/* TRIGGER */}
           <FlowNode
-            typeLabel="Trigger"
+            typeLabel={t("adet.typeTrigger")}
             icon={data.trigger.icon}
-            label={data.trigger.label}
+            label={t(data.trigger.labelKey)}
             status={data.trigger.status}
-            detail={data.trigger.type}
+            detail={t(data.trigger.typeKey)}
             accentColor={data.accentColor}
           />
 
@@ -409,9 +411,9 @@ export default function AutomationDetailPage() {
           {/* CONDITIONS */}
           {data.conditions.length === 1 ? (
             <FlowNode
-              typeLabel="Condition"
+              typeLabel={t("adet.typeCondition")}
               icon={data.conditions[0].icon}
-              label={data.conditions[0].label}
+              label={t(data.conditions[0].labelKey)}
               status={data.conditions[0].status}
               accentColor={data.accentColor}
             />
@@ -448,10 +450,10 @@ export default function AutomationDetailPage() {
                     </div>
                     <div>
                       <p style={{ color: "rgba(255,255,255,0.4)", fontSize: 9, fontWeight: 600, textTransform: "uppercase", letterSpacing: "0.06em" }}>
-                        Condition
+                        {t("adet.typeCondition")}
                       </p>
                       <p className="text-white font-semibold leading-tight" style={{ fontSize: 12 }}>
-                        {cond.label}
+                        {t(cond.labelKey)}
                       </p>
                     </div>
                   </div>
@@ -539,11 +541,11 @@ export default function AutomationDetailPage() {
           {data.actions.map((action, i) => (
             <div key={i} className="w-full flex flex-col items-center">
               <FlowNode
-                typeLabel="Action"
+                typeLabel={t("adet.typeAction")}
                 icon={action.icon}
-                label={action.label}
+                label={t(action.labelKey)}
                 status={action.status}
-                detail={action.detail}
+                detail={t(action.detailKey)}
                 accentColor={action.status === "error" ? "#EF4444" : data.accentColor}
               />
               {/* Connector between actions (not after the last one) */}
@@ -568,11 +570,11 @@ export default function AutomationDetailPage() {
             className="font-semibold text-sm"
             style={{ color: "rgba(255,255,255,0.5)", letterSpacing: "0.04em", textTransform: "uppercase", fontSize: 11 }}
           >
-            Run History
+            {t("adet.runHistory")}
           </p>
           <div className="flex items-center gap-1.5">
             <span style={{ color: "rgba(255,255,255,0.35)", fontSize: 11 }}>
-              {data.logs.length} entries
+              {data.logs.length} {t("adet.entries")}
             </span>
             <svg
               width="14"
@@ -624,10 +626,10 @@ export default function AutomationDetailPage() {
                     className="text-sm leading-snug"
                     style={{ color: log.status === "error" ? "#EF4444" : "rgba(255,255,255,0.85)" }}
                   >
-                    {log.msg}
+                    {t(log.msgKey)}
                   </p>
                   <p className="text-xs mt-0.5" style={{ color: "rgba(255,255,255,0.35)" }}>
-                    {log.time}
+                    {t(log.timeKey)}
                   </p>
                 </div>
               </div>
@@ -651,7 +653,7 @@ export default function AutomationDetailPage() {
             <svg width="14" height="14" viewBox="0 0 24 24" fill="none">
               <path d="M5 3L19 12L5 21V3Z" fill="#050A14" />
             </svg>
-            Run Now
+            {t("adet.runNow")}
           </button>
 
           {/* Edit Automation */}
@@ -667,7 +669,7 @@ export default function AutomationDetailPage() {
               <path d="M11 4H4C3.44772 4 3 4.44772 3 5V20C3 20.5523 3.44772 21 4 21H19C19.5523 21 20 20.5523 20 19V12" stroke="rgba(255,255,255,0.7)" strokeWidth="2" strokeLinecap="round" />
               <path d="M18.5 2.5L21.5 5.5L12 15H9V12L18.5 2.5Z" stroke="rgba(255,255,255,0.7)" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
             </svg>
-            Edit
+            {t("adet.edit")}
           </button>
         </div>
 
@@ -680,7 +682,7 @@ export default function AutomationDetailPage() {
             color: "#EF4444",
           }}
         >
-          Delete Automation
+          {t("adet.deleteAutomation")}
         </button>
       </div>
     </div>
