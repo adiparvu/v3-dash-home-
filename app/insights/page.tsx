@@ -7,7 +7,9 @@ import { useConditions } from "../lib/useConditions";
 import { evaluateRules } from "../lib/automationRules";
 import { deriveFaults, DEMO_READINGS } from "../lib/diagnostics";
 import { buildInsights, type Insight } from "../lib/insights";
-import { useT } from "../lib/i18n";
+import { useT, type MessageKey } from "../lib/i18n";
+
+const KIND_KEYS: Record<Insight["kind"], MessageKey> = { action: "kind.action", warning: "kind.warning", info: "kind.info", good: "kind.good" };
 
 /** Proactive insights — fuses live conditions, faults and active rules. */
 export default function InsightsPage() {
@@ -29,20 +31,20 @@ export default function InsightsPage() {
         </Link>
         <div>
           <h1 className="font-bold text-2xl" style={{ color: "var(--text-1)" }}>{t("page.insights")}</h1>
-          <p className="text-text-secondary text-xs">{actions} action{actions === 1 ? "" : "s"} suggested now</p>
+          <p className="text-text-secondary text-xs">{actions} {t("ins.actionsWord")}</p>
         </div>
         <span className="ml-auto text-[10px] font-semibold px-2 py-1 rounded-full" style={live
           ? { background: "rgba(74,222,128,0.15)", color: "#4ADE80" }
-          : { background: "rgba(255,255,255,0.06)", color: "#9CA3AF" }}>{live ? "Live" : "Demo"}</span>
+          : { background: "rgba(255,255,255,0.06)", color: "#9CA3AF" }}>{live ? t("notif.live") : t("auto.demo")}</span>
       </div>
 
       {/* Live conditions strip */}
       <div className="px-4 mb-4 grid grid-cols-4 gap-2">
         {[
-          { label: "Temp", value: `${conditions.tempC}°` },
-          { label: "UV", value: String(conditions.uv) },
-          { label: "AQI", value: String(conditions.aqi) },
-          { label: "Tariff", value: `${conditions.tariffNow.toFixed(0)}` },
+          { label: t("cond.temp"), value: `${conditions.tempC}°` },
+          { label: t("cond.uv"), value: String(conditions.uv) },
+          { label: t("cond.aqi"), value: String(conditions.aqi) },
+          { label: t("cond.tariff"), value: `${conditions.tariffNow.toFixed(0)}` },
         ].map((s) => (
           <div key={s.label} className="rounded-2xl p-3 text-center liquid-glass">
             <p className="font-bold text-base" style={{ color: "var(--text-1)" }}>{s.value}</p>
@@ -61,7 +63,7 @@ export default function InsightsPage() {
               <div className="flex-1 min-w-0">
                 <div className="flex items-center gap-2 mb-0.5">
                   <p className="text-sm font-semibold leading-tight" style={{ color: "var(--text-1)" }}>{insight.title}</p>
-                  <span className="text-[9px] font-medium px-1.5 py-0.5 rounded-full flex-shrink-0 uppercase tracking-wide" style={{ background: `${insight.color}18`, color: insight.color }}>{insight.kind}</span>
+                  <span className="text-[9px] font-medium px-1.5 py-0.5 rounded-full flex-shrink-0 uppercase tracking-wide" style={{ background: `${insight.color}18`, color: insight.color }}>{t(KIND_KEYS[insight.kind])}</span>
                 </div>
                 <p className="text-text-secondary text-xs leading-snug">{insight.detail}</p>
               </div>
