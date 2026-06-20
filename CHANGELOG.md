@@ -9,6 +9,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 ### Added
+- **End-to-end smoke tests (Playwright)** — a runtime test suite (`e2e/smoke.spec.ts`)
+  that builds and starts the app and drives the key surfaces in a real browser
+  (Overview, Zones, Inventory, Tasks, More, Settings, a zone detail, the Digital
+  Twin Energy module, AI assistant and Login), plus a bottom-navigation flow.
+  Runs in localStorage prototype mode (no backend), added as a dedicated **CI job**
+  (`npm run test:e2e`) alongside the existing lint / unit-test / build pipeline.
+  This complements the vitest unit tests by verifying routing and rendering at
+  runtime, not just at build time.
 - **Platform hardening & connect-up** — wired the new smart-home surfaces to the
   live feed and persisted their controls: the **floorplan** now derives room
   power from the live house load (Live/Simulat badge) and HVAC/lights/doors/music

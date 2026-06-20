@@ -47,6 +47,10 @@ Apply them to a Supabase project with the [Supabase CLI](https://supabase.com/do
 - `npm run dev` — start the dev server
 - `npm run build` — production build
 - `npm run lint` — lint
+- `npm test` — unit tests (vitest)
+- `npm run test:e2e` — end-to-end smoke tests (Playwright; builds + starts the app
+  and drives the key surfaces in a browser in localStorage prototype mode). Run
+  `npx playwright install chromium` once to fetch the browser.
 
 ### Energy event-bus test publisher
 
