@@ -3,7 +3,9 @@
 import { useState } from "react";
 import Link from "next/link";
 import StatusBar from "../../../components/layout/StatusBar";
+import DetailDisclosureButton from "../../../components/DetailDisclosureButton";
 import { useDevices, type Protocol } from "../../../lib/useDevices";
+import { searchEcosystems } from "../../../lib/ecosystems";
 
 /**
  * Home Assistant / IoT integration gateway: synchronizes with Home Assistant and
@@ -23,7 +25,10 @@ export default function HomeAssistantGatewayPage() {
   const [enabled, setEnabled] = useState(true);
   const [syncing, setSyncing] = useState(false);
   const [lastSync, setLastSync] = useState("2m ago");
+  const [ecoQuery, setEcoQuery] = useState("");
+  const [openEco, setOpenEco] = useState<string | null>(null);
   const { source, devices: DEVICES } = useDevices();
+  const ecosystems = searchEcosystems(ecoQuery);
 
   const online = DEVICES.filter((d) => d.online).length;
 
@@ -122,6 +127,67 @@ export default function HomeAssistantGatewayPage() {
                 </div>
               </div>
             ))}
+          </div>
+        </div>
+
+        {/* Compatible ecosystems — which brands you can connect & how */}
+        <div>
+          <div className="flex items-center justify-between mb-2 px-1">
+            <p className="text-text-secondary text-xs font-medium uppercase tracking-wide">Compatible ecosystems</p>
+            <span className="text-[10px]" style={{ color: "var(--text-3)" }}>{ecosystems.length}</span>
+          </div>
+          <p className="text-text-tertiary text-[11px] mb-2 px-1 leading-relaxed">
+            Connect via the gateway over Matter, Thread, Zigbee, Z-Wave or Wi-Fi — Philips Hue, IKEA and more. Tap ⓘ for how to connect.
+          </p>
+          <input
+            type="search"
+            value={ecoQuery}
+            onChange={(e) => setEcoQuery(e.target.value)}
+            placeholder="Search brands (Hue, IKEA, camera…)"
+            aria-label="Search compatible ecosystems"
+            className="w-full mb-2 rounded-2xl px-4 py-2.5 text-sm"
+            style={{ background: "var(--glass-bg)", border: "0.5px solid var(--glass-border)", color: "var(--text-1)" }}
+          />
+          <div className="space-y-1.5">
+            {ecosystems.length === 0 && (
+              <p className="text-text-secondary text-xs px-1 py-3">No brand matches “{ecoQuery}”. Most Matter/Zigbee devices still work via the gateway.</p>
+            )}
+            {ecosystems.map((e) => {
+              const expanded = openEco === e.id;
+              return (
+                <div key={e.id} className="rounded-2xl overflow-hidden" style={{ background: "rgba(255,255,255,0.04)", border: "0.5px solid var(--glass-border)" }}>
+                  <div className="p-3 flex items-center gap-2.5">
+                    <span className="text-lg w-7 text-center flex-shrink-0">{e.icon}</span>
+                    <div className="flex-1 min-w-0">
+                      <div className="flex items-center gap-2">
+                        <p className="text-sm font-medium truncate" style={{ color: "var(--text-1)" }}>{e.name}</p>
+                        <span className="text-[9px] font-semibold px-1.5 py-0.5 rounded-full flex-shrink-0" style={e.local ? { background: "rgba(74,222,128,0.12)", color: "#4ADE80" } : { background: "rgba(245,158,11,0.12)", color: "#F59E0B" }}>{e.local ? "Local" : "Cloud"}</span>
+                      </div>
+                      <p className="text-text-secondary text-[11px] truncate">{e.category} · {e.protocols.join(" / ")}</p>
+                    </div>
+                    <DetailDisclosureButton onPress={() => setOpenEco(expanded ? null : e.id)} label={`How to connect ${e.name}`} size={22} />
+                  </div>
+                  {expanded && (
+                    <div className="px-3 pb-3 space-y-2">
+                      <div className="flex flex-wrap gap-1.5">
+                        {e.protocols.map((p) => (
+                          <span key={p} className="text-[9px] font-semibold px-1.5 py-0.5 rounded-full" style={{ background: `${PROTOCOL_COLOR[p]}22`, color: PROTOCOL_COLOR[p], border: `1px solid ${PROTOCOL_COLOR[p]}40` }}>{p}</span>
+                        ))}
+                      </div>
+                      <div className="rounded-xl p-2.5" style={{ background: "var(--glass-bg)" }}>
+                        <p className="text-[10px] font-medium uppercase tracking-wide mb-1" style={{ color: "var(--text-3)" }}>How to connect</p>
+                        <p className="text-[12px]" style={{ color: "var(--text-1)" }}>{e.connection}</p>
+                        <p className="text-[11px] mt-1.5" style={{ color: "var(--text-2)" }}>{e.note}</p>
+                      </div>
+                      <div>
+                        <p className="text-[10px] font-medium uppercase tracking-wide mb-1" style={{ color: "var(--text-3)" }}>Examples</p>
+                        <p className="text-[12px]" style={{ color: "var(--text-2)" }}>{e.examples.join(" · ")}</p>
+                      </div>
+                    </div>
+                  )}
+                </div>
+              );
+            })}
           </div>
         </div>
 
