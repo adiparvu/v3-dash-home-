@@ -7,6 +7,8 @@ import BottomNav from "../components/layout/BottomNav";
 import DetailDisclosureButton from "../components/DetailDisclosureButton";
 import DetailSheet from "../components/DetailSheet";
 import { useSchedules } from "../lib/useSmartHome";
+import { useConditions } from "../lib/useConditions";
+import { evaluateRules } from "../lib/automationRules";
 
 type Automation = (typeof automations)[number];
 
@@ -107,6 +109,9 @@ export default function AutomationsPage() {
   const [areaFilter, setAreaFilter] = useState("All");
   const [detail, setDetail] = useState<Automation | null>(null);
   const scheduleHook = useSchedules();
+  const { conditions, live } = useConditions();
+  const smartRules = evaluateRules(conditions);
+  const activeRules = smartRules.filter((r) => r.active).length;
 
   useEffect(() => {
     setMounted(true);
@@ -224,6 +229,31 @@ export default function AutomationsPage() {
               <p className="text-text-secondary text-[10px]">Success</p>
             </div>
           </div>
+        </div>
+      </div>
+
+      {/* Smart rules — evaluated against live conditions (tariff, AQI, weather) */}
+      <div className="px-4 mb-4">
+        <div className="flex items-center gap-2 mb-2 px-1">
+          <p className="text-text-secondary text-xs font-medium uppercase tracking-wide">Smart rules · live</p>
+          <span className="text-[10px] font-semibold px-2 py-0.5 rounded-full" style={live
+            ? { background: "rgba(74,222,128,0.15)", color: "#4ADE80" }
+            : { background: "rgba(255,255,255,0.06)", color: "#9CA3AF" }}>{live ? "Live data" : "Demo"}</span>
+          <span className="text-text-tertiary text-[10px] ml-auto">{activeRules} active now</span>
+        </div>
+        <div className="rounded-2xl liquid-glass overflow-hidden">
+          {smartRules.map((r, i) => (
+            <div key={r.id} className="flex items-center gap-3 px-4 py-3" style={{ borderBottom: i < smartRules.length - 1 ? "1px solid rgba(255,255,255,0.06)" : undefined }}>
+              <span className="text-lg w-7 text-center flex-shrink-0">{r.icon}</span>
+              <div className="flex-1 min-w-0">
+                <p className="text-sm font-medium leading-tight" style={{ color: "var(--text-1)" }}>{r.name}</p>
+                <p className="text-text-secondary text-[11px] leading-snug">{r.reason}</p>
+              </div>
+              <span className="text-[9px] font-semibold px-2 py-0.5 rounded-full flex-shrink-0" style={r.active
+                ? { background: "rgba(74,222,128,0.15)", color: "#4ADE80" }
+                : { background: "var(--glass-bg)", color: "var(--text-3)" }}>{r.active ? "ON" : "idle"}</span>
+            </div>
+          ))}
         </div>
       </div>
 
