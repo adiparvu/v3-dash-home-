@@ -7,8 +7,10 @@ import BottomNav from "../components/layout/BottomNav";
 import DetailDisclosureButton from "../components/DetailDisclosureButton";
 import DetailSheet from "../components/DetailSheet";
 import { deriveFaults, faultSummary, SEVERITY_META, DEMO_READINGS, type PossibleFault } from "../lib/diagnostics";
+import { useT } from "../lib/i18n";
 
 export default function DiagnosticsPage() {
+  const t = useT();
   const faults = deriveFaults(DEMO_READINGS);
   const summary = faultSummary(faults);
   const [selected, setSelected] = useState<PossibleFault | null>(null);
@@ -22,7 +24,7 @@ export default function DiagnosticsPage() {
           <svg width="18" height="18" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M19 12H5M12 5l-7 7 7 7" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" /></svg>
         </Link>
         <div>
-          <h1 className="font-bold text-2xl" style={{ color: "var(--text-1)" }}>Diagnostics</h1>
+          <h1 className="font-bold text-2xl" style={{ color: "var(--text-1)" }}>{t("page.diagnostics")}</h1>
           <p className="text-text-secondary text-xs">{summary.total} possible {summary.total === 1 ? "fault" : "faults"} detected</p>
         </div>
       </div>

@@ -6,6 +6,7 @@ import StatusBar from "../components/layout/StatusBar";
 import BottomNav from "../components/layout/BottomNav";
 import DetailDisclosureButton from "../components/DetailDisclosureButton";
 import DetailSheet from "../components/DetailSheet";
+import { useT } from "../lib/i18n";
 
 const sensorCategories = ["All", "Water", "Air", "Soil", "Power"];
 
@@ -71,6 +72,7 @@ function Sparkline({ data, color }: { data: number[]; color: string }) {
 type Sensor = (typeof sensors)[number];
 
 export default function SensorsPage() {
+  const t = useT();
   const [category, setCategory] = useState("All");
   const [search, setSearch] = useState("");
   const [series, setSeries] = useState<Record<string, number[]>>({});
@@ -137,7 +139,7 @@ export default function SensorsPage() {
         <Link href="/more" className="w-9 h-9 rounded-2xl flex items-center justify-center flex-shrink-0" style={{ background: "rgba(255,255,255,0.07)", border: "0.5px solid var(--glass-border)", color: "var(--text-1)" }}>
           <svg width="18" height="18" viewBox="0 0 24 24" fill="none"><path d="M19 12H5M12 5l-7 7 7 7" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" /></svg>
         </Link>
-        <h1 className="font-bold text-2xl" style={{ color: "var(--text-1)" }}>Sensors</h1>
+        <h1 className="font-bold text-2xl" style={{ color: "var(--text-1)" }}>{t("page.sensors")}</h1>
         <div className="ml-auto flex items-center gap-1.5">
           <span className="w-2 h-2 rounded-full animate-pulse" style={{ background: "#4ADE80" }} />
           <span className="text-accent-green text-xs font-medium">Live</span>

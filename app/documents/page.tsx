@@ -6,6 +6,7 @@ import StatusBar from "../components/layout/StatusBar";
 import BottomNav from "../components/layout/BottomNav";
 import { useStore } from "../lib/store";
 import { summarizeDocument, DocSummary } from "../lib/ai/documents";
+import { useT } from "../lib/i18n";
 
 const docCategories = ["All", "Legal", "Technical", "Financial", "Manuals"];
 const DOCS_KEY = "prvio-docs-v1";
@@ -36,6 +37,7 @@ const catColor: Record<string, string> = { Legal: "#7C3AED", Technical: "#22D3EE
 const catIcon: Record<string, string> = { Legal: "📄", Technical: "📐", Financial: "💰", Manuals: "📖" };
 
 export default function DocumentsPage() {
+  const t = useT();
   const { logAiDecision, assistant } = useStore();
   const [category, setCategory] = useState("All");
   const [search, setSearch] = useState("");
@@ -158,7 +160,7 @@ export default function DocumentsPage() {
         <Link href="/more" className="w-9 h-9 rounded-2xl flex items-center justify-center flex-shrink-0" style={{ background: "rgba(255,255,255,0.07)", border: "0.5px solid var(--glass-border)", color: "var(--text-1)" }}>
           <svg width="18" height="18" viewBox="0 0 24 24" fill="none"><path d="M19 12H5M12 5l-7 7 7 7" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" /></svg>
         </Link>
-        <h1 className="font-bold text-2xl" style={{ color: "var(--text-1)" }}>Documents</h1>
+        <h1 className="font-bold text-2xl" style={{ color: "var(--text-1)" }}>{t("page.documents")}</h1>
         <span className="text-text-secondary text-sm ml-1">{documents.length}</span>
       </div>
 

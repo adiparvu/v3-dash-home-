@@ -3,6 +3,7 @@
 import { useState, useEffect } from "react";
 import StatusBar from "../components/layout/StatusBar";
 import BottomNav from "../components/layout/BottomNav";
+import { useT } from "../lib/i18n";
 
 const filters = ["All", "Pending", "In Progress", "Completed"];
 
@@ -103,6 +104,7 @@ const zoneIcons: Record<string, string> = {
 type Task = typeof seedTasks[number];
 
 export default function TasksPage() {
+  const t = useT();
   const [activeFilter, setActiveFilter] = useState("All");
   const [overrides, setOverrides] = useState<Record<number, boolean>>({});
   const [customTasks, setCustomTasks] = useState<Task[]>([]);
@@ -203,7 +205,7 @@ export default function TasksPage() {
       {/* Header */}
       <div className="px-5 pt-1 pb-3 flex items-center justify-between">
         <div>
-          <h1 className="font-bold text-2xl" style={{ color: "var(--text-1)" }}>Tasks</h1>
+          <h1 className="font-bold text-2xl" style={{ color: "var(--text-1)" }}>{t("page.tasks")}</h1>
           <p className="text-text-secondary text-xs">{pending} pending · {inProgress} in progress</p>
         </div>
         <button

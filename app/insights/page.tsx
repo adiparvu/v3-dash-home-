@@ -7,9 +7,11 @@ import { useConditions } from "../lib/useConditions";
 import { evaluateRules } from "../lib/automationRules";
 import { deriveFaults, DEMO_READINGS } from "../lib/diagnostics";
 import { buildInsights, type Insight } from "../lib/insights";
+import { useT } from "../lib/i18n";
 
 /** Proactive insights — fuses live conditions, faults and active rules. */
 export default function InsightsPage() {
+  const t = useT();
   const { conditions, live } = useConditions();
   const faults = deriveFaults(DEMO_READINGS);
   const rules = evaluateRules(conditions);
@@ -26,7 +28,7 @@ export default function InsightsPage() {
           <svg width="18" height="18" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M19 12H5M12 5l-7 7 7 7" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" /></svg>
         </Link>
         <div>
-          <h1 className="font-bold text-2xl" style={{ color: "var(--text-1)" }}>Insights</h1>
+          <h1 className="font-bold text-2xl" style={{ color: "var(--text-1)" }}>{t("page.insights")}</h1>
           <p className="text-text-secondary text-xs">{actions} action{actions === 1 ? "" : "s"} suggested now</p>
         </div>
         <span className="ml-auto text-[10px] font-semibold px-2 py-1 rounded-full" style={live

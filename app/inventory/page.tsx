@@ -5,10 +5,12 @@ import Link from "next/link";
 import StatusBar from "../components/layout/StatusBar";
 import BottomNav from "../components/layout/BottomNav";
 import { useAssets } from "../lib/useAssets";
+import { useT } from "../lib/i18n";
 
 const categories = ["All", "Devices", "Plants", "Equipment", "Vehicles"];
 
 export default function InventoryPage() {
+  const t = useT();
   const [activeCategory, setActiveCategory] = useState("All");
   const [search, setSearch] = useState("");
   const { assets, source } = useAssets();
@@ -26,7 +28,7 @@ export default function InventoryPage() {
       {/* Header */}
       <div className="px-5 pt-1 pb-3 flex items-center justify-between">
         <div className="flex items-center gap-2">
-          <h1 className="font-bold text-2xl" style={{ color: "var(--text-1)" }}>Inventory</h1>
+          <h1 className="font-bold text-2xl" style={{ color: "var(--text-1)" }}>{t("page.inventory")}</h1>
           <span
             className="text-[10px] font-medium px-2 py-1 rounded-full"
             style={

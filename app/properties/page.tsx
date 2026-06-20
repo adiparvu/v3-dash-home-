@@ -4,9 +4,11 @@ import Link from "next/link";
 import StatusBar from "../components/layout/StatusBar";
 import BottomNav from "../components/layout/BottomNav";
 import { useProperties, type UIProperty } from "../lib/useProperties";
+import { useT } from "../lib/i18n";
 
 export default function PropertiesPage() {
   const { source, properties } = useProperties();
+  const t = useT();
 
   const count = properties.length;
   const totalHa = properties.reduce((sum, p) => sum + (p.areaHa ?? 0), 0);
@@ -21,7 +23,7 @@ export default function PropertiesPage() {
       {/* Header */}
       <div className="px-5 pt-1 pb-3 flex items-center justify-between">
         <div className="flex items-center gap-2">
-          <h1 className="text-white font-bold text-2xl">Properties</h1>
+          <h1 className="text-white font-bold text-2xl">{t("page.properties")}</h1>
           <span
             className="text-[10px] font-medium px-2 py-1 rounded-full"
             style={

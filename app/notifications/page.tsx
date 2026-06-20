@@ -8,6 +8,7 @@ import { useStore } from "../lib/store";
 import { deriveAlerts } from "../lib/twin/alerts";
 import { useNotifications } from "../lib/useSmartHome";
 import { usePush } from "../lib/usePush";
+import { useT } from "../lib/i18n";
 
 const SEV_COLOR: Record<string, string> = { alert: "#F97316", warn: "#F59E0B", info: "#22D3EE", ok: "#4ADE80" };
 const KIND_ICON: Record<string, string> = { alert: "⚠️", task: "✅", automation: "⚡", system: "🌿", security: "🔒", maintenance: "🔧" };
@@ -48,6 +49,7 @@ const notifications = [
 ];
 
 export default function NotificationsPage() {
+  const t = useT();
   const [readIds, setReadIds] = useState<number[]>([]);
   const [dismissedIds, setDismissedIds] = useState<number[]>([]);
   const [mounted, setMounted] = useState(false);
@@ -98,7 +100,7 @@ export default function NotificationsPage() {
 
       <div className="px-5 pt-1 pb-3 flex items-center justify-between">
         <div>
-          <h1 className="font-bold text-2xl" style={{ color: "var(--text-1)" }}>Notifications</h1>
+          <h1 className="font-bold text-2xl" style={{ color: "var(--text-1)" }}>{t("page.notifications")}</h1>
           {unreadCount > 0 && <p className="text-text-secondary text-xs">{unreadCount} unread</p>}
         </div>
         <div className="flex items-center gap-3">

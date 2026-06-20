@@ -18,6 +18,7 @@ import {
   type WidgetData,
   type WidgetSize,
 } from "../lib/widgets";
+import { useT } from "../lib/i18n";
 
 /**
  * Widget Gallery — an on-device preview of the native iOS widget set
@@ -149,6 +150,7 @@ const SIZES: { key: WidgetSize; label: string }[] = [
 ];
 
 export default function WidgetsPage() {
+  const t = useT();
   const snap = useSnapshot();
   const [size, setSize] = useState<WidgetSize>("small");
   const lock = buildLockWidgets(snap);
@@ -160,7 +162,7 @@ export default function WidgetsPage() {
 
       <div className="px-5 pt-1 pb-3">
         <Link href="/more" className="text-xs font-medium" style={{ color: "var(--accent)" }}>‹ More</Link>
-        <h1 className="font-bold text-2xl mt-1" style={{ color: "var(--text-1)" }}>Widgets</h1>
+        <h1 className="font-bold text-2xl mt-1" style={{ color: "var(--text-1)" }}>{t("page.widgets")}</h1>
         <p className="text-xs mt-1" style={{ color: "var(--text-2)" }}>
           Home Screen, Lock Screen & Live Activity previews · iOS WidgetKit (Phase 8)
         </p>

@@ -9,6 +9,7 @@ import DetailSheet from "../components/DetailSheet";
 import { useSchedules } from "../lib/useSmartHome";
 import { useConditions } from "../lib/useConditions";
 import { evaluateRules } from "../lib/automationRules";
+import { useT } from "../lib/i18n";
 
 type Automation = (typeof automations)[number];
 
@@ -110,6 +111,7 @@ export default function AutomationsPage() {
   const [detail, setDetail] = useState<Automation | null>(null);
   const scheduleHook = useSchedules();
   const { conditions, live } = useConditions();
+  const t = useT();
   const smartRules = evaluateRules(conditions);
   const activeRules = smartRules.filter((r) => r.active).length;
 
@@ -153,7 +155,7 @@ export default function AutomationsPage() {
       {/* Header */}
       <div className="px-5 pt-1 pb-3 flex items-center justify-between">
         <div>
-          <h1 className="font-bold text-2xl" style={{ color: "var(--text-1)" }}>Automations</h1>
+          <h1 className="font-bold text-2xl" style={{ color: "var(--text-1)" }}>{t("page.automations")}</h1>
           <p className="text-text-secondary text-xs">{activeCount} active · {runsToday} runs today</p>
         </div>
         <button

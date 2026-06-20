@@ -9,6 +9,7 @@ import DetailSheet from "../components/DetailSheet";
 import { useZones } from "../lib/useZones";
 import { faultsForZone, SEVERITY_META } from "../lib/diagnostics";
 import { recommendSensors, CONNECTION_GUIDE } from "../lib/sensorAdvisor";
+import { useT } from "../lib/i18n";
 import type { Zone } from "../lib/store";
 
 const zoneTypes = ["All", "Natural", "Agriculture", "Infrastructure", "Built"];
@@ -18,6 +19,7 @@ export default function ZonesPage() {
   const [detail, setDetail] = useState<Zone | null>(null);
   const [openSensor, setOpenSensor] = useState<string | null>(null);
   const { zones, source } = useZones();
+  const t = useT();
 
   const filtered = zones.filter((z) => activeType === "All" || z.type === activeType);
 
@@ -28,7 +30,7 @@ export default function ZonesPage() {
       {/* Header */}
       <div className="px-5 pt-1 pb-3 flex items-center justify-between">
         <div className="flex items-center gap-2">
-          <h1 className="font-bold text-2xl" style={{ color: "var(--text-1)" }}>Zones</h1>
+          <h1 className="font-bold text-2xl" style={{ color: "var(--text-1)" }}>{t("page.zones")}</h1>
           <span
             className="text-[10px] font-medium px-2 py-1 rounded-full"
             style={

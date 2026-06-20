@@ -5,10 +5,12 @@ import Link from "next/link";
 import StatusBar from "../components/layout/StatusBar";
 import BottomNav from "../components/layout/BottomNav";
 import { demoExpenses, summarize, budgetStatus, CATEGORY_META } from "../lib/budget";
+import { useT } from "../lib/i18n";
 
 const MONTHLY_BUDGET = 800; // EUR
 
 export default function BudgetPage() {
+  const t = useT();
   const expenses = useMemo(() => demoExpenses(), []);
   const summary = useMemo(() => summarize(expenses), [expenses]);
   const status = budgetStatus(summary.thisMonth, MONTHLY_BUDGET);
@@ -24,7 +26,7 @@ export default function BudgetPage() {
         <Link href="/more" aria-label="Back" className="w-9 h-9 rounded-2xl flex items-center justify-center flex-shrink-0 liquid-glass" style={{ color: "var(--text-1)" }}>
           <svg width="18" height="18" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M19 12H5M12 5l-7 7 7 7" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" /></svg>
         </Link>
-        <h1 className="font-bold text-2xl" style={{ color: "var(--text-1)" }}>Budget</h1>
+        <h1 className="font-bold text-2xl" style={{ color: "var(--text-1)" }}>{t("page.budget")}</h1>
       </div>
 
       <div className="px-4 space-y-5">
