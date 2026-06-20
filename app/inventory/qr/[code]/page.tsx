@@ -3,12 +3,13 @@
 import Link from "next/link";
 import { useParams } from "next/navigation";
 import StatusBar from "../../../components/layout/StatusBar";
+import { useT, type MessageKey } from "../../../lib/i18n";
 
 const assetLookup: Record<string, {
-  name: string;
-  category: string;
-  location: string;
-  status: string;
+  nameKey: MessageKey;
+  categoryKey: MessageKey;
+  locationKey: MessageKey;
+  statusKey: MessageKey;
   statusColor: string;
   icon: string;
   accentColor: string;
@@ -16,10 +17,10 @@ const assetLookup: Record<string, {
   detailHref: string;
 }> = {
   "WP-001": {
-    name: "Water Pump",
-    category: "Equipment",
-    location: "Lake Zone",
-    status: "On",
+    nameKey: "qrr.nameWaterPump",
+    categoryKey: "inv.catEquipment",
+    locationKey: "qrr.locLakeZone",
+    statusKey: "qrr.statusOn",
     statusColor: "#4ADE80",
     icon: "⚙️",
     accentColor: "#22D3EE",
@@ -27,10 +28,10 @@ const assetLookup: Record<string, {
     detailHref: "/inventory/water-pump",
   },
   "FT-002": {
-    name: "Ficus Tree",
-    category: "Plants",
-    location: "Living Room",
-    status: "Healthy",
+    nameKey: "qrr.nameFicus",
+    categoryKey: "inv.catPlants",
+    locationKey: "qrr.locLivingRoom",
+    statusKey: "qrr.statusHealthy",
     statusColor: "#4ADE80",
     icon: "🌱",
     accentColor: "#4ADE80",
@@ -38,10 +39,10 @@ const assetLookup: Record<string, {
     detailHref: "/inventory/ficus-tree",
   },
   "AC-003": {
-    name: "Air Conditioner",
-    category: "Devices",
-    location: "Master Bedroom",
-    status: "On",
+    nameKey: "qrr.nameAC",
+    categoryKey: "inv.catDevices",
+    locationKey: "qrr.locMasterBedroom",
+    statusKey: "qrr.statusOn",
     statusColor: "#4ADE80",
     icon: "❄️",
     accentColor: "#22D3EE",
@@ -49,10 +50,10 @@ const assetLookup: Record<string, {
     detailHref: "/inventory/air-conditioner",
   },
   "LM-004": {
-    name: "Lawn Mower",
-    category: "Equipment",
-    location: "Garden",
-    status: "Idle",
+    nameKey: "qrr.nameMower",
+    categoryKey: "inv.catEquipment",
+    locationKey: "qrr.locGarden",
+    statusKey: "qrr.statusIdle",
     statusColor: "#9CA3AF",
     icon: "🌿",
     accentColor: "#4ADE80",
@@ -60,10 +61,10 @@ const assetLookup: Record<string, {
     detailHref: "/inventory/lawn-mower",
   },
   "SC-005": {
-    name: "Security Camera",
-    category: "Devices",
-    location: "Driveway",
-    status: "3 Active",
+    nameKey: "qrr.nameCamera",
+    categoryKey: "inv.catDevices",
+    locationKey: "qrr.locDriveway",
+    statusKey: "qrr.status3Active",
     statusColor: "#FFFFFF",
     icon: "📷",
     accentColor: "#7C3AED",
@@ -71,10 +72,10 @@ const assetLookup: Record<string, {
     detailHref: "/inventory/security-camera",
   },
   "IS-006": {
-    name: "Irrigation System",
-    category: "Equipment",
-    location: "Orchard",
-    status: "Active",
+    nameKey: "qrr.nameIrrigation",
+    categoryKey: "inv.catEquipment",
+    locationKey: "qrr.locOrchard",
+    statusKey: "qrr.statusActive",
     statusColor: "#4ADE80",
     icon: "💧",
     accentColor: "#22D3EE",
@@ -84,6 +85,7 @@ const assetLookup: Record<string, {
 };
 
 export default function QRResultPage() {
+  const t = useT();
   const params = useParams<{ code: string }>();
   const decodedCode = decodeURIComponent(params.code).toUpperCase();
   const asset = assetLookup[decodedCode];
@@ -107,7 +109,7 @@ export default function QRResultPage() {
               <path d="M15 18l-6-6 6-6" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
             </svg>
           </Link>
-          <h1 className="text-white font-bold text-xl">Scan Result</h1>
+          <h1 className="text-white font-bold text-xl">{t("qrr.scanResult")}</h1>
         </div>
 
         {/* Not found state */}
@@ -122,9 +124,9 @@ export default function QRResultPage() {
             </svg>
           </div>
 
-          <h2 className="text-white font-bold text-2xl mb-2">Asset Not Found</h2>
+          <h2 className="text-white font-bold text-2xl mb-2">{t("qrr.notFound")}</h2>
           <p className="text-sm text-center mb-1" style={{ color: "#9CA3AF" }}>
-            No asset matched the code
+            {t("qrr.noMatch")}
           </p>
           <p
             className="text-sm font-mono font-semibold mb-8 px-3 py-1.5 rounded-xl"
@@ -141,7 +143,7 @@ export default function QRResultPage() {
               color: "#050A14",
             }}
           >
-            Try Again
+            {t("qrr.tryAgain")}
           </Link>
           <Link
             href="/inventory"
@@ -152,7 +154,7 @@ export default function QRResultPage() {
               border: "1px solid rgba(255,255,255,0.10)",
             }}
           >
-            Back to Inventory
+            {t("qrr.backToInventory")}
           </Link>
         </div>
       </div>
@@ -177,7 +179,7 @@ export default function QRResultPage() {
             <path d="M15 18l-6-6 6-6" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
           </svg>
         </Link>
-        <h1 className="text-white font-bold text-xl">Scan Result</h1>
+        <h1 className="text-white font-bold text-xl">{t("qrr.scanResult")}</h1>
       </div>
 
       <div className="flex-1 flex flex-col items-center px-5 pb-10">
@@ -196,8 +198,8 @@ export default function QRResultPage() {
           </svg>
         </div>
 
-        <p className="text-sm font-medium mb-1" style={{ color: "#4ADE80" }}>Asset Found</p>
-        <h2 className="text-white font-bold text-2xl mb-6">{asset.name}</h2>
+        <p className="text-sm font-medium mb-1" style={{ color: "#4ADE80" }}>{t("qrr.assetFound")}</p>
+        <h2 className="text-white font-bold text-2xl mb-6">{t(asset.nameKey)}</h2>
 
         {/* Asset card */}
         <div
@@ -219,8 +221,8 @@ export default function QRResultPage() {
               {asset.icon}
             </div>
             <div className="flex-1">
-              <p className="text-white font-semibold">{asset.name}</p>
-              <p className="text-xs mt-0.5" style={{ color: "#9CA3AF" }}>{asset.category}</p>
+              <p className="text-white font-semibold">{t(asset.nameKey)}</p>
+              <p className="text-xs mt-0.5" style={{ color: "#9CA3AF" }}>{t(asset.categoryKey)}</p>
             </div>
             <span
               className="px-2.5 py-1 rounded-full text-[10px] font-semibold flex-shrink-0"
@@ -230,7 +232,7 @@ export default function QRResultPage() {
                 border: `1px solid ${asset.statusColor}30`,
               }}
             >
-              {asset.status}
+              {t(asset.statusKey)}
             </span>
           </div>
 
@@ -239,11 +241,11 @@ export default function QRResultPage() {
             className="flex items-center justify-between px-4 py-3.5"
             style={{ borderBottom: "1px solid rgba(255,255,255,0.06)" }}
           >
-            <span className="text-sm" style={{ color: "#6B7280" }}>Location</span>
-            <span className="text-sm font-medium text-white">{asset.location}</span>
+            <span className="text-sm" style={{ color: "#6B7280" }}>{t("qrr.location")}</span>
+            <span className="text-sm font-medium text-white">{t(asset.locationKey)}</span>
           </div>
           <div className="flex items-center justify-between px-4 py-3.5">
-            <span className="text-sm" style={{ color: "#6B7280" }}>Asset ID</span>
+            <span className="text-sm" style={{ color: "#6B7280" }}>{t("qrr.assetId")}</span>
             <span className="text-sm font-mono font-semibold" style={{ color: asset.accentColor }}>
               {asset.assetId}
             </span>
@@ -259,7 +261,7 @@ export default function QRResultPage() {
             color: "#050A14",
           }}
         >
-          View Details
+          {t("qrr.viewDetails")}
         </Link>
 
         <button
@@ -271,7 +273,7 @@ export default function QRResultPage() {
             backdropFilter: "blur(20px)",
           }}
         >
-          Add Task
+          {t("qrr.addTask")}
         </button>
 
         <button
@@ -282,12 +284,12 @@ export default function QRResultPage() {
             border: "1px solid rgba(239,68,68,0.20)",
           }}
         >
-          Report Issue
+          {t("qrr.reportIssue")}
         </button>
 
         {/* Back link */}
         <Link href="/inventory" className="text-sm" style={{ color: "#6B7280" }}>
-          Back to Inventory
+          {t("qrr.backToInventory")}
         </Link>
       </div>
     </div>

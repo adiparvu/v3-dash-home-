@@ -5,6 +5,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import StatusBar from "../../components/layout/StatusBar";
 import { useStore, slugify } from "../../lib/store";
+import { useT, type MessageKey } from "../../lib/i18n";
 
 const categories = [
   { id: "Devices", icon: "📱", color: "#22D3EE" },
@@ -14,6 +15,13 @@ const categories = [
 ];
 
 const locations = ["Lake", "Forest", "Greenhouse", "Orchard", "Garden", "House", "Driveway"];
+
+const CAT_KEY: Record<string, MessageKey> = {
+  Devices: "inv.catDevices", Plants: "inv.catPlants", Equipment: "inv.catEquipment", Vehicles: "inv.catVehicles",
+};
+const LOC_KEY: Record<string, MessageKey> = {
+  Lake: "inv.locLake", Forest: "inv.locForest", Greenhouse: "inv.locGreenhouse", Orchard: "inv.locOrchard", Garden: "inv.locGarden", House: "inv.locHouse", Driveway: "inv.locDriveway",
+};
 
 function Field({
   label, value, ph, active, onChange, onFocus, onBlur,
@@ -44,6 +52,7 @@ function Field({
 
 export default function NewInventoryPage() {
   const router = useRouter();
+  const t = useT();
   const { addAsset } = useStore();
   const [form, setForm] = useState({
     name: "",
@@ -92,12 +101,12 @@ export default function NewInventoryPage() {
       <StatusBar />
 
       <div className="px-4 pt-1 pb-4 flex items-center gap-3">
-        <Link href="/inventory" aria-label="Back" className="w-9 h-9 rounded-2xl flex items-center justify-center flex-shrink-0 liquid-glass" style={{ color: "var(--text-1)" }}>
+        <Link href="/inventory" aria-label={t("inv.back")} className="w-9 h-9 rounded-2xl flex items-center justify-center flex-shrink-0 liquid-glass" style={{ color: "var(--text-1)" }}>
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none"><path d="M15 18L9 12L15 6" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" /></svg>
         </Link>
         <div>
-          <h1 className="font-bold text-xl leading-tight" style={{ color: "var(--text-1)" }}>New Asset</h1>
-          <p className="text-xs" style={{ color: "var(--text-2)" }}>Add an object to inventory</p>
+          <h1 className="font-bold text-xl leading-tight" style={{ color: "var(--text-1)" }}>{t("inv.newAsset")}</h1>
+          <p className="text-xs" style={{ color: "var(--text-2)" }}>{t("inv.addObject")}</p>
         </div>
       </div>
 
@@ -106,23 +115,23 @@ export default function NewInventoryPage() {
         <div className="liquid-glass rounded-3xl p-4 flex items-center gap-4">
           <div className="w-14 h-14 rounded-2xl flex items-center justify-center text-3xl flex-shrink-0" style={{ background: "var(--glass-bg)", border: "0.5px solid var(--glass-border)" }}>{form.icon}</div>
           <div className="flex-1 min-w-0">
-            <p className="font-semibold text-base leading-tight" style={{ color: "var(--text-1)" }}>{form.name.trim() || "Asset name"}</p>
-            <p className="text-xs mt-0.5" style={{ color: "var(--text-2)" }}>{form.category} · {form.location}</p>
+            <p className="font-semibold text-base leading-tight" style={{ color: "var(--text-1)" }}>{form.name.trim() || t("inv.assetNamePlaceholder")}</p>
+            <p className="text-xs mt-0.5" style={{ color: "var(--text-2)" }}>{CAT_KEY[form.category] ? t(CAT_KEY[form.category]) : form.category} · {LOC_KEY[form.location] ? t(LOC_KEY[form.location]) : form.location}</p>
           </div>
         </div>
 
-        <Field label="Asset Name" ph="e.g. Water Pump" {...fieldProps("name")} />
+        <Field label={t("inv.assetName")} ph={t("inv.assetNamePh")} {...fieldProps("name")} />
 
         {/* Category */}
         <div>
-          <label className="text-xs font-medium block mb-2 px-1" style={{ color: "var(--text-2)" }}>Category</label>
+          <label className="text-xs font-medium block mb-2 px-1" style={{ color: "var(--text-2)" }}>{t("inv.category")}</label>
           <div className="grid grid-cols-4 gap-2">
             {categories.map((c) => {
               const active = form.category === c.id;
               return (
                 <button key={c.id} onClick={() => { set("category", c.id); set("icon", c.icon); }} className="liquid-glass rounded-2xl py-3 flex flex-col items-center gap-1.5 active:scale-[0.95] transition-transform" style={{ border: active ? "1.5px solid var(--accent)" : undefined }}>
                   <span className="text-xl">{c.icon}</span>
-                  <span className="text-[10px] font-medium" style={{ color: "var(--text-1)" }}>{c.id}</span>
+                  <span className="text-[10px] font-medium" style={{ color: "var(--text-1)" }}>{CAT_KEY[c.id] ? t(CAT_KEY[c.id]) : c.id}</span>
                 </button>
               );
             })}
@@ -131,7 +140,7 @@ export default function NewInventoryPage() {
 
         {/* Location */}
         <div>
-          <label className="text-xs font-medium block mb-2 px-1" style={{ color: "var(--text-2)" }}>Location</label>
+          <label className="text-xs font-medium block mb-2 px-1" style={{ color: "var(--text-2)" }}>{t("inv.location")}</label>
           <div className="flex flex-wrap gap-2">
             {locations.map((loc) => {
               const active = form.location === loc;
@@ -142,7 +151,7 @@ export default function NewInventoryPage() {
                   className="px-3.5 py-2 rounded-xl text-sm font-medium transition-all active:scale-95"
                   style={active ? { background: "var(--accent)", color: "var(--bg-1)" } : { background: "var(--glass-bg)", color: "var(--text-2)", border: "0.5px solid var(--glass-border)" }}
                 >
-                  {loc}
+                  {LOC_KEY[loc] ? t(LOC_KEY[loc]) : loc}
                 </button>
               );
             })}
@@ -151,11 +160,11 @@ export default function NewInventoryPage() {
 
         {/* Details section */}
         <div className="h-px" style={{ background: "var(--glass-border)" }} />
-        <p className="text-xs font-semibold uppercase tracking-widest px-1" style={{ color: "var(--text-3)" }}>Details (optional)</p>
+        <p className="text-xs font-semibold uppercase tracking-widest px-1" style={{ color: "var(--text-3)" }}>{t("inv.detailsOptional")}</p>
 
-        <Field label="Brand" ph="e.g. Grundfos" {...fieldProps("brand")} />
-        <Field label="Model" ph="e.g. CM 5-4" {...fieldProps("model")} />
-        <Field label="Serial Number" ph="e.g. GF-2023-0041" {...fieldProps("serial")} />
+        <Field label={t("inv.brand")} ph={t("inv.brandPh")} {...fieldProps("brand")} />
+        <Field label={t("inv.model")} ph={t("inv.modelPh")} {...fieldProps("model")} />
+        <Field label={t("inv.serial")} ph={t("inv.serialPh")} {...fieldProps("serial")} />
 
         {/* QR hint */}
         <Link href="/inventory/qr">
@@ -169,8 +178,8 @@ export default function NewInventoryPage() {
               </svg>
             </div>
             <div className="flex-1">
-              <p className="text-sm font-medium" style={{ color: "var(--text-1)" }}>Scan QR to autofill</p>
-              <p className="text-xs" style={{ color: "var(--text-2)" }}>Use the asset&apos;s QR label</p>
+              <p className="text-sm font-medium" style={{ color: "var(--text-1)" }}>{t("inv.scanQr")}</p>
+              <p className="text-xs" style={{ color: "var(--text-2)" }}>{t("inv.useQrLabel")}</p>
             </div>
             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" style={{ opacity: 0.4 }}><path d="M9 18l6-6-6-6" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round" /></svg>
           </div>
@@ -188,10 +197,10 @@ export default function NewInventoryPage() {
             border: canSave ? "none" : "0.5px solid var(--glass-border)",
           }}
         >
-          Add Asset
+          {t("inv.addAssetBtn")}
         </button>
         <div className="flex justify-center">
-          <Link href="/inventory"><button className="text-sm py-2 px-4" style={{ color: "var(--text-2)" }}>Cancel</button></Link>
+          <Link href="/inventory"><button className="text-sm py-2 px-4" style={{ color: "var(--text-2)" }}>{t("inv.cancel")}</button></Link>
         </div>
       </div>
     </div>

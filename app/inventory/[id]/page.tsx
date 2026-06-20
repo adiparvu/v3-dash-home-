@@ -6,6 +6,24 @@ import { useParams, useRouter } from "next/navigation";
 import StatusBar from "../../components/layout/StatusBar";
 import { useStore } from "../../lib/store";
 import { useAssets } from "../../lib/useAssets";
+import { useT, type MessageKey } from "../../lib/i18n";
+
+const NAME_KEY: Record<string, MessageKey> = {
+  "Water Pump": "qrr.nameWaterPump", "Ficus Tree": "qrr.nameFicus", "Air Conditioner": "qrr.nameAC",
+  "Lawn Mower": "qrr.nameMower", "Security Camera": "qrr.nameCamera", "Irrigation System": "qrr.nameIrrigation",
+};
+const CAT_KEY: Record<string, MessageKey> = {
+  Devices: "inv.catDevices", Plants: "inv.catPlants", Equipment: "inv.catEquipment", Vehicles: "inv.catVehicles",
+};
+const LOC_KEY: Record<string, MessageKey> = {
+  "Lake Zone": "qrr.locLakeZone", "Living Room": "qrr.locLivingRoom", "Master Bedroom": "qrr.locMasterBedroom",
+  Garden: "qrr.locGarden", Driveway: "qrr.locDriveway", Orchard: "qrr.locOrchard",
+  Lake: "inv.locLake", Forest: "inv.locForest", Greenhouse: "inv.locGreenhouse", House: "inv.locHouse",
+};
+const STATUS_KEY: Record<string, MessageKey> = {
+  On: "qrr.statusOn", Healthy: "qrr.statusHealthy", Idle: "qrr.statusIdle", Active: "qrr.statusActive", "3 Active": "qrr.status3Active",
+  Active2: "inv.statusActive",
+};
 
 const assetData: Record<string, {
   name: string;
@@ -130,21 +148,28 @@ const assetData: Record<string, {
 
 const defaultAsset = assetData["water-pump"];
 
-const tabs = ["Details", "Maintenance", "Documents", "QR Code"];
-
-const maintenanceItems = [
-  { title: "Filter Replacement", date: "Jun 10, 2026", status: "Scheduled", statusColor: "#F59E0B" },
-  { title: "Annual Inspection", date: "Apr 2, 2026", status: "Completed", statusColor: "#4ADE80" },
-  { title: "Belt Check", date: "Jan 15, 2026", status: "Completed", statusColor: "#4ADE80" },
+const tabs: { id: string; labelKey: MessageKey }[] = [
+  { id: "Details", labelKey: "idet.tabDetails" },
+  { id: "Maintenance", labelKey: "idet.tabMaintenance" },
+  { id: "Documents", labelKey: "idet.tabDocuments" },
+  { id: "QR Code", labelKey: "idet.tabQr" },
 ];
 
-const documents = [
-  { name: "User Manual", size: "4.2 MB", icon: "📄" },
-  { name: "Warranty Card", size: "1.1 MB", icon: "🛡️" },
-  { name: "Purchase Invoice", size: "0.8 MB", icon: "🧾" },
+const maintenanceItems: { titleKey: MessageKey; date: string; statusKey: MessageKey; statusColor: string }[] = [
+  { titleKey: "idet.mFilter", date: "Jun 10, 2026", statusKey: "idet.mScheduled", statusColor: "#F59E0B" },
+  { titleKey: "idet.mInspection", date: "Apr 2, 2026", statusKey: "idet.mCompleted", statusColor: "#4ADE80" },
+  { titleKey: "idet.mBelt", date: "Jan 15, 2026", statusKey: "idet.mCompleted", statusColor: "#4ADE80" },
+];
+
+const documents: { nameKey: MessageKey; size: string; icon: string }[] = [
+  { nameKey: "idet.docManual", size: "4.2 MB", icon: "📄" },
+  { nameKey: "idet.docWarranty", size: "1.1 MB", icon: "🛡️" },
+  { nameKey: "idet.docInvoice", size: "0.8 MB", icon: "🧾" },
 ];
 
 export default function InventoryDetailPage() {
+  const t = useT();
+  const tx = (map: Record<string, MessageKey>, v: string) => (map[v] ? t(map[v]) : v);
   const params = useParams<{ id: string }>();
   const [activeTab, setActiveTab] = useState("Details");
   const [menuOpen, setMenuOpen] = useState(false);
@@ -232,7 +257,7 @@ export default function InventoryDetailPage() {
         {/* More button */}
         <button
           onClick={() => setMenuOpen(true)}
-          aria-label="More options"
+          aria-label={t("idet.moreOptions")}
           className="absolute top-14 right-5 w-9 h-9 rounded-2xl flex items-center justify-center z-10"
           style={{
             background: "rgba(255,255,255,0.10)",
@@ -273,11 +298,11 @@ export default function InventoryDetailPage() {
         {/* Asset name + status */}
         <div className="flex items-start justify-between mb-1">
           <div className="flex items-center gap-2">
-            <h1 className="font-bold text-2xl leading-tight" style={{ color: "var(--text-1)" }}>{asset.name}</h1>
+            <h1 className="font-bold text-2xl leading-tight" style={{ color: "var(--text-1)" }}>{tx(NAME_KEY, asset.name)}</h1>
             <span className="text-[10px] font-semibold px-2 py-0.5 rounded-full" style={synced
               ? { background: "rgba(74,222,128,0.15)", color: "#4ADE80", border: "1px solid rgba(74,222,128,0.25)" }
               : { background: "rgba(255,255,255,0.06)", color: "#9CA3AF", border: "1px solid rgba(255,255,255,0.12)" }}>
-              {synced ? "Synced" : "Demo"}
+              {synced ? t("idet.synced") : t("idet.demo")}
             </span>
           </div>
           <span
@@ -288,15 +313,15 @@ export default function InventoryDetailPage() {
               border: `1px solid ${asset.statusColor}30`,
             }}
           >
-            {asset.status}
+            {tx(STATUS_KEY, asset.status)}
           </span>
         </div>
 
         {/* Category · Location */}
         <p className="text-sm mb-4" style={{ color: "var(--text-2)" }}>
-          {asset.category}
+          {tx(CAT_KEY, asset.category)}
           <span className="mx-1.5 opacity-40">·</span>
-          {asset.location}
+          {tx(LOC_KEY, asset.location)}
         </p>
 
         {/* Tabs */}
@@ -306,16 +331,16 @@ export default function InventoryDetailPage() {
         >
           {tabs.map((tab) => (
             <button
-              key={tab}
-              onClick={() => setActiveTab(tab)}
+              key={tab.id}
+              onClick={() => setActiveTab(tab.id)}
               className="flex-1 py-2 text-xs font-medium rounded-xl transition-all"
               style={
-                activeTab === tab
+                activeTab === tab.id
                   ? { background: "var(--glass-bg-strong)", color: "var(--text-1)", boxShadow: "var(--glass-shadow)" }
                   : { color: "var(--text-3)" }
               }
             >
-              {tab}
+              {t(tab.labelKey)}
             </button>
           ))}
         </div>
@@ -326,12 +351,12 @@ export default function InventoryDetailPage() {
             {/* Info rows */}
             <div className="liquid-glass rounded-2xl overflow-hidden mb-4">
               {[
-                { label: "Brand", value: asset.brand },
-                { label: "Model", value: asset.model },
-                { label: "Serial Number", value: asset.serial },
-                { label: "Purchase Date", value: asset.purchaseDate },
-                { label: "Warranty", value: asset.warranty },
-                { label: "Location", value: asset.location },
+                { label: t("idet.brand"), value: asset.brand },
+                { label: t("idet.model"), value: asset.model },
+                { label: t("idet.serial"), value: asset.serial },
+                { label: t("idet.purchaseDate"), value: asset.purchaseDate },
+                { label: t("idet.warranty"), value: asset.warranty === "N/A" ? t("idet.na") : asset.warranty },
+                { label: t("idet.location"), value: tx(LOC_KEY, asset.location) },
               ].map((row, i, arr) => (
                 <div
                   key={row.label}
@@ -346,12 +371,12 @@ export default function InventoryDetailPage() {
 
             {/* Quick Actions */}
             <p className="text-xs font-semibold uppercase tracking-widest mb-3" style={{ color: "var(--text-3)" }}>
-              Quick Actions
+              {t("idet.quickActions")}
             </p>
             <div className="grid grid-cols-4 gap-3">
               {[
                 {
-                  label: "History",
+                  label: t("idet.actHistory"),
                   icon: (
                     <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
                       <circle cx="12" cy="12" r="9" stroke="#22D3EE" strokeWidth="1.75" />
@@ -361,7 +386,7 @@ export default function InventoryDetailPage() {
                   color: "#22D3EE",
                 },
                 {
-                  label: "Tasks",
+                  label: t("idet.actTasks"),
                   icon: (
                     <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
                       <path d="M9 11l3 3L22 4" stroke="#4ADE80" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round" />
@@ -371,7 +396,7 @@ export default function InventoryDetailPage() {
                   color: "#4ADE80",
                 },
                 {
-                  label: "Alert",
+                  label: t("idet.actAlert"),
                   icon: (
                     <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
                       <path d="M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z" stroke="#F59E0B" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round" />
@@ -382,7 +407,7 @@ export default function InventoryDetailPage() {
                   color: "#F59E0B",
                 },
                 {
-                  label: "Settings",
+                  label: t("idet.actSettings"),
                   icon: (
                     <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
                       <circle cx="12" cy="12" r="3" stroke="#7C3AED" strokeWidth="1.75" />
@@ -415,12 +440,12 @@ export default function InventoryDetailPage() {
             <div className="liquid-glass rounded-2xl overflow-hidden mb-4">
               {maintenanceItems.map((item, i) => (
                 <div
-                  key={item.title}
+                  key={item.titleKey}
                   className="flex items-center justify-between px-4 py-4"
                   style={i < maintenanceItems.length - 1 ? { borderBottom: "0.5px solid var(--glass-border)" } : {}}
                 >
                   <div>
-                    <p className="text-sm font-medium" style={{ color: "var(--text-1)" }}>{item.title}</p>
+                    <p className="text-sm font-medium" style={{ color: "var(--text-1)" }}>{t(item.titleKey)}</p>
                     <p className="text-xs mt-0.5" style={{ color: "var(--text-3)" }}>{item.date}</p>
                   </div>
                   <span
@@ -431,7 +456,7 @@ export default function InventoryDetailPage() {
                       border: `1px solid ${item.statusColor}30`,
                     }}
                   >
-                    {item.status}
+                    {t(item.statusKey)}
                   </span>
                 </div>
               ))}
@@ -441,7 +466,7 @@ export default function InventoryDetailPage() {
               className="w-full py-3.5 rounded-2xl text-sm font-semibold"
               style={{ background: "rgba(74,222,128,0.12)", color: "var(--accent)", border: "1px solid rgba(74,222,128,0.25)" }}
             >
-              + Schedule Maintenance
+              {t("idet.scheduleMaint")}
             </button>
           </div>
         )}
@@ -451,13 +476,13 @@ export default function InventoryDetailPage() {
             <div className="liquid-glass rounded-2xl overflow-hidden mb-4">
               {documents.map((doc, i) => (
                 <div
-                  key={doc.name}
+                  key={doc.nameKey}
                   className="flex items-center gap-3.5 px-4 py-4"
                   style={i < documents.length - 1 ? { borderBottom: "0.5px solid var(--glass-border)" } : {}}
                 >
                   <span className="text-2xl">{doc.icon}</span>
                   <div className="flex-1">
-                    <p className="text-sm font-medium" style={{ color: "var(--text-1)" }}>{doc.name}</p>
+                    <p className="text-sm font-medium" style={{ color: "var(--text-1)" }}>{t(doc.nameKey)}</p>
                     <p className="text-xs mt-0.5" style={{ color: "var(--text-3)" }}>{doc.size}</p>
                   </div>
                   <button
@@ -476,7 +501,7 @@ export default function InventoryDetailPage() {
               className="w-full py-3.5 rounded-2xl text-sm font-semibold"
               style={{ background: "var(--glass-bg)", color: "var(--text-2)", border: "0.5px solid var(--glass-border)" }}
             >
-              + Upload Document
+              {t("idet.uploadDoc")}
             </button>
           </div>
         )}
@@ -495,7 +520,7 @@ export default function InventoryDetailPage() {
 
               {/* Asset ID */}
               <p className="text-sm font-medium mb-1" style={{ color: "var(--text-2)" }}>
-                Asset ID
+                {t("idet.assetId")}
               </p>
               <p className="font-bold text-lg tracking-widest" style={{ color: "var(--text-1)" }}>{asset.assetId}</p>
             </div>
@@ -508,7 +533,7 @@ export default function InventoryDetailPage() {
                 color: "#050A14",
               }}
             >
-              Download QR
+              {t("idet.downloadQr")}
             </button>
 
             {/* Print Label */}
@@ -521,7 +546,7 @@ export default function InventoryDetailPage() {
                 backdropFilter: "blur(20px)",
               }}
             >
-              Print Label
+              {t("idet.printLabel")}
             </button>
           </div>
         )}
@@ -532,8 +557,8 @@ export default function InventoryDetailPage() {
         <div className="fixed inset-0 z-[60] flex items-end justify-center" style={{ background: "rgba(0,0,0,0.45)" }} onClick={() => setMenuOpen(false)}>
           <div className="w-full md:w-[390px] rounded-t-[28px] p-5 pb-8 animate-slide-up liquid-glass-strong" onClick={(e) => e.stopPropagation()}>
             <div className="w-10 h-1 rounded-full mx-auto mb-4" style={{ background: "var(--glass-border)" }} />
-            <p className="font-bold text-base mb-1" style={{ color: "var(--text-1)" }}>{asset.name}</p>
-            <p className="text-xs mb-5" style={{ color: "var(--text-2)" }}>{custom ? "Custom asset" : "Seed asset (read-only)"}</p>
+            <p className="font-bold text-base mb-1" style={{ color: "var(--text-1)" }}>{tx(NAME_KEY, asset.name)}</p>
+            <p className="text-xs mb-5" style={{ color: "var(--text-2)" }}>{custom ? t("idet.customAsset") : t("idet.seedAsset")}</p>
             {custom ? (
               <>
                 <button
@@ -542,7 +567,7 @@ export default function InventoryDetailPage() {
                   style={{ background: "var(--glass-bg)", color: "var(--text-1)", border: "0.5px solid var(--glass-border)" }}
                 >
                   <svg width="17" height="17" viewBox="0 0 24 24" fill="none"><path d="M12 20h9M16.5 3.5a2.12 2.12 0 013 3L7 19l-4 1 1-4z" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round" /></svg>
-                  Edit Asset
+                  {t("idet.editAsset")}
                 </button>
                 <button
                   onClick={() => { removeAsset(custom.href); router.push("/inventory"); }}
@@ -550,13 +575,13 @@ export default function InventoryDetailPage() {
                   style={{ background: "rgba(239,68,68,0.12)", color: "#EF4444", border: "1px solid rgba(239,68,68,0.30)" }}
                 >
                   <svg width="17" height="17" viewBox="0 0 24 24" fill="none"><path d="M3 6h18M8 6V4a1 1 0 011-1h6a1 1 0 011 1v2m2 0v14a1 1 0 01-1 1H6a1 1 0 01-1-1V6m4 5v6m6-6v6" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round" /></svg>
-                  Delete Asset
+                  {t("idet.deleteAsset")}
                 </button>
               </>
             ) : (
-              <p className="text-center text-sm py-2 mb-2" style={{ color: "var(--text-3)" }}>Seed assets can&apos;t be deleted in this demo.</p>
+              <p className="text-center text-sm py-2 mb-2" style={{ color: "var(--text-3)" }}>{t("idet.cantDelete")}</p>
             )}
-            <button onClick={() => setMenuOpen(false)} className="w-full py-3.5 rounded-2xl font-medium text-base" style={{ background: "var(--glass-bg)", border: "0.5px solid var(--glass-border)", color: "var(--text-1)" }}>Cancel</button>
+            <button onClick={() => setMenuOpen(false)} className="w-full py-3.5 rounded-2xl font-medium text-base" style={{ background: "var(--glass-bg)", border: "0.5px solid var(--glass-border)", color: "var(--text-1)" }}>{t("idet.cancel")}</button>
           </div>
         </div>
       )}

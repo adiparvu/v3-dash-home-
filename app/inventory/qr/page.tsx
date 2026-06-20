@@ -4,11 +4,12 @@ import { useState, useRef, useEffect, useCallback } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import StatusBar from "../../components/layout/StatusBar";
+import { useT, type MessageKey } from "../../lib/i18n";
 
-const recentScans = [
-  { name: "Water Pump", id: "WP-001", time: "2h ago", icon: "⚙️", href: "/inventory/water-pump" },
-  { name: "Ficus Tree", id: "FT-002", time: "1d ago", icon: "🌱", href: "/inventory/ficus-tree" },
-  { name: "AC Unit", id: "AC-003", time: "3d ago", icon: "❄️", href: "/inventory/air-conditioner" },
+const recentScans: { nameKey: MessageKey; id: string; timeKey: MessageKey; icon: string; href: string }[] = [
+  { nameKey: "qr.scanWaterPump", id: "WP-001", timeKey: "qr.time2h", icon: "⚙️", href: "/inventory/water-pump" },
+  { nameKey: "qr.scanFicus", id: "FT-002", timeKey: "qr.time1d", icon: "🌱", href: "/inventory/ficus-tree" },
+  { nameKey: "qr.scanAC", id: "AC-003", timeKey: "qr.time3d", icon: "❄️", href: "/inventory/air-conditioner" },
 ];
 
 /* Minimal type for the native BarcodeDetector API (Chromium) */
@@ -21,6 +22,7 @@ type BarcodeDetectorCtor = {
 
 export default function QRScannerPage() {
   const router = useRouter();
+  const t = useT();
   const [manualCode, setManualCode] = useState("");
   const [scanning, setScanning] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -56,7 +58,7 @@ export default function QRScannerPage() {
     setError(null);
     setDetected(null);
     if (typeof navigator === "undefined" || !navigator.mediaDevices?.getUserMedia) {
-      setError("Camera not available on this device.");
+      setError(t("qr.cameraNotAvailable"));
       return;
     }
     try {
@@ -74,7 +76,7 @@ export default function QRScannerPage() {
       const Ctor = (window as unknown as { BarcodeDetector?: BarcodeDetectorCtor }).BarcodeDetector;
       if (!Ctor) {
         // Camera works, but no on-device decoder — user can still see feed + use manual entry
-        setError("Live decoding unsupported here — use manual entry below.");
+        setError(t("qr.decodingUnsupported"));
         return;
       }
       const detector = new Ctor({ formats: ["qr_code"] });
@@ -94,10 +96,10 @@ export default function QRScannerPage() {
       };
       rafRef.current = requestAnimationFrame(tick);
     } catch {
-      setError("Camera permission denied. Use manual entry below.");
+      setError(t("qr.permissionDenied"));
       setScanning(false);
     }
-  }, [handleHit]);
+  }, [handleHit, t]);
 
   // Cleanup on unmount
   useEffect(() => () => stopCamera(), [stopCamera]);
@@ -107,10 +109,10 @@ export default function QRScannerPage() {
       <StatusBar />
 
       <div className="px-5 pt-1 pb-5 flex items-center gap-3">
-        <Link href="/inventory" aria-label="Back" onClick={stopCamera} className="w-9 h-9 rounded-2xl flex items-center justify-center flex-shrink-0 liquid-glass" style={{ color: "var(--text-1)" }}>
+        <Link href="/inventory" aria-label={t("inv.back")} onClick={stopCamera} className="w-9 h-9 rounded-2xl flex items-center justify-center flex-shrink-0 liquid-glass" style={{ color: "var(--text-1)" }}>
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none"><path d="M15 18l-6-6 6-6" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" /></svg>
         </Link>
-        <h1 className="font-bold text-xl" style={{ color: "var(--text-1)" }}>Scan QR Code</h1>
+        <h1 className="font-bold text-xl" style={{ color: "var(--text-1)" }}>{t("qr.title")}</h1>
       </div>
 
       {/* Viewfinder */}
@@ -175,16 +177,16 @@ export default function QRScannerPage() {
             style={{ background: "linear-gradient(135deg, #4ADE80, #22D3EE)", color: "#08111E", boxShadow: "0 8px 24px rgba(74,222,128,0.25)" }}
           >
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none"><path d="M23 19a2 2 0 01-2 2H3a2 2 0 01-2-2V8a2 2 0 012-2h4l2-3h6l2 3h4a2 2 0 012 2z" stroke="#08111E" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" /><circle cx="12" cy="13" r="4" stroke="#08111E" strokeWidth="1.8" /></svg>
-            Start Camera
+            {t("qr.startCamera")}
           </button>
         ) : (
           <button onClick={stopCamera} className="mt-5 px-6 py-3 rounded-2xl text-sm font-semibold active:scale-95 transition-transform" style={{ background: "var(--glass-bg)", border: "0.5px solid var(--glass-border)", color: "var(--text-1)" }}>
-            Stop Camera
+            {t("qr.stopCamera")}
           </button>
         )}
 
         <p className="mt-3 text-sm text-center" style={{ color: "var(--text-2)" }}>
-          {detected ? "Asset found!" : scanning ? "Point camera at a QR code" : "Tap to start scanning"}
+          {detected ? t("qr.assetFound") : scanning ? t("qr.pointCamera") : t("qr.tapToStart")}
         </p>
         {error && <p className="mt-1 text-xs text-center max-w-[260px]" style={{ color: "#F59E0B" }}>{error}</p>}
       </div>
@@ -192,11 +194,11 @@ export default function QRScannerPage() {
       {/* Manual entry */}
       <div className="px-5 mb-6">
         <div className="liquid-glass rounded-2xl p-4">
-          <p className="font-semibold text-sm mb-3" style={{ color: "var(--text-1)" }}>Enter code manually</p>
+          <p className="font-semibold text-sm mb-3" style={{ color: "var(--text-1)" }}>{t("qr.enterManually")}</p>
           <div className="flex gap-2">
             <input
               type="text"
-              placeholder="e.g. WP-001"
+              placeholder={t("qr.codePh")}
               value={manualCode}
               onChange={(e) => setManualCode(e.target.value)}
               className="flex-1 rounded-xl px-3.5 py-2.5 text-sm outline-none"
@@ -212,7 +214,7 @@ export default function QRScannerPage() {
                 border: manualCode.trim() ? "none" : "0.5px solid var(--glass-border)",
               }}
             >
-              Find Asset
+              {t("qr.findAsset")}
             </button>
           </div>
         </div>
@@ -220,15 +222,15 @@ export default function QRScannerPage() {
 
       {/* Recent Scans */}
       <div className="px-5">
-        <p className="text-xs font-semibold uppercase tracking-widest mb-3" style={{ color: "var(--text-3)" }}>Recent Scans</p>
+        <p className="text-xs font-semibold uppercase tracking-widest mb-3" style={{ color: "var(--text-3)" }}>{t("qr.recentScans")}</p>
         <div className="liquid-glass rounded-2xl overflow-hidden">
           {recentScans.map((scan, i) => (
             <Link key={scan.id} href={scan.href} onClick={stopCamera}>
               <div className="flex items-center gap-3.5 px-4 py-3.5 transition-colors" style={i < recentScans.length - 1 ? { borderBottom: "0.5px solid var(--glass-border)" } : {}}>
                 <div className="w-10 h-10 rounded-xl flex items-center justify-center text-lg flex-shrink-0" style={{ background: "var(--glass-bg)", border: "0.5px solid var(--glass-border)" }}>{scan.icon}</div>
                 <div className="flex-1 min-w-0">
-                  <p className="text-sm font-medium" style={{ color: "var(--text-1)" }}>{scan.name}</p>
-                  <p className="text-xs mt-0.5" style={{ color: "var(--text-3)" }}>{scan.id} · {scan.time}</p>
+                  <p className="text-sm font-medium" style={{ color: "var(--text-1)" }}>{t(scan.nameKey)}</p>
+                  <p className="text-xs mt-0.5" style={{ color: "var(--text-3)" }}>{scan.id} · {t(scan.timeKey)}</p>
                 </div>
                 <svg width="14" height="14" viewBox="0 0 24 24" fill="none" style={{ opacity: 0.4 }}><path d="M9 18l6-6-6-6" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round" /></svg>
               </div>
