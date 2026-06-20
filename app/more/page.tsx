@@ -14,6 +14,7 @@ const sections: { title: string; tkey: MessageKey; items: { href: string; label:
       { href: "/chat", label: "Chat", icon: "💬", desc: "Household live messages", badge: "6 unread" },
       { href: "/ai", label: "AI Assistant", icon: "✨", desc: "Your personal estate AI", badge: "Beta" },
       { href: "/properties", label: "Properties", icon: "🏠", desc: "Manage your properties", badge: null },
+      { href: "/budget", label: "Budget", icon: "💶", desc: "Expenses, categories & trends", badge: "New" },
       { href: "/documents", label: "Documents", icon: "📄", desc: "Deeds, manuals & records", badge: "12" },
     ],
   },

@@ -17,6 +17,22 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   in localStorage prototype mode.
 
 ### Added
+- **Budget & expenses** — a new **Budget** screen (`/budget`, More → Estate)
+  with a monthly budget progress bar, a 6-month trend, category breakdown (with
+  shares) and recent expenses imported from the Receipt Scanner & banking
+  integrations. Pure, tested aggregation in `app/lib/budget.ts`.
+- **Proactive Insights feed** — `/insights` (More → Monitoring) fuses live
+  conditions, possible faults and active smart rules into a ranked, actionable
+  feed (`app/lib/insights.ts`).
+- **Automations on real data** — a live smart-rule engine
+  (`app/lib/automationRules.ts`, `useConditions`) evaluates rules
+  (charge-when-cheap, air-quality protection, pollen guard, skip-irrigation-on-
+  rain, UV shade, smart pre-cool) against the real weather/air/tariff feeds; the
+  Automations screen shows each rule's live ON/idle state + reason.
+- **More real data sources** — energy tariff expanded to 7 bidding zones (BE,
+  RO, DE, FR, NL, ES, AT); live **UV index** (weather); live **pollen** (air
+  quality); and a new **Seismic Monitor** integration (USGS earthquakes near
+  your location). All with graceful fallbacks; pure helpers unit-tested.
 - **All integrations made functional (no more “Soon”)** — every integration is
   now connectable end to end. A persisted integrations store
   (`app/lib/integrations.tsx`, `prvio-integrations-v1`) + a rich catalog (19
