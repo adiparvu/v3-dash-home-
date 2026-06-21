@@ -75,11 +75,11 @@ struct SecureNoteCard: View {
         isRevealing = true
         defer { isRevealing = false }
         // Decryption uses the Secure Enclave private key and triggers the
-        // biometric / passcode prompt on a background queue.
-        let v = vault // value-type copy, avoids capturing self in the detached task
+        // biometric / passcode prompt off the main actor. Construct the vault
+        // inside the task so nothing non-Sendable is captured (Swift 6).
         do {
             let text = try await Task.detached(priority: .userInitiated) {
-                try v.reveal()
+                try SensitiveVault().reveal()
             }.value
             revealed = text
             status = "Unlocked."

@@ -4,9 +4,9 @@
 #   brew install xcodegen
 #   cd apple && xcodegen generate && open PRVIOEarth.xcodeproj
 #
-# Phase 8: multiplatform PRVIO Earth client. Targets the latest SDKs
-# (iOS/iPadOS/visionOS 27, watchOS 27) and Swift 6, using the native SwiftUI
-# Liquid Glass APIs. Requires Xcode 27.
+# Phase 8: multiplatform PRVIO Earth client. Targets iOS/iPadOS/visionOS 26 and
+# watchOS 26 with Swift 6, using the native SwiftUI Liquid Glass APIs. Requires
+# Xcode 26 (the iOS 27 SDK is not yet on CI / TestFlight build infrastructure).
 #   - PRVIOEarth        — iPhone + iPad + Mac (Catalyst) + Vision Pro (one target)
 #   - PRVIOEarthWidgets — WidgetKit + Live Activities extension
 #   - PRVIOEarthWatch   — Apple Watch app
@@ -15,7 +15,7 @@ name: PRVIOEarth
 options:
   bundleIdPrefix: earth.prvio
   deploymentTarget:
-    iOS: "27.0"
+    iOS: "26.0"
   createIntermediateGroups: true
   groupSortPosition: top
 
@@ -108,7 +108,7 @@ targets:
   PRVIOEarthWatch:
     type: application
     platform: watchOS
-    deploymentTarget: "27.0"
+    deploymentTarget: "26.0"
     sources:
       - path: PRVIOEarthWatch
       - path: Shared

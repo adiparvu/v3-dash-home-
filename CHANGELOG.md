@@ -8,6 +8,38 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.3.0] — 2026-06-21
+
+### Fixed
+- **Apple build green on macOS CI (Swift 6 / iOS 26 SDK)** — fixed the issues the
+  new macOS build surfaced: made `APIClient` `Sendable` (`@Sendable` token closure)
+  to satisfy Swift 6 strict concurrency, constructed `SensitiveVault` inside the
+  detached reveal task, and replaced the regular-width `NavigationSplitView` sidebar
+  (whose `List(_:selection:)` initializer is unavailable on iOS) with a `TabView`
+  shared across all devices.
+
+### Changed
+- **Apple deployment target lowered to 26** — v1.2.0 set iOS/watchOS/visionOS to
+  27, but the iOS 27 SDK isn't available on CI / TestFlight build infrastructure
+  (GitHub macOS runners ship Xcode 26). Targets are now **iOS/iPadOS/visionOS 26
+  and watchOS 26** so the app builds and is TestFlight-able today; Swift 6 and the
+  native Liquid Glass APIs are unaffected.
+
+### Added
+- **Apple build in CI + TestFlight workflow** — `.github/workflows/apple.yml` builds
+  the native client on a **macOS runner** (XcodeGen + `xcodebuild`, no signing) on
+  any `apple/**` change, validating Swift compilation in CI; a manual job archives
+  and uploads to **TestFlight** via an App Store Connect API key. Builds with Xcode 26.
+- **Server-side APNs sender for Live Activities** — completes the push loop. New
+  migration `011_live_activities.sql` (RLS-scoped token store), DAL
+  (`lib/data/liveActivities.ts`), an APNs helper (`lib/apns.ts`: ES256 provider
+  JWT + HTTP/2 sender + pure payload builders, unit-tested) and versioned routes:
+  `POST /api/v1/twin/live-activities` registers a push token and
+  `POST /api/v1/twin/live-activities/push` pushes a `ContentState` update/end
+  (returns `503` until the `APNS_*` env vars are set). The iOS `LiveActivityManager`
+  now registers its token with the backend. Migration `011` has been applied to the
+  live project.
+
 ## [1.2.0] — 2026-06-21
 
 ### Added
@@ -340,7 +372,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Supabase initial schema migration (`supabase/migrations/001_initial_schema.sql`)
   and base architecture documentation (`docs/architecture/system-overview.md`).
 
-[Unreleased]: https://github.com/adiparvu/v3-dash-home-/compare/v1.2.0...HEAD
+[Unreleased]: https://github.com/adiparvu/v3-dash-home-/compare/v1.3.0...HEAD
+[1.3.0]: https://github.com/adiparvu/v3-dash-home-/compare/v1.2.0...v1.3.0
 [1.2.0]: https://github.com/adiparvu/v3-dash-home-/compare/v1.1.0...v1.2.0
 [1.1.0]: https://github.com/adiparvu/v3-dash-home-/compare/v1.0.0...v1.1.0
 [1.0.0]: https://github.com/adiparvu/v3-dash-home-/releases/tag/v1.0.0

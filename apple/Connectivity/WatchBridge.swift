@@ -41,9 +41,7 @@ final class WatchBridge: NSObject {
         #endif
     }
 
-    fileprivate func ingest(_ context: [String: Any]) {
-        guard let data = context["snapshot"] as? Data,
-              let snapshot = try? JSONDecoder().decode(EstateSnapshot.self, from: data) else { return }
+    fileprivate func apply(_ snapshot: EstateSnapshot) {
         SharedStore.save(snapshot) // persist on the receiving device
         latest = snapshot
     }
@@ -58,7 +56,11 @@ extension WatchBridge: WCSessionDelegate {
     ) {}
 
     nonisolated func session(_ session: WCSession, didReceiveApplicationContext applicationContext: [String: Any]) {
-        Task { @MainActor in self.ingest(applicationContext) }
+        // Decode in the nonisolated context so only the Sendable snapshot crosses
+        // to the main actor (avoids sending the non-Sendable [String: Any]).
+        guard let data = applicationContext["snapshot"] as? Data,
+              let snapshot = try? JSONDecoder().decode(EstateSnapshot.self, from: data) else { return }
+        Task { @MainActor in self.apply(snapshot) }
     }
 
     #if os(iOS)

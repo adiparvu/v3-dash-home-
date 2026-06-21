@@ -8,8 +8,7 @@ shared across platforms.
 **Phase 8** covers the native Apple clients. Targets:
 
 - **PRVIOEarth** — one multiplatform app: **iPhone + iPad + Mac (Catalyst) +
-  Vision Pro**, with an adaptive layout (tab bar on iPhone, sidebar split view on
-  regular widths).
+  Vision Pro**, sharing one tab-based interface.
 - **PRVIOEarthWidgets** — WidgetKit widgets + Live Activities.
 - **PRVIOEarthWatch** — Apple Watch app.
 
@@ -21,9 +20,9 @@ All share the code under `Shared/` and the design system.
 
 ## Requirements
 
-- macOS with **Xcode 27** (iOS 27 SDK) — the app targets iOS/iPadOS/visionOS 27
-  and watchOS 27, builds with **Swift 6**, and uses the native SwiftUI **Liquid
-  Glass** APIs (`.glassEffect`).
+- macOS with **Xcode 26** (iOS 26 SDK) — the app targets iOS/iPadOS/visionOS 26
+  and watchOS 26, builds with **Swift 6**, and uses the native SwiftUI **Liquid
+  Glass** APIs (`.glassEffect`). (iOS 27 SDK isn't on CI/TestFlight infra yet.)
 - [XcodeGen](https://github.com/yonyz/XcodeGen) — `brew install xcodegen`
 
 ## Getting started
@@ -114,10 +113,9 @@ lives on the **Property detail** screen ("Start maintenance job").
 
 ## Multiplatform & Apple Watch
 
-The `PRVIOEarth` target is a single multiplatform app. `MainTabView` adapts via the
-horizontal size class — a `TabView` on iPhone, a `NavigationSplitView` sidebar on
-iPad / Mac Catalyst / Vision Pro — so all screens are reused unchanged. Mac and
-Vision support is enabled through `SUPPORTS_MACCATALYST` /
+The `PRVIOEarth` target is a single multiplatform app sharing one `TabView`-based
+interface (`MainTabView`) across all devices, so every screen is reused unchanged.
+Mac and Vision support is enabled through `SUPPORTS_MACCATALYST` /
 `SUPPORTS_*_DESIGNED_FOR_IPHONE_IPAD` in `project.yml`.
 
 `PRVIOEarthWatch` is a standalone watchOS app (`WatchRootView`) that reuses the
@@ -135,14 +133,42 @@ Supabase (`auth.getUser(token)`) and every query is RLS-scoped to that user, so
 the native app reads the **same live data** as the web client once you sign in
 with a real account. With no configuration the app stays in demo mode.
 
+## Continuous integration & TestFlight
+
+`.github/workflows/apple.yml` builds the app on a **macOS runner** (XcodeGen +
+`xcodebuild`, no signing) whenever `apple/**` changes, so Swift compilation is
+validated in CI. It uses `latest-stable` Xcode (Xcode 26, iOS/watchOS 26 SDK).
+
+A manual **TestFlight** job (run the workflow with `testflight: true`) archives and
+uploads via the App Store Connect API key. Add these repo **secrets** first:
+
+| Secret | Purpose |
+| --- | --- |
+| `ASC_KEY_ID` | App Store Connect API key id |
+| `ASC_ISSUER_ID` | App Store Connect issuer id |
+| `ASC_API_KEY_P8` | contents of the `.p8` API key |
+
+It uses automatic signing (`-allowProvisioningUpdates`); set `DEVELOPMENT_TEAM`
+in `project.yml` and ensure the bundle ids exist in your account.
+
+### APNs secrets (Live Activity push)
+
+The backend pushes Live Activity updates over APNs and reads these from the
+**server** environment (set them where the Next.js app is deployed — never in the
+client): `APNS_KEY_ID`, `APNS_TEAM_ID`, `APNS_BUNDLE_ID`, `APNS_AUTH_KEY` (the
+`.p8` contents), optional `APNS_HOST`. Without them, `POST /api/v1/twin/live-activities/push`
+returns `503` and local Live Activities still work. See `.env.local.example`.
+
 ## Known follow-ups (deferred)
 
 - A native visionOS scene (spatial); Vision Pro runs the iPad layout today.
 
-> Live Activities request an APNs push token (`pushType: .token`) and the app
-> streams `pushTokenUpdates` via `LiveActivityManager`; the remaining piece is the
-> **server-side APNs sender** (a backend endpoint to receive the token and push
-> `ContentState` updates). Local start/update/end already works.
+> Live Activities are push-driven end to end: the app streams `pushTokenUpdates`
+> and registers each token via `POST /api/v1/twin/live-activities`; the backend
+> pushes `ContentState` updates over APNs via `POST /api/v1/twin/live-activities/push`
+> (migration `011`, `lib/apns.ts`). Configure the `APNS_*` env vars (see
+> `.env.local.example`) to enable sending; without them the push endpoint returns
+> `503` and local start/update/end still works.
 
 > OAuth (Apple/Google via `ASWebAuthenticationSession`) and email magic-link
 > sign-in are implemented with deep-link handling on the `prvio://auth-callback`

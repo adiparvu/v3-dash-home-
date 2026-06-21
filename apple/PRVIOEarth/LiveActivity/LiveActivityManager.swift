@@ -8,6 +8,10 @@ final class LiveActivityManager {
     static let shared = LiveActivityManager()
     private init() {}
 
+    /// API client used to register push tokens with the backend (set after sign-in).
+    private var api: APIClient?
+    func configure(api: APIClient?) { self.api = api }
+
     var areActivitiesEnabled: Bool {
         ActivityAuthorizationInfo().areActivitiesEnabled
     }
@@ -52,11 +56,17 @@ final class LiveActivityManager {
         }
     }
 
-    /// Forward the Live Activity push token to the backend. Wire to a versioned
-    /// endpoint (e.g. `POST /api/v1/twin/live-activities`) once it exists; until
-    /// then the token is surfaced for diagnostics.
+    /// Forward the Live Activity push token to the backend, which uses it to push
+    /// ContentState updates over APNs (`POST /api/v1/twin/live-activities`).
     private func registerPushToken(_ token: String, activityId: String) async {
         latestPushToken = token
+        guard let api else { return }
+        struct Registered: Decodable { let id: String }
+        _ = try? await api.post(
+            "/twin/live-activities",
+            body: ["activityId": activityId, "pushToken": token],
+            as: Registered.self
+        )
     }
 
     /// Most recent Live Activity push token (for diagnostics / backend wiring).
