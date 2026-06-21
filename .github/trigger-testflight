@@ -1,4 +1,4 @@
 TestFlight upload trigger.
 Bump this file (or use Actions → Run workflow) to start an upload.
 
-run: 11 — 2026-06-21T15:18:58Z — v1.6.0 + Vercel API + HomeKit
+run: 12 — 2026-06-21T16:56:28Z — v1.7.0 (account/security, chat+calling, AI, value tracking, transfer, app intents, privacy)
