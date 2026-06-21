@@ -9,6 +9,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 ### Added
+- **Ownership transfer (Apple)** — a multi-step Transfer Ownership workflow
+  (Verify → Recipient → Assets → Confirm) on the Property detail, recording an
+  auditable, immutable pending transfer request via `POST /api/v1/properties/[id]/transfer`
+  (high-risk action; does not flip ownership — recipient acceptance + legal
+  completion remain a separate step).
 - **Property value tracking (real, end-to-end)** — migration `012` adds
   `purchase_price` / `current_value` / `market_notes` to `properties` and an
   append-only `property_valuations` history table (RLS owner-scoped). New

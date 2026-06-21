@@ -8,6 +8,7 @@ struct PropertyDetailView: View {
     @State private var valuations: [PropertyValuation] = []
     @State private var source: EstateStore.Source = .demo
     @State private var showAddValuation = false
+    @State private var showTransfer = false
 
     private var currency: String { property.currency ?? "EUR" }
 
@@ -19,6 +20,7 @@ struct PropertyDetailView: View {
                 valueCard
                 valuationHistory
                 maintenanceCard
+                transferCard
             }
             .padding(16)
         }
@@ -30,6 +32,7 @@ struct PropertyDetailView: View {
                 Task { await addValuation(value: value, note: note) }
             }
         }
+        .sheet(isPresented: $showTransfer) { TransferOwnershipView(property: property) }
         .task { await loadValuations() }
     }
 
@@ -150,6 +153,22 @@ struct PropertyDetailView: View {
                 Button("End job") { Task { await LiveActivityManager.shared.endAll(); jobStarted = false } }
                     .font(.caption).foregroundStyle(Theme.text2)
             }
+        }
+        .frame(maxWidth: .infinity, alignment: .leading)
+        .padding(16)
+        .liquidGlass()
+    }
+
+    private var transferCard: some View {
+        VStack(alignment: .leading, spacing: 8) {
+            Text("Ownership").font(.subheadline.weight(.semibold)).foregroundStyle(Theme.text1)
+            Text("Initiate a verified, audited ownership transfer of this property.")
+                .font(.caption).foregroundStyle(Theme.text2)
+            Button { showTransfer = true } label: {
+                Label("Transfer ownership", systemImage: "arrow.left.arrow.right.circle.fill")
+                    .font(.subheadline.weight(.medium)).foregroundStyle(Theme.orange)
+            }
+            .padding(.top, 2)
         }
         .frame(maxWidth: .infinity, alignment: .leading)
         .padding(16)
