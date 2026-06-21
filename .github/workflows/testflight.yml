@@ -124,3 +124,16 @@ jobs:
             -authenticationKeyID "$ASC_KEY_ID" \
             -authenticationKeyIssuerID "$ASC_ISSUER_ID" \
             -authenticationKeyPath "$HOME/private_keys/AuthKey_${ASC_KEY_ID}.p8"
+
+      - name: Dump distribution logs on failure
+        if: failure()
+        run: |
+          echo "=== Searching for .xcdistributionlogs ==="
+          # xcodebuild writes the detailed export/upload error (the underlying
+          # NSError / HTTP status from App Store Connect) into a distribution log
+          # bundle that the normal console output doesn't include.
+          for d in $(find "$TMPDIR" /var/folders "$RUNNER_TEMP" -name '*.xcdistributionlogs' -type d 2>/dev/null); do
+            echo "----- $d -----"
+            find "$d" -name 'IDEDistribution*.log' -print -exec sh -c 'echo "===== $1 ====="; cat "$1"' _ {} \; 2>/dev/null
+          done
+          echo "=== end distribution logs ==="
