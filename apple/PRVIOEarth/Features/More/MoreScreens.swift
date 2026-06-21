@@ -198,6 +198,7 @@ struct MoreView: View {
             Entry(icon: "bolt.horizontal.fill", color: Theme.violet, title: "Automations", subtitle: "Schedules & routines", destination: AnyView(AutomationsView())),
             Entry(icon: "sensor.fill", color: Theme.cyan, title: "Sensors", subtitle: "Live telemetry", destination: AnyView(SensorsView())),
             Entry(icon: "homekit", color: Theme.accent, title: "Devices", subtitle: "IoT & gateways", destination: AnyView(DevicesView())),
+            Entry(icon: "house.fill", color: Theme.violet, title: "Apple Home", subtitle: "HomeKit accessories", destination: AnyView(HomeKitView())),
             Entry(icon: "doc.fill", color: Theme.text2, title: "Documents", subtitle: "Deeds, warranties, policies", destination: AnyView(DocumentsView())),
             Entry(icon: "person.2.fill", color: Theme.amber, title: "Contractors", subtitle: "People & companies", destination: AnyView(ContractorsView())),
             Entry(icon: "magnifyingglass", color: Theme.cyan, title: "Search", subtitle: "Find across the estate", destination: AnyView(SearchView())),
@@ -401,6 +402,53 @@ struct ContractorsView: View {
         .task {
             if store == nil { store = CollectionsStore(api: auth.api) }
             await store?.loadContractors()
+        }
+    }
+}
+
+// MARK: - Apple Home (HomeKit, live with demo fallback)
+
+struct HomeKitView: View {
+    @State private var store = HomeKitStore()
+
+    var body: some View {
+        ListPage(title: "Apple Home", source: store.source) {
+            ForEach(store.accessories) { acc in
+                GlassRow(icon: symbol(for: acc.category),
+                         iconColor: acc.isReachable ? color(for: acc) : Theme.text3,
+                         title: acc.name,
+                         subtitle: [acc.room, acc.category].compactMap { $0 }.joined(separator: " · "),
+                         trailing: trailing(for: acc),
+                         trailingColor: (acc.isOn ?? false) ? Theme.accent : Theme.text3)
+                    .opacity(acc.isReachable ? 1 : 0.5)
+                    .contentShape(Rectangle())
+                    .onTapGesture { if acc.isOn != nil { store.toggle(acc) } }
+            }
+        }
+        .task { store.start() }
+    }
+
+    private func trailing(for acc: HomeAccessory) -> String? {
+        if let on = acc.isOn { return on ? "On" : "Off" }
+        return acc.isReachable ? nil : "Offline"
+    }
+    private func color(for acc: HomeAccessory) -> Color {
+        if let on = acc.isOn { return on ? Theme.amber : Theme.text2 }
+        return Theme.cyan
+    }
+    private func symbol(for category: String) -> String {
+        switch category {
+        case "Lightbulb": return "lightbulb.fill"
+        case "Outlet": return "powerplug.fill"
+        case "Switch": return "switch.2"
+        case "Thermostat": return "thermometer.medium"
+        case "Sensor": return "sensor.fill"
+        case "Door": return "door.left.hand.closed"
+        case "Garage": return "door.garage.closed"
+        case "Window": return "window.vertical.closed"
+        case "Fan": return "fan.fill"
+        case "Camera": return "video.fill"
+        default: return "homekit"
         }
     }
 }

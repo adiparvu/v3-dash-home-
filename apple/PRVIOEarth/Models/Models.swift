@@ -175,3 +175,19 @@ struct DocumentItem: Decodable, Identifiable, Hashable {
 }
 
 struct DocumentsPayload: Decodable { let documents: [DocumentItem] }
+
+// MARK: - Apple Home (HomeKit)
+
+/// A flattened, view-friendly representation of a HomeKit accessory. Decoupled
+/// from the `HomeKit` framework types so the UI (and demo data) need not import
+/// HomeKit and so it stays `Sendable`/`Hashable`.
+struct HomeAccessory: Identifiable, Hashable {
+    let id: String
+    let name: String
+    let room: String?
+    /// Friendly category label, e.g. "Lightbulb", "Outlet", "Sensor".
+    let category: String
+    let isReachable: Bool
+    /// Current power state, or `nil` when the accessory exposes no power characteristic.
+    var isOn: Bool?
+}

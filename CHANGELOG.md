@@ -8,6 +8,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+- **Apple Home (HomeKit) integration** — a new native "Apple Home" screen lists the
+  accessories from the user's HomeKit homes (name, room, category, reachability) and
+  toggles power for accessories that support it, via `HMHomeManager` in `HomeKitStore`.
+  Falls back to demo accessories when HomeKit is unavailable, unauthorized or empty,
+  and is a demo-only stub on Mac Catalyst (where HomeKit is unavailable). Adds the
+  `com.apple.developer.homekit` entitlement and `NSHomeKitUsageDescription`.
+
 ## [1.6.0] — 2026-06-21
 
 ### Added

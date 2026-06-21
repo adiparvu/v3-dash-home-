@@ -53,6 +53,8 @@ targets:
         UILaunchScreen: {}
         NSFaceIDUsageDescription: >-
           PRVIO Earth uses Face ID to unlock your private estate data on this device.
+        NSHomeKitUsageDescription: >-
+          PRVIO Earth uses Apple Home to show and control the accessories in your estate.
         # iPhone: portrait. iPad must declare all four orientations (App Store
         # validation requires it for multitasking unless UIRequiresFullScreen).
         UISupportedInterfaceOrientations:
@@ -82,6 +84,7 @@ targets:
           - group.earth.prvio.app
         aps-environment: production # APNs for push (production = TestFlight/App Store; flips automatic signing to a Distribution profile)
         com.apple.developer.weatherkit: true # Apple WeatherKit
+        com.apple.developer.homekit: true # Apple HomeKit (Apple Home accessories)
     settings:
       base:
         PRODUCT_BUNDLE_IDENTIFIER: Prv.prvio.app

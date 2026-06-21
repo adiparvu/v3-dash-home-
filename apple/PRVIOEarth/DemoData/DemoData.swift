@@ -81,6 +81,14 @@ enum DemoData {
         MaintenanceItem(id: "m3", title: "Tractor oil change", asset: "Kubota Tractor", due: "overdue", status: "overdue"),
     ]
 
+    static let homeAccessories: [HomeAccessory] = [
+        HomeAccessory(id: "hk1", name: "Living Room Lamp", room: "Living Room", category: "Lightbulb", isReachable: true, isOn: true),
+        HomeAccessory(id: "hk2", name: "Front Gate", room: "Entrance", category: "Door", isReachable: true, isOn: false),
+        HomeAccessory(id: "hk3", name: "Greenhouse Outlet", room: "Greenhouse", category: "Outlet", isReachable: true, isOn: true),
+        HomeAccessory(id: "hk4", name: "Hallway Motion", room: "Hallway", category: "Sensor", isReachable: false, isOn: nil),
+        HomeAccessory(id: "hk5", name: "Thermostat", room: "Living Room", category: "Thermostat", isReachable: true, isOn: nil),
+    ]
+
     static let documents: [DocumentItem] = [
         DocumentItem(id: "doc1", name: "Estate deed.pdf", kind: "Legal", size: "2.1 MB", updatedAt: "2024-02-01"),
         DocumentItem(id: "doc2", name: "Solar warranty.pdf", kind: "Warranty", size: "640 KB", updatedAt: "2023-09-14"),
