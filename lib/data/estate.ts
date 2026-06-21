@@ -10,6 +10,7 @@ import type {
   Property,
   Zone,
   Asset,
+  PropertyValuation,
   TablesInsert,
   TablesUpdate,
 } from "../types/database.types";
@@ -97,5 +98,33 @@ export async function createAsset(asset: TablesInsert<"assets">): Promise<Asset>
   const supabase = await createClient();
   const { data, error } = await supabase.from("assets").insert(asset).select("*").single();
   if (error) throw new Error(error.message);
+  return data;
+}
+
+export async function listValuations(propertyId: string): Promise<PropertyValuation[]> {
+  const supabase = await createClient();
+  const { data, error } = await supabase
+    .from("property_valuations")
+    .select("*")
+    .eq("property_id", propertyId)
+    .order("recorded_at", { ascending: false });
+  if (error) throw new Error(error.message);
+  return data ?? [];
+}
+
+export async function addValuation(
+  propertyId: string,
+  value: number,
+  note: string | null
+): Promise<PropertyValuation> {
+  const supabase = await createClient();
+  const { data, error } = await supabase
+    .from("property_valuations")
+    .insert({ property_id: propertyId, value, note })
+    .select("*")
+    .single();
+  if (error) throw new Error(error.message);
+  // Keep the property's denormalized current_value in sync with the latest mark.
+  await supabase.from("properties").update({ current_value: value }).eq("id", propertyId);
   return data;
 }

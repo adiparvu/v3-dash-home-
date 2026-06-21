@@ -9,6 +9,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 ### Added
+- **Property value tracking (real, end-to-end)** — migration `012` adds
+  `purchase_price` / `current_value` / `market_notes` to `properties` and an
+  append-only `property_valuations` history table (RLS owner-scoped). New
+  `GET/POST /api/v1/properties/[id]/valuations` and the property PATCH allowlist
+  cover the new fields; the Apple Property detail now shows current value,
+  purchase price, appreciation %, market notes and a valuation history, with an
+  "Add valuation" sheet. (Ownership transfer is the next sub-step.)
 - **Apple AI Assistant — live retrieval + custom identity** — the assistant now
   answers from backend-authorized retrieval over the estate knowledge store
   (`POST /api/v1/ai/retrieve`, deny-by-default, RLS-scoped), showing a **Live** vs

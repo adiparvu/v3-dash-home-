@@ -48,11 +48,22 @@ enum DemoData {
         Property(id: "demo-estate", name: "Prvio Estate", description: "Private estate",
                  address: nil, city: "Brașov", country: "România",
                  totalAreaSqm: 42000, currency: "EUR", isActive: true,
+                 purchasePrice: 1_850_000, currentValue: 2_450_000,
+                 marketNotes: "Lakefront premium; recent solar + irrigation upgrades.",
                  createdAt: "2019-06-01T00:00:00Z"),
         Property(id: "demo-villa", name: "Lakeside Villa", description: nil,
                  address: nil, city: "Sinaia", country: "România",
                  totalAreaSqm: 5400, currency: "EUR", isActive: true,
+                 purchasePrice: 620_000, currentValue: 740_000,
+                 marketNotes: nil,
                  createdAt: "2021-03-12T00:00:00Z"),
+    ]
+
+    static let valuations: [PropertyValuation] = [
+        PropertyValuation(id: "v1", value: 2_450_000, note: "Updated market estimate", recordedAt: "2026-05-01T00:00:00Z"),
+        PropertyValuation(id: "v2", value: 2_280_000, note: "Post solar upgrade", recordedAt: "2025-09-15T00:00:00Z"),
+        PropertyValuation(id: "v3", value: 2_050_000, note: "Annual review", recordedAt: "2024-06-01T00:00:00Z"),
+        PropertyValuation(id: "v4", value: 1_850_000, note: "Purchase", recordedAt: "2019-06-01T00:00:00Z"),
     ]
 
     static let zones: [Zone] = [

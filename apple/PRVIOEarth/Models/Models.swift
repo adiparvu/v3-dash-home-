@@ -20,14 +20,32 @@ struct Property: Decodable, Identifiable, Hashable {
     let totalAreaSqm: Double?
     let currency: String?
     let isActive: Bool?
+    let purchasePrice: Double?
+    let currentValue: Double?
+    let marketNotes: String?
     let createdAt: String?
 
     var locationLine: String {
         [city, country].compactMap { $0 }.joined(separator: ", ")
     }
+
+    /// Appreciation over purchase price, as a percentage, when both are known.
+    var appreciationPercent: Double? {
+        guard let purchasePrice, purchasePrice > 0, let currentValue else { return nil }
+        return (currentValue - purchasePrice) / purchasePrice * 100
+    }
 }
 
 struct PropertiesPayload: Decodable { let properties: [Property] }
+
+struct PropertyValuation: Decodable, Identifiable, Hashable {
+    let id: String
+    let value: Double
+    let note: String?
+    let recordedAt: String?
+}
+
+struct ValuationsPayload: Decodable { let valuations: [PropertyValuation] }
 
 struct Zone: Decodable, Identifiable, Hashable {
     let id: String

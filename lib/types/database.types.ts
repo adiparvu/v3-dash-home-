@@ -85,6 +85,9 @@ export type Database = {
           timezone: string
           currency: string
           is_active: boolean
+          purchase_price: number | null
+          current_value: number | null
+          market_notes: string | null
           created_at: string
           updated_at: string
         }
@@ -103,6 +106,9 @@ export type Database = {
           timezone?: string
           currency?: string
           is_active?: boolean
+          purchase_price?: number | null
+          current_value?: number | null
+          market_notes?: string | null
           created_at?: string
           updated_at?: string
         }
@@ -121,8 +127,38 @@ export type Database = {
           timezone?: string
           currency?: string
           is_active?: boolean
+          purchase_price?: number | null
+          current_value?: number | null
+          market_notes?: string | null
           created_at?: string
           updated_at?: string
+        }
+        Relationships: []
+      }
+      property_valuations: {
+        Row: {
+          id: string
+          property_id: string
+          value: number
+          note: string | null
+          recorded_at: string
+          created_at: string
+        }
+        Insert: {
+          id?: string
+          property_id: string
+          value: number
+          note?: string | null
+          recorded_at?: string
+          created_at?: string
+        }
+        Update: {
+          id?: string
+          property_id?: string
+          value?: number
+          note?: string | null
+          recorded_at?: string
+          created_at?: string
         }
         Relationships: []
       }
@@ -1413,6 +1449,7 @@ export type Parcel = Tables<'parcels'>
 export type Zone = Tables<'zones'>
 export type Asset = Tables<'assets'>
 export type AssetQRCode = Tables<'asset_qr_codes'>
+export type PropertyValuation = Tables<'property_valuations'>
 export type Task = Tables<'tasks'>
 export type Sensor = Tables<'sensors'>
 export type Telemetry = Tables<'telemetry'>

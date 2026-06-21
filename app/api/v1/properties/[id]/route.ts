@@ -11,7 +11,7 @@ export const dynamic = "force-dynamic";
 
 const API_VERSION = "1.0.0";
 
-const EDITABLE = ["name", "description", "address", "city", "country", "total_area_sqm", "currency", "is_active"] as const;
+const EDITABLE = ["name", "description", "address", "city", "country", "total_area_sqm", "currency", "is_active", "purchase_price", "current_value", "market_notes"] as const;
 
 export async function GET(_request: Request, { params }: { params: { id: string } }) {
   const userId = await currentUserId();
