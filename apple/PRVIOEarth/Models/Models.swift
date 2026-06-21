@@ -230,6 +230,17 @@ struct DocumentItem: Decodable, Identifiable, Hashable {
 
 struct DocumentsPayload: Decodable { let documents: [DocumentItem] }
 
+// MARK: - AI knowledge retrieval
+
+struct KnowledgeChunk: Decodable, Identifiable, Hashable {
+    let id: String
+    let scope: String
+    let title: String
+    let content: String
+}
+
+struct RetrievePayload: Decodable { let chunks: [KnowledgeChunk] }
+
 // MARK: - Communication (chat)
 
 struct ChatRoom: Identifiable, Hashable {

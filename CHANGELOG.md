@@ -9,6 +9,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 ### Added
+- **Apple AI Assistant — live retrieval + custom identity** — the assistant now
+  answers from backend-authorized retrieval over the estate knowledge store
+  (`POST /api/v1/ai/retrieve`, deny-by-default, RLS-scoped), showing a **Live** vs
+  **On-device** badge and falling back to on-device estate answers when retrieval is
+  empty or unconfigured. Adds a **user-owned assistant identity** (custom name,
+  personality and avatar color) persisted locally via `AssistantStore`. (Voice input
+  is the next sub-step.)
 - **Apple communication & calling** — a new native **Chat** screen (household /
   group / property / zone / asset / task / DM rooms with a live composer) and
   **calling integrations**: from a contractor row or a DM thread, launch a Phone
