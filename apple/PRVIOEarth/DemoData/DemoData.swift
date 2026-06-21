@@ -12,8 +12,37 @@ enum DemoData {
         phone: nil,
         notes: nil,
         avatarRingColor: 0x4ADE80,
+        autoLockSeconds: 300,
+        loginAlerts: true,
         createdAt: "2024-01-01T00:00:00Z"
     )
+
+    static let socialLinks: [SocialLink] = [
+        SocialLink(id: "sl1", platform: "instagram", label: nil, url: "https://instagram.com/prvio"),
+        SocialLink(id: "sl2", platform: "linkedin", label: nil, url: "https://linkedin.com/in/prvio"),
+    ]
+
+    static let trustedPersons: [TrustedPerson] = [
+        TrustedPerson(id: "tp1", name: "Maria Ionescu", relationship: "Spouse", email: "maria@example.com",
+                      permissions: ["emergency_access", "recovery_approvals"]),
+        TrustedPerson(id: "tp2", name: "Andrei Pop", relationship: "Lawyer", email: "andrei@law.ro",
+                      permissions: ["ownership_transfer", "estate_continuity"]),
+    ]
+
+    static let sessions: [UserSession] = [
+        UserSession(id: "se1", deviceName: "iPhone 16 Pro", platform: "iOS", location: "Brașov, RO",
+                    isTrusted: true, isCurrent: true, lastActiveAt: "2026-06-21T08:30:00Z"),
+        UserSession(id: "se2", deviceName: "MacBook Pro", platform: "macOS", location: "Brașov, RO",
+                    isTrusted: true, isCurrent: false, lastActiveAt: "2026-06-20T19:10:00Z"),
+        UserSession(id: "se3", deviceName: "Safari", platform: "Web", location: "București, RO",
+                    isTrusted: false, isCurrent: false, lastActiveAt: "2026-06-18T11:02:00Z"),
+    ]
+
+    static let audit: [AuditEntry] = [
+        AuditEntry(id: "a1", action: "profile.update", resource: "profiles", detail: "Updated: display_name", createdAt: "2026-06-21T08:31:00Z"),
+        AuditEntry(id: "a2", action: "session.revoke", resource: "user_sessions", detail: "Old iPad", createdAt: "2026-06-20T20:00:00Z"),
+        AuditEntry(id: "a3", action: "property.update", resource: "properties", detail: "Prvio Estate", createdAt: "2026-06-19T14:45:00Z"),
+    ]
 
     static let properties: [Property] = [
         Property(id: "demo-estate", name: "Prvio Estate", description: "Private estate",

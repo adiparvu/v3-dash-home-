@@ -62,6 +62,8 @@ struct Profile: Decodable, Hashable {
     let phone: String?
     let notes: String?
     let avatarRingColor: Int?
+    let autoLockSeconds: Int?
+    let loginAlerts: Bool?
     let createdAt: String?
 
     var name: String {
@@ -78,6 +80,58 @@ struct Profile: Decodable, Hashable {
 }
 
 struct ProfilePayload: Decodable { let profile: Profile }
+
+// MARK: - Identity bundle (social links, trusted persons, sessions, audit)
+
+struct SocialLink: Decodable, Identifiable, Hashable {
+    let id: String
+    let platform: String
+    let label: String?
+    let url: String
+}
+
+struct TrustedPerson: Decodable, Identifiable, Hashable {
+    let id: String
+    let name: String
+    let relationship: String?
+    let email: String?
+    let permissions: [String]
+}
+
+struct UserSession: Decodable, Identifiable, Hashable {
+    let id: String
+    let deviceName: String?
+    let platform: String?
+    let location: String?
+    let isTrusted: Bool
+    let isCurrent: Bool
+    let lastActiveAt: String?
+}
+
+struct AuditEntry: Decodable, Identifiable, Hashable {
+    let id: String
+    let action: String
+    let resource: String?
+    let detail: String?
+    let createdAt: String?
+}
+
+/// `GET /api/v1/profile` returns the profile plus its identity bundle.
+struct ProfileBundle: Decodable {
+    let profile: Profile
+    let socialLinks: [SocialLink]
+    let trustedPersons: [TrustedPerson]
+    let sessions: [UserSession]
+}
+
+struct SessionsPayload: Decodable { let sessions: [UserSession] }
+struct AuditPayload: Decodable { let entries: [AuditEntry] }
+struct SocialLinkPayload: Decodable { let link: SocialLink }
+struct TrustedPersonPayload: Decodable { let person: TrustedPerson }
+
+/// Decodes any non-null `data` object when the caller doesn't need the payload
+/// (e.g. DELETE/PATCH acknowledgements).
+struct EmptyOK: Decodable {}
 
 // MARK: - Notifications
 

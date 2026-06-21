@@ -49,6 +49,10 @@ struct APIClient: Sendable {
         return try await request(path: path, method: "POST", body: data, as: type)
     }
 
+    func delete<T: Decodable>(_ path: String, as type: T.Type) async throws -> T {
+        try await request(path: path, method: "DELETE", body: nil, as: type)
+    }
+
     private func request<T: Decodable>(path: String, method: String, body: Data?, as type: T.Type) async throws -> T {
         guard let url = URL(string: "/api/v1" + path, relativeTo: baseURL) else {
             throw APIError.notConfigured

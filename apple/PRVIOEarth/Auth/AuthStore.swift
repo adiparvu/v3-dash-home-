@@ -1,5 +1,6 @@
 import Foundation
 import Observation
+import SwiftUI
 
 /// Central session + lock state for the app.
 ///
@@ -21,6 +22,12 @@ final class AuthStore {
     private var session: AuthSession?
     private let auth: SupabaseAuthService?
     private static let sessionAccount = "current-session"
+
+    /// Auto-lock interval in seconds. A user change in Settings sets the override
+    /// so enforcement takes effect immediately without re-fetching the profile.
+    var autoLockOverride: Int?
+    private var backgroundedAt: Date?
+    var autoLockSeconds: Int { autoLockOverride ?? profile?.autoLockSeconds ?? 300 }
 
     var isDemo: Bool { phase == .demo }
 
@@ -117,6 +124,29 @@ final class AuthStore {
 
     func continueInDemo() {
         phase = .demo
+    }
+
+    /// Re-arm the biometric gate (used by auto-lock).
+    func lock() {
+        if phase == .unlocked { phase = .locked }
+    }
+
+    /// Drive auto-lock from the app's scene phase: remember when we go to the
+    /// background, and lock on return if more than `autoLockSeconds` elapsed.
+    func handleScenePhase(_ newPhase: ScenePhase) {
+        guard phase == .unlocked || phase == .locked else { return }
+        switch newPhase {
+        case .background:
+            if backgroundedAt == nil { backgroundedAt = Date() }
+        case .active:
+            if phase == .unlocked, let since = backgroundedAt,
+               Date().timeIntervalSince(since) >= Double(autoLockSeconds) {
+                phase = .locked
+            }
+            backgroundedAt = nil
+        default:
+            break
+        }
     }
 
     func signOut() async {

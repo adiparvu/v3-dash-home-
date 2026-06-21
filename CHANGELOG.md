@@ -9,6 +9,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 ### Added
+- **Apple account & security parity** — the native app now matches the web client's
+  identity surface, all backed by the existing `/api/v1/profile*` and `/api/v1/audit`
+  APIs: a new **Security** screen (active sessions with revoke / "sign out others" /
+  device-trust, configurable **auto-lock** Immediately→1h enforced on scene phase,
+  login-alerts toggle, and the audit log), plus **Social Links** (iOS-style add sheet
+  across the 10 supported platforms) and **Trusted Persons** (with permission
+  selection) on the Profile screen, a Member-Since badge, and phone/notes display.
 - **Apple Home (HomeKit) integration** — a new native "Apple Home" screen lists the
   accessories from the user's HomeKit homes (name, room, category, reachability) and
   toggles power for accessories that support it, via `HMHomeManager` in `HomeKitStore`.
