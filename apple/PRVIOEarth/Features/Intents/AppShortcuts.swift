@@ -5,8 +5,8 @@ import AppIntents
 /// from the shared App Group snapshot without launching the app.
 
 struct EstateStatusIntent: AppIntent {
-    static var title: LocalizedStringResource = "Estate Status"
-    static var description = IntentDescription("Get your estate health and open tasks at a glance.")
+    static let title: LocalizedStringResource = "Estate Status"
+    static let description = IntentDescription("Get your estate health and open tasks at a glance.")
 
     func perform() async throws -> some IntentResult & ProvidesDialog {
         let s = SharedStore.load()
@@ -15,9 +15,9 @@ struct EstateStatusIntent: AppIntent {
 }
 
 struct OpenAssistantIntent: AppIntent {
-    static var title: LocalizedStringResource = "Open Assistant"
-    static var description = IntentDescription("Open PRVIO Earth to ask the estate assistant.")
-    static var openAppWhenRun = true
+    static let title: LocalizedStringResource = "Open Assistant"
+    static let description = IntentDescription("Open PRVIO Earth to ask the estate assistant.")
+    static let openAppWhenRun = true
 
     func perform() async throws -> some IntentResult { .result() }
 }
