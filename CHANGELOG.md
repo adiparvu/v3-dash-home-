@@ -10,6 +10,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.11.0] — 2026-06-21
+
 ### Changed
 - **Apple IA & Home redesign to match the PRVIO reference** — tab bar is now
   **Home · Twin · Tasks · Chat · You**. The **You** tab is a native inset-grouped
