@@ -154,6 +154,7 @@ final class AuthStore {
 
     private func loadProfile() async {
         guard let api else { return }
+        LiveActivityManager.shared.configure(api: api) // enable push-token registration
         profile = try? await api.get("/profile", as: ProfilePayload.self).profile
     }
 }

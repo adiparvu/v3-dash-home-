@@ -113,7 +113,7 @@ future track that reuses the same versioned backend contracts.
 | iPhone + iPad + Mac (Catalyst) + Vision Pro — one multiplatform target, adaptive layout | 🚧 |
 | Apple Watch app (standalone watchOS target) + WatchConnectivity live sync from iPhone | 🚧 |
 | Home / Lock screen widgets (WidgetKit: Property Status, Tasks) via App Group snapshot | 🚧 |
-| Live Activities (maintenance, deliveries, incidents, inspections) — Lock Screen + Dynamic Island | 🚧 |
+| Live Activities (Lock Screen + Dynamic Island) + server-side APNs push (`/api/v1/twin/live-activities`) | 🚧 |
 | Secure Enclave key handling for sensitive records (hardware-backed seal/reveal) | 🚧 |
 | **Backend enabler:** `/api/v1` accepts `Authorization: Bearer` (native token auth) | ✅ |
 

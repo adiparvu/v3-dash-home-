@@ -139,10 +139,12 @@ with a real account. With no configuration the app stays in demo mode.
 
 - A native visionOS scene (spatial); Vision Pro runs the iPad layout today.
 
-> Live Activities request an APNs push token (`pushType: .token`) and the app
-> streams `pushTokenUpdates` via `LiveActivityManager`; the remaining piece is the
-> **server-side APNs sender** (a backend endpoint to receive the token and push
-> `ContentState` updates). Local start/update/end already works.
+> Live Activities are push-driven end to end: the app streams `pushTokenUpdates`
+> and registers each token via `POST /api/v1/twin/live-activities`; the backend
+> pushes `ContentState` updates over APNs via `POST /api/v1/twin/live-activities/push`
+> (migration `011`, `lib/apns.ts`). Configure the `APNS_*` env vars (see
+> `.env.local.example`) to enable sending; without them the push endpoint returns
+> `503` and local start/update/end still works.
 
 > OAuth (Apple/Google via `ASWebAuthenticationSession`) and email magic-link
 > sign-in are implemented with deep-link handling on the `prvio://auth-callback`

@@ -1185,6 +1185,45 @@ export type Database = {
         }
         Relationships: []
       }
+      live_activities: {
+        Row: {
+          id: string
+          user_id: string
+          property_id: string | null
+          activity_id: string
+          push_token: string
+          kind: string
+          job_title: string | null
+          ended: boolean
+          created_at: string
+          updated_at: string
+        }
+        Insert: {
+          id?: string
+          user_id: string
+          property_id?: string | null
+          activity_id: string
+          push_token: string
+          kind?: string
+          job_title?: string | null
+          ended?: boolean
+          created_at?: string
+          updated_at?: string
+        }
+        Update: {
+          id?: string
+          user_id?: string
+          property_id?: string | null
+          activity_id?: string
+          push_token?: string
+          kind?: string
+          job_title?: string | null
+          ended?: boolean
+          created_at?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       cameras: {
         Row: {
           id: string
@@ -1390,6 +1429,7 @@ export type DeviceRegistryRow = Tables<'device_registry'>
 export type PresenceEventRow = Tables<'presence_events'>
 export type AutomationScheduleRow = Tables<'automation_schedules'>
 export type PushSubscriptionRow = Tables<'push_subscriptions'>
+export type LiveActivityRow = Tables<'live_activities'>
 export type Camera = Tables<'cameras'>
 export type CameraEvent = Tables<'camera_events'>
 export type NotificationRow = Tables<'notifications'>

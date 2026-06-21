@@ -42,6 +42,11 @@ struct APIClient {
         return try await request(path: path, method: "PATCH", body: data, as: type)
     }
 
+    func post<T: Decodable>(_ path: String, body: [String: Any], as type: T.Type) async throws -> T {
+        let data = try JSONSerialization.data(withJSONObject: body)
+        return try await request(path: path, method: "POST", body: data, as: type)
+    }
+
     private func request<T: Decodable>(path: String, method: String, body: Data?, as type: T.Type) async throws -> T {
         guard let url = URL(string: "/api/v1" + path, relativeTo: baseURL) else {
             throw APIError.notConfigured
