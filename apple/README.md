@@ -125,6 +125,19 @@ pages. It stays in sync with the paired iPhone via **WatchConnectivity**
 the iPhone pushes each new snapshot as the application context and the Watch
 ingests it live (falling back to the seeded snapshot before the first sync).
 
+## Weather (WeatherKit)
+
+The Overview screen shows estate weather from Apple **WeatherKit** (`WeatherStore`
++ `WeatherCard`): current conditions and today's high/low for the estate
+coordinates, with a demo fallback when WeatherKit is unavailable (simulator /
+missing entitlement). Apple's required **attribution** (the Weather mark + the
+"Other data sources" legal link) is rendered on the card.
+
+Requires the **WeatherKit capability** on the App ID (`com.apple.developer.weatherkit`,
+already in `project.yml`) and an Apple Developer Program membership. ~500k calls/
+month are included; cache if you exceed it. A weather widget and device/property-
+location selection are natural follow-ups.
+
 ## Backend auth
 
 `/api/v1` accepts **both** auth schemes: the SSR cookie session (web) and an

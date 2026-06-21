@@ -8,6 +8,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+- **Apple WeatherKit on the Apple client** — the Overview screen shows estate
+  weather (current conditions + today's high/low) from **WeatherKit**
+  (`WeatherStore` + `WeatherCard`), with the required Apple Weather attribution
+  (mark + "Other data sources" legal link) and a demo fallback when WeatherKit is
+  unavailable. Adds the `com.apple.developer.weatherkit` capability. Requires an
+  Apple Developer membership with WeatherKit enabled.
+
 ## [1.3.0] — 2026-06-21
 
 ### Fixed
