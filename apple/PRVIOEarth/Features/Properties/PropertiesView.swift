@@ -37,6 +37,7 @@ struct PropertiesView: View {
 }
 
 private struct PropertyRow: View {
+    @Environment(AppSettings.self) private var settings
     let property: Property
 
     var body: some View {
@@ -51,7 +52,7 @@ private struct PropertyRow: View {
                     Text(property.locationLine).font(.caption).foregroundStyle(Theme.text2)
                 }
                 if let area = property.totalAreaSqm {
-                    Text("\(Int(area)) m²").font(.caption2).foregroundStyle(Theme.text3)
+                    Text(settings.area(area)).font(.caption2).foregroundStyle(Theme.text3)
                 }
             }
             Spacer()

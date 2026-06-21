@@ -9,6 +9,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 ### Added
+- **Apple redesign — phase 3 (units & polish)** — the Units & Currency setting now
+  takes effect everywhere values appear: property detail (value, purchase price,
+  area, valuations), properties list, inventory and zones all format through
+  `AppSettings.money`/`area`, and the assistant's value answers follow it too.
 - **Apple redesign — phase 2 (navigation & IA)** — a rethought 5-tab structure:
   **Home · Estate · Tasks · Monitor · Assistant**. Estate and Monitor are new
   card-grid hubs (`EstateHubView`/`MonitorHubView`) consolidating Properties,

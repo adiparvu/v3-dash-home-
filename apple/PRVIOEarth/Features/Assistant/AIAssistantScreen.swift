@@ -5,6 +5,7 @@ import SwiftUI
 /// loaded estate data and a user-owned, customizable assistant identity.
 struct AIAssistantView: View {
     @Environment(AuthStore.self) private var auth
+    @Environment(AppSettings.self) private var settings
     @State private var estate: EstateStore?
     @State private var store: AssistantStore?
     @State private var input = ""
@@ -121,7 +122,7 @@ struct AIAssistantView: View {
             return "You have \(e?.zones.count ?? 0) zones: " + (e?.zones.map(\.name).joined(separator: ", ") ?? "—") + "."
         }
         if lower.contains("value") || lower.contains("worth") {
-            return "Tracked object value is about €\(Int(e?.portfolioValue ?? 0))."
+            return "Tracked object value is about \(settings.money(e?.portfolioValue ?? 0))."
         }
         if lower.contains("object") || lower.contains("asset") || lower.contains("inventory") {
             return "There are \(e?.assets.count ?? 0) tracked objects in your inventory."

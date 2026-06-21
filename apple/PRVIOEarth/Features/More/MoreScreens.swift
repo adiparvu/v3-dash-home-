@@ -235,6 +235,7 @@ struct MoreView: View {
 
 struct ZonesView: View {
     @Environment(AuthStore.self) private var auth
+    @Environment(AppSettings.self) private var settings
     @State private var estate: EstateStore?
 
     var body: some View {
@@ -243,7 +244,7 @@ struct ZonesView: View {
                 GlassRow(icon: "leaf.fill", iconColor: Theme.cyan,
                          title: "\(zone.icon ?? "📍") \(zone.name)",
                          subtitle: zone.description,
-                         trailing: zone.areaSqm.map { "\(Int($0)) m²" })
+                         trailing: zone.areaSqm.map { settings.area($0) })
             }
         }
         .task { await ensureLoaded() }
@@ -257,6 +258,7 @@ struct ZonesView: View {
 
 struct InventoryView: View {
     @Environment(AuthStore.self) private var auth
+    @Environment(AppSettings.self) private var settings
     @State private var estate: EstateStore?
 
     var body: some View {
@@ -265,7 +267,7 @@ struct InventoryView: View {
                 GlassRow(icon: "shippingbox.fill", iconColor: Theme.accent,
                          title: asset.name,
                          subtitle: [asset.manufacturer, asset.model].compactMap { $0 }.joined(separator: " · "),
-                         trailing: asset.currentValue.map { "€\(Int($0))" })
+                         trailing: asset.currentValue.map { settings.money($0) })
             }
         }
         .task {

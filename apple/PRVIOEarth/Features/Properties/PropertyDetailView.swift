@@ -4,13 +4,14 @@ struct PropertyDetailView: View {
     let property: Property
 
     @Environment(AuthStore.self) private var auth
+    @Environment(AppSettings.self) private var settings
     @State private var jobStarted = false
     @State private var valuations: [PropertyValuation] = []
     @State private var source: EstateStore.Source = .demo
     @State private var showAddValuation = false
     @State private var showTransfer = false
 
-    private var currency: String { property.currency ?? "EUR" }
+    private var currency: String { settings.currencyCode }
 
     var body: some View {
         ScrollView {
@@ -121,11 +122,7 @@ struct PropertyDetailView: View {
 
     private func money(_ amount: Double?) -> String {
         guard let amount else { return "—" }
-        let f = NumberFormatter()
-        f.numberStyle = .decimal
-        f.maximumFractionDigits = 0
-        let n = f.string(from: NSNumber(value: amount)) ?? "\(Int(amount))"
-        return "\(currency) \(n)"
+        return settings.money(amount)
     }
 
     // MARK: - Existing cards
@@ -195,8 +192,8 @@ struct PropertyDetailView: View {
     private var infoCard: some View {
         VStack(alignment: .leading, spacing: 12) {
             row("Status", property.isActive == false ? "Inactive" : "Active")
-            if let area = property.totalAreaSqm { row("Area", "\(Int(area)) m²") }
-            if let currency = property.currency { row("Currency", currency) }
+            if let area = property.totalAreaSqm { row("Area", settings.area(area)) }
+            row("Currency", settings.currencyCode)
             if let desc = property.description, !desc.isEmpty { row("Notes", desc) }
         }
         .frame(maxWidth: .infinity, alignment: .leading)
