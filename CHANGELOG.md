@@ -8,6 +8,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.1.0] — 2026-06-21
+
 ### Added
 - **Phase 8 — multiplatform (iPad / Mac / Vision Pro) + Apple Watch** — the
   `PRVIOEarth` target now builds for **iPhone + iPad + Mac Catalyst + Vision Pro**
@@ -50,25 +52,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   Linux CI). Authenticates via Supabase today; reading live estate data needs the
   deferred backend Bearer enabler. See [`apple/README.md`](apple/README.md).
 
-### Changed
-- **Floorplan (spatial Digital Twin) disabled for now** — added a central feature
-  flag (`app/lib/features.ts`, `FEATURES.floorplan = false`). The Floorplan entry
-  in More → Monitoring and the "Open Floorplan" deep links (Home Assistant
-  integration, property detail) are now hidden, and the `/twin/floorplan` route
-  guards itself (redirects to `/more`). Fully reversible by flipping the flag.
-  The **Energy** module (`/twin/energy`) is intentionally unaffected and stays live.
-
-### Verified / Documented
-- **Live backend verification** — verified the live Supabase project end to end:
-  migrations `001`–`010` applied, RLS enabled on all 28 tables, runtime auth
-  gating (`401` on `/api/v1/*`, `307`→`/login` on protected routes) and
-  fail-closed RLS confirmed via direct PostgREST. Documented the results and an
-  **`owns_property` guardrail** in the threat model warning that the `0029`
-  advisor on `owns_property` / `match_knowledge` is intentional and must not be
-  "fixed" (revoking `EXECUTE` from `authenticated` would break every
-  property-scoped RLS policy). Refreshed the stale threat-model open items.
-
-### Added
 - **End-to-end smoke tests (Playwright)** — a runtime test suite (`e2e/smoke.spec.ts`)
   that builds and starts the app and drives the key surfaces in a real browser
   (Overview, Zones, Inventory, Tasks, More, Settings, a zone detail, the Digital
@@ -288,6 +271,24 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   (`prvio-store-v1`). When configured, profile data is server-authoritative;
   wiring the remaining surfaces (properties, sessions, audit UI) is the next step.
 
+### Changed
+- **Floorplan (spatial Digital Twin) disabled for now** — added a central feature
+  flag (`app/lib/features.ts`, `FEATURES.floorplan = false`). The Floorplan entry
+  in More → Monitoring and the "Open Floorplan" deep links (Home Assistant
+  integration, property detail) are now hidden, and the `/twin/floorplan` route
+  guards itself (redirects to `/more`). Fully reversible by flipping the flag.
+  The **Energy** module (`/twin/energy`) is intentionally unaffected and stays live.
+
+### Verified / Documented
+- **Live backend verification** — verified the live Supabase project end to end:
+  migrations `001`–`010` applied, RLS enabled on all 28 tables, runtime auth
+  gating (`401` on `/api/v1/*`, `307`→`/login` on protected routes) and
+  fail-closed RLS confirmed via direct PostgREST. Documented the results and an
+  **`owns_property` guardrail** in the threat model warning that the `0029`
+  advisor on `owns_property` / `match_knowledge` is intentional and must not be
+  "fixed" (revoking `EXECUTE` from `authenticated` would break every
+  property-scoped RLS policy). Refreshed the stale threat-model open items.
+
 ## [1.0.0] — 2026-06-17
 
 ### Added
@@ -302,5 +303,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Supabase initial schema migration (`supabase/migrations/001_initial_schema.sql`)
   and base architecture documentation (`docs/architecture/system-overview.md`).
 
-[Unreleased]: https://github.com/adiparvu/v3-dash-home-/compare/v1.0.0...HEAD
+[Unreleased]: https://github.com/adiparvu/v3-dash-home-/compare/v1.1.0...HEAD
+[1.1.0]: https://github.com/adiparvu/v3-dash-home-/compare/v1.0.0...v1.1.0
 [1.0.0]: https://github.com/adiparvu/v3-dash-home-/releases/tag/v1.0.0

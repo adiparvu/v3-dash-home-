@@ -1,7 +1,7 @@
 # PRVIO Earth — Delivery Roadmap
 
-**Version:** v1.0.0
-**Last updated:** 2026-06-18
+**Version:** v1.1.0
+**Last updated:** 2026-06-21
 **Status legend:** ✅ done · 🚧 in progress · ⏳ planned
 
 This roadmap translates the [Product Specification](./PRODUCT_SPEC.md) into incremental,
