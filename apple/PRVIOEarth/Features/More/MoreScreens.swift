@@ -201,6 +201,7 @@ struct MoreView: View {
             Entry(icon: "house.fill", color: Theme.violet, title: "Apple Home", subtitle: "HomeKit accessories", destination: AnyView(HomeKitView())),
             Entry(icon: "doc.fill", color: Theme.text2, title: "Documents", subtitle: "Deeds, warranties, policies", destination: AnyView(DocumentsView())),
             Entry(icon: "person.2.fill", color: Theme.amber, title: "Contractors", subtitle: "People & companies", destination: AnyView(ContractorsView())),
+            Entry(icon: "bubble.left.and.bubble.right.fill", color: Theme.accent, title: "Chat", subtitle: "Household & collaborators", destination: AnyView(ChatListView())),
             Entry(icon: "magnifyingglass", color: Theme.cyan, title: "Search", subtitle: "Find across the estate", destination: AnyView(SearchView())),
             Entry(icon: "sparkles", color: Theme.violet, title: "AI Assistant", subtitle: "Ask about your estate", destination: AnyView(AIAssistantView())),
             Entry(icon: "gearshape.fill", color: Theme.text2, title: "Settings", subtitle: "Account, security, about", destination: AnyView(SettingsView())),
@@ -387,18 +388,26 @@ struct DocumentsView: View {
 struct ContractorsView: View {
     @Environment(AuthStore.self) private var auth
     @State private var store: CollectionsStore?
+    @State private var callTarget: CallContact?
 
     var body: some View {
         ListPage(title: "Contractors", source: store?.contractorsSource) {
             ForEach(store?.contractors ?? []) { c in
-                GlassRow(icon: "person.crop.circle.fill",
-                         iconColor: (c.isPreferred ?? false) ? Theme.accent : Theme.text2,
-                         title: c.name,
-                         subtitle: [c.company, c.phone].compactMap { $0 }.joined(separator: " · "),
-                         trailing: c.rating.map { String(format: "★ %.1f", $0) },
-                         trailingColor: Theme.amber)
+                let row = GlassRow(icon: "person.crop.circle.fill",
+                                   iconColor: (c.isPreferred ?? false) ? Theme.accent : Theme.text2,
+                                   title: c.name,
+                                   subtitle: [c.company, c.phone].compactMap { $0 }.joined(separator: " · "),
+                                   trailing: c.phone != nil ? "Call" : c.rating.map { String(format: "★ %.1f", $0) },
+                                   trailingColor: c.phone != nil ? Theme.accent : Theme.amber)
+                if let phone = c.phone {
+                    Button { callTarget = CallContact(name: c.name, phone: phone) } label: { row }
+                        .buttonStyle(.plain)
+                } else {
+                    row
+                }
             }
         }
+        .callSheet($callTarget)
         .task {
             if store == nil { store = CollectionsStore(api: auth.api) }
             await store?.loadContractors()

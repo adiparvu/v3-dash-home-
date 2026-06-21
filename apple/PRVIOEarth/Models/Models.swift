@@ -230,6 +230,28 @@ struct DocumentItem: Decodable, Identifiable, Hashable {
 
 struct DocumentsPayload: Decodable { let documents: [DocumentItem] }
 
+// MARK: - Communication (chat)
+
+struct ChatRoom: Identifiable, Hashable {
+    let id: String
+    let name: String
+    let icon: String
+    /// One of: group, property, zone, asset, task, dm.
+    let type: String
+    let unread: Int
+    var phone: String?
+}
+
+struct ChatMessage: Identifiable, Hashable {
+    let id: String
+    let author: String
+    let role: String?
+    let text: String
+    let time: String
+    let mine: Bool
+    let avatarColor: Int
+}
+
 // MARK: - Apple Home (HomeKit)
 
 /// A flattened, view-friendly representation of a HomeKit accessory. Decoupled

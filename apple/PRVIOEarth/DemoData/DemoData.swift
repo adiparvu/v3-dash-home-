@@ -110,6 +110,30 @@ enum DemoData {
         MaintenanceItem(id: "m3", title: "Tractor oil change", asset: "Kubota Tractor", due: "overdue", status: "overdue"),
     ]
 
+    static let chatRooms: [ChatRoom] = [
+        ChatRoom(id: "general", name: "General", icon: "house.fill", type: "group", unread: 0),
+        ChatRoom(id: "estate", name: "Estate Team", icon: "person.3.fill", type: "group", unread: 2),
+        ChatRoom(id: "prvio-estate", name: "Prvio Estate", icon: "building.2.fill", type: "property", unread: 0),
+        ChatRoom(id: "greenhouse", name: "Greenhouse", icon: "leaf.fill", type: "zone", unread: 1),
+        ChatRoom(id: "asset-solar", name: "Solar Array", icon: "bolt.fill", type: "asset", unread: 0),
+        ChatRoom(id: "task-irrigation", name: "Irrigation Maintenance", icon: "checkmark.circle.fill", type: "task", unread: 2),
+        ChatRoom(id: "ion", name: "Ion (Caretaker)", icon: "person.crop.circle.fill", type: "dm", unread: 3, phone: "+40 733 000 011"),
+        ChatRoom(id: "ana", name: "Ana (Manager)", icon: "person.crop.circle.fill", type: "dm", unread: 0, phone: "+40 733 000 012"),
+    ]
+
+    static let chatMessages: [String: [ChatMessage]] = [
+        "general": [
+            ChatMessage(id: "g1", author: "Ion", role: "Caretaker", text: "Morning! Irrigation ran fine, orchard looks great.", time: "7:02", mine: false, avatarColor: 0x22D3EE),
+            ChatMessage(id: "g2", author: "Ana", role: "Manager", text: "Thanks Ion. I'll be on-site around 10 — can you open the greenhouse vents?", time: "7:15", mine: false, avatarColor: 0x7C3AED),
+            ChatMessage(id: "g3", author: "Ion", role: "Caretaker", text: "Done. CO₂ back in range at 780 ppm.", time: "7:22", mine: false, avatarColor: 0x22D3EE),
+            ChatMessage(id: "g4", author: "You", role: "Owner", text: "Great work. Let's review the pond sensors Friday.", time: "9:45", mine: true, avatarColor: 0x4ADE80),
+        ],
+        "ion": [
+            ChatMessage(id: "i1", author: "Ion", role: "Caretaker", text: "Pump filter replaced, all good.", time: "8:10", mine: false, avatarColor: 0x22D3EE),
+            ChatMessage(id: "i2", author: "You", role: "Owner", text: "Perfect, thank you!", time: "8:12", mine: true, avatarColor: 0x4ADE80),
+        ],
+    ]
+
     static let homeAccessories: [HomeAccessory] = [
         HomeAccessory(id: "hk1", name: "Living Room Lamp", room: "Living Room", category: "Lightbulb", isReachable: true, isOn: true),
         HomeAccessory(id: "hk2", name: "Front Gate", room: "Entrance", category: "Door", isReachable: true, isOn: false),

@@ -9,6 +9,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 ### Added
+- **Apple communication & calling** — a new native **Chat** screen (household /
+  group / property / zone / asset / task / DM rooms with a live composer) and
+  **calling integrations**: from a contractor row or a DM thread, launch a Phone
+  call, FaceTime Audio/Video, WhatsApp or Telegram via their URL schemes
+  (`CallContact`/`CallSheet`). Chat is demo-backed (matching the web client) pending
+  a multi-user chat backend.
 - **Apple account & security parity** — the native app now matches the web client's
   identity surface, all backed by the existing `/api/v1/profile*` and `/api/v1/audit`
   APIs: a new **Security** screen (active sessions with revoke / "sign out others" /
