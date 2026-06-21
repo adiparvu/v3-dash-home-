@@ -1,7 +1,7 @@
 # PRVIO Earth — Delivery Roadmap
 
-**Version:** v1.0.0
-**Last updated:** 2026-06-18
+**Version:** v1.1.0
+**Last updated:** 2026-06-21
 **Status legend:** ✅ done · 🚧 in progress · ⏳ planned
 
 This roadmap translates the [Product Specification](./PRODUCT_SPEC.md) into incremental,
@@ -108,10 +108,20 @@ future track that reuses the same versioned backend contracts.
 
 | Item | Status |
 | --- | --- |
-| SwiftUI apps (iPhone, iPad, Mac, Watch, Vision Pro) on shared backend contracts | ⏳ |
-| Home / Lock screen / Notification Center widgets | ⏳ |
-| Live Activities (maintenance, deliveries, incidents, inspections) | ⏳ |
-| Face ID / Touch ID / Secure Enclave + Keychain | ⏳ |
+| **iPhone SwiftUI app foundation** (`apple/`) — XcodeGen project, shared layer (versioned `APIClient`, Codable models, GoTrue auth, Keychain), Overview / Properties / Profile screens, demo fallback | 🚧 |
+| Face ID / Touch ID unlock + Keychain session storage | 🚧 |
+| iPhone + iPad + Mac (Catalyst) + Vision Pro — one multiplatform target, adaptive layout | 🚧 |
+| Apple Watch app (standalone watchOS target on the shared layer) | 🚧 |
+| Home / Lock screen widgets (WidgetKit: Property Status, Tasks) via App Group snapshot | 🚧 |
+| Live Activities (maintenance, deliveries, incidents, inspections) — Lock Screen + Dynamic Island | 🚧 |
+| Secure Enclave key handling for sensitive records | ⏳ |
+| **Backend enabler:** `/api/v1` accepts `Authorization: Bearer` (native token auth) | ✅ |
+
+> **Increment 1 (current):** the iPhone app foundation lives under [`apple/`](../apple/).
+> It builds in Xcode on macOS (not compiled in the Linux CI). `/api/v1` now accepts
+> bearer tokens (validated server-side, RLS-scoped), so the native app reads the
+> **same live data** as the web once signed in; with no config it stays in demo
+> mode — see [`apple/README.md`](../apple/README.md).
 
 ---
 

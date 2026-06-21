@@ -8,7 +8,65 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Changed
+- **Release pipeline made generic** — replaced the one-shot v1.1.0 release workflow
+  with a reusable, **tag-driven** `Release` workflow (`on: push: tags: v*`, plus a
+  manual `workflow_dispatch`). It derives the version from the tag and extracts the
+  matching `## [x.y.z]` section from `CHANGELOG.md` for the release notes, using the
+  built-in `GITHUB_TOKEN`.
+
+## [1.1.0] — 2026-06-21
+
 ### Added
+- **Phase 8 — multiplatform (iPad / Mac / Vision Pro) + Apple Watch** — the
+  `PRVIOEarth` target now builds for **iPhone + iPad + Mac Catalyst + Vision Pro**
+  from one codebase, with an adaptive layout (tab bar on iPhone, `NavigationSplitView`
+  sidebar on regular widths). A new standalone **watchOS** target
+  (`PRVIOEarthWatch`) reuses the shared `EstateSnapshot` to show estate health,
+  counts and tasks across vertical pages. All targets share the code under
+  `apple/Shared/`.
+- **Phase 8 — Live Activities (ActivityKit)** — in-progress estate jobs
+  (maintenance / delivery / inspection / incident) surface on the **Lock Screen**
+  and **Dynamic Island** (compact / minimal / expanded). `MaintenanceActivityAttributes`
+  (shared, with a live `ContentState` of status / progress / ETA) is driven by a
+  `LiveActivityManager` (start / update / end) in the app and rendered by
+  `MaintenanceLiveActivity` in the widget extension. Enabled via
+  `NSSupportsLiveActivities`; a demo trigger lives on the Property detail screen.
+- **Phase 8 — WidgetKit extension (`apple/PRVIOEarthWidgets`)** — Home Screen
+  (`systemSmall`/`systemMedium`) and Lock Screen (`accessoryCircular`/
+  `accessoryRectangular`/`accessoryInline`) widgets: **Property Status** (health
+  ring, zones, objects) and **Tasks & Maintenance** (open tasks, next due). The app
+  publishes a compact `EstateSnapshot` to a shared **App Group**
+  (`group.earth.prvio.app`) via `SharedStore`, which triggers a WidgetKit reload;
+  the widget reads it with no network in-process. XcodeGen wires the extension
+  target, App Group entitlements and snapshot bridge.
+- **Bearer-token auth for `/api/v1` (native enabler)** — the backend now accepts
+  `Authorization: Bearer <jwt>` in addition to the SSR cookie session, so the
+  native Apple client (and any token-based client) uses the **same versioned API**
+  and RLS isolation as the web app. `createClient()` scopes every PostgREST/RPC
+  request to the bearer user; `currentUserId()` validates the token via
+  `auth.getUser(token)` (fail-closed on forged tokens). Pure header parsing lives
+  in `lib/supabase/auth-header.ts` with unit tests. Verified live: requests with a
+  forged bearer return `401` (not `500`).
+- **Phase 8 — iPhone SwiftUI app foundation (`apple/`)** — the first native Apple
+  client, reusing the same versioned backend contracts as the web app. Includes an
+  XcodeGen project (`project.yml`), a shared layer (versioned `APIClient` that
+  decodes the `{ apiVersion, data }` envelope and sends `Authorization: Bearer`;
+  Codable models matching `/api/v1`; Supabase **GoTrue** sign-in; **Keychain**
+  session storage; **Face ID / Touch ID** unlock via `LocalAuthentication`), a
+  Liquid-Glass design system, and Overview / Properties / Profile screens with an
+  offline **demo-data** fallback. Built in Xcode on macOS (not compiled in the
+  Linux CI). Authenticates via Supabase today; reading live estate data needs the
+  deferred backend Bearer enabler. See [`apple/README.md`](apple/README.md).
+
+- **End-to-end smoke tests (Playwright)** — a runtime test suite (`e2e/smoke.spec.ts`)
+  that builds and starts the app and drives the key surfaces in a real browser
+  (Overview, Zones, Inventory, Tasks, More, Settings, a zone detail, the Digital
+  Twin Energy module, AI assistant and Login), plus a bottom-navigation flow.
+  Runs in localStorage prototype mode (no backend), added as a dedicated **CI job**
+  (`npm run test:e2e`) alongside the existing lint / unit-test / build pipeline.
+  This complements the vitest unit tests by verifying routing and rendering at
+  runtime, not just at build time.
 - **Platform hardening & connect-up** — wired the new smart-home surfaces to the
   live feed and persisted their controls: the **floorplan** now derives room
   power from the live house load (Live/Simulat badge) and HVAC/lights/doors/music
@@ -220,6 +278,24 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   (`prvio-store-v1`). When configured, profile data is server-authoritative;
   wiring the remaining surfaces (properties, sessions, audit UI) is the next step.
 
+### Changed
+- **Floorplan (spatial Digital Twin) disabled for now** — added a central feature
+  flag (`app/lib/features.ts`, `FEATURES.floorplan = false`). The Floorplan entry
+  in More → Monitoring and the "Open Floorplan" deep links (Home Assistant
+  integration, property detail) are now hidden, and the `/twin/floorplan` route
+  guards itself (redirects to `/more`). Fully reversible by flipping the flag.
+  The **Energy** module (`/twin/energy`) is intentionally unaffected and stays live.
+
+### Verified / Documented
+- **Live backend verification** — verified the live Supabase project end to end:
+  migrations `001`–`010` applied, RLS enabled on all 28 tables, runtime auth
+  gating (`401` on `/api/v1/*`, `307`→`/login` on protected routes) and
+  fail-closed RLS confirmed via direct PostgREST. Documented the results and an
+  **`owns_property` guardrail** in the threat model warning that the `0029`
+  advisor on `owns_property` / `match_knowledge` is intentional and must not be
+  "fixed" (revoking `EXECUTE` from `authenticated` would break every
+  property-scoped RLS policy). Refreshed the stale threat-model open items.
+
 ## [1.0.0] — 2026-06-17
 
 ### Added
@@ -234,5 +310,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Supabase initial schema migration (`supabase/migrations/001_initial_schema.sql`)
   and base architecture documentation (`docs/architecture/system-overview.md`).
 
-[Unreleased]: https://github.com/adiparvu/v3-dash-home-/compare/v1.0.0...HEAD
+[Unreleased]: https://github.com/adiparvu/v3-dash-home-/compare/v1.1.0...HEAD
+[1.1.0]: https://github.com/adiparvu/v3-dash-home-/compare/v1.0.0...v1.1.0
 [1.0.0]: https://github.com/adiparvu/v3-dash-home-/releases/tag/v1.0.0

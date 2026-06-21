@@ -6,7 +6,7 @@
  * the authenticated user's own rows — authorization is enforced by the backend,
  * never by the client (see docs/PRODUCT_SPEC.md §9).
  */
-import { createClient, createServiceClient } from "../supabase/server";
+import { createClient, createServiceClient, bearerToken } from "../supabase/server";
 import type {
   Profile,
   ProfileSocialLink,
@@ -17,10 +17,20 @@ import type {
   TablesUpdate,
 } from "../types/database.types";
 
-/** Resolve the authenticated user id, or null when there is no session. */
+/**
+ * Resolve the authenticated user id, or null when there is no session.
+ *
+ * Supports both auth schemes: the SSR cookie session (web) and an
+ * `Authorization: Bearer <jwt>` header (native clients). The bearer token is
+ * always validated against Supabase via `getUser(token)`, so a forged token
+ * fails closed.
+ */
 export async function currentUserId(): Promise<string | null> {
   const supabase = await createClient();
-  const { data } = await supabase.auth.getUser();
+  const token = await bearerToken();
+  const { data } = token
+    ? await supabase.auth.getUser(token)
+    : await supabase.auth.getUser();
   return data.user?.id ?? null;
 }
 

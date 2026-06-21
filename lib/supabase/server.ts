@@ -1,14 +1,36 @@
 import { createServerClient } from '@supabase/ssr'
-import { cookies } from 'next/headers'
+import { cookies, headers } from 'next/headers'
 import { Database } from '../types/database.types'
+import { extractBearerToken } from './auth-header'
+
+/**
+ * Read a bearer token from the incoming request's Authorization header, if any.
+ * Lets token-based clients (the native Apple app) authenticate against the same
+ * `/api/v1` as the cookie-based web client.
+ */
+export async function bearerToken(): Promise<string | null> {
+  try {
+    const headerStore = await headers()
+    return extractBearerToken(headerStore.get('authorization'))
+  } catch {
+    // headers() is unavailable outside a request scope — treat as no token.
+    return null
+  }
+}
 
 export async function createClient() {
   const cookieStore = await cookies()
+  const token = await bearerToken()
 
   return createServerClient<Database>(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
     process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
     {
+      // When a bearer token is present, scope every PostgREST/RPC request to that
+      // user so RLS sees the right auth.uid(); the cookie session is used otherwise.
+      ...(token
+        ? { global: { headers: { Authorization: `Bearer ${token}` } } }
+        : {}),
       cookies: {
         getAll() {
           return cookieStore.getAll()
