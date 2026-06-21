@@ -8,6 +8,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Changed
+- **Apple deployment target lowered to 26** — v1.2.0 set iOS/watchOS/visionOS to
+  27, but the iOS 27 SDK isn't available on CI / TestFlight build infrastructure
+  (GitHub macOS runners ship Xcode 26). Targets are now **iOS/iPadOS/visionOS 26
+  and watchOS 26** so the app builds and is TestFlight-able today; Swift 6 and the
+  native Liquid Glass APIs are unaffected.
+
 ### Added
 - **Apple build in CI + TestFlight workflow** — `.github/workflows/apple.yml` builds
   the native client on a **macOS runner** (XcodeGen + `xcodebuild`, no signing) on

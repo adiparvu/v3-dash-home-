@@ -21,9 +21,9 @@ All share the code under `Shared/` and the design system.
 
 ## Requirements
 
-- macOS with **Xcode 27** (iOS 27 SDK) — the app targets iOS/iPadOS/visionOS 27
-  and watchOS 27, builds with **Swift 6**, and uses the native SwiftUI **Liquid
-  Glass** APIs (`.glassEffect`).
+- macOS with **Xcode 26** (iOS 26 SDK) — the app targets iOS/iPadOS/visionOS 26
+  and watchOS 26, builds with **Swift 6**, and uses the native SwiftUI **Liquid
+  Glass** APIs (`.glassEffect`). (iOS 27 SDK isn't on CI/TestFlight infra yet.)
 - [XcodeGen](https://github.com/yonyz/XcodeGen) — `brew install xcodegen`
 
 ## Getting started
@@ -139,9 +139,7 @@ with a real account. With no configuration the app stays in demo mode.
 
 `.github/workflows/apple.yml` builds the app on a **macOS runner** (XcodeGen +
 `xcodebuild`, no signing) whenever `apple/**` changes, so Swift compilation is
-validated in CI. It selects the newest Xcode (`latest`) — the project needs
-**Xcode 27** (iOS/watchOS 27 SDK); if the hosted image doesn't ship it yet, use a
-self-hosted runner or pin an installed 27.x.
+validated in CI. It uses `latest-stable` Xcode (Xcode 26, iOS/watchOS 26 SDK).
 
 A manual **TestFlight** job (run the workflow with `testflight: true`) archives and
 uploads via the App Store Connect API key. Add these repo **secrets** first:
