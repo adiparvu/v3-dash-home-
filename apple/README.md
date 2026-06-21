@@ -174,7 +174,7 @@ Actions**):
 The workflow verifies all four secrets are present (failing with a clear message
 if any is missing), then derives the marketing version from the latest git tag
 (`v1.4.0` → `1.4.0`) and the build number from the Actions run number. The app
-record must already exist in App Store Connect for bundle id `earth.prvio.app`,
+record must already exist in App Store Connect for bundle id `Prv.prvio.app`,
 with the App Group / Push / WeatherKit capabilities enabled on the App ID.
 
 Trigger it two ways:

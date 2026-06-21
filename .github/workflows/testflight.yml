@@ -13,7 +13,7 @@ name: TestFlight
 #
 # Prerequisites (one-time, in Apple's portals): an active Apple Developer Program
 # membership, the app record created in App Store Connect for bundle id
-# earth.prvio.app, and the App Group / Push / WeatherKit capabilities enabled on
+# Prv.prvio.app, and the App Group / Push / WeatherKit capabilities enabled on
 # the App ID. Automatic signing (-allowProvisioningUpdates) registers the
 # provisioning profiles using the API key.
 on:
