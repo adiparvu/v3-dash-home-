@@ -1,4 +1,4 @@
 TestFlight upload trigger.
-Bump this file (or use Actions → Run workflow) to start an upload.
+Bump this file (or use Actions to start an upload).
 
-run: 12 — 2026-06-21T16:56:28Z — v1.7.0 (account/security, chat+calling, AI, value tracking, transfer, app intents, privacy)
+run: 13 — 2026-06-21T17:51:44Z — v1.8.0 (full Apple redesign: adaptive theme, new IA, Settings)
