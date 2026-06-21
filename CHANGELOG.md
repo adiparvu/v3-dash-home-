@@ -8,6 +8,34 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.5.0] — 2026-06-21
+
+### Added
+- **First TestFlight delivery of the Apple client** — the native iPhone/iPad app
+  (bundle id `Prv.prvio.app`) now archives, signs for App Store distribution, and
+  uploads to **TestFlight** end to end on a macOS runner. Adds a dedicated,
+  fully secret-driven workflow `.github/workflows/testflight.yml` (App Store
+  Connect API key auth via `ASC_API_KEY_P8` / `ASC_KEY_ID` / `ASC_ISSUER_ID` and
+  `APPLE_TEAM_ID`), triggerable from the Actions tab or by the
+  `.github/trigger-testflight` marker file. Nothing credential-related lives in
+  the repo; a gate fails clearly if any secret is missing.
+- **App icon** — a 1024×1024 opaque (no-alpha) `AppIcon` asset (estate "glass
+  globe"), from which Xcode derives every required size.
+
+### Changed
+- **App Store–ready packaging** — `aps-environment` set to `production` (so
+  automatic signing selects an App Store Distribution profile that needs no
+  registered devices), the archive is built unsigned with distribution signing
+  applied at export, and the bundle identifiers move to `Prv.prvio.app`
+  (`.widgets` / `.watchkitapp`). `apple.yml` now only validates Swift
+  compilation; the TestFlight upload lives in its own workflow.
+
+### Fixed
+- **Apple binary validation** — added the missing `CFBundleIconName` Info.plist
+  key and the full set of iPad `UISupportedInterfaceOrientations~ipad`
+  (portrait, upside-down, both landscapes) required for iPad multitasking, so the
+  uploaded build passes App Store Connect validation.
+
 ## [1.4.0] — 2026-06-21
 
 ### Added

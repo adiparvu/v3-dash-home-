@@ -1,6 +1,6 @@
 # PRVIO Earth — Delivery Roadmap
 
-**Version:** v1.4.0
+**Version:** v1.5.0
 **Last updated:** 2026-06-21
 **Status legend:** ✅ done · 🚧 in progress · ⏳ planned
 
@@ -108,19 +108,22 @@ future track that reuses the same versioned backend contracts.
 
 | Item | Status |
 | --- | --- |
-| **iPhone SwiftUI app foundation** (`apple/`) — XcodeGen project, shared layer (versioned `APIClient`, Codable models, GoTrue auth, Keychain), Overview / Properties / Profile screens, demo fallback | 🚧 |
-| Face ID / Touch ID unlock + Keychain session storage | 🚧 |
-| iPhone + iPad + Mac (Catalyst) + Vision Pro — one multiplatform target, adaptive layout | 🚧 |
-| Apple Watch app (standalone watchOS target) + WatchConnectivity live sync from iPhone | 🚧 |
-| Home / Lock screen widgets (WidgetKit: Property Status, Tasks) via App Group snapshot | 🚧 |
-| Live Activities (Lock Screen + Dynamic Island) + server-side APNs push (`/api/v1/twin/live-activities`) | 🚧 |
-| Secure Enclave key handling for sensitive records (hardware-backed seal/reveal) | 🚧 |
+| **iPhone SwiftUI app foundation** (`apple/`) — XcodeGen project, shared layer (versioned `APIClient`, Codable models, GoTrue auth, Keychain), Overview / Properties / Profile screens, demo fallback | ✅ |
+| Face ID / Touch ID unlock + Keychain session storage | ✅ |
+| iPhone + iPad + Mac (Catalyst) + Vision Pro — one multiplatform target, adaptive layout | ✅ |
+| Apple Watch app (standalone watchOS target) + WatchConnectivity live sync from iPhone | ✅ |
+| Home / Lock screen widgets (WidgetKit: Property Status, Tasks) via App Group snapshot | ✅ |
+| Live Activities (Lock Screen + Dynamic Island) + server-side APNs push (`/api/v1/twin/live-activities`) | ✅ |
+| Secure Enclave key handling for sensitive records (hardware-backed seal/reveal) | ✅ |
+| Apple WeatherKit on Overview (native `WeatherStore` + attribution) | ✅ |
 | **Backend enabler:** `/api/v1` accepts `Authorization: Bearer` (native token auth) | ✅ |
+| **TestFlight delivery** — macOS CI archives, signs for App Store distribution, and uploads the iPhone/iPad app (`Prv.prvio.app`) to TestFlight (`.github/workflows/testflight.yml`) | ✅ |
 
 > **Apple client** lives under [`apple/`](../apple/) and targets **iOS/iPadOS/
 > visionOS 26, watchOS 26, Swift 6, and the native SwiftUI Liquid Glass APIs**
 > (Xcode 26; the iOS 27 SDK isn't on build infra yet). It's built on a macOS CI
-> runner (`.github/workflows/apple.yml`). `/api/v1` accepts bearer tokens (validated server-side,
+> runner (`.github/workflows/apple.yml`) and delivered to **TestFlight**
+> (`.github/workflows/testflight.yml`). `/api/v1` accepts bearer tokens (validated server-side,
 > RLS-scoped), so the native app reads the **same live data** as the web once
 > signed in; with no config it stays in demo mode — see
 > [`apple/README.md`](../apple/README.md).
