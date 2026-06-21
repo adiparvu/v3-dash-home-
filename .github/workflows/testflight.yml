@@ -1,0 +1,125 @@
+name: TestFlight
+
+# Archives the iOS app and uploads it to TestFlight using App Store Connect API
+# key authentication + automatic ("cloud") signing. Everything sensitive comes
+# from repository secrets — nothing is stored in the repo:
+#   ASC_API_KEY_P8  — contents of the App Store Connect API .p8 key (Admin role)
+#   ASC_KEY_ID      — the key's Key ID
+#   ASC_ISSUER_ID   — the App Store Connect API Issuer ID
+#   APPLE_TEAM_ID   — the 10-character Apple Developer Team ID
+#
+# Trigger it either from the Actions tab ("Run workflow") or by changing the
+# marker file `.github/trigger-testflight` and pushing.
+#
+# Prerequisites (one-time, in Apple's portals): an active Apple Developer Program
+# membership, the app record created in App Store Connect for bundle id
+# earth.prvio.app, and the App Group / Push / WeatherKit capabilities enabled on
+# the App ID. Automatic signing (-allowProvisioningUpdates) registers the
+# provisioning profiles using the API key.
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - claude/prvio-earth-master-build-t2cw9c
+    paths:
+      - .github/trigger-testflight
+
+permissions:
+  contents: read
+
+jobs:
+  upload:
+    runs-on: macos-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Verify required secrets are set
+        env:
+          ASC_API_KEY_P8: ${{ secrets.ASC_API_KEY_P8 }}
+          ASC_KEY_ID: ${{ secrets.ASC_KEY_ID }}
+          ASC_ISSUER_ID: ${{ secrets.ASC_ISSUER_ID }}
+          APPLE_TEAM_ID: ${{ secrets.APPLE_TEAM_ID }}
+        run: |
+          missing=0
+          for v in ASC_API_KEY_P8 ASC_KEY_ID ASC_ISSUER_ID APPLE_TEAM_ID; do
+            if [ -z "${!v}" ]; then echo "::error::Missing repository secret: $v"; missing=1; fi
+          done
+          if [ "$missing" != "0" ]; then
+            echo "Add them in repo Settings → Secrets and variables → Actions."
+            exit 1
+          fi
+
+      - uses: maxim-lobanov/setup-xcode@v1
+        with:
+          xcode-version: latest-stable
+
+      - name: Install XcodeGen
+        run: brew install xcodegen
+
+      - name: Generate Xcode project
+        working-directory: apple
+        run: |
+          cp PRVIOEarth/Resources/Config.xcconfig.example PRVIOEarth/Resources/Config.xcconfig
+          xcodegen generate
+
+      - name: Write App Store Connect API key
+        env:
+          ASC_API_KEY_P8: ${{ secrets.ASC_API_KEY_P8 }}
+          ASC_KEY_ID: ${{ secrets.ASC_KEY_ID }}
+        run: |
+          mkdir -p "$HOME/private_keys"
+          printf '%s\n' "$ASC_API_KEY_P8" > "$HOME/private_keys/AuthKey_${ASC_KEY_ID}.p8"
+
+      - name: Archive (automatic signing)
+        working-directory: apple
+        env:
+          ASC_KEY_ID: ${{ secrets.ASC_KEY_ID }}
+          ASC_ISSUER_ID: ${{ secrets.ASC_ISSUER_ID }}
+          APPLE_TEAM_ID: ${{ secrets.APPLE_TEAM_ID }}
+        run: |
+          set -o pipefail
+          VERSION=$(git describe --tags --abbrev=0 2>/dev/null | sed 's/^v//')
+          [ -n "$VERSION" ] || VERSION=1.0.0
+          echo "Building version $VERSION (build $GITHUB_RUN_NUMBER)"
+          xcodebuild archive \
+            -project PRVIOEarth.xcodeproj \
+            -scheme PRVIOEarth \
+            -destination 'generic/platform=iOS' \
+            -archivePath "$RUNNER_TEMP/PRVIOEarth.xcarchive" \
+            -allowProvisioningUpdates \
+            -authenticationKeyID "$ASC_KEY_ID" \
+            -authenticationKeyIssuerID "$ASC_ISSUER_ID" \
+            -authenticationKeyPath "$HOME/private_keys/AuthKey_${ASC_KEY_ID}.p8" \
+            DEVELOPMENT_TEAM="$APPLE_TEAM_ID" \
+            CODE_SIGN_STYLE=Automatic \
+            MARKETING_VERSION="$VERSION" \
+            CURRENT_PROJECT_VERSION="$GITHUB_RUN_NUMBER"
+
+      - name: Export & upload to TestFlight
+        working-directory: apple
+        env:
+          ASC_KEY_ID: ${{ secrets.ASC_KEY_ID }}
+          ASC_ISSUER_ID: ${{ secrets.ASC_ISSUER_ID }}
+          APPLE_TEAM_ID: ${{ secrets.APPLE_TEAM_ID }}
+        run: |
+          set -o pipefail
+          cat > "$RUNNER_TEMP/ExportOptions.plist" <<PLIST
+          <?xml version="1.0" encoding="UTF-8"?>
+          <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+          <plist version="1.0"><dict>
+            <key>method</key><string>app-store-connect</string>
+            <key>destination</key><string>upload</string>
+            <key>teamID</key><string>${APPLE_TEAM_ID}</string>
+            <key>signingStyle</key><string>automatic</string>
+          </dict></plist>
+          PLIST
+          xcodebuild -exportArchive \
+            -archivePath "$RUNNER_TEMP/PRVIOEarth.xcarchive" \
+            -exportOptionsPlist "$RUNNER_TEMP/ExportOptions.plist" \
+            -exportPath "$RUNNER_TEMP/export" \
+            -allowProvisioningUpdates \
+            -authenticationKeyID "$ASC_KEY_ID" \
+            -authenticationKeyIssuerID "$ASC_ISSUER_ID" \
+            -authenticationKeyPath "$HOME/private_keys/AuthKey_${ASC_KEY_ID}.p8"

@@ -152,17 +152,38 @@ with a real account. With no configuration the app stays in demo mode.
 `xcodebuild`, no signing) whenever `apple/**` changes, so Swift compilation is
 validated in CI. It uses `latest-stable` Xcode (Xcode 26, iOS/watchOS 26 SDK).
 
-A manual **TestFlight** job (run the workflow with `testflight: true`) archives and
-uploads via the App Store Connect API key. Add these repo **secrets** first:
+**TestFlight** upload lives in its own workflow, `.github/workflows/testflight.yml`.
+It archives the app and uploads it via the App Store Connect API key using
+automatic ("cloud") signing (`-allowProvisioningUpdates`) — no certificates or
+profiles are stored in the repo. Everything sensitive comes from repository
+**secrets**; add all four first (repo **Settings → Secrets and variables →
+Actions**):
 
 | Secret | Purpose |
 | --- | --- |
-| `ASC_KEY_ID` | App Store Connect API key id |
-| `ASC_ISSUER_ID` | App Store Connect issuer id |
-| `ASC_API_KEY_P8` | contents of the `.p8` API key |
+| `ASC_API_KEY_P8` | contents of the `.p8` App Store Connect API key (Admin/App Manager role) |
+| `ASC_KEY_ID` | the API key's Key ID |
+| `ASC_ISSUER_ID` | the App Store Connect API Issuer ID |
+| `APPLE_TEAM_ID` | the 10-character Apple Developer Team ID |
 
-It uses automatic signing (`-allowProvisioningUpdates`); set `DEVELOPMENT_TEAM`
-in `project.yml` and ensure the bundle ids exist in your account.
+> **Never paste an API key into chat, code, or a committed file** — this repo is
+> public, so a key in git history is permanently exposed. Add keys only as the
+> secrets above. The Team ID is read from `APPLE_TEAM_ID`, so `DEVELOPMENT_TEAM`
+> in `project.yml` can stay empty.
+
+The workflow verifies all four secrets are present (failing with a clear message
+if any is missing), then derives the marketing version from the latest git tag
+(`v1.4.0` → `1.4.0`) and the build number from the Actions run number. The app
+record must already exist in App Store Connect for bundle id `earth.prvio.app`,
+with the App Group / Push / WeatherKit capabilities enabled on the App ID.
+
+Trigger it two ways:
+
+- **From the Actions tab** — open the *TestFlight* workflow → **Run workflow**
+  (`workflow_dispatch`).
+- **By pushing the marker file** — edit/touch `.github/trigger-testflight` and
+  push to `claude/prvio-earth-master-build-t2cw9c`; the `paths` filter runs the
+  upload on that change alone.
 
 ### APNs secrets (Live Activity push)
 
