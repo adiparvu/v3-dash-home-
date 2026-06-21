@@ -13,6 +13,8 @@ struct EstateSnapshot: Codable, Hashable, Sendable {
     var objectCount: Int
     var openTasks: Int
     var nextMaintenance: String?
+    /// Current estate value (primary property), when known.
+    var estateValue: Double? = nil
     var updatedAt: Date
 
     static let demo = EstateSnapshot(
@@ -22,6 +24,7 @@ struct EstateSnapshot: Codable, Hashable, Sendable {
         objectCount: 142,
         openTasks: 7,
         nextMaintenance: "Irrigation service · in 3 days",
+        estateValue: 2_450_000,
         updatedAt: Date()
     )
 }

@@ -9,6 +9,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 ### Added
+- **App Intents & widgets (Apple)** — adds Siri / Spotlight / Shortcuts **App
+  Intents** (`EstateStatusIntent` answers estate health + open tasks from the App
+  Group snapshot without launching; `OpenAssistantIntent`) via `PrvioShortcuts`.
+  The Property Status widget gains a **`.systemLarge`** layout showing estate
+  value, stats and next maintenance; the shared snapshot now carries `estateValue`.
 - **Ownership transfer (Apple)** — a multi-step Transfer Ownership workflow
   (Verify → Recipient → Assets → Confirm) on the Property detail, recording an
   auditable, immutable pending transfer request via `POST /api/v1/properties/[id]/transfer`

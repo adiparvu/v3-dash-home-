@@ -12,7 +12,7 @@ struct PropertyStatusWidget: Widget {
         .configurationDisplayName("Property Status")
         .description("Estate health, zones and objects at a glance.")
         .supportedFamilies([
-            .systemSmall, .systemMedium,
+            .systemSmall, .systemMedium, .systemLarge,
             .accessoryRectangular, .accessoryCircular, .accessoryInline,
         ])
     }
@@ -53,6 +53,34 @@ private struct PropertyStatusView: View {
                 }
                 Spacer()
             }
+        case .systemLarge:
+            VStack(alignment: .leading, spacing: 12) {
+                HStack(spacing: 16) {
+                    healthRing
+                    VStack(alignment: .leading, spacing: 4) {
+                        Text(s.propertyName).font(.headline).foregroundStyle(Theme.text1).lineLimit(1)
+                        if let value = s.estateValue {
+                            Text(estateValueText(value)).font(.title3.weight(.semibold)).foregroundStyle(Theme.accent)
+                            Text("Estate value").font(.caption2).foregroundStyle(Theme.text3)
+                        }
+                    }
+                    Spacer()
+                }
+                Divider().overlay(Color.white.opacity(0.1))
+                HStack {
+                    stat("Zones", "\(s.zoneCount)")
+                    Spacer()
+                    stat("Objects", "\(s.objectCount)")
+                    Spacer()
+                    stat("Open tasks", "\(s.openTasks)")
+                }
+                if let next = s.nextMaintenance {
+                    Label(next, systemImage: "wrench.and.screwdriver.fill")
+                        .font(.caption).foregroundStyle(Theme.text2).lineLimit(1)
+                }
+                Spacer()
+            }
+            .frame(maxWidth: .infinity, alignment: .leading)
         default: // systemSmall
             VStack(alignment: .leading, spacing: 8) {
                 HStack {
@@ -80,6 +108,12 @@ private struct PropertyStatusView: View {
             Text("\(s.healthScore)").font(.title3.bold()).foregroundStyle(Theme.text1)
         }
         .frame(width: 64, height: 64)
+    }
+
+    private func estateValueText(_ v: Double) -> String {
+        if v >= 1_000_000 { return String(format: "€%.2fM", v / 1_000_000) }
+        if v >= 1_000 { return String(format: "€%.0fk", v / 1_000) }
+        return "€\(Int(v))"
     }
 
     private func stat(_ label: String, _ value: String) -> some View {

@@ -56,6 +56,7 @@ final class EstateStore {
             objectCount: assets.count,
             openTasks: 7,
             nextMaintenance: "Irrigation service · in 3 days",
+            estateValue: properties.first?.currentValue ?? (portfolioValue > 0 ? portfolioValue : nil),
             updatedAt: Date()
         )
         SharedStore.save(snapshot)
