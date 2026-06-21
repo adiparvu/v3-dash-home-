@@ -5,29 +5,27 @@ struct PropertiesView: View {
     @State private var estate: EstateStore?
 
     var body: some View {
-        NavigationStack {
-            ScrollView {
-                VStack(spacing: 12) {
-                    if let estate {
-                        ForEach(estate.properties) { property in
-                            NavigationLink(value: property) {
-                                PropertyRow(property: property)
-                            }
-                            .buttonStyle(.plain)
+        ScrollView {
+            VStack(spacing: 12) {
+                if let estate {
+                    ForEach(estate.properties) { property in
+                        NavigationLink(value: property) {
+                            PropertyRow(property: property)
                         }
+                        .buttonStyle(.plain)
                     }
                 }
-                .padding(16)
             }
-            .background(Theme.bg1.ignoresSafeArea())
-            .navigationTitle("Properties")
-            .navigationDestination(for: Property.self) { PropertyDetailView(property: $0) }
-            .toolbar {
-                ToolbarItem(placement: .topBarTrailing) {
-                    if let estate {
-                        Badge(text: estate.source == .synced ? "Synced" : "Demo",
-                              color: estate.source == .synced ? Theme.accent : Theme.amber)
-                    }
+            .padding(16)
+        }
+        .background(Theme.bg1.ignoresSafeArea())
+        .navigationTitle("Properties")
+        .navigationDestination(for: Property.self) { PropertyDetailView(property: $0) }
+        .toolbar {
+            ToolbarItem(placement: .topBarTrailing) {
+                if let estate {
+                    Badge(text: estate.source == .synced ? "Synced" : "Demo",
+                          color: estate.source == .synced ? Theme.accent : Theme.amber)
                 }
             }
         }

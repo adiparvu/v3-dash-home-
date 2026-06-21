@@ -2,7 +2,11 @@ import SwiftUI
 
 struct OverviewView: View {
     @Environment(AuthStore.self) private var auth
+    @Environment(AppSettings.self) private var settings
     @State private var estate: EstateStore?
+    @State private var showProfile = false
+    @State private var showChat = false
+    @State private var showSettings = false
 
     private let healthScore = 87
 
@@ -27,13 +31,27 @@ struct OverviewView: View {
                         .font(.title2.bold())
                         .foregroundStyle(Theme.text1)
                 }
+                ToolbarItemGroup(placement: .topBarTrailing) {
+                    Button { showChat = true } label: { Image(systemName: "bubble.left.and.bubble.right.fill") }
+                    Button { showSettings = true } label: { Image(systemName: "gearshape.fill") }
+                    Button { showProfile = true } label: {
+                        Circle().fill(settings.accentColor.opacity(0.2))
+                            .frame(width: 30, height: 30)
+                            .overlay(Text(initials).font(.caption.bold()).foregroundStyle(settings.accentColor))
+                    }
+                }
             }
+            .sheet(isPresented: $showProfile) { ProfileView() }
+            .sheet(isPresented: $showChat) { ChatListView() }
+            .sheet(isPresented: $showSettings) { NavigationStack { SettingsHubView() } }
         }
         .task {
             if estate == nil { estate = EstateStore(api: auth.api) }
             await estate?.load()
         }
     }
+
+    private var initials: String { (auth.profile ?? DemoData.profile).initials }
 
     private var liveBadge: some View {
         HStack(spacing: 6) {

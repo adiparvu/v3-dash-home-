@@ -9,6 +9,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 ### Added
+- **Apple redesign — phase 2 (navigation & IA)** — a rethought 5-tab structure:
+  **Home · Estate · Tasks · Monitor · Assistant**. Estate and Monitor are new
+  card-grid hubs (`EstateHubView`/`MonitorHubView`) consolidating Properties,
+  Zones, Inventory, Documents, Contractors, Search and Sensors, Devices, Apple
+  Home, Automations, Maintenance, Notifications. Home gains a toolbar for Profile,
+  Chat and Settings (presented as sheets). `PropertiesView` no longer embeds its
+  own stack so it composes inside the Estate hub.
 - **Apple redesign — phase 1 (foundations & settings)** — an adaptive light/dark
   design system (semantic `Theme` colors now resolve per color scheme), a new
   `AppSettings` store, and a comprehensive **Settings hub** with four new screens:

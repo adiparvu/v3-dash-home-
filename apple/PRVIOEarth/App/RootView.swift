@@ -27,37 +27,37 @@ struct RootView: View {
 }
 
 private enum AppSection: String, CaseIterable, Identifiable {
-    case overview = "Overview"
-    case properties = "Properties"
+    case home = "Home"
+    case estate = "Estate"
     case tasks = "Tasks"
-    case more = "More"
-    case profile = "Profile"
+    case monitor = "Monitor"
+    case assistant = "Assistant"
 
     var id: String { rawValue }
     var symbol: String {
         switch self {
-        case .overview: return "house.fill"
-        case .properties: return "building.2.fill"
+        case .home: return "house.fill"
+        case .estate: return "building.2.fill"
         case .tasks: return "checklist"
-        case .more: return "square.grid.2x2.fill"
-        case .profile: return "person.crop.circle.fill"
+        case .monitor: return "dot.radiowaves.left.and.right"
+        case .assistant: return "sparkles"
         }
     }
 
     @ViewBuilder var destination: some View {
         switch self {
-        case .overview: OverviewView()
-        case .properties: PropertiesView()
+        case .home: OverviewView()
+        case .estate: EstateHubView()
         case .tasks: NavigationStack { TasksView() }
-        case .more: MoreView()
-        case .profile: ProfileView()
+        case .monitor: MonitorHubView()
+        case .assistant: NavigationStack { AIAssistantView() }
         }
     }
 }
 
 /// Tab-based shell shared across iPhone / iPad / Mac (Catalyst) / Vision Pro.
 private struct MainTabView: View {
-    @State private var selection: AppSection = .overview
+    @State private var selection: AppSection = .home
 
     var body: some View {
         TabView(selection: $selection) {
