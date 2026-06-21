@@ -60,8 +60,30 @@ jobs:
 
       - name: Generate Xcode project
         working-directory: apple
+        env:
+          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+          SUPABASE_ANON_KEY: ${{ secrets.SUPABASE_ANON_KEY }}
+          API_BASE_URL: ${{ secrets.API_BASE_URL }}
         run: |
-          cp PRVIOEarth/Resources/Config.xcconfig.example PRVIOEarth/Resources/Config.xcconfig
+          # Inject the real backend config so the TestFlight build talks to the
+          # live API (sign-in + real data) instead of staying in demo mode. These
+          # come from repo secrets; with none set the app falls back to demo. The
+          # anon key is a publishable client key (RLS-protected) — not a secret in
+          # the cryptographic sense — but kept out of git all the same.
+          # xcconfig treats `//` as a comment, so escape it as `/$()/` in URLs.
+          esc() { printf '%s' "$1" | sed 's#//#/$()/#g'; }
+          CFG=PRVIOEarth/Resources/Config.xcconfig
+          if [ -n "$SUPABASE_URL" ] && [ -n "$SUPABASE_ANON_KEY" ] && [ -n "$API_BASE_URL" ]; then
+            echo "Writing Config.xcconfig from secrets (live backend)."
+            {
+              echo "SUPABASE_URL = $(esc "$SUPABASE_URL")"
+              echo "SUPABASE_ANON_KEY = $SUPABASE_ANON_KEY"
+              echo "API_BASE_URL = $(esc "$API_BASE_URL")"
+            } > "$CFG"
+          else
+            echo "::warning::Backend secrets not set — building in DEMO mode. Add SUPABASE_URL, SUPABASE_ANON_KEY, API_BASE_URL repo secrets for live data."
+            cp PRVIOEarth/Resources/Config.xcconfig.example "$CFG"
+          fi
           xcodegen generate
 
       - name: Write App Store Connect API key

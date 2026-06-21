@@ -1,0 +1,360 @@
+import SwiftUI
+
+// MARK: - Reusable building blocks
+
+/// A reusable "liquid glass" list row: leading icon tile, title, optional
+/// subtitle, optional trailing text. Mirrors the web client's list rows.
+struct GlassRow: View {
+    let icon: String
+    var iconColor: Color = Theme.accent
+    let title: String
+    var subtitle: String? = nil
+    var trailing: String? = nil
+    var trailingColor: Color = Theme.text3
+    var showsChevron = false
+
+    var body: some View {
+        HStack(spacing: 14) {
+            RoundedRectangle(cornerRadius: 14, style: .continuous)
+                .fill(iconColor.opacity(0.15))
+                .frame(width: 44, height: 44)
+                .overlay(Image(systemName: icon).foregroundStyle(iconColor))
+            VStack(alignment: .leading, spacing: 3) {
+                Text(title).font(.subheadline.weight(.semibold)).foregroundStyle(Theme.text1)
+                if let subtitle, !subtitle.isEmpty {
+                    Text(subtitle).font(.caption).foregroundStyle(Theme.text2).lineLimit(2)
+                }
+            }
+            Spacer()
+            if let trailing {
+                Text(trailing).font(.caption.weight(.medium)).foregroundStyle(trailingColor)
+            }
+            if showsChevron {
+                Image(systemName: "chevron.right").font(.footnote).foregroundStyle(Theme.text3)
+            }
+        }
+        .padding(14)
+        .liquidGlass()
+    }
+}
+
+/// Standard scrolling list page on the estate background with an optional
+/// Synced/Demo badge in the toolbar.
+struct ListPage<Content: View>: View {
+    let title: String
+    var source: EstateStore.Source? = nil
+    @ViewBuilder var content: Content
+
+    var body: some View {
+        ScrollView {
+            VStack(spacing: 12) { content }
+                .padding(16)
+        }
+        .background(Theme.bg1.ignoresSafeArea())
+        .navigationTitle(title)
+        .toolbar {
+            if let source {
+                ToolbarItem(placement: .topBarTrailing) {
+                    Badge(text: source == .synced ? "Synced" : "Demo",
+                          color: source == .synced ? Theme.accent : Theme.amber)
+                }
+            }
+        }
+    }
+}
+
+// MARK: - Collections store (live notifications + demo fallback)
+
+@MainActor
+@Observable
+final class CollectionsStore {
+    private(set) var notifications: [NotificationItem] = DemoData.notifications
+    private(set) var notificationsSource: EstateStore.Source = .demo
+    private(set) var devices: [Device] = DemoData.devices
+    private(set) var devicesSource: EstateStore.Source = .demo
+    private(set) var schedules: [Schedule] = DemoData.schedules
+    private(set) var schedulesSource: EstateStore.Source = .demo
+    private(set) var sensors: [SensorReading] = DemoData.sensors
+    private(set) var sensorsSource: EstateStore.Source = .demo
+
+    private let api: APIClient?
+    init(api: APIClient?) { self.api = api }
+
+    func loadNotifications() async {
+        guard let api else { notificationsSource = .demo; return }
+        do {
+            let items = try await api.get("/notifications", as: NotificationsPayload.self).notifications
+            notifications = items.isEmpty ? DemoData.notifications : items
+            notificationsSource = items.isEmpty ? .demo : .synced
+        } catch {
+            notificationsSource = .demo
+        }
+    }
+
+    func loadDevices() async {
+        guard let api else { devicesSource = .demo; return }
+        do {
+            let items = try await api.get("/twin/devices", as: DevicesPayload.self).devices
+            devices = items.isEmpty ? DemoData.devices : items
+            devicesSource = items.isEmpty ? .demo : .synced
+        } catch {
+            devicesSource = .demo
+        }
+    }
+
+    func loadSchedules() async {
+        guard let api else { schedulesSource = .demo; return }
+        do {
+            let items = try await api.get("/automations/schedules", as: SchedulesPayload.self).schedules
+            schedules = items.isEmpty ? DemoData.schedules : items
+            schedulesSource = items.isEmpty ? .demo : .synced
+        } catch {
+            schedulesSource = .demo
+        }
+    }
+
+    func loadSensors(zoneId: String?) async {
+        guard let api, let zoneId else { sensorsSource = .demo; return }
+        do {
+            let items = try await api.get("/twin/sensors?zoneId=\(zoneId)", as: SensorsPayload.self).sensors
+            sensors = items.isEmpty ? DemoData.sensors : items
+            sensorsSource = items.isEmpty ? .demo : .synced
+        } catch {
+            sensorsSource = .demo
+        }
+    }
+}
+
+// MARK: - More hub
+
+struct MoreView: View {
+    private struct Entry: Identifiable {
+        let id = UUID()
+        let icon: String
+        let color: Color
+        let title: String
+        let subtitle: String
+        let destination: AnyView
+    }
+
+    private var entries: [Entry] {
+        [
+            Entry(icon: "map.fill", color: Theme.cyan, title: "Zones", subtitle: "Spatial areas of the estate", destination: AnyView(ZonesView())),
+            Entry(icon: "shippingbox.fill", color: Theme.accent, title: "Inventory", subtitle: "Assets & objects", destination: AnyView(InventoryView())),
+            Entry(icon: "wrench.and.screwdriver.fill", color: Theme.amber, title: "Maintenance", subtitle: "Scheduled & overdue work", destination: AnyView(MaintenanceView())),
+            Entry(icon: "bell.fill", color: Theme.orange, title: "Notifications", subtitle: "Alerts & activity", destination: AnyView(NotificationsView())),
+            Entry(icon: "bolt.horizontal.fill", color: Theme.violet, title: "Automations", subtitle: "Schedules & routines", destination: AnyView(AutomationsView())),
+            Entry(icon: "sensor.fill", color: Theme.cyan, title: "Sensors", subtitle: "Live telemetry", destination: AnyView(SensorsView())),
+            Entry(icon: "homekit", color: Theme.accent, title: "Devices", subtitle: "IoT & gateways", destination: AnyView(DevicesView())),
+            Entry(icon: "doc.fill", color: Theme.text2, title: "Documents", subtitle: "Deeds, warranties, policies", destination: AnyView(DocumentsView())),
+            Entry(icon: "person.2.fill", color: Theme.amber, title: "Contractors", subtitle: "People & companies", destination: AnyView(ContractorsView())),
+            Entry(icon: "magnifyingglass", color: Theme.cyan, title: "Search", subtitle: "Find across the estate", destination: AnyView(SearchView())),
+            Entry(icon: "sparkles", color: Theme.violet, title: "AI Assistant", subtitle: "Ask about your estate", destination: AnyView(AIAssistantView())),
+            Entry(icon: "gearshape.fill", color: Theme.text2, title: "Settings", subtitle: "Account, security, about", destination: AnyView(SettingsView())),
+        ]
+    }
+
+    var body: some View {
+        NavigationStack {
+            ScrollView {
+                VStack(spacing: 12) {
+                    ForEach(entries) { entry in
+                        NavigationLink {
+                            entry.destination
+                        } label: {
+                            GlassRow(icon: entry.icon, iconColor: entry.color,
+                                     title: entry.title, subtitle: entry.subtitle,
+                                     showsChevron: true)
+                        }
+                        .buttonStyle(.plain)
+                    }
+                }
+                .padding(16)
+            }
+            .background(Theme.bg1.ignoresSafeArea())
+            .navigationTitle("More")
+        }
+    }
+}
+
+// MARK: - Estate-data screens (live via EstateStore)
+
+struct ZonesView: View {
+    @Environment(AuthStore.self) private var auth
+    @State private var estate: EstateStore?
+
+    var body: some View {
+        ListPage(title: "Zones", source: estate?.source) {
+            ForEach(estate?.zones ?? []) { zone in
+                GlassRow(icon: "leaf.fill", iconColor: Theme.cyan,
+                         title: "\(zone.icon ?? "📍") \(zone.name)",
+                         subtitle: zone.description,
+                         trailing: zone.areaSqm.map { "\(Int($0)) m²" })
+            }
+        }
+        .task { await ensureLoaded() }
+    }
+
+    private func ensureLoaded() async {
+        if estate == nil { estate = EstateStore(api: auth.api) }
+        await estate?.load()
+    }
+}
+
+struct InventoryView: View {
+    @Environment(AuthStore.self) private var auth
+    @State private var estate: EstateStore?
+
+    var body: some View {
+        ListPage(title: "Inventory", source: estate?.source) {
+            ForEach(estate?.assets ?? []) { asset in
+                GlassRow(icon: "shippingbox.fill", iconColor: Theme.accent,
+                         title: asset.name,
+                         subtitle: [asset.manufacturer, asset.model].compactMap { $0 }.joined(separator: " · "),
+                         trailing: asset.currentValue.map { "€\(Int($0))" })
+            }
+        }
+        .task {
+            if estate == nil { estate = EstateStore(api: auth.api) }
+            await estate?.load()
+        }
+    }
+}
+
+// MARK: - Notifications (live)
+
+struct NotificationsView: View {
+    @Environment(AuthStore.self) private var auth
+    @State private var store: CollectionsStore?
+
+    var body: some View {
+        ListPage(title: "Notifications", source: store?.notificationsSource) {
+            ForEach(store?.notifications ?? []) { n in
+                GlassRow(icon: icon(for: n.type), iconColor: color(for: n.type),
+                         title: n.title, subtitle: n.body,
+                         trailing: (n.isRead ?? false) ? nil : "•",
+                         trailingColor: Theme.accent)
+            }
+        }
+        .task {
+            if store == nil { store = CollectionsStore(api: auth.api) }
+            await store?.loadNotifications()
+        }
+    }
+
+    private func icon(for type: String?) -> String {
+        switch type {
+        case "warning": return "exclamationmark.triangle.fill"
+        case "error": return "xmark.octagon.fill"
+        default: return "bell.fill"
+        }
+    }
+    private func color(for type: String?) -> Color {
+        switch type {
+        case "warning": return Theme.amber
+        case "error": return Theme.orange
+        default: return Theme.accent
+        }
+    }
+}
+
+// MARK: - Demo-only domain screens (no v1 endpoint yet)
+
+struct TasksView: View {
+    var body: some View {
+        ListPage(title: "Tasks", source: .demo) {
+            ForEach(DemoData.tasks) { task in
+                GlassRow(icon: symbol(for: task.status),
+                         iconColor: color(for: task.priority),
+                         title: task.title,
+                         subtitle: task.due.map { "Due \($0)" },
+                         trailing: task.status.replacingOccurrences(of: "_", with: " "))
+            }
+        }
+    }
+    private func symbol(for status: String) -> String {
+        status == "done" ? "checkmark.circle.fill" : "circle"
+    }
+    private func color(for priority: String?) -> Color {
+        switch priority {
+        case "high": return Theme.orange
+        case "medium": return Theme.amber
+        default: return Theme.accent
+        }
+    }
+}
+
+struct MaintenanceView: View {
+    var body: some View {
+        ListPage(title: "Maintenance", source: .demo) {
+            ForEach(DemoData.maintenance) { m in
+                GlassRow(icon: "wrench.and.screwdriver.fill",
+                         iconColor: m.status == "overdue" ? Theme.orange : Theme.amber,
+                         title: m.title, subtitle: m.asset,
+                         trailing: m.due, trailingColor: m.status == "overdue" ? Theme.orange : Theme.text3)
+            }
+        }
+    }
+}
+
+struct DocumentsView: View {
+    var body: some View {
+        ListPage(title: "Documents", source: .demo) {
+            ForEach(DemoData.documents) { doc in
+                GlassRow(icon: "doc.fill", iconColor: Theme.cyan,
+                         title: doc.name,
+                         subtitle: [doc.kind, doc.updatedAt].compactMap { $0 }.joined(separator: " · "),
+                         trailing: doc.size)
+            }
+        }
+    }
+}
+
+struct ContractorsView: View {
+    var body: some View {
+        ListPage(title: "Contractors", source: .demo) {
+            ForEach(DemoData.contractors) { c in
+                GlassRow(icon: "person.crop.circle.fill",
+                         iconColor: (c.isPreferred ?? false) ? Theme.accent : Theme.text2,
+                         title: c.name,
+                         subtitle: [c.company, c.phone].compactMap { $0 }.joined(separator: " · "),
+                         trailing: c.rating.map { String(format: "★ %.1f", $0) },
+                         trailingColor: Theme.amber)
+            }
+        }
+    }
+}
+
+// MARK: - Settings
+
+struct SettingsView: View {
+    @Environment(AuthStore.self) private var auth
+
+    var body: some View {
+        ListPage(title: "Settings") {
+            GlassRow(icon: "person.crop.circle.fill", iconColor: Theme.accent,
+                     title: auth.profile?.name ?? "Demo account",
+                     subtitle: auth.profile?.email ?? "Running in demo mode")
+            GlassRow(icon: "faceid", iconColor: Theme.cyan,
+                     title: "Face ID / Touch ID", subtitle: "Unlock the app biometrically",
+                     trailing: "On", trailingColor: Theme.accent)
+            GlassRow(icon: "lock.shield.fill", iconColor: Theme.violet,
+                     title: "Privacy & Security", subtitle: "Sessions, audit log, data export")
+            GlassRow(icon: "info.circle.fill", iconColor: Theme.text2,
+                     title: "About", subtitle: "PRVIO Earth", trailing: appVersion)
+
+            Button(role: .destructive) {
+                Task { await auth.signOut() }
+            } label: {
+                GlassRow(icon: "rectangle.portrait.and.arrow.right",
+                         iconColor: Theme.orange, title: "Sign out")
+            }
+            .buttonStyle(.plain)
+        }
+    }
+
+    private var appVersion: String {
+        let v = Bundle.main.infoDictionary?["CFBundleShortVersionString"] as? String ?? "1.0"
+        return "v\(v)"
+    }
+}

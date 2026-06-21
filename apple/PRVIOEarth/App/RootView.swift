@@ -25,6 +25,8 @@ struct RootView: View {
 private enum AppSection: String, CaseIterable, Identifiable {
     case overview = "Overview"
     case properties = "Properties"
+    case tasks = "Tasks"
+    case more = "More"
     case profile = "Profile"
 
     var id: String { rawValue }
@@ -32,6 +34,8 @@ private enum AppSection: String, CaseIterable, Identifiable {
         switch self {
         case .overview: return "house.fill"
         case .properties: return "building.2.fill"
+        case .tasks: return "checklist"
+        case .more: return "square.grid.2x2.fill"
         case .profile: return "person.crop.circle.fill"
         }
     }
@@ -40,6 +44,8 @@ private enum AppSection: String, CaseIterable, Identifiable {
         switch self {
         case .overview: OverviewView()
         case .properties: PropertiesView()
+        case .tasks: NavigationStack { TasksView() }
+        case .more: MoreView()
         case .profile: ProfileView()
         }
     }

@@ -78,3 +78,92 @@ struct Profile: Decodable, Hashable {
 }
 
 struct ProfilePayload: Decodable { let profile: Profile }
+
+// MARK: - Notifications
+
+struct NotificationItem: Decodable, Identifiable, Hashable {
+    let id: String
+    let title: String
+    let body: String
+    let type: String?
+    let category: String?
+    let isRead: Bool?
+    let createdAt: String?
+}
+
+struct NotificationsPayload: Decodable { let notifications: [NotificationItem] }
+
+// MARK: - Twin: sensors & devices
+
+struct SensorReading: Decodable, Identifiable, Hashable {
+    let id: String
+    let name: String
+    let type: String?
+    let unit: String?
+    let value: Double?
+    let recordedAt: String?
+}
+
+struct SensorsPayload: Decodable { let sensors: [SensorReading] }
+
+struct Device: Decodable, Identifiable, Hashable {
+    let id: String
+    let name: String?
+    let type: String?
+    let status: String?
+    let manufacturer: String?
+
+    var displayName: String { name ?? type ?? "Device" }
+}
+
+struct DevicesPayload: Decodable { let devices: [Device] }
+
+// MARK: - Automations
+
+struct Schedule: Decodable, Identifiable, Hashable {
+    let id: String
+    let automationId: String?
+    let area: String?
+    let atTime: String?
+    let enabled: Bool?
+}
+
+struct SchedulesPayload: Decodable { let schedules: [Schedule] }
+
+// MARK: - Contractors
+
+struct Contractor: Decodable, Identifiable, Hashable {
+    let id: String
+    let name: String
+    let company: String?
+    let phone: String?
+    let email: String?
+    let rating: Double?
+    let isPreferred: Bool?
+}
+
+// MARK: - Local / demo-only domain models (no v1 endpoint yet)
+
+struct TaskItem: Identifiable, Hashable {
+    let id: String
+    let title: String
+    let status: String
+    let due: String?
+    let priority: String?
+}
+
+struct MaintenanceItem: Identifiable, Hashable {
+    let id: String
+    let title: String
+    let asset: String?
+    let due: String?
+    let status: String
+}
+
+struct DocumentItem: Identifiable, Hashable {
+    let id: String
+    let name: String
+    let kind: String?
+    let size: String?
+    let updatedAt: String?
+}
