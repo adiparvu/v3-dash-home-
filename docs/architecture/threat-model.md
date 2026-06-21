@@ -63,7 +63,10 @@ is fail-closed and leaks only the function name; do not grant it back to anon
 just for `[]`-shaped responses.
 
 ## Open items (tracked)
-- Gateway-level rate limiting / WAF (Phase 2 backend).
+- Application-level rate limiting is now enforced in `middleware.ts` (per-IP
+  fixed-window over `/api/v1`, stricter for `/api/v1/ai/*`; `lib/rateLimit.ts`).
+  Cross-instance gateway-level rate limiting / WAF (shared store, e.g. Upstash)
+  remains the Phase 2 upgrade for strict, distributed limits.
 - `vector` extension lives in the `public` schema (advisor `0014`, low priority).
 - Secret rotation guidance for BYO keys; consider server-side key vault instead
   of client storage for production.

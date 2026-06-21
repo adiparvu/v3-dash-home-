@@ -9,6 +9,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 ### Added
+- **API rate limiting** — `middleware.ts` now enforces a per-IP fixed-window limit
+  over `/api/v1` (120/min default, 20/min for `/api/v1/ai/*`) via `lib/rateLimit.ts`,
+  returning `429 { error: "rate_limited" }` with `Retry-After`. Baseline abuse
+  prevention (per-instance; shared-store gateway limiting tracked for Phase 2).
 - **Privacy & compliance backend (real, end-to-end)** — migration `013` adds
   RLS-scoped `consents` and `privacy_requests` tables. New endpoints persist what
   was previously localStorage-only: `GET/PUT /api/v1/privacy/consents`,
