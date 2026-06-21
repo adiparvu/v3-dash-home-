@@ -1,3 +1,6 @@
+// ActivityKit (Live Activities) is unavailable on watchOS, so gate this file —
+// it's only used by the iOS app and widget extension.
+#if canImport(ActivityKit)
 import Foundation
 import ActivityKit
 
@@ -27,3 +30,4 @@ struct MaintenanceActivityAttributes: ActivityAttributes {
         }
     }
 }
+#endif
