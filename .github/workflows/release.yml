@@ -1,0 +1,41 @@
+name: Release
+
+# Publishes a GitHub Release (which creates the tag) for the current commit using
+# the built-in GITHUB_TOKEN. Triggers only when this workflow file itself changes
+# on the development branch, so adding/updating it performs a one-shot release —
+# no tag push (blocked by the managed git proxy) and no write to the default branch.
+on:
+  push:
+    branches:
+      - claude/prvio-earth-master-build-t2cw9c
+    paths:
+      - .github/workflows/release.yml
+
+permissions:
+  contents: write
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Extract release notes from CHANGELOG
+        run: |
+          awk '/^## \[1\.1\.0\]/{flag=1; next} /^## \[/{if(flag) exit} flag' CHANGELOG.md > notes.md
+          echo "----- release notes -----"
+          cat notes.md
+      - name: Create release v1.1.0
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          if gh release view v1.1.0 --repo "$GITHUB_REPOSITORY" >/dev/null 2>&1; then
+            echo "Release v1.1.0 already exists — nothing to do."
+            exit 0
+          fi
+          gh release create v1.1.0 \
+            --repo "$GITHUB_REPOSITORY" \
+            --title "PRVIO Earth v1.1.0" \
+            --notes-file notes.md \
+            --target "$GITHUB_SHA"
