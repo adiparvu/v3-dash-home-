@@ -9,6 +9,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 ### Added
+- **Phase 8 — push-ready Live Activities (APNs token)** — Live Activities are now
+  requested with `pushType: .token` and `LiveActivityManager` streams
+  `pushTokenUpdates`, capturing the per-activity APNs token for backend-driven
+  updates. Adds the `aps-environment` entitlement and the `remote-notification`
+  background mode. (The server-side APNs sender is the remaining piece.)
 - **Phase 8 — OAuth & magic-link sign-in (Apple client)** — the native app now
   matches the web's auth options: **Apple / Google OAuth** via
   `ASWebAuthenticationSession` and **email magic link**, both completed through a
