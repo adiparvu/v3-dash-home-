@@ -9,6 +9,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 ### Added
+- **Apple build in CI + TestFlight workflow** — `.github/workflows/apple.yml` builds
+  the native client on a **macOS runner** (XcodeGen + `xcodebuild`, no signing) on
+  any `apple/**` change, validating Swift compilation in CI; a manual job archives
+  and uploads to **TestFlight** via an App Store Connect API key. Requires Xcode 27.
 - **Server-side APNs sender for Live Activities** — completes the push loop. New
   migration `011_live_activities.sql` (RLS-scoped token store), DAL
   (`lib/data/liveActivities.ts`), an APNs helper (`lib/apns.ts`: ES256 provider
@@ -16,8 +20,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   `POST /api/v1/twin/live-activities` registers a push token and
   `POST /api/v1/twin/live-activities/push` pushes a `ContentState` update/end
   (returns `503` until the `APNS_*` env vars are set). The iOS `LiveActivityManager`
-  now registers its token with the backend. Migration `011` is provided but not yet
-  applied to the live project.
+  now registers its token with the backend. Migration `011` has been applied to the
+  live project.
 
 ## [1.2.0] — 2026-06-21
 

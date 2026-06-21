@@ -135,6 +135,34 @@ Supabase (`auth.getUser(token)`) and every query is RLS-scoped to that user, so
 the native app reads the **same live data** as the web client once you sign in
 with a real account. With no configuration the app stays in demo mode.
 
+## Continuous integration & TestFlight
+
+`.github/workflows/apple.yml` builds the app on a **macOS runner** (XcodeGen +
+`xcodebuild`, no signing) whenever `apple/**` changes, so Swift compilation is
+validated in CI. It selects the newest Xcode (`latest`) — the project needs
+**Xcode 27** (iOS/watchOS 27 SDK); if the hosted image doesn't ship it yet, use a
+self-hosted runner or pin an installed 27.x.
+
+A manual **TestFlight** job (run the workflow with `testflight: true`) archives and
+uploads via the App Store Connect API key. Add these repo **secrets** first:
+
+| Secret | Purpose |
+| --- | --- |
+| `ASC_KEY_ID` | App Store Connect API key id |
+| `ASC_ISSUER_ID` | App Store Connect issuer id |
+| `ASC_API_KEY_P8` | contents of the `.p8` API key |
+
+It uses automatic signing (`-allowProvisioningUpdates`); set `DEVELOPMENT_TEAM`
+in `project.yml` and ensure the bundle ids exist in your account.
+
+### APNs secrets (Live Activity push)
+
+The backend pushes Live Activity updates over APNs and reads these from the
+**server** environment (set them where the Next.js app is deployed — never in the
+client): `APNS_KEY_ID`, `APNS_TEAM_ID`, `APNS_BUNDLE_ID`, `APNS_AUTH_KEY` (the
+`.p8` contents), optional `APNS_HOST`. Without them, `POST /api/v1/twin/live-activities/push`
+returns `503` and local Live Activities still work. See `.env.local.example`.
+
 ## Known follow-ups (deferred)
 
 - A native visionOS scene (spatial); Vision Pro runs the iPad layout today.
