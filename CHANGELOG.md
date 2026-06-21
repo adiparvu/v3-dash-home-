@@ -10,6 +10,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Changed
+- **Apple IA & Home redesign to match the PRVIO reference** — tab bar is now
+  **Home · Twin · Tasks · Chat · You**. The **You** tab is a native inset-grouped
+  settings hub (account header, Property/Account switcher, Property / App /
+  Account & Security / Support sections, monochrome glyph tiles, Sign Out,
+  version). **Home** is rebuilt with a property header (avatar, name, Live, health
+  badge, search, notifications), a **live MapKit hero** (hybrid satellite) with the
+  estate health ring, quick stat chips, and an Overview grid of summary cards.
+  Estate management moved into the You → Property section; the digital-twin/monitor
+  screens are the Twin tab.
+
 ## [1.10.0] — 2026-06-21
 
 ### Changed

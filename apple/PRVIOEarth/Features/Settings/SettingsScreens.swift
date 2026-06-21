@@ -5,65 +5,121 @@ import SwiftUI
 struct SettingsHubView: View {
     @Environment(AuthStore.self) private var auth
     @Environment(AppSettings.self) private var settings
+    @State private var estate: EstateStore?
+    @State private var showProfile = false
 
     private var profile: Profile { auth.profile ?? DemoData.profile }
+    private var propertyName: String { estate?.properties.first?.name ?? "My Property" }
 
     var body: some View {
-        ListPage(title: "Settings") {
-            // Account header
-            HStack(spacing: 14) {
-                ZStack {
-                    Circle().fill(settings.accentColor.opacity(0.18)).frame(width: 52, height: 52)
-                    Text(profile.initials).font(.headline).foregroundStyle(settings.accentColor)
+        NavigationStack {
+            List {
+                Section {
+                    Button { showProfile = true } label: { accountHeader }.buttonStyle(.plain)
                 }
-                VStack(alignment: .leading, spacing: 2) {
-                    Text(profile.name).font(.headline).foregroundStyle(Theme.text1)
-                    Text(auth.isDemo ? "Demo mode" : profile.email).font(.caption).foregroundStyle(Theme.text2)
-                }
-                Spacer()
-            }
-            .padding(16).liquidGlass()
 
-            group {
-                navRow("lock.fill", Theme.cyan, "Security", SecurityView())
-                navRow("shield.fill", Theme.violet, "Privacy & Data", PrivacyView())
-            }
-            group {
-                navRow("paintbrush.fill", Theme.amber, "Appearance", AppearanceView())
-                navRow("globe", Theme.cyan, "Language", LanguageView())
-                navRow("ruler.fill", Theme.accent, "Units & Currency", UnitsView())
-                navRow("bell.fill", Theme.orange, "Notifications", NotificationPrefsView())
-            }
-            group {
-                navRow("info.circle.fill", Theme.text2, "About", AboutView())
-            }
-
-            if !auth.isDemo {
-                Button(role: .destructive) { Task { await auth.signOut() } } label: {
-                    Text("Sign Out").frame(maxWidth: .infinity).padding(.vertical, 14)
+                Section {
+                    NavigationLink { PropertiesView() } label: { switchRow("house.fill", propertyName, "Property") }
+                    Button { showProfile = true } label: { switchRow("person.crop.circle.fill", auth.isDemo ? "Demo account" : profile.email, "Account") }
+                        .buttonStyle(.plain)
                 }
-                .liquidGlass()
+
+                Section("Property") {
+                    nav("My Property", "building.2.fill", PropertiesView())
+                    nav("Zones", "map.fill", ZonesView())
+                    nav("Inventory", "shippingbox.fill", InventoryView())
+                    nav("Documents", "doc.fill", DocumentsView())
+                    nav("Contractors", "person.2.fill", ContractorsView())
+                    nav("Search", "magnifyingglass", SearchView())
+                }
+
+                Section("App") {
+                    nav("Appearance", "paintbrush.fill", AppearanceView())
+                    nav("Language", "globe", LanguageView())
+                    nav("Units & Currency", "ruler.fill", UnitsView())
+                    nav("Notifications", "bell.fill", NotificationPrefsView())
+                    nav("AI Assistant", "sparkles", AIAssistantView())
+                }
+
+                Section("Account & Security") {
+                    nav("Security", "lock.fill", SecurityView())
+                    nav("Privacy & Data", "shield.fill", PrivacyView())
+                }
+
+                Section("Support") {
+                    nav("About", "info.circle.fill", AboutView())
+                }
+
+                if !auth.isDemo {
+                    Section {
+                        Button(role: .destructive) { Task { await auth.signOut() } } label: {
+                            Text("Sign Out").frame(maxWidth: .infinity)
+                        }
+                    }
+                }
+
+                Section {
+                    EmptyView()
+                } footer: {
+                    Text("PRVIO Earth · Version \(appVersion)")
+                        .frame(maxWidth: .infinity, alignment: .center)
+                }
             }
+            .listStyle(.insetGrouped)
+            .navigationTitle("Settings")
+        }
+        .sheet(isPresented: $showProfile) { ProfileView() }
+        .task {
+            if estate == nil { estate = EstateStore(api: auth.api) }
+            await estate?.load()
         }
     }
 
-    @ViewBuilder private func group<Content: View>(@ViewBuilder _ content: () -> Content) -> some View {
-        VStack(spacing: 0) { content() }.liquidGlass()
+    private var accountHeader: some View {
+        HStack(spacing: 14) {
+            Circle().fill(settings.accentColor.opacity(0.2)).frame(width: 50, height: 50)
+                .overlay(Text(profile.initials).font(.title3.bold()).foregroundStyle(settings.accentColor))
+            VStack(alignment: .leading, spacing: 2) {
+                Text(profile.name).font(.headline).foregroundStyle(Theme.text1)
+                Text(auth.isDemo ? "Demo mode" : profile.email).font(.subheadline).foregroundStyle(Theme.text2)
+            }
+            Spacer()
+            Image(systemName: "chevron.right").font(.footnote).foregroundStyle(Theme.text3)
+        }
+        .padding(.vertical, 6)
     }
 
-    private func navRow<D: View>(_ icon: String, _ color: Color, _ title: String, _ dest: D) -> some View {
+    private func switchRow(_ icon: String, _ title: String, _ sub: String) -> some View {
+        HStack(spacing: 12) {
+            settingsIcon(icon)
+            VStack(alignment: .leading, spacing: 1) {
+                Text(sub).font(.caption2).foregroundStyle(Theme.text3)
+                Text(title).font(.subheadline.weight(.medium)).foregroundStyle(Theme.text1)
+            }
+            Spacer()
+        }
+    }
+
+    private func nav<D: View>(_ title: String, _ icon: String, _ dest: D) -> some View {
         NavigationLink {
             dest
         } label: {
-            HStack(spacing: 14) {
-                Image(systemName: icon).frame(width: 28).foregroundStyle(color)
-                Text(title).font(.subheadline.weight(.medium)).foregroundStyle(Theme.text1)
-                Spacer()
-                Image(systemName: "chevron.right").font(.footnote).foregroundStyle(Theme.text3)
-            }
-            .padding(.horizontal, 16).padding(.vertical, 13)
+            Label { Text(title).foregroundStyle(Theme.text1) } icon: { settingsIcon(icon) }
         }
-        .buttonStyle(.plain)
+    }
+
+    private func settingsIcon(_ name: String) -> some View {
+        Image(systemName: name)
+            .font(.system(size: 14, weight: .semibold))
+            .foregroundStyle(Theme.text1)
+            .frame(width: 29, height: 29)
+            .background(Theme.iconTile, in: RoundedRectangle(cornerRadius: 7, style: .continuous))
+    }
+
+    private var appVersion: String {
+        let v = Bundle.main.infoDictionary?["CFBundleShortVersionString"] as? String ?? "1.0"
+        let b = Bundle.main.infoDictionary?["CFBundleVersion"] as? String ?? "1"
+        return "\(v) (\(b))"
     }
 }
 

@@ -23,6 +23,8 @@ enum Theme {
     // Separators / fills (native).
     static let glassBorder = dynamicColor(light: Color.black.opacity(0.10), dark: Color.white.opacity(0.12))
     static let glassFill = dynamic(light: 0xFFFFFF, dark: 0x1C1C1E)
+    /// Neutral tile behind monochrome settings glyphs (systemGray5-ish).
+    static let iconTile = dynamic(light: 0xE9E9EC, dark: 0x2C2C2E)
 
     static let estateGradient = LinearGradient(
         colors: [accent, cyan], startPoint: .topLeading, endPoint: .bottomTrailing

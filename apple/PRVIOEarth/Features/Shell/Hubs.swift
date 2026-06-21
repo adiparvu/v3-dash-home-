@@ -68,7 +68,7 @@ struct EstateHubView: View {
 
 struct MonitorHubView: View {
     var body: some View {
-        HubScreen(title: "Monitor", items: [
+        HubScreen(title: "Twin", items: [
             HubItem(icon: "sensor.fill", color: Theme.cyan, title: "Sensors", subtitle: "Live telemetry", destination: AnyView(SensorsView())),
             HubItem(icon: "homekit", color: Theme.accent, title: "Devices", subtitle: "IoT & gateways", destination: AnyView(DevicesView())),
             HubItem(icon: "house.fill", color: Theme.violet, title: "Apple Home", subtitle: "HomeKit accessories", destination: AnyView(HomeKitView())),

@@ -28,29 +28,29 @@ struct RootView: View {
 
 private enum AppSection: String, CaseIterable, Identifiable {
     case home = "Home"
-    case estate = "Estate"
+    case twin = "Twin"
     case tasks = "Tasks"
-    case monitor = "Monitor"
     case chat = "Chat"
+    case you = "You"
 
     var id: String { rawValue }
     var symbol: String {
         switch self {
         case .home: return "house.fill"
-        case .estate: return "building.2.fill"
+        case .twin: return "building.2.fill"
         case .tasks: return "checklist"
-        case .monitor: return "dot.radiowaves.left.and.right"
         case .chat: return "bubble.left.and.bubble.right.fill"
+        case .you: return "person.crop.circle.fill"
         }
     }
 
     @ViewBuilder var destination: some View {
         switch self {
         case .home: OverviewView()
-        case .estate: EstateHubView()
+        case .twin: MonitorHubView()
         case .tasks: NavigationStack { TasksView() }
-        case .monitor: MonitorHubView()
         case .chat: ChatListView()
+        case .you: SettingsHubView()
         }
     }
 }

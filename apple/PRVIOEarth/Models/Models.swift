@@ -17,6 +17,8 @@ struct Property: Decodable, Identifiable, Hashable {
     let address: String?
     let city: String?
     let country: String?
+    let latitude: Double?
+    let longitude: Double?
     let totalAreaSqm: Double?
     let currency: String?
     let isActive: Bool?
