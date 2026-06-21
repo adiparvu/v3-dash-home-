@@ -114,7 +114,7 @@ future track that reuses the same versioned backend contracts.
 | Apple Watch app (standalone watchOS target on the shared layer) | 🚧 |
 | Home / Lock screen widgets (WidgetKit: Property Status, Tasks) via App Group snapshot | 🚧 |
 | Live Activities (maintenance, deliveries, incidents, inspections) — Lock Screen + Dynamic Island | 🚧 |
-| Secure Enclave key handling for sensitive records | ⏳ |
+| Secure Enclave key handling for sensitive records (hardware-backed seal/reveal) | 🚧 |
 | **Backend enabler:** `/api/v1` accepts `Authorization: Bearer` (native token auth) | ✅ |
 
 > **Increment 1 (current):** the iPhone app foundation lives under [`apple/`](../apple/).

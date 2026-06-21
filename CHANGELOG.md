@@ -8,6 +8,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+- **Phase 8 — Secure Enclave for sensitive records** — hardware-backed encryption
+  in the Apple client: `SecureEnclaveCryptor` generates a P-256 key that never
+  leaves the **Secure Enclave** and seals/unseals data via ECIES; `SensitiveVault`
+  persists sealed records at rest with complete file protection. Sealing is silent
+  (public key); revealing uses the private key and requires **user presence**
+  (Face ID / Touch ID / passcode). Demoed by a "Secure note" card on the Profile
+  screen. Completes the last core Phase 8 item.
+
 ### Changed
 - **Release pipeline made generic** — replaced the one-shot v1.1.0 release workflow
   with a reusable, **tag-driven** `Release` workflow (`on: push: tags: v*`, plus a

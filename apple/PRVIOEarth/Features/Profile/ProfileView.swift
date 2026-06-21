@@ -11,6 +11,7 @@ struct ProfileView: View {
                 VStack(spacing: 16) {
                     profileCard
                     accountSection
+                    SecureNoteCard()
                     if !auth.isDemo {
                         signOutButton
                     } else {

@@ -101,6 +101,11 @@ lives on the **Property detail** screen ("Start maintenance job").
   access/refresh tokens in the **Keychain**, and gates the app with **Face ID /
   Touch ID** (`LocalAuthentication`). The session token is sent to the backend as
   `Authorization: Bearer …`.
+- **Secure Enclave:** sensitive records are sealed with a hardware-backed P-256
+  key that never leaves the **Secure Enclave** (`SecureEnclaveCryptor` +
+  `SensitiveVault`). Sealing is silent (public-key ECIES); revealing uses the
+  private key and requires user presence (Face ID / Touch ID / passcode). Demoed
+  by the "Secure note" card on the Profile screen.
 - **Data:** `APIClient` calls the versioned REST API and decodes the
   `{ apiVersion, data }` envelope. On any network/auth failure it falls back to
   `DemoData` so screens stay usable.
