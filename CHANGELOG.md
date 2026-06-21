@@ -10,6 +10,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.10.0] — 2026-06-21
+
 ### Changed
 - **Apple visual redesign — native, minimal "first-party" look** — dropped the
   Aurora/glass treatment for a clean native system aesthetic: native grouped
