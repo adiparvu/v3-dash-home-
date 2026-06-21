@@ -8,6 +8,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.2.0] — 2026-06-21
+
 ### Added
 - **Phase 8 — push-ready Live Activities (APNs token)** — Live Activities are now
   requested with `pushType: .token` and `LiveActivityManager` streams
@@ -338,6 +340,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Supabase initial schema migration (`supabase/migrations/001_initial_schema.sql`)
   and base architecture documentation (`docs/architecture/system-overview.md`).
 
-[Unreleased]: https://github.com/adiparvu/v3-dash-home-/compare/v1.1.0...HEAD
+[Unreleased]: https://github.com/adiparvu/v3-dash-home-/compare/v1.2.0...HEAD
+[1.2.0]: https://github.com/adiparvu/v3-dash-home-/compare/v1.1.0...v1.2.0
 [1.1.0]: https://github.com/adiparvu/v3-dash-home-/compare/v1.0.0...v1.1.0
 [1.0.0]: https://github.com/adiparvu/v3-dash-home-/releases/tag/v1.0.0
