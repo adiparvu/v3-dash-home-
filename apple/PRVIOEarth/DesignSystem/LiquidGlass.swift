@@ -1,13 +1,13 @@
 import SwiftUI
 
-/// A reusable rounded "liquid glass" surface using the native SwiftUI
-/// **Liquid Glass** API (iOS/iPadOS/visionOS 26+, watchOS 26+).
+/// A reusable rounded card surface using native grouped-background colors, for a
+/// clean, minimal first-party Apple look (replaces the earlier glass treatment).
 struct LiquidGlass: ViewModifier {
-    var cornerRadius: CGFloat = 22
+    var cornerRadius: CGFloat = 18
 
     func body(content: Content) -> some View {
         content
-            .glassEffect(.regular, in: .rect(cornerRadius: cornerRadius))
+            .background(Theme.bg2, in: RoundedRectangle(cornerRadius: cornerRadius, style: .continuous))
     }
 }
 
@@ -24,10 +24,10 @@ struct Badge: View {
 
     var body: some View {
         Text(text)
-            .font(.system(size: 10, weight: .medium))
-            .padding(.horizontal, 8)
+            .font(.system(size: 11, weight: .semibold))
+            .padding(.horizontal, 9)
             .padding(.vertical, 3)
-            .glassEffect(.regular.tint(color.opacity(0.15)), in: .capsule)
+            .background(color.opacity(0.15), in: Capsule())
             .foregroundStyle(color)
     }
 }

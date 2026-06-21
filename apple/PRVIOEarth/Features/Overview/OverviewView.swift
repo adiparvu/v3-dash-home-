@@ -5,7 +5,7 @@ struct OverviewView: View {
     @Environment(AppSettings.self) private var settings
     @State private var estate: EstateStore?
     @State private var showProfile = false
-    @State private var showChat = false
+    @State private var showAssistant = false
     @State private var showSettings = false
 
     private let healthScore = 87
@@ -22,7 +22,7 @@ struct OverviewView: View {
                 }
                 .padding(16)
             }
-            .background(AuroraBackground())
+            .background(ScreenBackground())
             .navigationTitle("Good morning")
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
@@ -32,8 +32,8 @@ struct OverviewView: View {
                         .foregroundStyle(Theme.text1)
                 }
                 ToolbarItemGroup(placement: .topBarTrailing) {
-                    Button { showChat = true } label: { Image(systemName: "bubble.left.and.bubble.right.fill") }
-                    Button { showSettings = true } label: { Image(systemName: "gearshape.fill") }
+                    Button { showAssistant = true } label: { Image(systemName: "sparkles") }
+                    Button { showSettings = true } label: { Image(systemName: "gearshape") }
                     Button { showProfile = true } label: {
                         Circle().fill(settings.accentColor.opacity(0.2))
                             .frame(width: 30, height: 30)
@@ -42,7 +42,7 @@ struct OverviewView: View {
                 }
             }
             .sheet(isPresented: $showProfile) { ProfileView() }
-            .sheet(isPresented: $showChat) { ChatListView() }
+            .sheet(isPresented: $showAssistant) { NavigationStack { AIAssistantView() } }
             .sheet(isPresented: $showSettings) { NavigationStack { SettingsHubView() } }
         }
         .task {
@@ -79,15 +79,9 @@ struct OverviewView: View {
                 Text("Estate value").font(.caption2).foregroundStyle(Theme.text3)
             }
         }
-        .frame(maxWidth: .infinity, minHeight: 172, alignment: .leading)
+        .frame(maxWidth: .infinity, minHeight: 150, alignment: .leading)
         .padding(20)
-        .background(
-            RoundedRectangle(cornerRadius: 26, style: .continuous)
-                .fill(LinearGradient(colors: [Theme.accent.opacity(0.20), Theme.violet.opacity(0.10)],
-                                     startPoint: .topLeading, endPoint: .bottomTrailing))
-        )
-        .liquidGlass(cornerRadius: 26)
-        .shadow(color: Theme.accent.opacity(0.22), radius: 22, y: 10)
+        .liquidGlass()
     }
 
     private var healthAndStats: some View {
@@ -95,12 +89,11 @@ struct OverviewView: View {
             VStack(spacing: 8) {
                 Text("Health Score").font(.system(size: 10, weight: .medium)).foregroundStyle(Theme.text2)
                 ZStack {
-                    Circle().stroke(Color.white.opacity(0.08), lineWidth: 8)
+                    Circle().stroke(Theme.glassBorder, lineWidth: 8)
                     Circle()
                         .trim(from: 0, to: CGFloat(healthScore) / 100)
                         .stroke(Theme.estateGradient, style: StrokeStyle(lineWidth: 8, lineCap: .round))
                         .rotationEffect(.degrees(-90))
-                        .shadow(color: Theme.accent.opacity(0.6), radius: 10)
                     Text("\(healthScore)").font(.title2.bold()).foregroundStyle(Theme.text1)
                 }
                 .frame(width: 76, height: 76)

@@ -25,7 +25,7 @@ struct PropertyDetailView: View {
             }
             .padding(16)
         }
-        .background(AuroraBackground())
+        .background(ScreenBackground())
         .navigationTitle(property.name)
         .navigationBarTitleDisplayMode(.inline)
         .sheet(isPresented: $showAddValuation) {

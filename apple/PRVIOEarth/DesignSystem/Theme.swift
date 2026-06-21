@@ -4,14 +4,14 @@ import SwiftUI
 /// adaptive on iOS/iPadOS/Mac Catalyst (driven by the active color scheme), so
 /// the whole UI responds to the Appearance setting. Brand accents are constant.
 enum Theme {
-    // Backgrounds (app canvas + raised surfaces)
-    static let bg1 = dynamic(light: 0xF4F6FA, dark: 0x050A14)
-    static let bg2 = dynamic(light: 0xFFFFFF, dark: 0x0A1120)
+    // Backgrounds (native grouped surfaces)
+    static let bg1 = dynamic(light: 0xF2F2F7, dark: 0x000000)   // systemGroupedBackground
+    static let bg2 = dynamic(light: 0xFFFFFF, dark: 0x1C1C1E)   // secondarySystemGroupedBackground
 
-    // Text
-    static let text1 = dynamic(light: 0x0B1220, dark: 0xFFFFFF)
-    static let text2 = dynamic(light: 0x596273, dark: 0x9CA3AF)
-    static let text3 = dynamic(light: 0x8A93A3, dark: 0x6B7280)
+    // Text (native label colors)
+    static let text1 = dynamic(light: 0x000000, dark: 0xFFFFFF)
+    static let text2 = dynamic(light: 0x6C6C70, dark: 0xAEAEB2)
+    static let text3 = dynamic(light: 0xAEAEB2, dark: 0x8E8E93)
 
     // Brand accents (constant across light/dark)
     static let accent = Color(hex: 0x4ADE80)   // estate green
@@ -20,9 +20,9 @@ enum Theme {
     static let orange = Color(hex: 0xF97316)
     static let violet = Color(hex: 0x7C3AED)
 
-    // Glass surfaces — adaptive so cards read on light and dark canvases.
-    static let glassBorder = dynamicColor(light: Color.black.opacity(0.08), dark: Color.white.opacity(0.10))
-    static let glassFill = dynamicColor(light: Color.black.opacity(0.04), dark: Color.white.opacity(0.05))
+    // Separators / fills (native).
+    static let glassBorder = dynamicColor(light: Color.black.opacity(0.10), dark: Color.white.opacity(0.12))
+    static let glassFill = dynamic(light: 0xFFFFFF, dark: 0x1C1C1E)
 
     static let estateGradient = LinearGradient(
         colors: [accent, cyan], startPoint: .topLeading, endPoint: .bottomTrailing

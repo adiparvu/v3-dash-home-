@@ -8,6 +8,18 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [Unreleased]
+
+### Changed
+- **Apple visual redesign — native, minimal "first-party" look** — dropped the
+  Aurora/glass treatment for a clean native system aesthetic: native grouped
+  background + label colors, cards on `secondarySystemGroupedBackground`, native
+  capsule badges. The Estate and Monitor hubs are now **native inset-grouped
+  Lists** (Settings-app style rows: white glyph on a tinted square + chevron).
+  Tab bar swaps the **Assistant** tab for **Chat**; the AI assistant moves to the
+  Home toolbar (alongside Settings and the profile avatar). Home hero and the
+  health ring are simplified (no glow).
+
 ## [1.9.0] — 2026-06-21
 
 ### Changed

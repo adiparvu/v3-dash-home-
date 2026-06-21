@@ -31,7 +31,7 @@ private enum AppSection: String, CaseIterable, Identifiable {
     case estate = "Estate"
     case tasks = "Tasks"
     case monitor = "Monitor"
-    case assistant = "Assistant"
+    case chat = "Chat"
 
     var id: String { rawValue }
     var symbol: String {
@@ -40,7 +40,7 @@ private enum AppSection: String, CaseIterable, Identifiable {
         case .estate: return "building.2.fill"
         case .tasks: return "checklist"
         case .monitor: return "dot.radiowaves.left.and.right"
-        case .assistant: return "sparkles"
+        case .chat: return "bubble.left.and.bubble.right.fill"
         }
     }
 
@@ -50,7 +50,7 @@ private enum AppSection: String, CaseIterable, Identifiable {
         case .estate: EstateHubView()
         case .tasks: NavigationStack { TasksView() }
         case .monitor: MonitorHubView()
-        case .assistant: NavigationStack { AIAssistantView() }
+        case .chat: ChatListView()
         }
     }
 }

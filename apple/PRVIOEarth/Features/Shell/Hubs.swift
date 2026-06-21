@@ -10,51 +10,44 @@ private struct HubItem: Identifiable {
     let destination: AnyView
 }
 
-private struct HubTile: View {
-    let icon: String
-    let color: Color
-    let title: String
-    let subtitle: String
+/// A native inset-grouped list row (Settings-app style: white glyph on a tinted
+/// rounded square, title + subtitle, system chevron via NavigationLink).
+private struct HubRow: View {
+    let item: HubItem
 
     var body: some View {
-        VStack(alignment: .leading, spacing: 10) {
-            RoundedRectangle(cornerRadius: 14, style: .continuous)
-                .fill(color.opacity(0.16))
-                .frame(width: 44, height: 44)
-                .overlay(Image(systemName: icon).font(.headline).foregroundStyle(color))
-            Spacer(minLength: 0)
-            Text(title).font(.subheadline.weight(.semibold)).foregroundStyle(Theme.text1)
-            Text(subtitle).font(.caption2).foregroundStyle(Theme.text2).lineLimit(2)
+        NavigationLink {
+            item.destination
+        } label: {
+            Label {
+                VStack(alignment: .leading, spacing: 2) {
+                    Text(item.title).foregroundStyle(Theme.text1)
+                    Text(item.subtitle).font(.caption).foregroundStyle(Theme.text2)
+                }
+            } icon: {
+                Image(systemName: item.icon)
+                    .font(.system(size: 15, weight: .semibold))
+                    .foregroundStyle(.white)
+                    .frame(width: 29, height: 29)
+                    .background(item.color, in: RoundedRectangle(cornerRadius: 7, style: .continuous))
+            }
         }
-        .frame(maxWidth: .infinity, minHeight: 120, alignment: .leading)
-        .padding(14)
-        .liquidGlass(cornerRadius: 20)
     }
 }
 
-/// Shared two-column hub grid with its own navigation stack.
+/// Shared native inset-grouped hub with its own navigation stack.
 private struct HubScreen: View {
     let title: String
     let items: [HubItem]
 
-    private let columns = [GridItem(.flexible(), spacing: 12), GridItem(.flexible(), spacing: 12)]
-
     var body: some View {
         NavigationStack {
-            ScrollView {
-                LazyVGrid(columns: columns, spacing: 12) {
-                    ForEach(items) { item in
-                        NavigationLink {
-                            item.destination
-                        } label: {
-                            HubTile(icon: item.icon, color: item.color, title: item.title, subtitle: item.subtitle)
-                        }
-                        .buttonStyle(.plain)
-                    }
+            List {
+                Section {
+                    ForEach(items) { HubRow(item: $0) }
                 }
-                .padding(16)
             }
-            .background(AuroraBackground())
+            .listStyle(.insetGrouped)
             .navigationTitle(title)
         }
     }
@@ -65,10 +58,10 @@ struct EstateHubView: View {
         HubScreen(title: "Estate", items: [
             HubItem(icon: "building.2.fill", color: Theme.accent, title: "Properties", subtitle: "Your properties & value", destination: AnyView(PropertiesView())),
             HubItem(icon: "map.fill", color: Theme.cyan, title: "Zones", subtitle: "Spatial areas", destination: AnyView(ZonesView())),
-            HubItem(icon: "shippingbox.fill", color: Theme.accent, title: "Inventory", subtitle: "Assets & objects", destination: AnyView(InventoryView())),
+            HubItem(icon: "shippingbox.fill", color: Theme.amber, title: "Inventory", subtitle: "Assets & objects", destination: AnyView(InventoryView())),
             HubItem(icon: "doc.fill", color: Theme.violet, title: "Documents", subtitle: "Deeds & warranties", destination: AnyView(DocumentsView())),
-            HubItem(icon: "person.2.fill", color: Theme.amber, title: "Contractors", subtitle: "People & companies", destination: AnyView(ContractorsView())),
-            HubItem(icon: "magnifyingglass", color: Theme.cyan, title: "Search", subtitle: "Find across the estate", destination: AnyView(SearchView())),
+            HubItem(icon: "person.2.fill", color: Theme.orange, title: "Contractors", subtitle: "People & companies", destination: AnyView(ContractorsView())),
+            HubItem(icon: "magnifyingglass", color: Theme.text3, title: "Search", subtitle: "Find across the estate", destination: AnyView(SearchView())),
         ])
     }
 }

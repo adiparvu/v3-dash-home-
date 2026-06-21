@@ -67,7 +67,7 @@ struct CallSheet: View {
                 }
                 .padding(16)
             }
-            .background(AuroraBackground())
+            .background(ScreenBackground())
             .navigationTitle("Call \(contact.name)")
             .navigationBarTitleDisplayMode(.inline)
             .toolbar { ToolbarItem(placement: .cancellationAction) { Button("Cancel") { dismiss() } } }
