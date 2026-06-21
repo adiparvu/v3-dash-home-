@@ -1,6 +1,6 @@
 # PRVIO Earth — Delivery Roadmap
 
-**Version:** v1.8.0
+**Version:** v1.9.0
 **Last updated:** 2026-06-21
 **Status legend:** ✅ done · 🚧 in progress · ⏳ planned
 

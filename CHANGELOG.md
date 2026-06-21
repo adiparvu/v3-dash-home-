@@ -8,6 +8,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.9.0] — 2026-06-21
+
 ### Changed
 - **Apple visual redesign — "Refined Glass (Aurora)"** — a new app-wide `AuroraBackground`
   canvas (drifting teal/violet/green glows over a deep base, light/dark adaptive)
