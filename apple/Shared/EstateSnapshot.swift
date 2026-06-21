@@ -6,7 +6,7 @@ import WidgetKit
 /// A compact, Codable snapshot of estate state shared between the app and its
 /// widget extension via an App Group container. The app writes it after loading
 /// data; widgets read it (no network in the widget process).
-struct EstateSnapshot: Codable, Hashable {
+struct EstateSnapshot: Codable, Hashable, Sendable {
     var propertyName: String
     var healthScore: Int
     var zoneCount: Int
