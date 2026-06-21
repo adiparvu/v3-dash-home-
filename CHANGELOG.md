@@ -8,6 +8,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.8.0] — 2026-06-21
+
 ### Added
 - **Apple redesign — phase 3 (units & polish)** — the Units & Currency setting now
   takes effect everywhere values appear: property detail (value, purchase price,
