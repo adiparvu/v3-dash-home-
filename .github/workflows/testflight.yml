@@ -72,28 +72,29 @@ jobs:
           mkdir -p "$HOME/private_keys"
           printf '%s\n' "$ASC_API_KEY_P8" > "$HOME/private_keys/AuthKey_${ASC_KEY_ID}.p8"
 
-      - name: Archive (automatic signing)
+      - name: Archive (unsigned — distribution signing happens at export)
         working-directory: apple
         env:
-          ASC_KEY_ID: ${{ secrets.ASC_KEY_ID }}
-          ASC_ISSUER_ID: ${{ secrets.ASC_ISSUER_ID }}
           APPLE_TEAM_ID: ${{ secrets.APPLE_TEAM_ID }}
         run: |
           set -o pipefail
           VERSION=$(git describe --tags --abbrev=0 2>/dev/null | sed 's/^v//')
           [ -n "$VERSION" ] || VERSION=1.0.0
           echo "Building version $VERSION (build $GITHUB_RUN_NUMBER)"
+          # Archive without code signing. Signing for App Store distribution is
+          # done in the export step via the App Store Connect API key, which
+          # generates an "Apple Distribution" profile that needs no registered
+          # devices (unlike the iOS App Development profile that automatic signing
+          # would otherwise request during archive).
           xcodebuild archive \
             -project PRVIOEarth.xcodeproj \
             -scheme PRVIOEarth \
+            -configuration Release \
             -destination 'generic/platform=iOS' \
             -archivePath "$RUNNER_TEMP/PRVIOEarth.xcarchive" \
-            -allowProvisioningUpdates \
-            -authenticationKeyID "$ASC_KEY_ID" \
-            -authenticationKeyIssuerID "$ASC_ISSUER_ID" \
-            -authenticationKeyPath "$HOME/private_keys/AuthKey_${ASC_KEY_ID}.p8" \
             DEVELOPMENT_TEAM="$APPLE_TEAM_ID" \
-            CODE_SIGN_STYLE=Automatic \
+            CODE_SIGNING_ALLOWED=NO \
+            CODE_SIGNING_REQUIRED=NO \
             MARKETING_VERSION="$VERSION" \
             CURRENT_PROJECT_VERSION="$GITHUB_RUN_NUMBER"
 
