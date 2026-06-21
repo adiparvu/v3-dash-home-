@@ -8,6 +8,30 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.6.0] — 2026-06-21
+
+### Added
+- **Full native screen parity with the web client** — the Apple app's More hub now
+  exposes every estate area as a native screen: Zones, Inventory, Maintenance,
+  Notifications, Automations, Sensors, Devices, Documents, Contractors, Search and
+  the AI Assistant, alongside the existing Overview/Properties/Tasks/Profile tabs.
+- **Apple Watch app shipped in the build** — the watchOS companion app is embedded
+  in the iOS archive, so it is delivered to TestFlight together with the iPhone app.
+- **Live operations endpoints** — four new read APIs back the formerly demo-only
+  screens, each scoped to the owner's property by Row Level Security and returning
+  the platform's `{ apiVersion, data }` envelope:
+  - `GET /api/v1/tasks`
+  - `GET /api/v1/maintenance` (status derived from `next_due_at`; asset names resolved)
+  - `GET /api/v1/documents` (human-readable file sizes)
+  - `GET /api/v1/contractors`
+  A shared `lib/data/operations.ts` repository mirrors `lib/data/estate.ts`.
+
+### Changed
+- **Tasks, Maintenance, Documents and Contractors screens are now live** — they
+  fetch from the new endpoints through `CollectionsStore` and show the
+  **Synced** badge, falling back to demo data (with the **Demo** badge) whenever
+  the backend is unreachable or returns no rows.
+
 ## [1.5.0] — 2026-06-21
 
 ### Added

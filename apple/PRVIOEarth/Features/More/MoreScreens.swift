@@ -76,6 +76,14 @@ final class CollectionsStore {
     private(set) var schedulesSource: EstateStore.Source = .demo
     private(set) var sensors: [SensorReading] = DemoData.sensors
     private(set) var sensorsSource: EstateStore.Source = .demo
+    private(set) var tasks: [TaskItem] = DemoData.tasks
+    private(set) var tasksSource: EstateStore.Source = .demo
+    private(set) var maintenance: [MaintenanceItem] = DemoData.maintenance
+    private(set) var maintenanceSource: EstateStore.Source = .demo
+    private(set) var documents: [DocumentItem] = DemoData.documents
+    private(set) var documentsSource: EstateStore.Source = .demo
+    private(set) var contractors: [Contractor] = DemoData.contractors
+    private(set) var contractorsSource: EstateStore.Source = .demo
 
     private let api: APIClient?
     init(api: APIClient?) { self.api = api }
@@ -121,6 +129,50 @@ final class CollectionsStore {
             sensorsSource = items.isEmpty ? .demo : .synced
         } catch {
             sensorsSource = .demo
+        }
+    }
+
+    func loadTasks() async {
+        guard let api else { tasksSource = .demo; return }
+        do {
+            let items = try await api.get("/tasks", as: TasksPayload.self).tasks
+            tasks = items.isEmpty ? DemoData.tasks : items
+            tasksSource = items.isEmpty ? .demo : .synced
+        } catch {
+            tasksSource = .demo
+        }
+    }
+
+    func loadMaintenance() async {
+        guard let api else { maintenanceSource = .demo; return }
+        do {
+            let items = try await api.get("/maintenance", as: MaintenancePayload.self).maintenance
+            maintenance = items.isEmpty ? DemoData.maintenance : items
+            maintenanceSource = items.isEmpty ? .demo : .synced
+        } catch {
+            maintenanceSource = .demo
+        }
+    }
+
+    func loadDocuments() async {
+        guard let api else { documentsSource = .demo; return }
+        do {
+            let items = try await api.get("/documents", as: DocumentsPayload.self).documents
+            documents = items.isEmpty ? DemoData.documents : items
+            documentsSource = items.isEmpty ? .demo : .synced
+        } catch {
+            documentsSource = .demo
+        }
+    }
+
+    func loadContractors() async {
+        guard let api else { contractorsSource = .demo; return }
+        do {
+            let items = try await api.get("/contractors", as: ContractorsPayload.self).contractors
+            contractors = items.isEmpty ? DemoData.contractors : items
+            contractorsSource = items.isEmpty ? .demo : .synced
+        } catch {
+            contractorsSource = .demo
         }
     }
 }
@@ -258,12 +310,15 @@ struct NotificationsView: View {
     }
 }
 
-// MARK: - Demo-only domain screens (no v1 endpoint yet)
+// MARK: - Operations screens (live via CollectionsStore, demo fallback)
 
 struct TasksView: View {
+    @Environment(AuthStore.self) private var auth
+    @State private var store: CollectionsStore?
+
     var body: some View {
-        ListPage(title: "Tasks", source: .demo) {
-            ForEach(DemoData.tasks) { task in
+        ListPage(title: "Tasks", source: store?.tasksSource) {
+            ForEach(store?.tasks ?? []) { task in
                 GlassRow(icon: symbol(for: task.status),
                          iconColor: color(for: task.priority),
                          title: task.title,
@@ -271,49 +326,70 @@ struct TasksView: View {
                          trailing: task.status.replacingOccurrences(of: "_", with: " "))
             }
         }
+        .task {
+            if store == nil { store = CollectionsStore(api: auth.api) }
+            await store?.loadTasks()
+        }
     }
     private func symbol(for status: String) -> String {
-        status == "done" ? "checkmark.circle.fill" : "circle"
+        (status == "done" || status == "completed") ? "checkmark.circle.fill" : "circle"
     }
     private func color(for priority: String?) -> Color {
         switch priority {
-        case "high": return Theme.orange
-        case "medium": return Theme.amber
+        case "urgent", "high": return Theme.orange
+        case "medium", "normal": return Theme.amber
         default: return Theme.accent
         }
     }
 }
 
 struct MaintenanceView: View {
+    @Environment(AuthStore.self) private var auth
+    @State private var store: CollectionsStore?
+
     var body: some View {
-        ListPage(title: "Maintenance", source: .demo) {
-            ForEach(DemoData.maintenance) { m in
+        ListPage(title: "Maintenance", source: store?.maintenanceSource) {
+            ForEach(store?.maintenance ?? []) { m in
                 GlassRow(icon: "wrench.and.screwdriver.fill",
                          iconColor: m.status == "overdue" ? Theme.orange : Theme.amber,
                          title: m.title, subtitle: m.asset,
                          trailing: m.due, trailingColor: m.status == "overdue" ? Theme.orange : Theme.text3)
             }
         }
+        .task {
+            if store == nil { store = CollectionsStore(api: auth.api) }
+            await store?.loadMaintenance()
+        }
     }
 }
 
 struct DocumentsView: View {
+    @Environment(AuthStore.self) private var auth
+    @State private var store: CollectionsStore?
+
     var body: some View {
-        ListPage(title: "Documents", source: .demo) {
-            ForEach(DemoData.documents) { doc in
+        ListPage(title: "Documents", source: store?.documentsSource) {
+            ForEach(store?.documents ?? []) { doc in
                 GlassRow(icon: "doc.fill", iconColor: Theme.cyan,
                          title: doc.name,
                          subtitle: [doc.kind, doc.updatedAt].compactMap { $0 }.joined(separator: " · "),
                          trailing: doc.size)
             }
         }
+        .task {
+            if store == nil { store = CollectionsStore(api: auth.api) }
+            await store?.loadDocuments()
+        }
     }
 }
 
 struct ContractorsView: View {
+    @Environment(AuthStore.self) private var auth
+    @State private var store: CollectionsStore?
+
     var body: some View {
-        ListPage(title: "Contractors", source: .demo) {
-            ForEach(DemoData.contractors) { c in
+        ListPage(title: "Contractors", source: store?.contractorsSource) {
+            ForEach(store?.contractors ?? []) { c in
                 GlassRow(icon: "person.crop.circle.fill",
                          iconColor: (c.isPreferred ?? false) ? Theme.accent : Theme.text2,
                          title: c.name,
@@ -321,6 +397,10 @@ struct ContractorsView: View {
                          trailing: c.rating.map { String(format: "★ %.1f", $0) },
                          trailingColor: Theme.amber)
             }
+        }
+        .task {
+            if store == nil { store = CollectionsStore(api: auth.api) }
+            await store?.loadContractors()
         }
     }
 }

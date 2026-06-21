@@ -142,9 +142,11 @@ struct Contractor: Decodable, Identifiable, Hashable {
     let isPreferred: Bool?
 }
 
-// MARK: - Local / demo-only domain models (no v1 endpoint yet)
+struct ContractorsPayload: Decodable { let contractors: [Contractor] }
 
-struct TaskItem: Identifiable, Hashable {
+// MARK: - Operations: tasks, maintenance, documents
+
+struct TaskItem: Decodable, Identifiable, Hashable {
     let id: String
     let title: String
     let status: String
@@ -152,7 +154,9 @@ struct TaskItem: Identifiable, Hashable {
     let priority: String?
 }
 
-struct MaintenanceItem: Identifiable, Hashable {
+struct TasksPayload: Decodable { let tasks: [TaskItem] }
+
+struct MaintenanceItem: Decodable, Identifiable, Hashable {
     let id: String
     let title: String
     let asset: String?
@@ -160,10 +164,14 @@ struct MaintenanceItem: Identifiable, Hashable {
     let status: String
 }
 
-struct DocumentItem: Identifiable, Hashable {
+struct MaintenancePayload: Decodable { let maintenance: [MaintenanceItem] }
+
+struct DocumentItem: Decodable, Identifiable, Hashable {
     let id: String
     let name: String
     let kind: String?
     let size: String?
     let updatedAt: String?
 }
+
+struct DocumentsPayload: Decodable { let documents: [DocumentItem] }
