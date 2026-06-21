@@ -204,7 +204,7 @@ struct MoreView: View {
             Entry(icon: "bubble.left.and.bubble.right.fill", color: Theme.accent, title: "Chat", subtitle: "Household & collaborators", destination: AnyView(ChatListView())),
             Entry(icon: "magnifyingglass", color: Theme.cyan, title: "Search", subtitle: "Find across the estate", destination: AnyView(SearchView())),
             Entry(icon: "sparkles", color: Theme.violet, title: "AI Assistant", subtitle: "Ask about your estate", destination: AnyView(AIAssistantView())),
-            Entry(icon: "gearshape.fill", color: Theme.text2, title: "Settings", subtitle: "Account, security, about", destination: AnyView(SettingsView())),
+            Entry(icon: "gearshape.fill", color: Theme.text2, title: "Settings", subtitle: "Account, security, appearance, language", destination: AnyView(SettingsHubView())),
         ]
     }
 
@@ -459,39 +459,5 @@ struct HomeKitView: View {
         case "Camera": return "video.fill"
         default: return "homekit"
         }
-    }
-}
-
-// MARK: - Settings
-
-struct SettingsView: View {
-    @Environment(AuthStore.self) private var auth
-
-    var body: some View {
-        ListPage(title: "Settings") {
-            GlassRow(icon: "person.crop.circle.fill", iconColor: Theme.accent,
-                     title: auth.profile?.name ?? "Demo account",
-                     subtitle: auth.profile?.email ?? "Running in demo mode")
-            GlassRow(icon: "faceid", iconColor: Theme.cyan,
-                     title: "Face ID / Touch ID", subtitle: "Unlock the app biometrically",
-                     trailing: "On", trailingColor: Theme.accent)
-            GlassRow(icon: "lock.shield.fill", iconColor: Theme.violet,
-                     title: "Privacy & Security", subtitle: "Sessions, audit log, data export")
-            GlassRow(icon: "info.circle.fill", iconColor: Theme.text2,
-                     title: "About", subtitle: "PRVIO Earth", trailing: appVersion)
-
-            Button(role: .destructive) {
-                Task { await auth.signOut() }
-            } label: {
-                GlassRow(icon: "rectangle.portrait.and.arrow.right",
-                         iconColor: Theme.orange, title: "Sign out")
-            }
-            .buttonStyle(.plain)
-        }
-    }
-
-    private var appVersion: String {
-        let v = Bundle.main.infoDictionary?["CFBundleShortVersionString"] as? String ?? "1.0"
-        return "v\(v)"
     }
 }

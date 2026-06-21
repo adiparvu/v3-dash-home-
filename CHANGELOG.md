@@ -8,6 +8,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+- **Apple redesign — phase 1 (foundations & settings)** — an adaptive light/dark
+  design system (semantic `Theme` colors now resolve per color scheme), a new
+  `AppSettings` store, and a comprehensive **Settings hub** with four new screens:
+  **Appearance** (System/Light/Dark + selectable accent color, applied app-wide),
+  **Language** (System/English/Română, drives regional formatting), **Units &
+  Currency** (metric/imperial + currency), and **Notifications** preferences. The
+  root now applies the chosen color scheme, accent tint and locale.
+
 ## [1.7.0] — 2026-06-21
 
 ### Added

@@ -3,6 +3,7 @@ import SwiftUI
 /// Routes between the auth gate and the main tab interface based on `AuthStore.phase`.
 struct RootView: View {
     @Environment(AuthStore.self) private var auth
+    @Environment(AppSettings.self) private var settings
     @Environment(\.scenePhase) private var scenePhase
 
     var body: some View {
@@ -17,8 +18,9 @@ struct RootView: View {
             }
         }
         .animation(.easeInOut, value: auth.phase)
-        .preferredColorScheme(.dark)
-        .tint(Theme.accent)
+        .preferredColorScheme(settings.colorScheme)
+        .tint(settings.accentColor)
+        .environment(\.locale, settings.locale)
         .onOpenURL { auth.handleCallbackURL($0) } // OAuth / magic-link callback
         .onChange(of: scenePhase) { _, newPhase in auth.handleScenePhase(newPhase) } // auto-lock
     }
