@@ -110,11 +110,16 @@ final class HomeKitStore {
     private final class Delegate: NSObject, HMHomeManagerDelegate {
         weak var store: HomeKitStore?
         init(store: HomeKitStore) { self.store = store }
+        // Capture the (Sendable, main-actor) store reference up front rather than
+        // the nonisolated NSObject `self`, which Swift 6 forbids sending into a
+        // main-actor closure.
         func homeManagerDidUpdateHomes(_ manager: HMHomeManager) {
-            Task { @MainActor in self.store?.refresh() }
+            let store = self.store
+            Task { @MainActor in store?.refresh() }
         }
         func homeManager(_ manager: HMHomeManager, didUpdate status: HMHomeManagerAuthorizationStatus) {
-            Task { @MainActor in self.store?.refresh() }
+            let store = self.store
+            Task { @MainActor in store?.refresh() }
         }
     }
 }
