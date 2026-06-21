@@ -45,11 +45,21 @@ targets:
       path: PRVIOEarth/Resources/Info.plist
       properties:
         CFBundleDisplayName: PRVIO Earth
+        # Required by App Store validation (apps built with the iOS 11+ SDK must
+        # declare the asset-catalog app icon name; GENERATE_INFOPLIST_FILE is NO).
+        CFBundleIconName: AppIcon
         UILaunchScreen: {}
         NSFaceIDUsageDescription: >-
           PRVIO Earth uses Face ID to unlock your private estate data on this device.
+        # iPhone: portrait. iPad must declare all four orientations (App Store
+        # validation requires it for multitasking unless UIRequiresFullScreen).
         UISupportedInterfaceOrientations:
           - UIInterfaceOrientationPortrait
+        UISupportedInterfaceOrientations~ipad:
+          - UIInterfaceOrientationPortrait
+          - UIInterfaceOrientationPortraitUpsideDown
+          - UIInterfaceOrientationLandscapeLeft
+          - UIInterfaceOrientationLandscapeRight
         ITSAppUsesNonExemptEncryption: false
         NSSupportsLiveActivities: true
         UIBackgroundModes:
