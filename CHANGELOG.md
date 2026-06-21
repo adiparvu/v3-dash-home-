@@ -8,6 +8,34 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+- **Phase 8 — push-ready Live Activities (APNs token)** — Live Activities are now
+  requested with `pushType: .token` and `LiveActivityManager` streams
+  `pushTokenUpdates`, capturing the per-activity APNs token for backend-driven
+  updates. Adds the `aps-environment` entitlement and the `remote-notification`
+  background mode. (The server-side APNs sender is the remaining piece.)
+- **Phase 8 — OAuth & magic-link sign-in (Apple client)** — the native app now
+  matches the web's auth options: **Apple / Google OAuth** via
+  `ASWebAuthenticationSession` and **email magic link**, both completed through a
+  `prvio://auth-callback` deep link (`onOpenURL`). Tokens are parsed from the
+  callback (JWT claims decoded for the user id/email) into the Keychain session;
+  password sign-in still works.
+- **Apple client targets the latest stack (iOS 27 / Swift 6 / native Liquid Glass)**
+  — bumped the deployment targets to **iOS/iPadOS/visionOS 27 and watchOS 27**,
+  Swift **6.0**, and replaced the material-based glass approximation with the native
+  SwiftUI **Liquid Glass** API (`.glassEffect`). Requires Xcode 27.
+- **Phase 8 — Apple Watch live sync (WatchConnectivity)** — the Watch app now stays
+  in sync with the paired iPhone. A `WatchBridge` (`Connectivity/`, app + watch
+  targets only) pushes each new `EstateSnapshot` as the WatchConnectivity
+  application context; the Watch ingests it live (seeded snapshot until first sync).
+- **Phase 8 — Secure Enclave for sensitive records** — hardware-backed encryption
+  in the Apple client: `SecureEnclaveCryptor` generates a P-256 key that never
+  leaves the **Secure Enclave** and seals/unseals data via ECIES; `SensitiveVault`
+  persists sealed records at rest with complete file protection. Sealing is silent
+  (public key); revealing uses the private key and requires **user presence**
+  (Face ID / Touch ID / passcode). Demoed by a "Secure note" card on the Profile
+  screen. Completes the last core Phase 8 item.
+
 ### Changed
 - **Release pipeline made generic** — replaced the one-shot v1.1.0 release workflow
   with a reusable, **tag-driven** `Release` workflow (`on: push: tags: v*`, plus a

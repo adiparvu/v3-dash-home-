@@ -50,6 +50,57 @@ struct SupabaseAuthService {
         let _: EmptyResponse = try await post("/auth/v1/otp", body: ["email": email])
     }
 
+    /// The Supabase OAuth authorize URL for a provider, redirecting back to the app.
+    func authorizeURL(provider: String, redirectScheme: String) -> URL? {
+        var comps = URLComponents(
+            url: baseURL.appendingPathComponent("auth/v1/authorize"),
+            resolvingAgainstBaseURL: false
+        )
+        comps?.queryItems = [
+            URLQueryItem(name: "provider", value: provider),
+            URLQueryItem(name: "redirect_to", value: "\(redirectScheme)://auth-callback"),
+        ]
+        return comps?.url
+    }
+
+    /// Build a session from an OAuth / magic-link callback URL whose fragment or
+    /// query carries `access_token` & `refresh_token`.
+    func session(fromCallback url: URL) -> AuthSession? {
+        var items: [URLQueryItem] = []
+        let comps = URLComponents(url: url, resolvingAgainstBaseURL: false)
+        if let fragment = comps?.fragment {
+            items += URLComponents(string: "?\(fragment)")?.queryItems ?? []
+        }
+        items += comps?.queryItems ?? []
+
+        func value(_ name: String) -> String? { items.first { $0.name == name }?.value }
+        guard let accessToken = value("access_token"),
+              let refreshToken = value("refresh_token") else { return nil }
+        let expiresIn = Int(value("expires_in") ?? "3600") ?? 3600
+        let claims = Self.decodeJWT(accessToken)
+        return AuthSession(
+            accessToken: accessToken,
+            refreshToken: refreshToken,
+            expiresAt: Date().addingTimeInterval(TimeInterval(expiresIn)),
+            userId: claims?.sub ?? "",
+            email: claims?.email ?? ""
+        )
+    }
+
+    /// Minimal JWT payload decode (no signature verification — the token came
+    /// straight from Supabase over the authenticated callback).
+    private static func decodeJWT(_ token: String) -> (sub: String, email: String)? {
+        let parts = token.split(separator: ".")
+        guard parts.count >= 2 else { return nil }
+        var b64 = String(parts[1])
+            .replacingOccurrences(of: "-", with: "+")
+            .replacingOccurrences(of: "_", with: "/")
+        while b64.count % 4 != 0 { b64 += "=" }
+        guard let data = Data(base64Encoded: b64),
+              let json = try? JSONSerialization.jsonObject(with: data) as? [String: Any] else { return nil }
+        return (json["sub"] as? String ?? "", json["email"] as? String ?? "")
+    }
+
     func refresh(_ session: AuthSession) async throws -> AuthSession {
         let body = ["refresh_token": session.refreshToken]
         let token: TokenResponse = try await post("/auth/v1/token?grant_type=refresh_token", body: body)

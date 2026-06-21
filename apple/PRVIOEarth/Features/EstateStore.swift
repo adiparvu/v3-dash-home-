@@ -46,18 +46,19 @@ final class EstateStore {
         assets.compactMap(\.currentValue).reduce(0, +)
     }
 
-    /// Publish a compact snapshot for the widget extension (App Group + WidgetKit).
+    /// Publish a compact snapshot for the widget extension (App Group + WidgetKit)
+    /// and push it to the paired Apple Watch via WatchConnectivity.
     private func publishSnapshot() {
-        SharedStore.save(
-            EstateSnapshot(
-                propertyName: properties.first?.name ?? "PRVIO Earth",
-                healthScore: 87,
-                zoneCount: zones.count,
-                objectCount: assets.count,
-                openTasks: 7,
-                nextMaintenance: "Irrigation service · in 3 days",
-                updatedAt: Date()
-            )
+        let snapshot = EstateSnapshot(
+            propertyName: properties.first?.name ?? "PRVIO Earth",
+            healthScore: 87,
+            zoneCount: zones.count,
+            objectCount: assets.count,
+            openTasks: 7,
+            nextMaintenance: "Irrigation service · in 3 days",
+            updatedAt: Date()
         )
+        SharedStore.save(snapshot)
+        WatchBridge.shared.send(snapshot)
     }
 }

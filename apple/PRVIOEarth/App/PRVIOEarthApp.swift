@@ -8,6 +8,7 @@ struct PRVIOEarthApp: App {
         WindowGroup {
             RootView()
                 .environment(auth)
+                .task { WatchBridge.shared.activate() } // pair with the Apple Watch
         }
     }
 }

@@ -6,6 +6,7 @@ struct PRVIOEarthWatchApp: App {
         WindowGroup {
             WatchRootView()
                 .tint(Theme.accent)
+                .task { WatchBridge.shared.activate() } // receive snapshots from iPhone
         }
     }
 }

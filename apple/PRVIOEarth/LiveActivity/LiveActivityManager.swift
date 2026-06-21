@@ -28,15 +28,39 @@ final class LiveActivityManager {
             status: "Scheduled", progress: 0.05, etaMinutes: 45
         )
         do {
-            _ = try Activity.request(
+            // `.token` lets the backend push ContentState updates over APNs.
+            let activity = try Activity.request(
                 attributes: attributes,
-                content: .init(state: initial, staleDate: nil)
+                content: .init(state: initial, staleDate: nil),
+                pushType: .token
             )
+            observePushToken(for: activity)
             return true
         } catch {
             return false
         }
     }
+
+    /// Stream the per-activity APNs push token and hand it to the backend, which
+    /// uses it to push live updates. (No token is delivered on the simulator.)
+    private func observePushToken(for activity: Activity<MaintenanceActivityAttributes>) {
+        Task {
+            for await tokenData in activity.pushTokenUpdates {
+                let hex = tokenData.map { String(format: "%02x", $0) }.joined()
+                await registerPushToken(hex, activityId: activity.id)
+            }
+        }
+    }
+
+    /// Forward the Live Activity push token to the backend. Wire to a versioned
+    /// endpoint (e.g. `POST /api/v1/twin/live-activities`) once it exists; until
+    /// then the token is surfaced for diagnostics.
+    private func registerPushToken(_ token: String, activityId: String) async {
+        latestPushToken = token
+    }
+
+    /// Most recent Live Activity push token (for diagnostics / backend wiring).
+    private(set) var latestPushToken: String?
 
     /// Push a new state to all running maintenance activities.
     func update(status: String, progress: Double, etaMinutes: Int?) async {
