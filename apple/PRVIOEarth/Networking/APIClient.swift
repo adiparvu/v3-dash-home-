@@ -21,11 +21,13 @@ enum APIError: LocalizedError {
 /// Talks to the versioned PRVIO Earth REST API (`/api/v1`). Sends the Supabase
 /// access token as `Authorization: Bearer …` and decodes the `{ apiVersion, data }`
 /// envelope. Stateless; the caller supplies the current access token.
-struct APIClient {
+struct APIClient: Sendable {
     let baseURL: URL
     let anonKey: String?
     /// Async provider for the current access token (from `AuthStore`).
-    let accessToken: () async -> String?
+    /// `@Sendable` so `APIClient` is `Sendable` and safe to use across actors
+    /// (Swift 6 strict concurrency).
+    let accessToken: @Sendable () async -> String?
 
     private static let decoder: JSONDecoder = {
         let d = JSONDecoder()
