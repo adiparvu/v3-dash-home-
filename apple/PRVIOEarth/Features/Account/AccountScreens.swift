@@ -264,13 +264,15 @@ struct SectionHeader: View {
 // MARK: - Relative date helper
 
 enum RelativeDate {
-    private static let iso: ISO8601DateFormatter = {
+    // Read-only, constructed once; Foundation formatters aren't Sendable, so opt
+    // out of Swift 6 static-isolation checking explicitly.
+    private nonisolated(unsafe) static let iso: ISO8601DateFormatter = {
         let f = ISO8601DateFormatter()
         f.formatOptions = [.withInternetDateTime, .withFractionalSeconds]
         return f
     }()
-    private static let isoPlain = ISO8601DateFormatter()
-    private static let rel: RelativeDateTimeFormatter = {
+    private nonisolated(unsafe) static let isoPlain = ISO8601DateFormatter()
+    private nonisolated(unsafe) static let rel: RelativeDateTimeFormatter = {
         let f = RelativeDateTimeFormatter()
         f.unitsStyle = .abbreviated
         return f
