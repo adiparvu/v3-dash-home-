@@ -68,7 +68,7 @@ targets:
       properties:
         com.apple.security.application-groups:
           - group.earth.prvio.app
-        aps-environment: development # APNs for push-updated Live Activities
+        aps-environment: production # APNs for push (production = TestFlight/App Store; flips automatic signing to a Distribution profile)
         com.apple.developer.weatherkit: true # Apple WeatherKit
     settings:
       base:
