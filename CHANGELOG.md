@@ -8,6 +8,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.7.0] — 2026-06-21
+
 ### Added
 - **API rate limiting** — `middleware.ts` now enforces a per-IP fixed-window limit
   over `/api/v1` (120/min default, 20/min for `/api/v1/ai/*`) via `lib/rateLimit.ts`,
