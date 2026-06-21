@@ -74,7 +74,7 @@ struct SignInView: View {
         }
         .padding(24)
         .frame(maxWidth: .infinity, maxHeight: .infinity)
-        .background(Theme.bg1.ignoresSafeArea())
+        .background(AuroraBackground())
     }
 
     private func oauthButton(_ title: String, systemImage: String, provider: String) -> some View {

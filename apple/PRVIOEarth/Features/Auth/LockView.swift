@@ -45,7 +45,7 @@ struct LockView: View {
         }
         .padding(24)
         .frame(maxWidth: .infinity, maxHeight: .infinity)
-        .background(Theme.bg1.ignoresSafeArea())
+        .background(AuroraBackground())
         .task { await auth.unlock() } // prompt immediately on appear
     }
 }

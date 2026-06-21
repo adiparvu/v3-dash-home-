@@ -50,7 +50,7 @@ struct ListPage<Content: View>: View {
             VStack(spacing: 12) { content }
                 .padding(16)
         }
-        .background(Theme.bg1.ignoresSafeArea())
+        .background(AuroraBackground())
         .navigationTitle(title)
         .toolbar {
             if let source {
@@ -225,7 +225,7 @@ struct MoreView: View {
                 }
                 .padding(16)
             }
-            .background(Theme.bg1.ignoresSafeArea())
+            .background(AuroraBackground())
             .navigationTitle("More")
         }
     }

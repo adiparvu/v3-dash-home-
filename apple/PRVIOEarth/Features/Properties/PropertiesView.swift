@@ -18,7 +18,7 @@ struct PropertiesView: View {
             }
             .padding(16)
         }
-        .background(Theme.bg1.ignoresSafeArea())
+        .background(AuroraBackground())
         .navigationTitle("Properties")
         .navigationDestination(for: Property.self) { PropertyDetailView(property: $0) }
         .toolbar {

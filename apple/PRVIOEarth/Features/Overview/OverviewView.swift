@@ -22,7 +22,7 @@ struct OverviewView: View {
                 }
                 .padding(16)
             }
-            .background(Theme.bg1.ignoresSafeArea())
+            .background(AuroraBackground())
             .navigationTitle("Good morning")
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
@@ -67,20 +67,27 @@ struct OverviewView: View {
     }
 
     private var heroCard: some View {
-        ZStack(alignment: .bottomLeading) {
-            RoundedRectangle(cornerRadius: 24, style: .continuous)
-                .fill(LinearGradient(colors: [Color(hex: 0x0D1F35), Color(hex: 0x071830)],
-                                     startPoint: .topLeading, endPoint: .bottomTrailing))
-                .frame(height: 180)
-                .overlay(
-                    RoundedRectangle(cornerRadius: 18, style: .continuous)
-                        .strokeBorder(Theme.accent.opacity(0.4), lineWidth: 1.5)
-                        .padding(28)
-                )
-            Text("\(estate?.zones.count ?? 0) zones · \(estate?.assets.count ?? 0) objects")
-                .font(.caption).foregroundStyle(Theme.text2)
-                .padding(12)
+        VStack(alignment: .leading, spacing: 6) {
+            Text(estate?.properties.first?.name ?? "PRVIO Earth")
+                .font(.largeTitle.bold()).foregroundStyle(Theme.text1)
+            if let line = estate?.properties.first?.locationLine, !line.isEmpty {
+                Text(line).font(.subheadline).foregroundStyle(Theme.text2)
+            }
+            Spacer(minLength: 14)
+            if let value = estate?.properties.first?.currentValue {
+                Text(settings.money(value)).font(.title.bold()).foregroundStyle(Theme.accent)
+                Text("Estate value").font(.caption2).foregroundStyle(Theme.text3)
+            }
         }
+        .frame(maxWidth: .infinity, minHeight: 172, alignment: .leading)
+        .padding(20)
+        .background(
+            RoundedRectangle(cornerRadius: 26, style: .continuous)
+                .fill(LinearGradient(colors: [Theme.accent.opacity(0.20), Theme.violet.opacity(0.10)],
+                                     startPoint: .topLeading, endPoint: .bottomTrailing))
+        )
+        .liquidGlass(cornerRadius: 26)
+        .shadow(color: Theme.accent.opacity(0.22), radius: 22, y: 10)
     }
 
     private var healthAndStats: some View {
@@ -93,6 +100,7 @@ struct OverviewView: View {
                         .trim(from: 0, to: CGFloat(healthScore) / 100)
                         .stroke(Theme.estateGradient, style: StrokeStyle(lineWidth: 8, lineCap: .round))
                         .rotationEffect(.degrees(-90))
+                        .shadow(color: Theme.accent.opacity(0.6), radius: 10)
                     Text("\(healthScore)").font(.title2.bold()).foregroundStyle(Theme.text1)
                 }
                 .frame(width: 76, height: 76)

@@ -8,6 +8,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Changed
+- **Apple visual redesign — "Refined Glass (Aurora)"** — a new app-wide `AuroraBackground`
+  canvas (drifting teal/violet/green glows over a deep base, light/dark adaptive)
+  replaces the flat background behind every screen, giving the Liquid Glass cards real
+  depth. The Home hero is now a glowing glass value card and the health ring gains a
+  luminous accent glow.
+
 ## [1.8.0] — 2026-06-21
 
 ### Added

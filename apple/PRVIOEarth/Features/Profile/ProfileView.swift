@@ -28,7 +28,7 @@ struct ProfileView: View {
                 }
                 .padding(16)
             }
-            .background(Theme.bg1.ignoresSafeArea())
+            .background(AuroraBackground())
             .navigationTitle("Profile")
             .task {
                 if store == nil { store = ProfileStore(api: auth.api) }

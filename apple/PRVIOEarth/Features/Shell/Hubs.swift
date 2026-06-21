@@ -54,7 +54,7 @@ private struct HubScreen: View {
                 }
                 .padding(16)
             }
-            .background(Theme.bg1.ignoresSafeArea())
+            .background(AuroraBackground())
             .navigationTitle(title)
         }
     }

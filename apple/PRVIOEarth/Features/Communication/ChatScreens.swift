@@ -47,7 +47,7 @@ struct ChatListView: View {
                 }
                 .padding(16)
             }
-            .background(Theme.bg1.ignoresSafeArea())
+            .background(AuroraBackground())
             .navigationTitle("Chat")
             .toolbar {
                 ToolbarItem(placement: .topBarTrailing) {
@@ -85,7 +85,7 @@ struct ChatThreadView: View {
             }
             composer
         }
-        .background(Theme.bg1.ignoresSafeArea())
+        .background(AuroraBackground())
         .navigationTitle(room.name)
         .navigationBarTitleDisplayMode(.inline)
         .toolbar {

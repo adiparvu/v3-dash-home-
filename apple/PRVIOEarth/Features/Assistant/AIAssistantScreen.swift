@@ -40,7 +40,7 @@ struct AIAssistantView: View {
             }
             composer
         }
-        .background(Theme.bg1.ignoresSafeArea())
+        .background(AuroraBackground())
         .navigationTitle(identity.name)
         .navigationBarTitleDisplayMode(.inline)
         .toolbar {
