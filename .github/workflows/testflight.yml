@@ -90,22 +90,12 @@ jobs:
           payload=$(printf '{"iss":"%s","iat":%s,"exp":%s,"aud":"appstoreconnect-v1"}' "$ASC_ISSUER_ID" "$now" "$exp" | b64url)
           sig=$(printf '%s.%s' "$header" "$payload" | openssl dgst -sha256 -sign "$KEY" -binary | b64url)
           jwt="$header.$payload.$sig"
-          echo "=== Apps visible to API key (name — bundleId) ==="
+          echo "=== Apps visible to API key (name -- bundleId) ==="
           resp=$(curl -s -H "Authorization: Bearer $jwt" \
             "https://api.appstoreconnect.apple.com/v1/apps?limit=200&fields[apps]=name,bundleId")
-          # Print name + bundleId pairs without needing jq.
-          echo "$resp" | python3 -c 'import sys,json
-try:
-    d=json.load(sys.stdin)
-except Exception as e:
-    print("could not parse response:", e); sys.exit(0)
-apps=d.get("data",[])
-if not apps:
-    print("(no apps returned — this key/team has 0 apps, or insufficient role)")
-    print("raw:", json.dumps(d)[:1500])
-for a in apps:
-    at=a.get("attributes",{})
-    print(f" - {at.get(\"name\")!r}  bundleId={at.get(\"bundleId\")!r}  id={a.get(\"id\")}")'
+          # Print name + bundleId pairs without needing jq (single-line python so
+          # nothing dedents out of this YAML block scalar).
+          printf '%s' "$resp" | python3 -c "import sys,json; d=json.load(sys.stdin); apps=d.get('data',[]); [print(' - name=%r bundleId=%r id=%s' % (a.get('attributes',{}).get('name'), a.get('attributes',{}).get('bundleId'), a.get('id'))) for a in apps] or print('(no apps returned -- this key/team has 0 apps, or insufficient role); raw:', json.dumps(d)[:1500])"
           echo "=== end app list ==="
           set -e
 
