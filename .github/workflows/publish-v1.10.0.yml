@@ -1,0 +1,37 @@
+name: Publish v1.10.0
+
+on:
+  push:
+    branches:
+      - claude/prvio-earth-master-build-t2cw9c
+    paths:
+      - .github/workflows/publish-v1.10.0.yml
+
+permissions:
+  contents: write
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Create release v1.10.0
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          TAG=v1.10.0
+          NUM=1.10.0
+          HEADER="## [$NUM]"
+          awk -v h="$HEADER" 'index($0,h)==1 {flag=1; next} /^## \[/{if(flag) exit} flag' CHANGELOG.md > notes.md
+          [ -s notes.md ] || echo "Release $TAG." > notes.md
+          echo "----- notes -----"; cat notes.md
+          if gh release view "$TAG" --repo "$GITHUB_REPOSITORY" >/dev/null 2>&1; then
+            echo "Release $TAG already exists — nothing to do."; exit 0
+          fi
+          gh release create "$TAG" \
+            --repo "$GITHUB_REPOSITORY" \
+            --title "PRVIO Earth $TAG" \
+            --notes-file notes.md \
+            --target "$GITHUB_SHA"
