@@ -135,7 +135,10 @@ struct ProfileView: View {
             }
             .buttonStyle(.plain)
             Divider().overlay(Theme.glassBorder)
-            settingsRow(icon: "shield.fill", title: "Privacy & Data", subtitle: "GDPR, exports & deletion")
+            NavigationLink { PrivacyView() } label: {
+                settingsRow(icon: "shield.fill", title: "Privacy & Data", subtitle: "GDPR, exports & deletion")
+            }
+            .buttonStyle(.plain)
             Divider().overlay(Theme.glassBorder)
             settingsRow(icon: "bell.fill", title: "Notifications", subtitle: "Alerts & reminders")
         }

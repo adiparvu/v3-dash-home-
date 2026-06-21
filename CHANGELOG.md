@@ -9,6 +9,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 ### Added
+- **Privacy & compliance backend (real, end-to-end)** — migration `013` adds
+  RLS-scoped `consents` and `privacy_requests` tables. New endpoints persist what
+  was previously localStorage-only: `GET/PUT /api/v1/privacy/consents`,
+  `GET/POST /api/v1/privacy/requests` (GDPR/CCPA DSARs; erasure recorded as a
+  pending, audited request — never an immediate destructive action),
+  `GET /api/v1/privacy/export` (structured machine-readable export of the user's
+  data) and `GET /api/v1/privacy/retention`. Every consent change / request /
+  export is written to the immutable audit log. A new Apple **Privacy & Data**
+  screen (consent toggles, data-rights actions, server export via share sheet,
+  request history, retention schedule) and the web privacy page now call these
+  endpoints (server-first export, synced consents/requests).
 - **App Intents & widgets (Apple)** — adds Siri / Spotlight / Shortcuts **App
   Intents** (`EstateStatusIntent` answers estate health + open tasks from the App
   Group snapshot without launching; `OpenAssistantIntent`) via `PrvioShortcuts`.

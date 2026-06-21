@@ -248,6 +248,32 @@ struct DocumentItem: Decodable, Identifiable, Hashable {
 
 struct DocumentsPayload: Decodable { let documents: [DocumentItem] }
 
+// MARK: - Privacy & compliance
+
+struct Consent: Decodable, Identifiable, Hashable {
+    var id: String { consentKey }
+    let consentKey: String
+    let granted: Bool
+}
+struct ConsentsPayload: Decodable { let consents: [Consent] }
+
+struct PrivacyRequestItem: Decodable, Identifiable, Hashable {
+    let id: String
+    let type: String
+    let regulation: String?
+    let status: String
+    let createdAt: String?
+}
+struct PrivacyRequestsPayload: Decodable { let requests: [PrivacyRequestItem] }
+struct PrivacyRequestPayload: Decodable { let request: PrivacyRequestItem }
+
+struct RetentionItem: Decodable, Identifiable, Hashable {
+    var id: String { category }
+    let category: String
+    let period: String
+}
+struct RetentionPayload: Decodable { let retention: [RetentionItem] }
+
 // MARK: - AI knowledge retrieval
 
 struct KnowledgeChunk: Decodable, Identifiable, Hashable {

@@ -49,8 +49,28 @@ struct APIClient: Sendable {
         return try await request(path: path, method: "POST", body: data, as: type)
     }
 
+    func put<T: Decodable>(_ path: String, body: [String: Any], as type: T.Type) async throws -> T {
+        let data = try JSONSerialization.data(withJSONObject: body)
+        return try await request(path: path, method: "PUT", body: data, as: type)
+    }
+
     func delete<T: Decodable>(_ path: String, as type: T.Type) async throws -> T {
         try await request(path: path, method: "DELETE", body: nil, as: type)
+    }
+
+    /// Raw GET that returns the full response body (used for the privacy export
+    /// download, where the payload is shared verbatim as JSON).
+    func getData(_ path: String) async throws -> Data {
+        guard let url = URL(string: "/api/v1" + path, relativeTo: baseURL) else { throw APIError.notConfigured }
+        var req = URLRequest(url: url)
+        req.setValue("application/json", forHTTPHeaderField: "Accept")
+        if let key = anonKey { req.setValue(key, forHTTPHeaderField: "apikey") }
+        if let token = await accessToken() { req.setValue("Bearer \(token)", forHTTPHeaderField: "Authorization") }
+        let (data, response): (Data, URLResponse)
+        do { (data, response) = try await URLSession.shared.data(for: req) }
+        catch { throw APIError.transport(error) }
+        if (response as? HTTPURLResponse)?.statusCode == 401 { throw APIError.unauthorized }
+        return data
     }
 
     private func request<T: Decodable>(path: String, method: String, body: Data?, as type: T.Type) async throws -> T {

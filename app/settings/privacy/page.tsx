@@ -49,8 +49,23 @@ export default function PrivacyPage() {
     return data;
   };
 
-  const exportData = () => {
-    const blob = new Blob([JSON.stringify({ exportedAt: new Date().toISOString(), app: "PRVIO Earth", format: "machine-readable", data: collectData() }, null, 2)], { type: "application/json" });
+  // Map the client consent keys to the backend's snake_case enum.
+  const CONSENT_KEY_MAP: Record<string, string> = {
+    analytics: "analytics", crashReports: "crash_reports", personalization: "personalization",
+    marketing: "marketing", aiProcessing: "ai_processing",
+  };
+
+  const syncConsent = (key: string, granted: boolean) => {
+    const mapped = CONSENT_KEY_MAP[key];
+    if (!mapped) return;
+    fetch("/api/v1/privacy/consents", {
+      method: "PUT", headers: { "Content-Type": "application/json" }, credentials: "include",
+      body: JSON.stringify({ key: mapped, granted }),
+    }).catch(() => {});
+  };
+
+  const downloadJSON = (text: string) => {
+    const blob = new Blob([text], { type: "application/json" });
     const url = URL.createObjectURL(blob);
     const a = document.createElement("a");
     a.href = url;
@@ -61,6 +76,18 @@ export default function PrivacyPage() {
     URL.revokeObjectURL(url);
     setExported(true);
     setTimeout(() => setExported(false), 2500);
+  };
+
+  // Prefer the server-side, machine-readable export; fall back to local data.
+  const exportData = async () => {
+    try {
+      const res = await fetch("/api/v1/privacy/export", { credentials: "include" });
+      if (res.ok) {
+        const json = await res.json();
+        if (json?.data?.export) { downloadJSON(JSON.stringify(json.data.export, null, 2)); return; }
+      }
+    } catch { /* fall back */ }
+    downloadJSON(JSON.stringify({ exportedAt: new Date().toISOString(), app: "PRVIO Earth", format: "machine-readable", data: collectData() }, null, 2));
   };
 
   const deleteAllData = () => {
@@ -75,8 +102,17 @@ export default function PrivacyPage() {
 
   const submitRequest = () => {
     // Portability is fulfilled instantly via local export; others are tracked.
-    if (reqType === "portability") exportData();
+    if (reqType === "portability") void exportData();
     addPrivacyRequest(reqType, reqReg);
+    // Best-effort: persist the request server-side (immutable, audited).
+    const TYPE_MAP: Record<string, string> = {
+      access: "access", portability: "export", erasure: "erasure",
+      rectification: "rectification", restriction: "restriction", objection: "objection", deletion: "erasure",
+    };
+    fetch("/api/v1/privacy/requests", {
+      method: "POST", headers: { "Content-Type": "application/json" }, credentials: "include",
+      body: JSON.stringify({ type: TYPE_MAP[reqType] ?? "access", regulation: String(reqReg).toLowerCase() }),
+    }).catch(() => {});
     setRequestOpen(false);
   };
 
@@ -116,7 +152,7 @@ export default function PrivacyPage() {
                   <p className="text-white text-sm font-medium">{item.label}</p>
                   <p className="text-text-secondary text-xs">{item.desc}</p>
                 </div>
-                <button onClick={() => setConsent(item.key, !consents[item.key])} aria-label={item.label} className="w-11 h-6 rounded-full relative transition-all duration-200 flex-shrink-0" style={{ background: consents[item.key] ? "#4ADE80" : "rgba(255,255,255,0.15)" }}>
+                <button onClick={() => { const v = !consents[item.key]; setConsent(item.key, v); syncConsent(item.key, v); }} aria-label={item.label} className="w-11 h-6 rounded-full relative transition-all duration-200 flex-shrink-0" style={{ background: consents[item.key] ? "#4ADE80" : "rgba(255,255,255,0.15)" }}>
                   <div className="absolute top-0.5 w-5 h-5 rounded-full transition-all duration-200" style={{ left: consents[item.key] ? "calc(100% - 22px)" : "2px", background: consents[item.key] ? "#050A14" : "rgba(255,255,255,0.5)" }} />
                 </button>
               </div>

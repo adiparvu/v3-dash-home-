@@ -121,6 +121,19 @@ enum DemoData {
         MaintenanceItem(id: "m3", title: "Tractor oil change", asset: "Kubota Tractor", due: "overdue", status: "overdue"),
     ]
 
+    static let consentDefaults: [(String, Bool)] = [
+        ("analytics", true), ("crash_reports", true), ("personalization", false),
+        ("marketing", false), ("ai_processing", true),
+    ]
+
+    static let retention: [RetentionItem] = [
+        RetentionItem(category: "Account & identity", period: "Until account deletion"),
+        RetentionItem(category: "Estate records & documents", period: "Until deleted by owner"),
+        RetentionItem(category: "Audit logs", period: "7 years (compliance)"),
+        RetentionItem(category: "Analytics", period: "14 months"),
+        RetentionItem(category: "AI conversations", period: "12 months unless deleted"),
+    ]
+
     static let chatRooms: [ChatRoom] = [
         ChatRoom(id: "general", name: "General", icon: "house.fill", type: "group", unread: 0),
         ChatRoom(id: "estate", name: "Estate Team", icon: "person.3.fill", type: "group", unread: 2),

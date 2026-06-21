@@ -162,6 +162,63 @@ export type Database = {
         }
         Relationships: []
       }
+      consents: {
+        Row: {
+          id: string
+          user_id: string
+          consent_key: string
+          granted: boolean
+          updated_at: string
+        }
+        Insert: {
+          id?: string
+          user_id: string
+          consent_key: string
+          granted?: boolean
+          updated_at?: string
+        }
+        Update: {
+          id?: string
+          user_id?: string
+          consent_key?: string
+          granted?: boolean
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      privacy_requests: {
+        Row: {
+          id: string
+          user_id: string
+          type: string
+          regulation: string | null
+          status: string
+          note: string | null
+          created_at: string
+          resolved_at: string | null
+        }
+        Insert: {
+          id?: string
+          user_id: string
+          type: string
+          regulation?: string | null
+          status?: string
+          note?: string | null
+          created_at?: string
+          resolved_at?: string | null
+        }
+        Update: {
+          id?: string
+          user_id?: string
+          type?: string
+          regulation?: string | null
+          status?: string
+          note?: string | null
+          created_at?: string
+          resolved_at?: string | null
+        }
+        Relationships: []
+      }
       parcels: {
         Row: {
           id: string
@@ -1450,6 +1507,8 @@ export type Zone = Tables<'zones'>
 export type Asset = Tables<'assets'>
 export type AssetQRCode = Tables<'asset_qr_codes'>
 export type PropertyValuation = Tables<'property_valuations'>
+export type Consent = Tables<'consents'>
+export type PrivacyRequest = Tables<'privacy_requests'>
 export type Task = Tables<'tasks'>
 export type Sensor = Tables<'sensors'>
 export type Telemetry = Tables<'telemetry'>
