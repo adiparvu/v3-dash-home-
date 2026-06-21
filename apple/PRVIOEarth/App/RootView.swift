@@ -45,31 +45,16 @@ private enum AppSection: String, CaseIterable, Identifiable {
     }
 }
 
-/// Adapts to the platform: a tab bar on compact widths (iPhone) and a
-/// sidebar split view on regular widths (iPad / Mac Catalyst / Vision Pro).
+/// Tab-based shell shared across iPhone / iPad / Mac (Catalyst) / Vision Pro.
 private struct MainTabView: View {
-    @Environment(\.horizontalSizeClass) private var sizeClass
     @State private var selection: AppSection = .overview
 
     var body: some View {
-        if sizeClass == .compact {
-            TabView(selection: $selection) {
-                ForEach(AppSection.allCases) { section in
-                    section.destination
-                        .tabItem { Label(section.rawValue, systemImage: section.symbol) }
-                        .tag(section)
-                }
-            }
-        } else {
-            NavigationSplitView {
-                List(AppSection.allCases, selection: $selection) { section in
-                    NavigationLink(value: section) {
-                        Label(section.rawValue, systemImage: section.symbol)
-                    }
-                }
-                .navigationTitle("PRVIO Earth")
-            } detail: {
-                selection.destination
+        TabView(selection: $selection) {
+            ForEach(AppSection.allCases) { section in
+                section.destination
+                    .tabItem { Label(section.rawValue, systemImage: section.symbol) }
+                    .tag(section)
             }
         }
     }

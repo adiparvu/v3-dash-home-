@@ -8,8 +8,7 @@ shared across platforms.
 **Phase 8** covers the native Apple clients. Targets:
 
 - **PRVIOEarth** — one multiplatform app: **iPhone + iPad + Mac (Catalyst) +
-  Vision Pro**, with an adaptive layout (tab bar on iPhone, sidebar split view on
-  regular widths).
+  Vision Pro**, sharing one tab-based interface.
 - **PRVIOEarthWidgets** — WidgetKit widgets + Live Activities.
 - **PRVIOEarthWatch** — Apple Watch app.
 
@@ -114,10 +113,9 @@ lives on the **Property detail** screen ("Start maintenance job").
 
 ## Multiplatform & Apple Watch
 
-The `PRVIOEarth` target is a single multiplatform app. `MainTabView` adapts via the
-horizontal size class — a `TabView` on iPhone, a `NavigationSplitView` sidebar on
-iPad / Mac Catalyst / Vision Pro — so all screens are reused unchanged. Mac and
-Vision support is enabled through `SUPPORTS_MACCATALYST` /
+The `PRVIOEarth` target is a single multiplatform app sharing one `TabView`-based
+interface (`MainTabView`) across all devices, so every screen is reused unchanged.
+Mac and Vision support is enabled through `SUPPORTS_MACCATALYST` /
 `SUPPORTS_*_DESIGNED_FOR_IPHONE_IPAD` in `project.yml`.
 
 `PRVIOEarthWatch` is a standalone watchOS app (`WatchRootView`) that reuses the

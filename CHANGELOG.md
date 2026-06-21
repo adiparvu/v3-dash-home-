@@ -8,6 +8,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Fixed
+- **Apple build green on macOS CI (Swift 6 / iOS 26 SDK)** — fixed the issues the
+  new macOS build surfaced: made `APIClient` `Sendable` (`@Sendable` token closure)
+  to satisfy Swift 6 strict concurrency, constructed `SensitiveVault` inside the
+  detached reveal task, and replaced the regular-width `NavigationSplitView` sidebar
+  (whose `List(_:selection:)` initializer is unavailable on iOS) with a `TabView`
+  shared across all devices.
+
 ### Changed
 - **Apple deployment target lowered to 26** — v1.2.0 set iOS/watchOS/visionOS to
   27, but the iOS 27 SDK isn't available on CI / TestFlight build infrastructure
