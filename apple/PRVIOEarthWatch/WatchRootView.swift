@@ -3,7 +3,8 @@ import SwiftUI
 /// Compact estate glance for Apple Watch, reusing the shared `EstateSnapshot`.
 /// (On-watch it shows the demo snapshot until WatchConnectivity sync is added.)
 struct WatchRootView: View {
-    private let s = SharedStore.load()
+    @State private var bridge = WatchBridge.shared
+    private var s: EstateSnapshot { bridge.latest }
 
     var body: some View {
         TabView {

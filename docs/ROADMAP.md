@@ -111,17 +111,19 @@ future track that reuses the same versioned backend contracts.
 | **iPhone SwiftUI app foundation** (`apple/`) — XcodeGen project, shared layer (versioned `APIClient`, Codable models, GoTrue auth, Keychain), Overview / Properties / Profile screens, demo fallback | 🚧 |
 | Face ID / Touch ID unlock + Keychain session storage | 🚧 |
 | iPhone + iPad + Mac (Catalyst) + Vision Pro — one multiplatform target, adaptive layout | 🚧 |
-| Apple Watch app (standalone watchOS target on the shared layer) | 🚧 |
+| Apple Watch app (standalone watchOS target) + WatchConnectivity live sync from iPhone | 🚧 |
 | Home / Lock screen widgets (WidgetKit: Property Status, Tasks) via App Group snapshot | 🚧 |
 | Live Activities (maintenance, deliveries, incidents, inspections) — Lock Screen + Dynamic Island | 🚧 |
 | Secure Enclave key handling for sensitive records (hardware-backed seal/reveal) | 🚧 |
 | **Backend enabler:** `/api/v1` accepts `Authorization: Bearer` (native token auth) | ✅ |
 
-> **Increment 1 (current):** the iPhone app foundation lives under [`apple/`](../apple/).
-> It builds in Xcode on macOS (not compiled in the Linux CI). `/api/v1` now accepts
-> bearer tokens (validated server-side, RLS-scoped), so the native app reads the
-> **same live data** as the web once signed in; with no config it stays in demo
-> mode — see [`apple/README.md`](../apple/README.md).
+> **Apple client** lives under [`apple/`](../apple/) and targets the **latest SDKs
+> (iOS/iPadOS/visionOS 27, watchOS 27), Swift 6, and the native SwiftUI Liquid
+> Glass APIs** (requires Xcode 27). It builds in Xcode on macOS (not compiled in
+> the Linux CI). `/api/v1` accepts bearer tokens (validated server-side,
+> RLS-scoped), so the native app reads the **same live data** as the web once
+> signed in; with no config it stays in demo mode — see
+> [`apple/README.md`](../apple/README.md).
 
 ---
 

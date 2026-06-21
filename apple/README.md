@@ -21,7 +21,9 @@ All share the code under `Shared/` and the design system.
 
 ## Requirements
 
-- macOS with **Xcode 15+** (iOS 17 SDK)
+- macOS with **Xcode 27** (iOS 27 SDK) — the app targets iOS/iPadOS/visionOS 27
+  and watchOS 27, builds with **Swift 6**, and uses the native SwiftUI **Liquid
+  Glass** APIs (`.glassEffect`).
 - [XcodeGen](https://github.com/yonyz/XcodeGen) — `brew install xcodegen`
 
 ## Getting started
@@ -120,8 +122,10 @@ Vision support is enabled through `SUPPORTS_MACCATALYST` /
 
 `PRVIOEarthWatch` is a standalone watchOS app (`WatchRootView`) that reuses the
 shared `EstateSnapshot` to show estate health, counts and tasks across vertical
-pages. It currently renders the demo snapshot on-watch; WatchConnectivity sync from
-the paired iPhone is a follow-up.
+pages. It stays in sync with the paired iPhone via **WatchConnectivity**
+(`WatchBridge` in `Connectivity/`, compiled into the app + watch targets only):
+the iPhone pushes each new snapshot as the application context and the Watch
+ingests it live (falling back to the seeded snapshot before the first sync).
 
 ## Backend auth
 
@@ -133,7 +137,6 @@ with a real account. With no configuration the app stays in demo mode.
 
 ## Known follow-ups (deferred)
 
-- WatchConnectivity sync (paired-iPhone → Watch); the Watch shows demo data today.
 - Push-updated Live Activities (APNs); local start/update/end works today.
 - Magic-link / OAuth sign-in (deep-link handling); password sign-in works today.
 - A native visionOS scene (spatial); Vision Pro runs the iPad layout today.

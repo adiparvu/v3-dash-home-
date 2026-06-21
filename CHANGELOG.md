@@ -9,6 +9,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 ### Added
+- **Apple client targets the latest stack (iOS 27 / Swift 6 / native Liquid Glass)**
+  — bumped the deployment targets to **iOS/iPadOS/visionOS 27 and watchOS 27**,
+  Swift **6.0**, and replaced the material-based glass approximation with the native
+  SwiftUI **Liquid Glass** API (`.glassEffect`). Requires Xcode 27.
+- **Phase 8 — Apple Watch live sync (WatchConnectivity)** — the Watch app now stays
+  in sync with the paired iPhone. A `WatchBridge` (`Connectivity/`, app + watch
+  targets only) pushes each new `EstateSnapshot` as the WatchConnectivity
+  application context; the Watch ingests it live (seeded snapshot until first sync).
 - **Phase 8 — Secure Enclave for sensitive records** — hardware-backed encryption
   in the Apple client: `SecureEnclaveCryptor` generates a P-256 key that never
   leaves the **Secure Enclave** and seals/unseals data via ECIES; `SensitiveVault`

@@ -1,21 +1,13 @@
 import SwiftUI
 
-/// A reusable rounded "liquid glass" surface — translucent material with a hairline
-/// border, matching the web client's `.liquid-glass` cards.
+/// A reusable rounded "liquid glass" surface using the native SwiftUI
+/// **Liquid Glass** API (iOS/iPadOS/visionOS 26+, watchOS 26+).
 struct LiquidGlass: ViewModifier {
     var cornerRadius: CGFloat = 22
 
     func body(content: Content) -> some View {
         content
-            .background(.ultraThinMaterial, in: RoundedRectangle(cornerRadius: cornerRadius, style: .continuous))
-            .overlay(
-                RoundedRectangle(cornerRadius: cornerRadius, style: .continuous)
-                    .strokeBorder(Theme.glassBorder, lineWidth: 0.5)
-            )
-            .overlay(
-                RoundedRectangle(cornerRadius: cornerRadius, style: .continuous)
-                    .fill(Theme.glassFill)
-            )
+            .glassEffect(.regular, in: .rect(cornerRadius: cornerRadius))
     }
 }
 
@@ -35,7 +27,7 @@ struct Badge: View {
             .font(.system(size: 10, weight: .medium))
             .padding(.horizontal, 8)
             .padding(.vertical, 3)
-            .background(color.opacity(0.15), in: Capsule())
+            .glassEffect(.regular.tint(color.opacity(0.15)), in: .capsule)
             .foregroundStyle(color)
     }
 }
