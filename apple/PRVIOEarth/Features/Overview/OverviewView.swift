@@ -13,6 +13,7 @@ struct OverviewView: View {
                     liveBadge
                     heroCard
                     healthAndStats
+                    WeatherCard()
                     quickZones
                 }
                 .padding(16)

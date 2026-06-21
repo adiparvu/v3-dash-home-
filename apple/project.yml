@@ -69,6 +69,7 @@ targets:
         com.apple.security.application-groups:
           - group.earth.prvio.app
         aps-environment: development # APNs for push-updated Live Activities
+        com.apple.developer.weatherkit: true # Apple WeatherKit
     settings:
       base:
         PRODUCT_BUNDLE_IDENTIFIER: earth.prvio.app
