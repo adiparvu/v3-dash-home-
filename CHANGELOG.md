@@ -8,6 +8,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.3.0] — 2026-06-21
+
 ### Fixed
 - **Apple build green on macOS CI (Swift 6 / iOS 26 SDK)** — fixed the issues the
   new macOS build surfaced: made `APIClient` `Sendable` (`@Sendable` token closure)
@@ -27,7 +29,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **Apple build in CI + TestFlight workflow** — `.github/workflows/apple.yml` builds
   the native client on a **macOS runner** (XcodeGen + `xcodebuild`, no signing) on
   any `apple/**` change, validating Swift compilation in CI; a manual job archives
-  and uploads to **TestFlight** via an App Store Connect API key. Requires Xcode 27.
+  and uploads to **TestFlight** via an App Store Connect API key. Builds with Xcode 26.
 - **Server-side APNs sender for Live Activities** — completes the push loop. New
   migration `011_live_activities.sql` (RLS-scoped token store), DAL
   (`lib/data/liveActivities.ts`), an APNs helper (`lib/apns.ts`: ES256 provider
@@ -370,7 +372,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Supabase initial schema migration (`supabase/migrations/001_initial_schema.sql`)
   and base architecture documentation (`docs/architecture/system-overview.md`).
 
-[Unreleased]: https://github.com/adiparvu/v3-dash-home-/compare/v1.2.0...HEAD
+[Unreleased]: https://github.com/adiparvu/v3-dash-home-/compare/v1.3.0...HEAD
+[1.3.0]: https://github.com/adiparvu/v3-dash-home-/compare/v1.2.0...v1.3.0
 [1.2.0]: https://github.com/adiparvu/v3-dash-home-/compare/v1.1.0...v1.2.0
 [1.1.0]: https://github.com/adiparvu/v3-dash-home-/compare/v1.0.0...v1.1.0
 [1.0.0]: https://github.com/adiparvu/v3-dash-home-/releases/tag/v1.0.0
