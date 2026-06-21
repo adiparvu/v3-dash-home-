@@ -8,6 +8,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Changed
+- **Release pipeline made generic** — replaced the one-shot v1.1.0 release workflow
+  with a reusable, **tag-driven** `Release` workflow (`on: push: tags: v*`, plus a
+  manual `workflow_dispatch`). It derives the version from the tag and extracts the
+  matching `## [x.y.z]` section from `CHANGELOG.md` for the release notes, using the
+  built-in `GITHUB_TOKEN`.
+
 ## [1.1.0] — 2026-06-21
 
 ### Added
