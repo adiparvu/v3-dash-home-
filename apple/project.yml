@@ -52,6 +52,11 @@ targets:
           - UIInterfaceOrientationPortrait
         ITSAppUsesNonExemptEncryption: false
         NSSupportsLiveActivities: true
+        # OAuth / magic-link deep-link callback (prvio://auth-callback).
+        CFBundleURLTypes:
+          - CFBundleURLName: earth.prvio.app.auth
+            CFBundleURLSchemes:
+              - prvio
         # Injected from Config.xcconfig so secrets stay out of source control.
         SUPABASE_URL: $(SUPABASE_URL)
         SUPABASE_ANON_KEY: $(SUPABASE_ANON_KEY)

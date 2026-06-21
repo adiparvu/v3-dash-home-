@@ -18,6 +18,7 @@ struct RootView: View {
         .animation(.easeInOut, value: auth.phase)
         .preferredColorScheme(.dark)
         .tint(Theme.accent)
+        .onOpenURL { auth.handleCallbackURL($0) } // OAuth / magic-link callback
     }
 }
 

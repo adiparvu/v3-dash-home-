@@ -9,6 +9,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 ### Added
+- **Phase 8 — OAuth & magic-link sign-in (Apple client)** — the native app now
+  matches the web's auth options: **Apple / Google OAuth** via
+  `ASWebAuthenticationSession` and **email magic link**, both completed through a
+  `prvio://auth-callback` deep link (`onOpenURL`). Tokens are parsed from the
+  callback (JWT claims decoded for the user id/email) into the Keychain session;
+  password sign-in still works.
 - **Apple client targets the latest stack (iOS 27 / Swift 6 / native Liquid Glass)**
   — bumped the deployment targets to **iOS/iPadOS/visionOS 27 and watchOS 27**,
   Swift **6.0**, and replaced the material-based glass approximation with the native

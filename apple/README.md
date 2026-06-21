@@ -138,5 +138,9 @@ with a real account. With no configuration the app stays in demo mode.
 ## Known follow-ups (deferred)
 
 - Push-updated Live Activities (APNs); local start/update/end works today.
-- Magic-link / OAuth sign-in (deep-link handling); password sign-in works today.
 - A native visionOS scene (spatial); Vision Pro runs the iPad layout today.
+
+> OAuth (Apple/Google via `ASWebAuthenticationSession`) and email magic-link
+> sign-in are implemented with deep-link handling on the `prvio://auth-callback`
+> URL scheme. Configure that redirect URL in the Supabase dashboard
+> (Authentication → URL Configuration) for the flow to complete.

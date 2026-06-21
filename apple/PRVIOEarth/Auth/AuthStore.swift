@@ -15,6 +15,7 @@ final class AuthStore {
     private(set) var phase: Phase
     private(set) var profile: Profile?
     var errorMessage: String?
+    var infoMessage: String?
     var isWorking = false
 
     private var session: AuthSession?
@@ -62,6 +63,48 @@ final class AuthStore {
         } catch {
             errorMessage = (error as? APIError)?.errorDescription ?? error.localizedDescription
         }
+    }
+
+    /// URL scheme registered in Info.plist for OAuth / magic-link callbacks.
+    static let callbackScheme = "prvio"
+
+    /// OAuth sign-in (e.g. "apple", "google") via a web authentication session.
+    func signInWithOAuth(_ provider: String) async {
+        guard let auth, let url = auth.authorizeURL(provider: provider, redirectScheme: Self.callbackScheme) else { return }
+        isWorking = true; errorMessage = nil; infoMessage = nil
+        defer { isWorking = false }
+        do {
+            let callback = try await WebAuthSession().start(url: url, callbackScheme: Self.callbackScheme)
+            guard let newSession = auth.session(fromCallback: callback) else {
+                throw APIError.server("Sign-in failed.")
+            }
+            persist(newSession)
+            phase = .unlocked
+            await loadProfile()
+        } catch {
+            errorMessage = (error as? APIError)?.errorDescription ?? error.localizedDescription
+        }
+    }
+
+    /// Request an email magic link (completed via the deep-link callback).
+    func sendMagicLink(email: String) async {
+        guard let auth else { return }
+        isWorking = true; errorMessage = nil; infoMessage = nil
+        defer { isWorking = false }
+        do {
+            try await auth.requestMagicLink(email: email)
+            infoMessage = "Check your email for the sign-in link."
+        } catch {
+            errorMessage = (error as? APIError)?.errorDescription ?? error.localizedDescription
+        }
+    }
+
+    /// Handle an incoming `prvio://auth-callback#…` deep link (magic link / OAuth).
+    func handleCallbackURL(_ url: URL) {
+        guard let auth, let newSession = auth.session(fromCallback: url) else { return }
+        persist(newSession)
+        phase = .unlocked
+        Task { await loadProfile() }
     }
 
     func unlock() async {
